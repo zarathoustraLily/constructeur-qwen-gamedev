@@ -1,0 +1,4 @@
+# Dépendances Python de l'usine (Python >= 3.11 ; tomllib et sqlite3 sont dans la bibliothèque standard).
+# Installation hors-ligne : pip download -r requirements.txt -d wheelhouse
+#                           pip install --no-index --find-links wheelhouse -r requirements.txt
+pytest>=8.0
