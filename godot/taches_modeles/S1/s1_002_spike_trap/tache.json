@@ -1,0 +1,8 @@
+{
+ "id": "s1_002_spike_trap",
+ "competence": "S1",
+ "consigne": "Créer la scène res://scenes/spike_trap.tscn, un piège à pointes. Règles : la racine est un Area2D nommé SpikeTrap qui porte le script res://scripts/spike_trap.gd (déjà écrit) ; le piège inflige 2 dégâts ; il a un enfant CollisionShape2D dont la forme est un rectangle de 16 × 16 ; il a un enfant Timer nommé Cooldown, à un seul coup, de 1,5 seconde, qui ne démarre pas tout seul. Ne pas modifier les scripts.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "d6c4ecb3c255984cd99be935766221be06a0de83c3af89f2ff4d48910297876a",
+ "gelee": false
+}

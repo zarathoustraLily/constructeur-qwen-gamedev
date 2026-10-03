@@ -1,0 +1,11 @@
+{
+ "id": "k3_002_duree_dash",
+ "competence": "K3",
+ "consigne": "Un test est rouge : res://tests/test_hero.gd, test_iframes_finissent_avec_le_dash. Le verdict des tests est dans journal_tests.json. Corriger le bug avec le patch le plus petit possible, sans modifier les tests ; tous les tests doivent passer.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "cef2795d9f9316818282dac2de3fe93d60445e62bb9cc89f8be23d5e642052f7",
+ "gelee": false,
+ "juge": {
+  "patch_max_lignes": 6
+ }
+}

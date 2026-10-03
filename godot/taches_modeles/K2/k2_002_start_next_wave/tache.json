@@ -1,0 +1,8 @@
+{
+ "id": "k2_002_start_next_wave",
+ "competence": "K2",
+ "consigne": "Implémenter le corps de WaveSpawner.start_next_wave dans res://scripts/wave_spawner.gd, en respectant le contrat écrit en commentaire au-dessus de la méthode. Les tests de res://tests/test_wave_spawner.gd et res://tests/test_main.gd sont rouges : ils doivent passer, sans casser les autres. Ne pas changer la signature.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "82a692391c997edfb29bc484d574d38b965afb6e85ec4b9d0af64a24a9c12497",
+ "gelee": false
+}
