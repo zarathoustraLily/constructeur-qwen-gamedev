@@ -1,4 +1,5 @@
-donnees/
+# Données produites par l'usine (racine du dépôt seulement : tests/donnees/ est versionné).
+/donnees/
 config.toml
 .venv/
 __pycache__/

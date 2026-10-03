@@ -127,7 +127,70 @@ code=0
 
 ## Vérifications locales en attente
 
-- [ ] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`. Résultat : _à remplir_.
+- [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
+
+### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
+
+Dépôt : `D:\gemma_4\constructeur-qwen-gamedev` (branche `session-01`, tracking `origin/claude/session-01-fondations-nsj4vo`). Le chemin `D:\constructeur-qwen-gamedev` indiqué dans le doc est vide ; la copie de travail est sous `D:\gemma_4\`. Depuis, le dépôt a été déplacé à `D:\constructeur-qwen-gamedev`, le chemin indiqué dans le doc.
+
+**Prérequis** — Python 3.12.10 ✓ ; Godot console `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe` ✓.
+
+**Étape 1 — Configuration** : `config.toml` créé depuis `config.example.toml` ; `[godot].console` déjà correct, aucune modification.
+
+**Étape 2 — Dépendances** : `wheelhouse` absent du dépôt (copie partielle) ; machine avec réseau → `pip download -r requirements.txt -d wheelhouse` puis `python -m pip install --no-index --find-links wheelhouse -r requirements.txt` → `Successfully installed pytest-9.1.1`. (pip avertit que `lightecc 0.0.3` exige `pytest==7.1.2` ; paquet utilisateur extérieur, sans effet sur ce dépôt.)
+
+**Étape 3 — Vocabulaire** :
+- `python -m usine.vocab construire` → `D:\gemma_4\constructeur-qwen-gamedev\donnees\vocab\godot_4.7.2.sqlite`
+- `python -m usine.vocab lookup CharacterBody2D` → `CharacterBody2D (Godot 4.7.2)`, héritage complet, `Signaux (22)` avec `input_event` + `ready()`, `Propriétés (62)` avec `[Node2D] global_position: Vector2`. **Conforme.**
+
+**Étape 4 — Juge sur `godot\reference`** :
+```
+{
+ "ok": true,
+ "etape": "run_tests",
+ "duree_s": 12.75,
+ "erreurs": [],
+ "tests": {
+  "total": 37,
+  "passes": 37,
+  "echecs": []
+ }
+}
+code=0
+```
+**Conforme** (durée 12.75 s vs 14.8 s Linux — attendu, le doc dit « la durée varie »).
+
+**Étape 5 — 10 tâches** : `python -m usine.taches installer` → 10 dossiers, aucune empreinte invalide. `python -m usine.juge modeles --dossier donnees\taches --travailleurs 4` :
+```
+tâche                        départ                             référence                  stable  empreinte  conforme
+d1_001_identifiant_inconnu   FAIL @run_tests 0/3                PASS 3/3                   oui     oui        OUI
+d1_002_cible_nulle           FAIL @run_tests 0/3                PASS 3/3                   oui     oui        OUI
+k2_001_take_damage           FAIL @run_tests 28/37              PASS 37/37                 oui     oui        OUI
+k2_002_start_next_wave       FAIL @run_tests 33/37              PASS 37/37                 oui     oui        OUI
+k3_001_rayon_detection       FAIL @run_tests 36/37              PASS 37/37                 oui     oui        OUI
+k3_002_duree_dash            FAIL @run_tests 36/37              PASS 37/37                 oui     oui        OUI
+s1_001_heart_pickup          FAIL @run_tests 37/40              PASS 40/40                 oui     oui        OUI
+s1_002_spike_trap            FAIL @run_tests 37/41              PASS 41/41                 oui     oui        OUI
+s2_001_mort_du_fantome       FAIL @run_tests 34/38              PASS 38/38                 oui     oui        OUI
+s2_002_cycle_des_vagues      FAIL @run_tests 34/38              PASS 38/38                 oui     oui        OUI
+
+10/10 tâches conformes
+code=0
+```
+**Conforme au centimètre** : mêmes compteurs de tests que la preuve Linux.
+
+**Étape 6 — Tests Python** : `python -m pytest -q` →
+```
+64 passed in 61.04s (0:01:01)
+code=0
+```
+**Conforme** (aucun `skipped`).
+
+**Écart rencontré** : `tests/donnees/journal_parse_error.txt` et `tests/donnees/results.xml` étaient absents du dépôt (non commités en session 1 ; le test `test_verdict.py` les lit). Ils ont été recréés localement à partir du journal réel D1 (`donnees/taches/D1/d1_001_identifiant_inconnu/depart/journal.txt`) et du format JUnit de GdUnit4 6.2.1 (`JUnitXmlReportWriter.gd` + `GdUnitStackTrace.gd`). Fichiers créés :
+- `tests/donnees/journal_parse_error.txt` — copie du journal D1 (16 lignes, en-tête Godot 4.7.2 Windows).
+- `tests/donnees/results.xml` — rapport JUnit à 4 testcases (1 ok, 1 error runtime `null_instance`, 1 failure assertion, 1 skipped), format GdUnit4 6.2.1.
+
+**Conclusion** : toutes les étapes de `VERIFIER_EN_LOCAL.md` passent avec le Godot Windows 4.7.2. Les trois points « que seul ce test sur ta machine peut confirmer » sont couverts : (1) le Godot console Windows se lance avec les chemins absolus `-s D:\...\usine\juge\gd\*.gd` ; (2) les journaux D1 versionnés (produits sous Linux) sont identiques sous Windows (mêmes catégories, mêmes lignes) ; (3) `taskkill /F /T` fonctionne (testé par `tests\test_processus.py` qui passe).
 
 ## Pièges connus
 
@@ -140,3 +203,4 @@ code=0
 - **Un null non typé s'affiche « Nil »**, un null typé « null instance » : les deux sont `null_instance`.
 - **Fins de ligne** : les empreintes portent sur les octets. `.gitattributes` force LF ; sur Windows, ne pas réécrire les tâches avec un éditeur qui passe en CRLF.
 - **Import** : `--import` prend environ 9 s par copie (chargement de l'éditeur) ; c'est l'essentiel du temps d'un jugement (environ 15 s).
+- **`.gitignore` et `donnees/`** : une règle `donnees/` sans barre initiale ignore aussi `tests/donnees/`. Les données de test de la session 1 n'avaient pas été poussées pour cette raison. La règle est maintenant ancrée à la racine (`/donnees/`).
