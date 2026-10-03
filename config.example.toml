@@ -1,0 +1,29 @@
+# Modèle de configuration : copier en config.toml (ignoré par git) et adapter.
+# Chemins Windows en chaînes littérales TOML ('...') pour garder les antislashs.
+
+[godot]
+version = "4.7.2"
+console = 'D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe'
+editeur = 'D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe'
+# Binaire séparé pour GameDevBench (ses tâches tournent sous 4.4.1)
+console_gamedevbench = 'A_RENSEIGNER'
+
+[llm]
+url = "http://127.0.0.1:8080/v1"
+modele = "qwen3.8-27b"
+cle = "sk-local"            # factice : llama-server l'ignore
+
+[capture]
+port_proxy = 8090           # OpenCode -> proxy (8090) -> llama-server (8080)
+
+[opencode]
+config_globale = '~/.config/opencode/opencode.json'
+
+[chemins]
+donnees = "donnees"
+projets_godot = 'D:\GODOT'
+docs_godot = 'A_RENSEIGNER'  # copie locale du dépôt godot-docs (branche 4.7)
+
+[entrainement]
+base_hf = 'A_RENSEIGNER'     # dossier HF de Qwen3.8-27B, par ex. sous G:\llm_lora_trainer\
+convertisseur_lora = 'A_RENSEIGNER'  # convert_lora_to_gguf.py de llama.cpp

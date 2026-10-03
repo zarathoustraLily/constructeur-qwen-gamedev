@@ -1,0 +1,11 @@
+donnees/
+config.toml
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+godot_bin/
+.godot/
+*.gguf
+*.safetensors
+reports/
