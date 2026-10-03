@@ -50,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     p_l.add_argument("--json", action="store_true", help="sortie JSON")
     p_l.add_argument("--toutes-methodes", action="store_true")
     args = parser.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8")  # console Windows redirigée : éviter cp1252
 
     if args.commande == "construire":
         print(construire(args.json))

@@ -9,3 +9,5 @@ godot_bin/
 *.gguf
 *.safetensors
 reports/
+.usine_rapports/
+*.uid

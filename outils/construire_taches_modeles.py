@@ -495,11 +495,14 @@ def _ecrire(chemin: Path, texte: str) -> None:
 
 
 def _journal_execution(depart: Path) -> str:
-    """Sortie de Godot quand on lance le projet de départ (quelques images), chemins anonymisés."""
+    """Sortie de Godot quand on lance le projet de départ (3 images à pas fixe), chemins anonymisés.
+
+    --fixed-fps rend le nombre de pas physiques indépendant de l'horloge : journal reproductible.
+    """
     with tempfile.TemporaryDirectory(prefix="usine_d1_") as tmp:
         projet = preparer_copie(depart, Path(tmp) / "projet")
         juges.importer(projet)
-        res = executer([cfg.chemin_godot(), "--headless", "--path", projet, "--quit-after", "3"], delai_s=120)
+        res = executer([cfg.chemin_godot(), "--headless", "--path", projet, "--fixed-fps", "60", "--quit-after", "3"], delai_s=120)
         texte = sans_ansi(res.sortie).replace(str(projet), "<projet>")
     return texte.replace("\r\n", "\n")
 

@@ -176,3 +176,31 @@ def verifier_modeles(racine: Path, travailleurs: int = 2) -> bool:
     conformes = sum(r["conforme"] for r in resultats)
     print(f"\n{conformes}/{len(resultats)} tâches conformes")
     return conformes == len(resultats) and bool(resultats)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """python -m usine.taches installer | verifier [dossier]"""
+    import argparse
+    import sys
+
+    sys.stdout.reconfigure(encoding="utf-8")
+    parser = argparse.ArgumentParser(prog="python -m usine.taches")
+    sous = parser.add_subparsers(dest="commande", required=True)
+    sous.add_parser("installer", help="copier godot/taches_modeles vers donnees/taches (empreintes vérifiées)")
+    p = sous.add_parser("verifier", help="vérifier format et empreintes d'un dossier de tâches")
+    p.add_argument("dossier", type=Path, nargs="?", default=cfg.dossier_donnees() / "taches")
+    args = parser.parse_args(argv)
+    if args.commande == "installer":
+        for chemin in installer_modeles():
+            print(chemin)
+        return 0
+    taches = lister_taches(args.dossier)
+    mauvaises = [t for t in taches if not verifier_empreinte(t)]
+    for t in mauvaises:
+        print(f"empreinte invalide : {t}")
+    print(f"{len(taches) - len(mauvaises)}/{len(taches)} tâches valides")
+    return 0 if taches and not mauvaises else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

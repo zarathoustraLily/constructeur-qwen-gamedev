@@ -48,6 +48,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dossier", type=Path, default=cfg.RACINE / "godot" / "taches_modeles")
     p.add_argument("--travailleurs", type=int, default=2)
     args = parser.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8")  # console Windows redirigée : éviter cp1252
 
     if args.commande == "run":
         verdict = juger_projet(args.projet, args.filtre)
