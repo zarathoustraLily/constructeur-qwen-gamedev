@@ -1,0 +1,11 @@
+{
+ "id": "k3_001_rayon_detection",
+ "competence": "K3",
+ "consigne": "Un test est rouge : res://tests/test_ghost.gd, test_poursuite_au_rayon_exact. Le verdict des tests est dans journal_tests.json. Corriger le bug avec le patch le plus petit possible, sans modifier les tests ; tous les tests doivent passer.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "0f620328ecd4e6fe9641e0244d243e7b3b219d8c25c2ff92c366dfc1bb8d41ad",
+ "gelee": false,
+ "juge": {
+  "patch_max_lignes": 6
+ }
+}

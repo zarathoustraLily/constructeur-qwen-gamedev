@@ -1,0 +1,6 @@
+# Fins de ligne LF partout : les empreintes SHA-256 des tâches portent sur les octets exacts.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.png binary
+*.svg text eol=lf

@@ -1,0 +1,13 @@
+{
+ "id": "d1_002_cible_nulle",
+ "competence": "D1",
+ "consigne": "Le fichier journal.txt contient la sortie de Godot quand on lance ce projet en headless. Trouver l'erreur à l'origine du problème et écrire res://reponse.json au format {{\"categorie\": \"...\", \"fichier\": \"res://...\", \"ligne\": N}}, où fichier:ligne est la ligne du script qui provoque l'erreur. Catégories possibles : parse_error, null_instance, invalid_node_path, signal_missing, type_error, missing_resource, autre. Ne modifier aucun autre fichier.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "49fee5a006dd567ba1f645d509003abceaf762aa1dae24b7acf772bce6e270c3",
+ "gelee": false,
+ "juge": {
+  "etapes": [
+   "run_tests"
+  ]
+ }
+}

@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="VieLabel" type="Label" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 160.0
+offset_bottom = 31.0
+text = "Vie : 0/0"
+
+[node name="PiecesLabel" type="Label" parent="."]
+offset_left = 8.0
+offset_top = 32.0
+offset_right = 160.0
+offset_bottom = 55.0
+text = "Pièces : 0"
+
+[node name="VagueLabel" type="Label" parent="."]
+offset_left = 8.0
+offset_top = 56.0
+offset_right = 160.0
+offset_bottom = 79.0
+text = "Vague 0"

@@ -1,0 +1,19 @@
+{
+ "ok": false,
+ "etape": "run_tests",
+ "erreurs": [
+  {
+   "fichier": "res://tests/test_ghost.gd",
+   "ligne": 36,
+   "categorie": "test_failure",
+   "message": "test_ghost:test_poursuite_au_rayon_exact : Expecting: 1 but was 0"
+  }
+ ],
+ "tests": {
+  "total": 37,
+  "passes": 36,
+  "echecs": [
+   "test_ghost:test_poursuite_au_rayon_exact"
+  ]
+ }
+}

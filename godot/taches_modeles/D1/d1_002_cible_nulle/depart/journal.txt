@@ -1,0 +1,38 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.
+          at: Ghost.can_see_target (res://scripts/ghost.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] can_see_target (res://scripts/ghost.gd:28)
+              [1] update_state (res://scripts/ghost.gd:32)
+              [2] _physics_process (res://scripts/ghost.gd:47)
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.
+          at: Ghost.can_see_target (res://scripts/ghost.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] can_see_target (res://scripts/ghost.gd:28)
+              [1] update_state (res://scripts/ghost.gd:32)
+              [2] _physics_process (res://scripts/ghost.gd:47)
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.
+          at: Ghost.can_see_target (res://scripts/ghost.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] can_see_target (res://scripts/ghost.gd:28)
+              [1] update_state (res://scripts/ghost.gd:32)
+              [2] _physics_process (res://scripts/ghost.gd:47)
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.
+          at: Ghost.can_see_target (res://scripts/ghost.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] can_see_target (res://scripts/ghost.gd:28)
+              [1] update_state (res://scripts/ghost.gd:32)
+              [2] _physics_process (res://scripts/ghost.gd:47)
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.
+          at: Ghost.can_see_target (res://scripts/ghost.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] can_see_target (res://scripts/ghost.gd:28)
+              [1] update_state (res://scripts/ghost.gd:32)
+              [2] _physics_process (res://scripts/ghost.gd:47)
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.
+          at: Ghost.can_see_target (res://scripts/ghost.gd:28)
+          GDScript backtrace (most recent call first):
+              [0] can_see_target (res://scripts/ghost.gd:28)
+              [1] update_state (res://scripts/ghost.gd:32)
+              [2] _physics_process (res://scripts/ghost.gd:47)

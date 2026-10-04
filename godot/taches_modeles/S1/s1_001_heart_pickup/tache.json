@@ -1,0 +1,8 @@
+{
+ "id": "s1_001_heart_pickup",
+ "competence": "S1",
+ "consigne": "Créer la scène res://scenes/heart_pickup.tscn, un cœur que le héros ramasse. Règles : la racine est un Area2D nommé HeartPickup qui porte le script res://scripts/heart_pickup.gd (déjà écrit) ; le cœur rend 2 points de vie ; il a un enfant CollisionShape2D dont la forme est un cercle de rayon 5. Ne pas modifier les scripts.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "1c80b2f12ae1b9409d779a719fdc771446a74784eea1848371d05b10e98a15ca",
+ "gelee": false
+}

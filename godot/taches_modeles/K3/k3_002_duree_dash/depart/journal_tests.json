@@ -1,0 +1,31 @@
+{
+ "ok": false,
+ "etape": "run_tests",
+ "erreurs": [
+  {
+   "fichier": "res://tests/test_hero.gd",
+   "ligne": 46,
+   "categorie": "test_failure",
+   "message": "test_hero:test_iframes_finissent_avec_le_dash : Expecting: 'false' but is 'true'"
+  },
+  {
+   "fichier": "res://tests/test_hero.gd",
+   "ligne": 47,
+   "categorie": "test_failure",
+   "message": "test_hero:test_iframes_finissent_avec_le_dash : Expecting: 'false' but is 'true'"
+  },
+  {
+   "fichier": "res://tests/test_hero.gd",
+   "ligne": 48,
+   "categorie": "test_failure",
+   "message": "test_hero:test_iframes_finissent_avec_le_dash : Expecting: 'true' but is 'false'"
+  }
+ ],
+ "tests": {
+  "total": 37,
+  "passes": 36,
+  "echecs": [
+   "test_hero:test_iframes_finissent_avec_le_dash"
+  ]
+ }
+}

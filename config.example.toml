@@ -27,3 +27,7 @@ docs_godot = 'A_RENSEIGNER'  # copie locale du dépôt godot-docs (branche 4.7)
 [entrainement]
 base_hf = 'A_RENSEIGNER'     # dossier HF de Qwen3.8-27B, par ex. sous G:\llm_lora_trainer\
 convertisseur_lora = 'A_RENSEIGNER'  # convert_lora_to_gguf.py de llama.cpp
+
+[juge]
+delai_s = 300               # délai maximal d'un appel à Godot par le juge
+# gdunit4 = 'D:\...\addons\gdUnit4'  # par défaut : godot/reference/addons/gdUnit4 du dépôt

@@ -1,0 +1,8 @@
+{
+ "id": "s2_001_mort_du_fantome",
+ "competence": "S2",
+ "consigne": "Règle : quand le composant de vie d'un fantôme tombe à zéro, le fantôme est vaincu (il émet defeated puis quitte la scène). La logique existe déjà dans res://scripts/ghost.gd ; il manque le câblage. Ajouter la connexion dans res://scenes/ghost.tscn, sans modifier les scripts.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "b41cf8ed1a6298a98bc5e8318bc42d173a862500671761b07f6bf52466ee0498",
+ "gelee": false
+}

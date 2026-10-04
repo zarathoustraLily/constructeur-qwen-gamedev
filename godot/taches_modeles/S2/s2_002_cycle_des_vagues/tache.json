@@ -1,0 +1,8 @@
+{
+ "id": "s2_002_cycle_des_vagues",
+ "competence": "S2",
+ "consigne": "Règles : (1) le HUD affiche le numéro de la vague dès qu'elle commence ; (2) quand une vague est terminée, la suivante démarre. Les méthodes existent déjà dans res://scripts/hud.gd et res://scripts/main.gd ; il manque le câblage. Ajouter les connexions dans res://scenes/main.tscn, sans modifier les scripts.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "eed63f4316c84d9031d25af78aa9b7c163639e21e9753c2b06319408f904aab6",
+ "gelee": false
+}

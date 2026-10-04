@@ -1,0 +1,8 @@
+{
+ "id": "k2_001_take_damage",
+ "competence": "K2",
+ "consigne": "Implémenter le corps de HealthComponent.take_damage dans res://scripts/health_component.gd, en respectant le contrat écrit en commentaire au-dessus de la méthode. Les tests de res://tests/test_health_component.gd sont rouges : ils doivent passer, sans casser les autres. Ne pas changer la signature.",
+ "origine": "modele_manuel_session_01",
+ "empreinte": "d288636022705914a10d92a033981dbe6e396e566ae478c95a916c9cfb37ba7e",
+ "gelee": false
+}
