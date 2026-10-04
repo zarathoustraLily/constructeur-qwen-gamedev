@@ -86,8 +86,13 @@ def lignes_modifiees(avant: Path, apres: Path) -> int:
     return total
 
 
-def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None = None) -> dict[str, Any]:
-    """Juge une tâche : `depart`, `reference` (depart + superposition) ou un projet candidat."""
+def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None = None,
+                repetition: int | None = None) -> dict[str, Any]:
+    """Juge une tâche : `depart`, `reference` (depart + superposition) ou un projet candidat.
+
+    `repetition` (portillon) : passe par le cache des verdicts (usine.juge.cache), une clé par
+    répétition ; None = jugement direct, sans cache.
+    """
     dossier = Path(dossier)
     tache = lire_tache(dossier)
     regles = tache.get("juge", {})
@@ -116,7 +121,11 @@ def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None
             verdict["tache_id"] = tache["id"]
             return verdict
 
-    verdict = juger_projet(source, f"res://{DOSSIER_TESTS_JUGE}", etapes, superpositions, dossier / "tests_caches")
+    if repetition is not None:
+        from usine.juge import cache
+        verdict = cache.juger(source, superpositions, dossier / "tests_caches", etapes, repetition)
+    else:
+        verdict = juger_projet(source, f"res://{DOSSIER_TESTS_JUGE}", etapes, superpositions, dossier / "tests_caches")
     verdict["tache_id"] = tache["id"]
     return verdict
 

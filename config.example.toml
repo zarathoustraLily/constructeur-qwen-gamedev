@@ -31,3 +31,9 @@ convertisseur_lora = 'A_RENSEIGNER'  # convert_lora_to_gguf.py de llama.cpp
 [juge]
 delai_s = 300               # délai maximal d'un appel à Godot par le juge
 # gdunit4 = 'D:\...\addons\gdUnit4'  # par défaut : godot/reference/addons/gdUnit4 du dépôt
+
+[portillon]
+repetitions = 3             # départ rouge et référence verte, N fois sur N
+seuil_mutants = 0.5         # part minimale de mutants de la référence tués par les tests cachés
+mutants_max = 8             # mutants évalués par tâche (tirage déterministe)
+seuil_fragments = 0.8       # Jaccard des fragments de réponse au-delà duquel deux tâches sont des doublons
