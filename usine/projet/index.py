@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from usine.projet.gdscript import TYPES_INTEGRES, Script, lire_script
-from usine.scene.texte import lire_document, type_cle
+from usine.scene.texte import SCENES_IMPORTEES, lire_document, type_cle
 
 DOSSIERS_IGNORES = {"addons", ".godot", ".import", ".usine_rapports", "reports", "tests_juge"}
 
@@ -164,7 +164,12 @@ class Projet:
         return chaine, None
 
     def racine_scene(self, res: str, _vus: tuple[str, ...] = ()) -> tuple[str | None, str | None]:
-        """(type natif, script) du nœud racine d'une scène, en suivant les scènes héritées."""
+        """(type natif, script) du nœud racine d'une scène, en suivant les scènes héritées.
+
+        Une scène importée (modèle .glb, .gltf…) a pour racine un Node3D sans script (réglage
+        d'import par défaut de Godot) ; son fichier binaire ne se lit pas."""
+        if res.lower().endswith(SCENES_IMPORTEES):
+            return "Node3D", None
         texte = self.lire(res)
         if texte is None or res in _vus:
             return None, None

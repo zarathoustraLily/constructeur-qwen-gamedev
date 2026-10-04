@@ -40,6 +40,11 @@ REGLES: list[tuple[str, re.Pattern[str]]] = [
 BRUIT = [
     re.compile(r"remote port number must be between", re.I),
     re.compile(r"Remote Debugger: Unable to connect", re.I),
+    # Bilan de fuites à la fermeture du moteur (sons Ogg encore en lecture, etc.) :
+    # sans localisation et sans effet sur le chargement ni sur les tests.
+    # (« resources still in use at exit », « ObjectDB instances were leaked at exit »,
+    # « RID allocations … were leaked at exit », « Pages in use exist at exit in PagedAllocator »).
+    re.compile(r"\b(?:leaked|in use|exist) at exit\b", re.I),
 ]
 
 _ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")

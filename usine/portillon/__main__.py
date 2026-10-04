@@ -1,6 +1,7 @@
 """CLI du portillon.
 
     python -m usine.portillon chaine [--graine 1] [--sortie donnees] [--travailleurs 4] [--f1 40]
+                                     [--sources reference survivor …] [--completer-gel]
     python -m usine.portillon evaluer <dossier_tache> [--graine 1]
     python -m usine.portillon comparer <rapport1.json> <rapport2.json>
 """
@@ -27,6 +28,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--sortie", type=Path, default=cfg.dossier_donnees())
     p.add_argument("--travailleurs", type=int, default=4)
     p.add_argument("--f1", type=int, default=40)
+    p.add_argument("--sources", nargs="*", default=None, help="projets sources (défaut : tous, voir sources.py)")
+    p.add_argument("--completer-gel", action="store_true",
+                   help="compléter un gel existant (nouvelle source) au lieu de le réutiliser tel quel")
     p = sous.add_parser("evaluer", help="règles du portillon sur une tâche")
     p.add_argument("dossier", type=Path)
     p.add_argument("--graine", type=int, default=1)
@@ -36,7 +40,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.commande == "chaine":
         from usine.portillon.chaine import afficher_rapport, chaine
-        r = chaine(args.sortie, args.graine, args.travailleurs, args.f1)
+        r = chaine(args.sortie, args.graine, args.travailleurs, args.f1, sources=args.sources,
+                   completer_gel=args.completer_gel)
         afficher_rapport(r)
         print(f"Durée : {r['duree_s']} s")
         return 0 if r["acceptees"] and not r["doublons_avec_geles"] else 1

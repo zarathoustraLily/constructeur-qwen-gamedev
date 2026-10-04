@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeResource" format=3]
+
+[ext_resource type="Script" path="res://resources/upgrade.gd" id="1_4kwi4"]
+
+[resource]
+script = ExtResource("1_4kwi4")
+rarity = 1
+id = &"siphon"
+display_name = "Siphon"
+description = "6% chance to recover 1 HP per kill"
+effect = 11
+magnitude = 0.06
+max_stacks = 4
+weight = 0.9

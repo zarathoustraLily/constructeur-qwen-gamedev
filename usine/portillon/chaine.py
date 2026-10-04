@@ -26,7 +26,7 @@ from typing import Any
 from usine.generateurs.produire import produire
 from usine.portillon.dedoublonnage import Index, signature_tache
 from usine.portillon.exclusion import Exclusion
-from usine.portillon.gel import geler
+from usine.portillon.gel import geler, lire_manifeste
 from usine.portillon.regles import Decision, Reglages, evaluer
 from usine.taches import lire_tache, lister_taches
 
@@ -37,13 +37,17 @@ def _ecrire(chemin: Path, texte: str) -> None:
 
 
 def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40, cible_gel: int = 50,
-           part_gel: float = 0.5, afficher=print) -> dict[str, Any]:
+           part_gel: float = 0.5, afficher=print, sources: list[str] | None = None,
+           completer_gel: bool = False) -> dict[str, Any]:
+    """`completer_gel` : un gel existant reçoit des tâches des nouvelles sources (jamais de retrait),
+    à faire avant tout entraînement ; sinon il est réutilisé tel quel."""
     sortie = Path(sortie)
     reglages = Reglages.depuis_config(graine)
     debut = time.monotonic()
 
     afficher("== 1. Production des candidates")
-    prod = produire(sortie / "candidats", graine, nombre_f1=nombre_f1, travailleurs=travailleurs, afficher=afficher)
+    prod = produire(sortie / "candidats", graine, nombre_f1=nombre_f1, travailleurs=travailleurs, afficher=afficher,
+                    sources=sources)
     candidats = sorted(prod.taches, key=lambda d: (d.parent.name, d.name))
 
     afficher(f"== 2. Portillon ({len(candidats)} candidates, {reglages.repetitions} répétitions, "
@@ -78,7 +82,12 @@ def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40
             qualifiees.setdefault(decisions[d].competence, []).append(d)
 
     afficher("== 3. Gel")
-    manifeste = geler(sortie, qualifiees, graine, cible_gel, part_gel)
+    deja = lire_manifeste(sortie)
+    if completer_gel and deja is not None:
+        # Les tâches déjà gelées ne se retirent pas et ne se comptent qu'une fois (gel.tirer).
+        geles_ids = {t["id"] for e in deja["competences"].values() for t in e["taches"]}
+        qualifiees = {c: [d for d in ds if d.name not in geles_ids] for c, ds in qualifiees.items()}
+    manifeste = geler(sortie, qualifiees, graine, cible_gel, part_gel, completer=completer_gel)
     gelees = {t["id"] for e in manifeste["competences"].values() for t in e["taches"]}
     exclusion = Exclusion(manifeste, seuil=reglages.seuil_fragments)
 

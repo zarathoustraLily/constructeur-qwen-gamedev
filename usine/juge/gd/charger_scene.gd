@@ -10,7 +10,29 @@ var _instance: Node = null
 var _fini: bool = false
 
 
+func _profondeur(nom: StringName, bases: Dictionary) -> int:
+	var n := 0
+	while bases.has(nom):
+		nom = bases[nom]
+		n += 1
+	return n
+
+
+## Classes globales chargées de la base vers les dérivées avant la scène (voir charger_script.gd).
+func _charger_classes_globales() -> void:
+	var bases := {}
+	var chemins := {}
+	for c in ProjectSettings.get_global_class_list():
+		bases[c["class"]] = c["base"]
+		chemins[c["class"]] = c["path"]
+	var noms := chemins.keys()
+	noms.sort_custom(func(a, b): return [_profondeur(a, bases), str(a)] < [_profondeur(b, bases), str(b)])
+	for nom in noms:
+		ResourceLoader.load(chemins[nom])
+
+
 func _initialize() -> void:
+	_charger_classes_globales()
 	var args := OS.get_cmdline_user_args()
 	var rapport := {
 		"scene": "",
