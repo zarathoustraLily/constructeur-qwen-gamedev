@@ -1,7 +1,8 @@
 # Vérifier en local (Windows 11, cmd.exe)
 
-Ces commandes rejouent sur ta machine les preuves de fin des sessions 1 et 2, avec ton Godot 4.7.2 Windows.
+Ces commandes rejouent sur ta machine les preuves de fin des sessions 1 à 3, avec ton Godot 4.7.2 Windows.
 Pour la session 2 seule : étapes 1 et 2 si ce n'est pas déjà fait, puis 7 à 9, puis 6.
+Pour la session 3 seule : étape 6, puis 10 et 11 (l'étape 11 est longue : lance-la quand le PC peut tourner une à deux heures).
 Côté machine, **c'est ce document qui fait foi**. Note le résultat dans `ETAT.md`, section « Vérifications locales en attente ».
 
 ## 0. Prérequis
@@ -106,7 +107,7 @@ Si `python -m usine.taches installer` signale une **empreinte invalide**, les fi
 python -m pytest -q
 ```
 
-Attendu : `174 passed` et aucun `skipped` (si Godot est introuvable, les tests moteur apparaissent en `skipped`).
+Attendu : `208 passed` et aucun `skipped` (si Godot est introuvable, les tests moteur apparaissent en `skipped`).
 
 ## 7. Session 2 — aller-retour des scènes (.tscn → spec → .tscn)
 
@@ -182,9 +183,53 @@ Attendu (moins d'une minute ; tout se passe dans une copie temporaire, `godot\re
 - `== faux_juge_reference` : `"etape": "run_tests"`, `"passes": 35` avec `test_hud:test_libelle_pieces` et `test_main:test_hud_affiche_les_pieces` en échec, deux empreintes **identiques**, `=> CONFORME` ;
 - puis `3/3 cas conformes` et `0`.
 
+## 10. Session 3 — une proposition inventée et l'exclusion des jeux gelés
+
+```bat
+python -m usine.generateurs invention tests\donnees\invention_exemple.json --sortie %TEMP%\usine_inv
+echo %ERRORLEVEL%
+```
+
+Attendu **avant** l'étape 11 (aucun gel sur ta machine) : `"ok": true` et un dossier `k3_inv_reference_exemple_fictif_add_coins_…`, puis `0`.
+
+Attendu **après** l'étape 11 : `"ok": false` avec
+`doublon_fragments : la proposition double la tâche gelée k3_reference_game_state_l12_operateur_arithmetique`, puis `1`.
+C'est voulu : l'exemple fictif corrige la même ligne (`coins += amount`) qu'une tâche gelée, et l'exclusion s'applique aussi à l'invention.
+
+## 11. Session 3 — chaîne complète : candidates, portillon, gel, tâches acceptées
+
+Longue (dans le cloud, 4 cœurs : environ 1 h 40 sans cache). Les verdicts sont mis en cache dans `donnees\cache_juge` : une relance ne refait que ce qui manque.
+
+```bat
+python -m usine.portillon chaine --graine 1 --f1 80
+echo %ERRORLEVEL%
+python -m usine.portillon comparer donnees\portillon\rapport.json preuves\rapport_chaine_graine1.json
+echo %ERRORLEVEL%
+```
+
+Attendu pour la chaîne : le tableau ci-dessous, puis `Doublons avec les jeux gelés dans taches/ : 0` et `0`.
+
+```
+compétence  candidates qualifiées  gelées acceptées  rejets
+D1                   8          8       4         1  doublon_gele 3
+F1                  80         80      40        40  —
+K1                   8          8       4         4  —
+K2                  30         27      13        14  depart_pas_rouge 2, score_mutation_insuffisant 1
+K3                  72         72      36        36  —
+S1                  10         10       5         5  —
+S2                   9          9       4         5  —
+TOTAL              217        214     106       105
+```
+
+Attendu pour `comparer` (rapport Windows contre rapport du cloud, versionné dans `preuves\`) : 7 lignes `identique`, `Résultat identique`, `0`.
+Seule différence admissible : `acceptees_empreintes` sur des tâches `d1_…`, si l'en-tête du journal Godot Windows diffère de Linux. Si c'est le cas, note les ids concernés dans `ETAT.md`. Toute autre différence est un écart à signaler.
+
+Si `donnees\geles\manifeste.json` existe déjà, il est **réutilisé** (le gel ne se refait jamais tout seul). Pour rejouer le tirage, supprime `donnees\geles` avant de lancer la chaîne.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
 - Les journaux D1 versionnés ont été produits sous Linux. Sous Windows, les numéros de ligne et les catégories sont identiques ; seul le texte d'en-tête du moteur peut différer. Le test D1 ne lit que `reponse.json`, donc le verdict ne change pas.
 - Session 2 : le remplacement atomique `os.replace` sur NTFS, et le chargement par ton Godot Windows des scènes réécrites et resauvées (colonnes Godot et = Godot de l'étape 7).
 - La coupure sur délai utilise `taskkill /F /T /PID <pid lancé par nous>` (testé par `tests\test_processus.py`).
+- Session 3 : les mesures faites par Godot Windows (interfaces K1, état des scènes S1, mesures F1 en frames) donnent les mêmes vérités terrain que sous Linux, donc les mêmes empreintes (étape 11, `comparer`).

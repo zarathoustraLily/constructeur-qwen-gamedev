@@ -1,0 +1,27 @@
+{
+ "format": "usine.invention/1",
+ "nom": "exemple_fictif_add_coins",
+ "competence": "K3",
+ "consigne": "Exemple fictif (aucun LLM) : les pièces ramassées ne s'ajoutent pas au total. Corriger GameState.add_coins dans res://scripts/game_state.gd avec le patch le plus petit possible.",
+ "base": "reference",
+ "depart": {
+  "remplacements": [
+   {
+    "fichier": "scripts/game_state.gd",
+    "avant": "\tcoins += amount\n",
+    "apres": "\tcoins = amount\n"
+   }
+  ]
+ },
+ "reference": {
+  "ajouts": {
+   "scripts/game_state.gd": "extends Node\n## État global de la partie (autoload « GameState ») : pièces ramassées.\n\nsignal coins_changed(total: int)\n\nvar coins: int = 0\n\n\nfunc add_coins(amount: int) -> void:\n\tif amount <= 0:\n\t\treturn\n\tcoins += amount\n\tcoins_changed.emit(coins)\n\n\nfunc reset() -> void:\n\tcoins = 0\n\tcoins_changed.emit(coins)\n"
+  }
+ },
+ "tests_caches": {
+  "test_game_state_invente.gd": "extends GdUnitTestSuite\n## Test caché de la proposition fictive : GameState.add_coins.\n\nconst GameStateScript := preload(\"res://scripts/game_state.gd\")\n\n\nfunc test_ajoute_les_pieces() -> void:\n\tvar etat: Node = auto_free(GameStateScript.new())\n\tetat.add_coins(3)\n\tetat.add_coins(2)\n\tassert_int(etat.coins).is_equal(5)\n\n\nfunc test_ignore_les_montants_nuls_ou_negatifs() -> void:\n\tvar etat: Node = auto_free(GameStateScript.new())\n\tetat.add_coins(0)\n\tetat.add_coins(-4)\n\tassert_int(etat.coins).is_equal(0)\n\n\nfunc test_signale_le_nouveau_total() -> void:\n\tvar etat: Node = auto_free(GameStateScript.new())\n\tvar totaux: Array = []\n\tetat.coins_changed.connect(func(total: int) -> void: totaux.append(total))\n\tetat.add_coins(4)\n\tassert_array(totaux).is_equal([4])\n"
+ },
+ "juge": {
+  "patch_max_lignes": 4
+ }
+}

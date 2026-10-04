@@ -29,12 +29,12 @@ from usine.juge.projet import preparer_copie  # noqa: E402
 from usine.juge.verdict import sans_ansi  # noqa: E402
 from usine.processus import executer  # noqa: E402
 from usine.taches import calculer_empreinte  # noqa: E402
+# Gabarits partagés avec les générateurs de la session 3 (texte identique).
+from usine.generateurs.gabarits import CATEGORIES_D1, CONSIGNE_D1, GABARIT_TEST_D1, GABARIT_TEST_S2  # noqa: E402,F401
 
 REFERENCE = RACINE / "godot" / "reference"
 SORTIE = RACINE / "godot" / "taches_modeles"
 ORIGINE = "modele_manuel_session_01"
-CATEGORIES_D1 = ["parse_error", "null_instance", "invalid_node_path", "signal_missing", "type_error",
-                 "missing_resource", "autre"]
 
 
 @dataclass
@@ -233,71 +233,6 @@ func test_blesse_puis_se_recharge() -> void:
 	assert_bool(piege.hit(hero)).is_false()
 	assert_int(hero.health.current_health).is_equal(3)
 '''
-
-# --- Tests S2 : la connexion doit être déclarée dans la scène (pas dans le code) ---------------
-
-GABARIT_TEST_S2 = '''extends GdUnitTestSuite
-## Juge S2 : connexions déclarées dans {scene}.
-
-const SCENE := "{scene}"
-const ATTENDUES := {attendues}
-
-
-func _connexions() -> Array:
-	var etat := (load(SCENE) as PackedScene).get_state()
-	var resultat: Array = []
-	for i in etat.get_connection_count():
-		resultat.append([
-			str(etat.get_connection_source(i)),
-			str(etat.get_connection_signal(i)),
-			str(etat.get_connection_target(i)),
-			str(etat.get_connection_method(i)),
-		])
-	return resultat
-
-
-func test_connexions_declarees_dans_la_scene() -> void:
-	var presentes := _connexions()
-	for attendue in ATTENDUES:
-		assert_array(presentes).contains([attendue])
-'''
-
-GABARIT_TEST_D1 = '''extends GdUnitTestSuite
-## Juge D1 : la réponse res://reponse.json doit donner la bonne catégorie et la bonne position.
-
-const CATEGORIE := "{categorie}"
-const FICHIER := "{fichier}"
-const LIGNE := {ligne}
-
-
-func _reponse() -> Dictionary:
-	if not FileAccess.file_exists("res://reponse.json"):
-		return {{}}
-	var donnees = JSON.parse_string(FileAccess.get_file_as_string("res://reponse.json"))
-	return donnees if donnees is Dictionary else {{}}
-
-
-func test_categorie() -> void:
-	assert_str(str(_reponse().get("categorie", ""))).is_equal(CATEGORIE)
-
-
-func test_fichier() -> void:
-	assert_str(str(_reponse().get("fichier", ""))).is_equal(FICHIER)
-
-
-func test_ligne() -> void:
-	var ligne = _reponse().get("ligne", -1)
-	assert_bool(ligne is float or ligne is int).is_true()
-	assert_int(int(ligne)).is_equal(LIGNE)
-'''
-
-CONSIGNE_D1 = (
-    "Le fichier journal.txt contient la sortie de Godot quand on lance ce projet en headless. "
-    "Trouver l'erreur à l'origine du problème et écrire res://reponse.json au format "
-    '{{"categorie": "...", "fichier": "res://...", "ligne": N}}, où fichier:ligne est la ligne du script '
-    "qui provoque l'erreur. Catégories possibles : " + ", ".join(CATEGORIES_D1) + ". "
-    "Ne modifier aucun autre fichier."
-)
 
 # --- Les 10 tâches ---------------------------------------------------------------------------
 

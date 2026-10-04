@@ -6,7 +6,7 @@
 
 - [x] Session 1 — Vocabulaire, juge commun, projet de référence, 10 tâches
 - [x] Session 2 — Traducteurs déterministes (scène ↔ spec, description du projet, éditions)
-- [ ] Session 3 — Usine à tâches, portillon, jeux gelés
+- [x] Session 3 — Usine à tâches, portillon, jeux gelés
 - [ ] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
 - [ ] Session 5 — Boucle RFT
 - [ ] Session 6 — Mesure
@@ -273,9 +273,124 @@ code=0
 - Session 4 : exposer `describe_project`, `apply_edits`, `scene_write` et `valider_spec` dans le serveur MCP.
 
 
+### Session 3 — 2026-10-04 (branche `claude/session-03-7wu8nc`)
+
+**Fait**
+
+- `usine/generateurs/` :
+  - `operateurs.py` : 13 opérateurs de mutation sur GDScript (comparaison inversée, opérateur arithmétique, constante modifiée, chemin de nœud cassé, connexion supprimée, `await` retiré, mauvais type exporté, appel supprimé, condition niée, signal renommé, booléen inversé, méthode renommée, argument retiré) et sur `.tscn` (connexion supprimée, signal renommé, parent cassé). Chaînes et commentaires masqués avant toute recherche ; énumération déterministe.
+  - `masquage.py` : K2 (corps d'une méthode vidé, contrat `##` gardé) et K1 (script retiré ; consigne = interface ; référence = squelette ; test caché = interface lue par réflexion). **Parseur** : celui de `usine/projet/gdscript.py` (blocs par indentation), pas gdtoolkit : sa grammaire suit Godot 4.x avec retard et il ajouterait `lark` au wheelhouse ; le masquage n'a besoin que des bornes des fonctions, et le juge reste l'autorité.
+  - `mutation.py` : un mutant par ligne (graine), jugé une fois avec les tests du projet → K3 (tests rouges à `run_tests`, `journal_tests.json`, patch ≤ 6 lignes) ou D1 (le journal de lancement localise une erreur catégorisée exactement sur la ligne mutée).
+  - `aller_retour.py` : S1 (scène → spec → consigne gabarit ; l'agent rend une spec écrite par `scene_write`) et S2 (une tâche par connexion retirée). Sources : les 5 scènes du projet + les 5 scènes générées de la session 2. Champ `consigne_a_ecrire: null` réservé à Qwen.
+  - `inverse.py` (F1) : réglages du héros tirés sur une grille, mesurés par le moteur en frames (marche sur 30 images, images de dash, d'invulnérabilité, avant redash, distance du dash).
+  - `mutants.py` : score de mutation d'un dossier de tests (critère C2) ; `score_mutation_tache` prend les mutants dans la zone que la référence change. CLI `python -m usine.generateurs mutants <projet> <tests>`.
+  - `invention.py` : format `usine.invention/1` des propositions de Qwen, validation (schéma, chemins sûrs, tests hors de l'espace de l'agent, vocabulaire réel des `extends`/`type=`), exclusion des gelés. Exemple fictif : `tests/donnees/invention_exemple.json`.
+  - `gabarits.py` : tests cachés et fonctions GDScript de mesure. **La même fonction** produit la vérité terrain (lancée par le générateur sur la référence) et la vérifie (dans le test caché).
+- `usine/portillon/` : `regles.py` (départ rouge et référence verte 3/3, stabilité, score de mutation ≥ 50 %, raisons de rejet), `dedoublonnage.py` (empreinte + fragments de 6 jetons de la **réponse**, Jaccard ≥ 0,8), `gel.py` (tirage reproductible, manifeste), `exclusion.py` (tâche, session enregistrée, texte libre pour le RAG), `difficulte.py` (garder 1 à 6 réussites sur 8, pour la session 5), `chaine.py` + CLI `python -m usine.portillon chaine|evaluer|comparer`.
+- `usine/juge/cache.py` : verdicts indexés par le contenu exact jugé (projet composé, tests cachés, étapes, version de Godot, numéro de répétition). `juger_tache(..., repetition=N)` l'utilise.
+- `config.example.toml` : section `[portillon]`. `outils/construire_taches_modeles.py` importe désormais les gabarits D1/S2 partagés (texte identique, vérifié).
+- Tests : `test_operateurs.py`, `test_generateurs.py`, `test_portillon.py`, `test_generateurs_godot.py` ; preuve versionnée `preuves/rapport_chaine_graine1.json`.
+
+**Choix**
+
+- **Gel** : min(50, ⌊0,5 × qualifiées⌋) par compétence. Avec un seul petit projet source, geler 50 tâches viderait l'entraînement ; la part de 0,5 en garde la moitié. Aucune compétence n'atteint encore 50 (`complet: false` dans le manifeste). Le manifeste n'est jamais réécrit ; `geler(..., completer=True)` ajoute sans retirer, à faire avant le premier entraînement.
+- **Doublons** : on compare les réponses (zones que la référence change, avec 3 jetons de contexte), pas les consignes : les consignes D1/K3 sont des gabarits presque identiques. Conséquence voulue : 3 D1 sur des lignes `@onready` voisines du même fichier (même catégorie, ligne qui diffère de 1 ou 2) sont des doublons d'une D1 gelée.
+- **Un mutant par ligne** pour K3/D1 : deux mutants d'une même ligne ont la même correction.
+- **Score de mutation** sur au plus 8 mutants par tâche (tirage par graine et id). Critère « sans objet » si aucun mutant ne s'applique à la zone (D1 : la réponse est `reponse.json`).
+- **F1** : `move_and_collide(velocity * dt)` à pas fixe, couches de collision à 0. `move_and_slide` hors d'une image physique prend le delta de rendu (dépend de l'horloge).
+- Volume F1 porté à 80 tirages (`--f1 80`) : avec 40, la chaîne donnait 85 acceptées.
+
+**Preuve de fin** (exécutée dans le cloud, Godot 4.7.2 Linux headless)
+
+`python -m usine.portillon chaine --graine 1 --f1 80` (verdicts de la 1re passe à 40 tirages F1 relus dans le cache)
+
+```
+== 1. Production des candidates
+masquage K2          30 tâches     0 écartés  (0 s)
+masquage K1           8 tâches     0 écartés  (49 s)
+aller-retour S1      10 tâches     0 écartés  (61 s)
+aller-retour S2       9 tâches     0 écartés  (0 s)
+inverse F1           80 tâches     0 écartés  (7 s)
+mutation K3/D1       80 tâches    66 écartés  (46 s)
+== 2. Portillon (217 candidates, 3 répétitions, seuil mutants 50%, 8 mutants max par tâche)
+[...]
+compétence  candidates qualifiées  gelées acceptées  rejets
+D1                   8          8       4         1  doublon_gele 3
+F1                  80         80      40        40  —
+K1                   8          8       4         4  —
+K2                  30         27      13        14  depart_pas_rouge 2, score_mutation_insuffisant 1
+K3                  72         72      36        36  —
+S1                  10         10       5         5  —
+S2                   9          9       4         5  —
+TOTAL              217        214     106       105
+
+Rejets du portillon par raison : depart_pas_rouge 2, doublon_gele 3, score_mutation_insuffisant 1
+Écartés à la génération : d1_journal_sans_erreur_localisee 15, k3_tests_non_executes 23, mutant_survivant 28
+Acceptées : 105 sur 7 compétences (D1, F1, K1, K2, K3, S1, S2)
+Doublons avec les jeux gelés dans taches/ : 0
+Verdicts relus dans le cache : 1052
+Durée : 2822 s
+```
+
+Résultat identique avec la même graine (seconde chaîne complète dans un autre dossier, même cache de verdicts) :
+
+```
+python -m usine.portillon chaine --graine 1 --f1 80 --sortie /tmp/claude-0/run2   → Durée : 203 s
+python -m usine.portillon comparer donnees/portillon/rapport.json /tmp/claude-0/run2/portillon/rapport.json
+acceptees                  identique
+acceptees_empreintes       identique
+gelees                     identique
+rejets_par_raison          identique
+competences                identique
+ecartes_a_la_generation    identique
+doublons_avec_geles        identique
+Résultat identique
+cmp donnees/geles/manifeste.json /tmp/claude-0/run2/geles/manifeste.json   → manifestes identiques
+```
+
+Ce que prouve la seconde passe : génération (217 empreintes), tirage du gel et exclusion sont déterministes. Les verdicts, eux, viennent du cache ; leur stabilité est prouvée par la règle 3/3 de la première passe.
+
+Score de mutation : 199 tâches avec mutants applicables, score moyen 0,86, 94 à 100 %. Rejets détaillés : `k2_…_ghost__physics_process` et `k2_…_hero__physics_process` (aucun test n'appelle `_physics_process` : départ vert), `k2_…_health_component_reset` (0/1 mutant tué).
+
+Invention, exclusion en action : l'exemple fictif est refusé une fois le gel fait, car il corrige la même ligne qu'une K3 gelée :
+
+```
+python -m usine.generateurs invention tests/donnees/invention_exemple.json
+"doublon_fragments : la proposition double la tâche gelée k3_reference_game_state_l12_operateur_arithmetique"
+```
+
+`python -m pytest -q`
+
+```
+208 passed in 200.49s (0:03:20)
+```
+
+**Volumes atteignables par compétence** (projet `godot/reference` seul)
+
+| Compétence | Qualifiées | Limite | Pour monter |
+| --- | --- | --- | --- |
+| K3 | 72 | une par ligne mutable tuée par les tests | plus de projets testés |
+| F1 | 80 (illimité) | grille de 4 paramètres du héros | autres mesures (fantôme, projets 3D) |
+| K2 | 27 | une par méthode testée | plus de projets |
+| S1 | 10 | une par scène | scènes des nouveaux projets |
+| S2 | 9 | une par connexion | idem |
+| K1 | 8 | un par script | idem |
+| D1 | 8 (5 après doublons) | erreurs localisées sur la ligne mutée | opérateurs qui produisent des erreurs moteur |
+| C1, C2, S3, K4, D2, F2 | 0 | pas de générateur dans cette session | sessions suivantes ; C2 a déjà son critère (`mutants.py`) |
+
+Pour atteindre 50 tâches gelées par compétence, il faut d'autres projets sources propres et testés (laurent prévoit un ou deux jeux, dont de la 3D) : les générateurs prennent n'importe quel projet testé en paramètre `source`.
+
+**Reste à faire**
+
+- Exécuter `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 sur la machine Windows.
+- Session 4 : appliquer `Exclusion.texte_exclu` à l'index RAG ; exposer `describe_project`, `apply_edits`, `scene_write`, `valider_spec` en MCP.
+- Session 5 : `Exclusion.session_exclue` sur l'export SFT ; `difficulte.filtrer` sur les essais de Qwen.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
+- [ ] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 (chaîne graine 1, `comparer` avec `preuves\rapport_chaine_graine1.json`).
+  Non exécutée : le 2026-10-04, laurent valide la session 3 sur la preuve cloud (l'étape 11 dure environ 2 h sur sa machine). À refaire avant la session 5 si possible, au moins l'étape 6.
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
@@ -403,3 +518,7 @@ code=0
 - **`PackedScene` n'est pas un tableau** : une vérification de type « commence par Packed » l'avait pris pour un `Packed*Array`.
 - **Écriture de Godot 4.7** relevée par `ResourceSaver.save` : `binds= [...]` avec une espace après `=` ; clés de dictionnaire triées par type Variant puis par valeur ; propriétés égales à leur valeur par défaut omises (le `radius = 10.0` de `ghost.tscn` disparaît).
 - **`ResourceSaver.save` hors éditeur oublie l'uid de la scène** : `resauver_scene.gd` le remet avec `ResourceSaver.set_uid`, comme le fait l'éditeur.
+- **Mesurer dans `_initialize`** (script `extends SceneTree`) : les nœuds ajoutés n'ont pas encore leur `_ready` ni d'espace physique. Les scripts de mesure travaillent dans le premier `_process`.
+- **`move_and_slide` hors image physique** utilise le delta de rendu : mesure non reproductible. F1 utilise `move_and_collide(velocity * dt)`.
+- **`queue_free` attend la fin de l'image** : un héros mesuré puis « libéré » restait dans l'espace et bloquait le suivant. `free()` et couches de collision à 0.
+- **Coût du portillon** : environ 14 jugements par candidate (3 + 3 + jusqu'à 8 mutants), environ 20 s chacun sur 4 cœurs. 1re chaîne complète : 1 h 40. Le cache (`donnees/cache_juge`, clé = contenu jugé) rend les relances rapides.
