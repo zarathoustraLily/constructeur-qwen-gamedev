@@ -33,6 +33,24 @@ def test_codage_json():
     assert ecrire_valeur(6) == "6" and ecrire_valeur(6.0) == "6.0"
 
 
+def test_dictionnaire_trie_comme_godot():
+    # Ordre relevé sur Godot 4.7.2 (ResourceSaver.save) : par type Variant, puis par valeur.
+    paires = [["b", 1], ["a", 2], ["aa", 3], ["B", 4], ["é", 5]]
+    assert ecrire_valeur({"Dictionary": paires}) == '{\n"B": 4,\n"a": 2,\n"aa": 3,\n"b": 1,\n"é": 5\n}'
+    assert ecrire_valeur({"Dictionary": [[3, 1], [1, 2], [2.5, 3]]}) == "{\n1: 2,\n3: 1,\n2.5: 3\n}"
+    assert ecrire_valeur({"Dictionary": [["z", 1], [2, 2], [{"StringName": "y"}, 3]]}) == '{\n2: 2,\n"z": 1,\n&"y": 3\n}'
+
+
+def test_binds_avec_espace_comme_godot():
+    from usine.scene.spec import scene_read
+    texte = ('[gd_scene format=3]\n\n[node name="T" type="Timer"]\n\n'
+             '[connection signal="timeout" from="." to="." method="set_paused" binds= [true]]\n')
+    assert scene_read(texte)["connexions"][0]["binds"] == [True]
+    doc = lire_document(texte)
+    doc.sections[-1].definir_attribut("flags", 3, apres="method")
+    assert doc.texte().endswith('method="set_paused" flags=3 binds= [true]]\n')
+
+
 def test_repli_texte_brut():
     v = lire_valeur_texte('Object(Node,"a":1)')
     assert v == {"godot": 'Object(Node,"a":1)'}

@@ -135,4 +135,4 @@ def test_preuve_godot_aller_retour():
     from usine.scene.preuve import preuve
     lignes = []
     assert preuve(REFERENCE, afficher=lignes.append) == 0, "\n".join(lignes)
-    assert lignes[-1].startswith("10/10 scènes conformes")
+    assert lignes[-1].startswith("20/20 scènes conformes (5 générées, 10 resauvées par Godot)")

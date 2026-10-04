@@ -73,6 +73,8 @@ n'est pas écrit.
 
 Un objet JSON a toujours **une seule clé** : le type. Les nombres suivent l'écriture de Godot 4.7 :
 un flottant isolé garde sa partie décimale (`6.0`), une composante de constructeur non (`320`).
+Les clés d'un dictionnaire sont écrites dans l'ordre de Godot : par type Variant
+(`int` < `float` < `String` < … < `StringName`…), puis par valeur (chaînes par point de code).
 
 ## Écriture (`scene_write`)
 
@@ -85,7 +87,13 @@ Format natif de Godot 4.7.2 (relevé en faisant sauver une scène par Godot) :
 - propriétés d'un nœud : **les natives d'abord** (dans l'ordre de la spec), puis `script`, puis les
   variables du script et les `metadata/…`. C'est l'ordre de Godot, et il compte : une variable de
   script écrite avant `script` serait ignorée au chargement ;
-- un entier donné pour une propriété native flottante s'écrit `2.0`.
+- un entier donné pour une propriété native flottante s'écrit `2.0` ;
+- connexions : `binds= [...]` avec une espace après `=`, comme Godot.
+
+La preuve vérifie que les 5 scènes générées sont **identiques, octet pour octet**, à ce que Godot
+écrit quand il les resauve (colonne `= Godot`). Godot omet en plus les propriétés égales à leur
+valeur par défaut (un `radius = 10.0` de `CircleShape2D` disparaît) ; l'écrivain garde ce que la
+spec donne.
 
 **Identifiants dérivés** (jamais tirés au hasard) :
 
@@ -138,7 +146,9 @@ catégories employées : `vocab_inconnu`, `valeur_invalide`, `signal_missing`, `
 Tout le reste (ordre des sections et des propriétés, valeurs, espaces, fins de ligne) doit être
 identique. La preuve (`python -m usine.scene preuve`) vérifie en plus le **point fixe** (réécrire
 une réécriture redonne les mêmes octets) et compare le `SceneState` que **Godot** charge avant et
-après (`gd/etat_scene.gd`), ce qui ne dépend pas de notre lecteur.
+après (`gd/etat_scene.gd`), ce qui ne dépend pas de notre lecteur. Elle rejoue tout sur les mêmes
+scènes **resauvées par Godot** (`gd/resauver_scene.gd` : chargement puis `ResourceSaver.save`,
+uid conservé comme le fait l'éditeur), pour éprouver le lecteur sur le format de l'éditeur.
 
 Un `.tscn` écrit à la main peut différer après réécriture sur des points que Godot n'écrit
 jamais ainsi : ordre non préfixe, script placé avant des propriétés natives, entier pour une

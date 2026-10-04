@@ -17,8 +17,8 @@ import hashlib
 import re
 from typing import Any
 
-from usine.scene.texte import (Document, Section, ecrire_valeur, echapper, lire_document, references,
-                               remplacer_references, type_cle)
+from usine.scene.texte import (Document, Section, ecrire_valeur, echapper, format_attribut, lire_document,
+                               references, remplacer_references, type_cle)
 
 VERSION_SPEC = 1
 ALPHABET_H5 = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -424,7 +424,7 @@ def scene_write(spec: dict[str, Any], verif=None) -> str:
                 if cle in c:
                     a.append(f"{cle}={ecrire_valeur(c[cle])}")
             if "binds" in c:
-                a.append(f"binds={valeur_fichier(c['binds'])}")
+                a.append(format_attribut("binds", valeur_fichier(c["binds"])))
             lignes.append("[connection " + " ".join(a) + "]\n")
         morceaux.append("\n" + "".join(lignes))
     if spec.get("editables"):

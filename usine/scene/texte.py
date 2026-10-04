@@ -260,6 +260,59 @@ def _composante(x: Any) -> str:
     raise ValueError(f"composante invalide : {x!r}")
 
 
+# Rang des types Variant (énumération Variant::Type de Godot 4) : Godot trie les clés d'un
+# dictionnaire d'abord par type, puis par valeur.
+_RANGS_VARIANT = {
+    "Vector2": 5, "Vector2i": 6, "Rect2": 7, "Rect2i": 8, "Vector3": 9, "Vector3i": 10, "Transform2D": 11,
+    "Vector4": 12, "Vector4i": 13, "Plane": 14, "Quaternion": 15, "AABB": 16, "Basis": 17, "Transform3D": 18,
+    "Projection": 19, "Color": 20, "StringName": 21, "NodePath": 22, "ExtResource": 24, "SubResource": 24,
+    "Dictionary": 27, "PackedByteArray": 29, "PackedInt32Array": 30, "PackedInt64Array": 31,
+    "PackedFloat32Array": 32, "PackedFloat64Array": 33, "PackedStringArray": 34, "PackedVector2Array": 35,
+    "PackedVector3Array": 36, "PackedColorArray": 37, "PackedVector4Array": 38,
+}
+
+
+def _cle_tri_godot(cle: Any) -> tuple:
+    """Clé de tri d'une clé de dictionnaire, comme le fait Godot à l'écriture.
+
+    Le type d'abord (rang Variant), puis la valeur pour les booléens, nombres et chaînes
+    (comparaison par point de code, comme String de Godot). Pour les autres types, l'ordre
+    d'origine est gardé à l'intérieur du type (tri stable).
+    """
+    if cle is None:
+        return (0, 0)
+    if isinstance(cle, bool):
+        return (1, int(cle))
+    if isinstance(cle, int):
+        return (2, cle)
+    if isinstance(cle, float):
+        return (3, cle)
+    if isinstance(cle, str):
+        return (4, cle)
+    if isinstance(cle, list):
+        return (28, 0)
+    if isinstance(cle, dict) and len(cle) == 1:
+        k = next(iter(cle))
+        if k == "float":
+            return (3, {"-inf": float("-inf"), "inf": float("inf")}.get(cle[k], 0.0))
+        if k.startswith("Array["):
+            return (28, 0)
+        if k.startswith("Dictionary"):
+            return (27, 0)
+        return (_RANGS_VARIANT.get(k, 99), 0)
+    return (99, 0)
+
+
+def trier_paires(paires: list) -> list:
+    """Paires [clé, valeur] dans l'ordre où Godot 4.7 écrit un dictionnaire."""
+    return sorted(paires, key=lambda p: _cle_tri_godot(p[0]))
+
+
+def format_attribut(cle: str, brut: str) -> str:
+    """Attribut d'en-tête de section. Godot écrit « binds= [...] », avec une espace."""
+    return f"{cle}= {brut}" if cle == "binds" else f"{cle}={brut}"
+
+
 def type_cle(valeur: dict) -> str:
     """Clé unique d'une valeur typée {"Vector2": [...]}."""
     if len(valeur) != 1:
@@ -297,7 +350,7 @@ def ecrire_valeur(v: Any) -> str:
         return f"{cle}({echapper(contenu)})"
     if cle == "Dictionary" or cle.startswith("Dictionary["):
         corps = "{}" if not contenu else "{\n" + ",\n".join(
-            f"{ecrire_valeur(k)}: {ecrire_valeur(x)}" for k, x in contenu) + "\n}"
+            f"{ecrire_valeur(k)}: {ecrire_valeur(x)}" for k, x in trier_paires(contenu)) + "\n}"
         return corps if cle == "Dictionary" else f"{cle}({corps})"
     if cle.startswith("Array["):
         return f"{cle}({ecrire_valeur(list(contenu))})"
@@ -393,7 +446,7 @@ class Section:
 
     def _reecrire_entete(self) -> None:
         fin = self.entete_brut[len(self.entete_brut.rstrip("\r\n")):] or "\n"
-        self.entete_brut = "[" + " ".join([self.balise] + [f"{k}={b}" for k, b in self.attributs]) + "]" + fin
+        self.entete_brut = "[" + " ".join([self.balise] + [format_attribut(k, b) for k, b in self.attributs]) + "]" + fin
 
     # --- propriétés du corps
     def proprietes(self) -> list[Entree]:

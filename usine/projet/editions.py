@@ -28,7 +28,8 @@ from usine.projet.decrire import alias_scenes
 from usine.projet.gdscript import _FUNC, lire_script, reindenter, unite_indentation
 from usine.projet.index import Projet, Verificateur, lire_texte, res_vers_disque
 from usine.scene.spec import CARACTERES_INTERDITS_NOM, h5, id_interne
-from usine.scene.texte import Document, Entree, Section, echapper, ecrire_valeur, lire_document, references, type_cle
+from usine.scene.texte import (Document, Entree, Section, echapper, ecrire_valeur, format_attribut, lire_document,
+                               references, type_cle)
 
 OPERATIONS = ("add_node", "del_node", "set_property", "attach_script", "connect", "disconnect",
               "add_signal", "add_function", "replace_function", "set_resource_value")
@@ -77,7 +78,7 @@ def retirer_section(doc: Document, section: Section) -> None:
 
 
 def nouvelle_section(balise: str, attributs: list[tuple[str, str]], fl: str = "\n") -> Section:
-    entete = "[" + " ".join([balise] + [f"{k}={b}" for k, b in attributs]) + "]" + fl
+    entete = "[" + " ".join([balise] + [format_attribut(k, b) for k, b in attributs]) + "]" + fl
     return Section(balise, list(attributs), entete)
 
 
