@@ -54,6 +54,9 @@ def main(argv: list[str] | None = None) -> int:
     differences = [k for k in CLES_DETERMINISTES if a.get(k) != b.get(k)]
     for k in CLES_DETERMINISTES:
         print(f"{k:<26} {'identique' if k not in differences else 'DIFFÉRENT'}")
+        if k in differences and isinstance(a.get(k), dict) and isinstance(b.get(k), dict):
+            ids = sorted(i for i in set(a[k]) | set(b[k]) if a[k].get(i) != b[k].get(i))
+            print("    " + ", ".join(ids[:20]) + (f" (et {len(ids) - 20} autres)" if len(ids) > 20 else ""))
     print("Résultat identique" if not differences else "Résultats différents")
     return 0 if not differences else 1
 

@@ -4,6 +4,7 @@ Ces commandes rejouent sur ta machine les preuves de fin des sessions 1 à 3, av
 Pour la session 2 seule : étapes 1 et 2 si ce n'est pas déjà fait, puis 7 à 9, puis 6.
 Pour la session 3 seule : étape 6, puis 10 et 11 (l'étape 11 est longue : lance-la quand le PC peut tourner une à deux heures).
 Pour la session 4 seule : étapes 12 à 16, **environ 15 minutes**. Seule l'étape 13 b est longue, et elle est facultative pour valider la session.
+Pour les jeux sources ajoutés avant la session 5 : étape 17 a, **environ 10 minutes**. L'étape 17 b dure plusieurs heures et elle est **facultative**.
 Côté machine, **c'est ce document qui fait foi**. Note le résultat dans `ETAT.md`, section « Vérifications locales en attente ».
 
 ## 0. Prérequis
@@ -313,6 +314,40 @@ Attendu : pour la session de ta demande, deux lignes du genre
 La seconde ligne liste les outils de l'usine appelés, directement ou par le Code Mode (`tools["usine-godot"].scene_write(...)`) : on attend `scene_write` (ou `apply_edits`) puis `run_tests`. Le fichier est dans `donnees\sessions\`.
 Note dans `ETAT.md` les outils réellement appelés. Si Qwen en appelle d'autres, ce n'est pas un échec : l'usine équipe, elle n'impose rien. Si `lister` affiche `0 sessions`, OpenCode n'est pas passé par le proxy : copie `D:\GODOT\essai_usine\opencode.json` dans le fil.
 
+## 17. Avant la session 5 — les trois jeux sources (survivor, Kenney)
+
+### 17 a. Tests et juge sur les jeux (environ 10 minutes)
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+python -m pytest -q tests\test_sources.py
+echo %ERRORLEVEL%
+python -m usine.juge run godot\survivor
+python -m usine.juge run godot\kenney_platformer
+python -m usine.juge run godot\kenney_racing
+```
+
+Attendu :
+- pytest : `15 passed`, puis `0` ;
+- les trois verdicts : `"ok": true`, `"etape": "run_tests"`, `"erreurs": []`, et `"total"` = `"passes"` = **128**, **29** et **22** respectivement.
+
+Un `"ok": false` ici est un écart à signaler : copie le verdict dans le fil.
+
+### 17 b. FACULTATIF et LONG — refaire le gel à 4 sources
+
+Environ 3 h 20 dans le cloud sur 4 cœurs, sans doute plus sur ta machine. **Ne la lance pas pour valider l'étape** ; lance-la seulement quand le PC peut tourner une soirée.
+Le nouveau gel remplace celui de la session 3 : supprime d'abord `donnees\geles`.
+
+```bat
+rmdir /s /q donnees\geles
+python -m usine.portillon chaine --graine 1 --f1 100
+python -m usine.portillon comparer donnees\portillon\rapport.json preuves\rapport_chaine_multi_graine1.json
+echo %ERRORLEVEL%
+```
+
+Attendu pour la chaîne : `TOTAL 414 378 171 201` sur la dernière ligne du tableau, et `Doublons avec les jeux gelés dans taches/ : 0`. Si tes tâches modèles de la session 1 doublent une tâche gelée, la ligne `Tâches modèles retirées de taches/ …` les nomme : c'est voulu.
+Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreintes` sur des tâches `k3_…` ou `d1_…` (Godot Windows écrit ses journaux autrement que Linux, les verdicts ne changent pas). Les ids qui diffèrent sont listés sous la ligne : copie-les dans le fil.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
@@ -321,3 +356,4 @@ Note dans `ETAT.md` les outils réellement appelés. Si Qwen en appelle d'autres
 - La coupure sur délai utilise `taskkill /F /T /PID <pid lancé par nous>` (testé par `tests\test_processus.py`).
 - Session 3 : les mesures faites par Godot Windows (interfaces K1, état des scènes S1, mesures F1 en frames) donnent les mêmes vérités terrain que sous Linux, donc les mêmes empreintes (étape 11, `comparer`).
 - Session 4 : OpenCode 2.0.6 fusionne bien `provider.<id>.options.baseURL` du projet par-dessus la config globale (étape 16), et lance le serveur MCP avec la commande écrite par la fusion. La compilation des démos par ton Godot Windows donne les mêmes nombres que sous Linux (étape 13 b).
+- Avant la session 5 : les trois jeux sources passent leurs tests sous Godot Windows (étape 17 a), sons Ogg et modèles `.glb` compris.

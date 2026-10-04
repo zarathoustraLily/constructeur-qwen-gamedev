@@ -113,11 +113,19 @@ def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40
         acceptees.append(cible)
 
     # Contrôle final : aucune tâche du dossier d'entraînement (modèles compris) ne double un gel.
+    # Une tâche modèle (godot/taches_modeles, installée à la main) qui double une tâche gelée
+    # quitte le dossier d'entraînement (règle 4) ; `python -m usine.taches installer` la remettrait.
+    modeles_retires = []
+    for t in lister_taches(dossier_taches):
+        if exclusion.tache_exclue(t) and not str(lire_tache(t).get("origine", "")).startswith("generateur:"):
+            modeles_retires.append(t.name)
+            shutil.rmtree(t)
     restants = [t for t in lister_taches(dossier_taches) if exclusion.tache_exclue(t)]
 
     lignes = [json.dumps(decisions[d].ligne(), ensure_ascii=False, sort_keys=True) for d in candidats]
     _ecrire(sortie / "portillon" / "journal.jsonl", "\n".join(lignes) + "\n")
     rapport = _rapport(candidats, decisions, prod.ecartes, manifeste, acceptees, restants, graine, reglages)
+    rapport["modeles_retires"] = sorted(modeles_retires)
     _ecrire(sortie / "portillon" / "rapport.json", json.dumps(rapport, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     rapport["duree_s"] = round(time.monotonic() - debut)
     return rapport
@@ -167,5 +175,7 @@ def afficher_rapport(r: dict[str, Any], afficher=print) -> None:
     afficher("Écartés à la génération : " + (", ".join(f"{k} {v}" for k, v in r["ecartes_a_la_generation"].items()) or "aucun"))
     comps = [c for c, v in r["competences"].items() if v["acceptees"]]
     afficher(f"Acceptées : {len(r['acceptees'])} sur {len(comps)} compétences ({', '.join(comps)})")
+    if r.get("modeles_retires"):
+        afficher(f"Tâches modèles retirées de taches/ (doublent un gel) : {', '.join(r['modeles_retires'])}")
     afficher(f"Doublons avec les jeux gelés dans taches/ : {len(r['doublons_avec_geles'])}")
     afficher(f"Verdicts relus dans le cache : {r['verdicts_depuis_cache']}")
