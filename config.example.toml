@@ -23,6 +23,7 @@ config_globale = '~/.config/opencode/opencode.json'
 donnees = "donnees"
 projets_godot = 'D:\GODOT'
 docs_godot = 'A_RENSEIGNER'  # copie locale du dépôt godot-docs (branche 4.7)
+demos_godot = 'A_RENSEIGNER' # copie locale de godot-demo-projects (tag 4.7-6ad6167)
 
 [entrainement]
 base_hf = 'A_RENSEIGNER'     # dossier HF de Qwen3.8-27B, par ex. sous G:\llm_lora_trainer\
@@ -37,3 +38,7 @@ repetitions = 3             # départ rouge et référence verte, N fois sur N
 seuil_mutants = 0.5         # part minimale de mutants de la référence tués par les tests cachés
 mutants_max = 8             # mutants évalués par tâche (tirage déterministe)
 seuil_fragments = 0.8       # Jaccard des fragments de réponse au-delà duquel deux tâches sont des doublons
+
+[rag]
+vecteurs = false            # true : recherche aussi par vecteurs sqlite-vec (python -m usine.rag vecteurs)
+demos_exclues = []          # projets de démo retirés de l'index, par ex. ["3d/truck_town"] s'il devient source de tâches gelées

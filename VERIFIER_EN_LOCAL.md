@@ -3,6 +3,7 @@
 Ces commandes rejouent sur ta machine les preuves de fin des sessions 1 à 3, avec ton Godot 4.7.2 Windows.
 Pour la session 2 seule : étapes 1 et 2 si ce n'est pas déjà fait, puis 7 à 9, puis 6.
 Pour la session 3 seule : étape 6, puis 10 et 11 (l'étape 11 est longue : lance-la quand le PC peut tourner une à deux heures).
+Pour la session 4 seule : étapes 12 à 16, **environ 15 minutes**. Seule l'étape 13 b est longue, et elle est facultative pour valider la session.
 Côté machine, **c'est ce document qui fait foi**. Note le résultat dans `ETAT.md`, section « Vérifications locales en attente ».
 
 ## 0. Prérequis
@@ -226,6 +227,92 @@ Seule différence admissible : `acceptees_empreintes` sur des tâches `d1_…`, 
 
 Si `donnees\geles\manifeste.json` existe déjà, il est **réutilisé** (le gel ne se refait jamais tout seul). Pour rejouer le tirage, supprime `donnees\geles` avant de lancer la chaîne.
 
+## 12. Session 4 — préparation (une fois, sur le mini-PC connecté)
+
+Deux copies locales en plus du dépôt, à apporter avec lui (clé USB) :
+
+```bat
+cd /d D:\sources
+git clone --depth 1 --branch 4.7 https://github.com/godotengine/godot-docs.git
+git clone --depth 1 --branch 4.7-6ad6167 https://github.com/godotengine/godot-demo-projects.git
+cd /d D:\constructeur-qwen-gamedev
+pip download -r requirements.txt -d wheelhouse
+python -m pip install --no-index --find-links wheelhouse -r requirements.txt
+```
+
+`requirements.txt` contient maintenant `mcp` (SDK MCP officiel) : refaire le wheelhouse. Dans `config.toml`, ajouter (ou corriger) :
+
+```toml
+[chemins]
+docs_godot = 'D:\sources\godot-docs'
+demos_godot = 'D:\sources\godot-demo-projects'
+```
+
+## 13. Session 4 — index de documentation
+
+**a. Obligatoire, quelques secondes** : la documentation seule.
+
+```bat
+python -m usine.rag construire --sans-demos
+python -m usine.rag chercher CharacterBody2D -n 3
+```
+
+Attendu : `pages : 1510   fragments : 25117`, puis en première ligne `1. [exact] CharacterBody2D  (classes/class_characterbody2d.rst)`.
+
+**b. Facultatif, long (environ 15 à 30 minutes, une seule fois)** : avec les exemples vérifiés des démos officielles. Godot importe chaque démo (cela crée un dossier `.godot\` de cache dans `D:\sources\godot-demo-projects\…`) et compile chacun de ses scripts ; seuls ceux qui compilent entrent dans l'index.
+
+```bat
+python -m usine.rag construire
+python -m usine.rag chercher CharacterBody2D -n 4
+python -m usine.rag verifier
+echo %ERRORLEVEL%
+```
+
+Attendu : la ligne `démos : 130 projets, … scripts qui compilent indexés, … écartés` avec les mêmes nombres que dans `ETAT.md` (session 4) ; dans `chercher`, des lignes `[texte] … (demos/…)` ; `verifier` finit par `fragments qui reprennent une tâche : 0` et `0`. Tant que le gel n'existe pas sur ta machine, il n'y a aucune tâche gelée à contrôler : c'est normal, le contrôle complet est refait quand le gel sera complet (avant la session 5).
+
+## 14. Session 4 — proxy de capture et serveur MCP (preuves rejouées)
+
+```bat
+python -m usine.capture preuve
+python -m mcp_serveur.preuve
+```
+
+Attendu : `CONFORME` pour la première ; `12/12 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions).
+
+## 15. Session 4 — brancher l'usine sur un projet
+
+Sur une **copie jetable** du projet de référence (pas sur tes projets) :
+
+```bat
+xcopy /e /i /q godot\reference D:\GODOT\essai_usine
+python outils\opencode_fusion.py D:\GODOT\essai_usine --proxy
+```
+
+Attendu : `D:\GODOT\essai_usine\opencode.json : écrit.`, puis le JSON avec `mcp.usine-godot` (ton `python.exe`, `mcp_serveur\serveur.py`, `--projet D:\GODOT\essai_usine`), `skills.paths` avec `D:\constructeur-qwen-gamedev\skills`, et `provider.<id>.options.baseURL = http://127.0.0.1:8090/v1`.
+Si le script répond `Refus : fournisseur visant http://127.0.0.1:8080/v1 … préciser --fournisseur <id>`, relance avec l'id du fournisseur llama-server de `%USERPROFILE%\.config\opencode\opencode.json` : `--fournisseur <id>`. La config globale n'est jamais modifiée. Pour tout enlever : `--retirer`.
+
+## 16. Session 4 — une vraie session OpenCode enregistrée
+
+1. Lance llama-server comme d'habitude (port 8080).
+2. Dans une **autre** fenêtre cmd, laissée ouverte : `python -m usine.capture proxy`. Attendu : `Proxy de capture : http://127.0.0.1:8090/v1 → http://127.0.0.1:8080/v1`.
+3. Ouvre OpenCode sur `D:\GODOT\essai_usine` et demande : « Ajoute dans la scène principale un piège à pointes (Area2D avec une CollisionShape2D) qui retire 1 PV au héros, puis lance les tests. »
+4. Quand Qwen a fini (sans l'interrompre ni le guider), dans une troisième fenêtre :
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+python -m usine.capture lister
+```
+
+Attendu : pour la session de ta demande, deux lignes du genre
+
+```
+20261005-101500_3f2a9c1b7e04.jsonl  6 échanges, 13 messages, 6 appels d'outils
+    usine-godot : scene_write → run_tests
+```
+
+La seconde ligne liste les outils de l'usine appelés, directement ou par le Code Mode (`tools["usine-godot"].scene_write(...)`) : on attend `scene_write` (ou `apply_edits`) puis `run_tests`. Le fichier est dans `donnees\sessions\`.
+Note dans `ETAT.md` les outils réellement appelés. Si Qwen en appelle d'autres, ce n'est pas un échec : l'usine équipe, elle n'impose rien. Si `lister` affiche `0 sessions`, OpenCode n'est pas passé par le proxy : copie `D:\GODOT\essai_usine\opencode.json` dans le fil.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
@@ -233,3 +320,4 @@ Si `donnees\geles\manifeste.json` existe déjà, il est **réutilisé** (le gel 
 - Session 2 : le remplacement atomique `os.replace` sur NTFS, et le chargement par ton Godot Windows des scènes réécrites et resauvées (colonnes Godot et = Godot de l'étape 7).
 - La coupure sur délai utilise `taskkill /F /T /PID <pid lancé par nous>` (testé par `tests\test_processus.py`).
 - Session 3 : les mesures faites par Godot Windows (interfaces K1, état des scènes S1, mesures F1 en frames) donnent les mêmes vérités terrain que sous Linux, donc les mêmes empreintes (étape 11, `comparer`).
+- Session 4 : OpenCode 2.0.6 fusionne bien `provider.<id>.options.baseURL` du projet par-dessus la config globale (étape 16), et lance le serveur MCP avec la commande écrite par la fusion. La compilation des démos par ton Godot Windows donne les mêmes nombres que sous Linux (étape 13 b).

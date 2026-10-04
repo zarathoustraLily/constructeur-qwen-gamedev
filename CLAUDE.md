@@ -118,7 +118,7 @@ usine/            paquet Python
   capture/        proxy OpenAI-compatible → sessions JSONL
   rft/            essais, filtre, export SFT, conversion GGUF, lanceur multi-LoRA
   mesure/         4 configurations, GameDevBench, rapport
-  rag/            documentation Godot → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
+  rag/            doc Godot 4.7 + démos officielles 4.7 qui compilent → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
 mcp_serveur/      serveur MCP (stdio) qui expose les outils
 skills/           une fiche par compétence (SKILL.md)
 godot/reference/  projet Godot de référence + GdUnit4

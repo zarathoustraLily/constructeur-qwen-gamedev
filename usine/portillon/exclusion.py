@@ -39,6 +39,20 @@ class Exclusion:
     def charger(cls, racine: Path | None = None, **options) -> "Exclusion":
         return cls(lire_manifeste(Path(racine) if racine else cfg.dossier_donnees()), **options)
 
+    @classmethod
+    def depuis_taches(cls, racine: Path, **options) -> "Exclusion":
+        """Exclusion bâtie sur toutes les tâches d'un dossier (`tache.json`), gelées ou non.
+
+        Sert de contrôle plus large que le gel : si aucun texte ne reprend une tâche candidate,
+        aucun ne reprend une tâche gelée (le gel est tiré parmi elles).
+        """
+        from usine.portillon.dedoublonnage import signature_tache
+        competences: dict[str, Any] = {}
+        for fichier in sorted(Path(racine).rglob("tache.json")):
+            sig = signature_tache(fichier.parent)
+            competences.setdefault(sig["competence"], {"taches": []})["taches"].append(sig)
+        return cls({"competences": competences}, **options)
+
     def __bool__(self) -> bool:
         return bool(self.ids)
 
