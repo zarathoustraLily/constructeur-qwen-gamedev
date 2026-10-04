@@ -8,6 +8,8 @@
 - [x] Session 2 — Traducteurs déterministes (scène ↔ spec, description du projet, éditions)
 - [x] Session 3 — Usine à tâches, portillon, jeux gelés
 - [x] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
+- [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources
+- [ ] Avant la session 5 — compétence E « optimisation stricte » et son gel
 - [ ] Session 5 — Boucle RFT
 - [ ] Session 6 — Mesure
 
@@ -508,12 +510,119 @@ code=0
 - Les arguments d'un appel d'outil arrivent en JSON échappé (`tools[\"usine-godot\"].run_tests`) : la détection du Code Mode le gère.
 - La vérification des démos et la chaîne du portillon se disputent les 4 cœurs : ne pas les lancer ensemble.
 
+### Avant la session 5 — jeux sources supplémentaires — 2026-10-04 (branche `claude/project-thread-4m421r`)
+
+Décision de laurent (fil « Jeux open source Godot 4.7 ») : brancher 01-survivor et les deux starter kits 3D de Kenney comme projets sources, puis refaire le gel avant tout entraînement.
+
+**Fait**
+
+- Trois projets sources dans `godot/`, chacun avec un `SOURCE.md` (origine, commit, licence, retouches) :
+  - `godot/survivor/` : 01-survivor de Brock-Chain (commit `f68cb14`, MIT pour code, art et musique), bullet heaven 2D. Ses 14 suites GUT sont portées vers GdUnit4 (128 tests), par `outils/porter_gut.py` sauf `test_health.gd` (à la main).
+  - `godot/kenney_platformer/` et `godot/kenney_racing/` : Starter Kit 3D Platformer et Starter Kit Racing de Kenney (code MIT, assets CC0). Ils n'avaient aucun test : 29 et 22 tests GdUnit4 écrits ici.
+  - Retouches minimales, marquées `# usine :` : gardes `if stats == null` / `if view:` / `if target:` pour que chaque scène se charge seule ; BOM retiré de 5 scripts de survivor.
+- `outils/porter_gut.py` : traduction déterministe GUT → GdUnit4, assertion par assertion. Il refuse ce qu'il ne sait pas traduire (`watch_signals`, `double`…), avec la ligne.
+- `usine/socle.py` : les fichiers non textuels d'une source (sons, images, `.glb`, `.import`) ne sont plus copiés dans chaque tâche. Le `depart/` porte un fichier `.usine_socle` qui nomme le socle (`<source>-<12 car. d'empreinte>`, dans `donnees/socles/`, reconstruit depuis `godot/` au besoin). `preparer_copie` le pose sous la copie de travail sans rien écraser ; un socle modifié est refusé. `godot/reference` n'a pas de socle : ses tâches gardent leur forme.
+- Juge :
+  - `verifier_lot.gd` : un seul lancement de Godot vérifie tous les scripts, puis toutes les scènes. Le lot n'est qu'un raccourci ; en cas d'erreur, `check_script`/`load_scene` refont le détail élément par élément.
+  - Classes globales chargées de la base vers les dérivées avant toute vérification (`charger_script.gd`, `charger_scene.gd`) : un script dérivé chargé seul produisait de fausses erreurs de dépendance cyclique.
+  - Seconde compilation avec autoloads : déclenchée quel que soit le code de sortie (`--check-only` sort en 0 malgré une erreur), et aussi pour un autoload utilisé à travers un autre script (« Failed to compile depended scripts », « Could not resolve class »).
+  - Bruit : les fuites signalées à la sortie (« leaked / in use / exist at exit » : Ogg, RID…) ne sont plus des erreurs.
+  - Scènes importées (`.glb`, `.gltf`, `.fbx`…) : racine `Node3D` pour la vue du projet et la spec.
+- Usine multi-source :
+  - `usine/generateurs/sources.py` : registre `SOURCES` (reference, survivor, kenney_platformer, kenney_racing), plafonds par générateur et par source, ciblage, F1 sur reference seulement.
+  - Ciblage : K1, K2 et les mutations ne visent que les fichiers couverts par les tests de la source (`fichiers_testes` : class_name, autoloads, chemins `res://`, scènes incluses). Une méthode non testée ne donne pas de tâche jugeable.
+  - Échantillonnage reproductible sous plafond (`echantillon`, clé = source + générateur + graine).
+  - `produire`, `chaine`, les CLI des générateurs et du portillon prennent `--sources`. `chaine --completer-gel` complète un manifeste existant sans retirer une tâche déjà gelée.
+- Chaîne : une tâche modèle (installée à la main, origine hors générateur) qui double une tâche gelée est retirée de `taches/` et nommée dans le rapport (`modeles_retires`). C'était l'écart de laurent sur la session 3 (`k2_001_take_damage`, `s2_001_mort_du_fantome`).
+- Journaux D1 : le bilan de fuites que Godot écrit en quittant (« ObjectDB instances were leaked at exit », « resources still in use at exit ») est retiré du journal (`commun.sans_bilan_de_sortie`). Il variait d'un lancement à l'autre : le rejeu de la chaîne a donné une empreinte différente pour `d1_kenney_racing_vehicle_l10_chemin_noeud_casse`. Le gel a été refait après la correction.
+- Rapport de la chaîne : nouvelle clé `gelees_empreintes` (id → empreinte de chaque tâche gelée), comparée par `comparer`. Avant, `comparer` ne voyait que les ids gelés, et l'écart ci-dessus lui avait échappé. `comparer` liste aussi les ids qui diffèrent.
+- `tests/test_sources.py` (16 tests). `preuves/rapport_chaine_multi_graine1.json`. `VERIFIER_EN_LOCAL.md` : étape 17.
+
+**Choix**
+
+- **Le gel de la session 3 (106 tâches) est remplacé** par un gel à 4 sources (171 tâches). Aucun entraînement n'a eu lieu, la règle 4 tient. Le tirage de `godot/reference` diffère de celui de la session 3, parce que le juge a changé.
+- Plafonds par source : sans eux, survivor (76 scripts) aurait noyé les autres sources. Les plafonds de K1 suivent le nombre de scripts testés.
+- Les démos du RAG ne sont pas des sources : rien à retirer de l'index (`[rag].demos_exclues` reste vide).
+- F1 reste sur `godot/reference` : il lui faut une fonction de mesure par jeu (vitesse du héros en frames). Les jeux 3D n'en ont pas encore.
+- S1 sur les kits Kenney reste limité : propriétés de stockage `_data`/`_surfaces`, exports `node_paths` et ressources typées personnalisées ne passent pas encore dans la spec (`spec_invalide` 8, écartées à la génération).
+
+**Preuve de fin** (cloud, Godot 4.7.2 Linux headless, 4 cœurs)
+
+`python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4` (fin ; gel refait après la correction des journaux D1. La première chaîne, sans cache, avait pris 11 998 s pour le même tableau)
+
+```
+compétence  candidates qualifiées  gelées acceptées  rejets
+D1                  12         12       6         2  doublon_gele 4
+F1                 100        100      50        50  —
+K1                  29         24      12        12  reference_pas_verte 4, score_mutation_insuffisant 1
+K2                 102         73      36        37  depart_pas_rouge 14, instable 1, score_mutation_insuffisant 14
+K3                 136        134      50        83  doublon_gele 1, score_mutation_insuffisant 2
+S1                  21         21      10        11  —
+S2                  14         14       7         6  doublon_gele 1
+TOTAL              414        378     171       201
+
+Rejets du portillon par raison : depart_pas_rouge 14, doublon_gele 6, instable 1, reference_pas_verte 4, score_mutation_insuffisant 17
+Écartés à la génération : d1_journal_sans_erreur_localisee 28, fonction_sur_une_ligne 2, k3_tests_non_executes 40, mutant_survivant 157, script_sans_methode 1, spec_invalide 8
+Acceptées : 201 sur 7 compétences (D1, F1, K1, K2, K3, S1, S2)
+Doublons avec les jeux gelés dans taches/ : 0
+Verdicts relus dans le cache : 2403
+Durée : 654 s
+```
+
+Tâches gelées par source : reference 110 (D1 3, F1 50, K1 5, K2 13, K3 29, S1 6, S2 4), survivor 23 (K1 2, K2 12, K3 7, S1 2), kenney_platformer 26 (D1 1, K1 5, K2 9, K3 7, S1 2, S2 2), kenney_racing 12 (D1 2, K2 2, K3 7, S2 1).
+
+Rejeu complet dans un autre dossier de sortie (production refaite, Godot relancé pour les journaux et les mesures ; verdicts du portillon relus dans le cache, clé = contenu jugé), puis comparaison :
+
+`python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4 --sortie <autre dossier>` (même tableau, `Durée : 646 s`), puis `python -m usine.portillon comparer donnees/portillon/rapport.json <autre dossier>/portillon/rapport.json`, `cmp` des manifestes et `diff -r` des dossiers `geles/`
+
+```
+acceptees                  identique
+acceptees_empreintes       identique
+gelees                     identique
+gelees_empreintes          identique
+rejets_par_raison          identique
+competences                identique
+ecartes_a_la_generation    identique
+doublons_avec_geles        identique
+Résultat identique
+code=0
+manifestes identiques
+gels identiques octet pour octet
+```
+
+`python -m pytest -q`
+
+```
+SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module named 'sqlite_vec'
+252 passed, 1 skipped in 231.51s (0:03:51)
+```
+
+**Reste à faire**
+
+- Avant la session 5 (décision de laurent, 2026-10-04) : construire la compétence E « optimisation stricte » d'après sa spec et geler ses tâches, dans une étape à part. Mesures déjà faites sous Godot 4.7.2 headless : les draw calls valent toujours 0 (plan B de la spec : comptage dans la scène) ; `OBJECT_COUNT` ne voit pas une création + une libération par image, alors que le compteur d'allocations lu dans `get_instance_id() >> 24` d'un objet témoin donne 1 sans churn et 121 avec, à l'identique.
+
+- Exécuter `VERIFIER_EN_LOCAL.md` étape 17 sur Windows (quelques minutes ; la chaîne complète y est facultative).
+- Session 5 : tout espace d'essai passe par `preparer_copie` (sinon les sons et modèles du socle manquent) ; l'export SFT doit garder le marqueur `.usine_socle` tel quel.
+- Plus tard : F1 sur les jeux 3D (fonction de mesure par jeu), S1 pour les propriétés de stockage des kits Kenney, C2/F2/D2/S3 toujours sans générateur.
+
+**Pièges**
+
+- `--check-only` sort en code 0 même quand le script ne compile pas : ne jamais se fier au code de sortie, seulement aux lignes d'erreur.
+- Un script `class_name` dérivé chargé seul, avant sa base, donne des erreurs de dépendance cyclique qui n'existent pas en jeu : charger les classes globales de la base vers les dérivées.
+- Les sons Ogg encore joués à la sortie et les RID non libérés écrivent « leaked at exit » : bruit, pas erreur.
+- Un BOM UTF-8 en tête de script casse nos lecteurs : il est retiré à l'import d'une source.
+- Les `.uid` sont ignorés par git : ils n'entrent ni dans les tâches ni dans le socle (sinon l'empreinte du socle change d'une machine à l'autre).
+- Godot écrit un bilan de fuites à la sortie qui n'est pas reproductible (nombre d'objets encore vivants) : tout texte de Godot qui entre dans une tâche doit en être nettoyé.
+- `comparer` sur les seuls ids gelés ne prouve pas le déterminisme : comparer aussi les empreintes, ou `diff -r` des dossiers `geles/`.
+- `rsync` n'existe pas dans le conteneur : `tar` pour copier en excluant.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
 - [ ] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 (chaîne graine 1, `comparer` avec `preuves\rapport_chaine_graine1.json`).
   Non exécutée : le 2026-10-04, laurent valide la session 3 sur la preuve cloud (l'étape 11 dure environ 2 h sur sa machine). À refaire avant la session 5 si possible, au moins l'étape 6.
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
+- [ ] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a (17 b facultative). Le gel de la session 3 est remplacé : supprimer `donnees\geles` avant toute chaîne locale.
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10

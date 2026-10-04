@@ -15,8 +15,8 @@ from pathlib import Path
 
 from usine import config as cfg
 
-CLES_DETERMINISTES = ("acceptees", "acceptees_empreintes", "gelees", "rejets_par_raison", "competences",
-                      "ecartes_a_la_generation", "doublons_avec_geles")
+CLES_DETERMINISTES = ("acceptees", "acceptees_empreintes", "gelees", "gelees_empreintes", "rejets_par_raison",
+                      "competences", "ecartes_a_la_generation", "doublons_avec_geles")
 
 
 def main(argv: list[str] | None = None) -> int:

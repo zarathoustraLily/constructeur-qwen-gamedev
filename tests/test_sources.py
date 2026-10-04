@@ -155,3 +155,13 @@ def test_lot_puis_detail_sur_un_script_casse(tmp_path):
     verdict = juger_projet(src, etapes=["check_script"])
     assert not verdict["ok"] and verdict["etape"] == "check_script"
     assert any(e["fichier"] == "res://scripts/hud.gd" and e["categorie"] == "parse_error" for e in verdict["erreurs"])
+
+
+def test_journal_d1_sans_bilan_de_sortie():
+    from usine.generateurs.commun import sans_bilan_de_sortie
+    journal = ("ERROR: res://scripts/hero.gd:10 - Node not found: \"Corps\".\n"
+               "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).\n"
+               "   at: cleanup (core/object/object.cpp:2536)\n"
+               "ERROR: 6 resources still in use at exit (run with --verbose for details).\n"
+               "   at: clear (core/io/resource.cpp:822)\n")
+    assert sans_bilan_de_sortie(journal) == "ERROR: res://scripts/hero.gd:10 - Node not found: \"Corps\".\n"

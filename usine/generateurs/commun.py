@@ -191,4 +191,24 @@ def journal_execution(fichiers: dict[str, str]) -> str:
         res = executer([cfg.chemin_godot(), "--headless", "--path", projet, "--fixed-fps", "60",
                         "--quit-after", "3"], delai_s=120)
         texte = sans_ansi(res.sortie).replace(str(projet), "<projet>")
-    return texte.replace("\r\n", "\n")
+    return sans_bilan_de_sortie(texte.replace("\r\n", "\n"))
+
+
+_BILAN_SORTIE = re.compile(r"\b(?:leaked|in use|exist) at exit\b", re.I)
+
+
+def sans_bilan_de_sortie(texte: str) -> str:
+    """Retire le bilan de fuites que Godot écrit en quittant (et sa ligne « at: » qui suit).
+
+    Ce bilan varie d'un lancement à l'autre (sons encore en lecture, objets pas encore libérés) :
+    gardé, il rendait l'empreinte d'une tâche D1 non reproductible. Il ne localise aucune erreur.
+    """
+    lignes, sortie, sauter = texte.split("\n"), [], False
+    for ligne in lignes:
+        if sauter and ligne.lstrip().startswith("at:"):
+            sauter = False
+            continue
+        sauter = bool(_BILAN_SORTIE.search(ligne))
+        if not sauter:
+            sortie.append(ligne)
+    return "\n".join(sortie)

@@ -158,6 +158,8 @@ def _rapport(candidats, decisions, ecartes, manifeste, acceptees, restants, grai
         "acceptees": sorted(f"{p.parent.name}/{p.name}" for p in acceptees),
         "acceptees_empreintes": {p.name: lire_tache(p)["empreinte"] for p in sorted(acceptees)},
         "gelees": {c: [t["id"] for t in e["taches"]] for c, e in sorted(manifeste["competences"].items())},
+        # Empreintes du gel : un rejeu doit redonner les mêmes octets, pas seulement les mêmes ids.
+        "gelees_empreintes": {t["id"]: t["empreinte"] for e in manifeste["competences"].values() for t in e["taches"]},
         "doublons_avec_geles": [p.name for p in restants],
         "verdicts_depuis_cache": sum(decisions[d].mesures.get("depart_cache", 0)
                                      + decisions[d].mesures.get("reference_cache", 0) for d in candidats),
