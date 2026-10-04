@@ -269,7 +269,7 @@ code=0
 
 **Reste à faire**
 
-- Refaire sur la machine Windows l'étape 7 (nouvelle table de 20 lignes) et l'étape 6 (`pytest`).
+- Refaire sur la machine Windows l'étape 6 (`pytest`, `174 passed` attendu).
 - Session 3 : faire passer les tâches S1 par la spec (l'agent rend une spec JSON, `scene_write` écrit la scène, `valider_spec` puis le juge) ; D2 s'appuie sur `describe_project` + `apply_edits`.
 - Session 4 : exposer `describe_project`, `apply_edits`, `scene_write` et `valider_spec` dans le serveur MCP.
 
@@ -277,7 +277,7 @@ code=0
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
-- [ ] Session 2 — étapes 7 à 9 conformes sur `bad74b5` (ci-dessous) ; à refaire après le commit suivant : étape 7 (20 lignes) et étape 6 (`174 passed`).
+- [ ] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 en échec sur `c4085bd` (173/174, test corrigé depuis, voir ci-dessous). Reste : étape 6 (`174 passed`).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
 
@@ -375,6 +375,13 @@ code=0
 
 **Suite (cloud, même jour)** : l'étape 10 est retirée. Les projets `D:\GODOT\projet_*` étaient des essais de Qwen sans guidage, pas des scènes de référence. Elle est remplacée par les lignes `[resauvée]` de l'étape 7 : les 10 scènes réécrites par Godot lui-même, puis l'aller-retour. Ce test a trouvé deux écarts de l'écrivain avec Godot, corrigés : `binds= [...]` (Godot met une espace) et l'ordre des clés de dictionnaire (Godot les trie).
 
+**Seconde passe Windows (commit `c4085bd`)** :
+
+- étape 7 conforme : `20/20 scènes conformes (5 générées, 10 resauvées par Godot)`, `code=0` ;
+- étape 6 : `1 failed, 173 passed in 120.78s`, `EXIT=1`. L'échec est `tests/test_editions.py::test_set_resource_value_interne_et_tres` : le fichier relu vaut `...[resource]\r\nradius = 9.0\r\n` au lieu de `...\n`.
+
+**Cause (vérifiée dans le code)** : c'est le test qui est fautif. Il crée `donnees/zone.tres` avec `Path.write_text` sans `newline`, et sous Windows ce fichier part donc en CRLF. `apply_edits` conserve ensuite ces fins de ligne, ce qui est voulu : `lire_texte` lit avec `newline=""` et `Document.fin_ligne()` réécrit dans le style du fichier, comportement couvert par `test_fins_de_ligne_crlf_conservees`. Le diagnostic de Qwen, « set_resource_value réécrit en CRLF », est faux. **Correctif** : le test écrit son fichier avec `newline="\n"`. Les autres `write_text` des tests ne sont pas comparés octet pour octet. Cloud après correctif : `174 passed in 174.74s`.
+
 ## Pièges connus
 
 - **`--check-only` ignore les autoloads** : un script qui utilise `GameState` échoue avec « Identifier not found ». `check_script` relance alors une compilation avec les autoloads enregistrés (`usine/juge/gd/charger_script.gd`), seulement si toutes les erreurs viennent d'un autoload déclaré.
@@ -390,6 +397,7 @@ code=0
 - **Godot 4.7 écrit `unique_id=` sur chaque nœud** et n'écrit plus `load_steps`. Les scènes de `godot/reference`, écrites à la main, n'ont ni l'un ni l'autre ; le lecteur accepte les deux formes.
 - **Ordre des propriétés dans un `.tscn`** : une variable de script écrite avant la ligne `script = …` est ignorée au chargement. L'écrivain et `apply_edits` rangent donc les natives avant `script` et le reste après.
 - **`Path.read_text` convertit CRLF en LF** (Python 3.11) : tout ce qui réécrit un fichier du projet le lit avec `open(..., newline="")` (`usine.projet.index.lire_texte`).
+- **`Path.write_text` sans `newline="\n"` écrit du CRLF sous Windows** : un fichier de test comparé octet pour octet doit être écrit avec `newline="\n"`, sinon le test passe dans le cloud et échoue chez l'utilisateur.
 - **Scripts `-s` et autoloads** : dans `_init`, les autoloads ne sont pas encore enregistrés (« Identifier not found: GameState ») ; `etat_scene.gd` travaille dans `_process`, comme `charger_scene.gd`.
 - **`PackedScene` n'est pas un tableau** : une vérification de type « commence par Packed » l'avait pris pour un `Packed*Array`.
 - **Écriture de Godot 4.7** relevée par `ResourceSaver.save` : `binds= [...]` avec une espace après `=` ; clés de dictionnaire triées par type Variant puis par valeur ; propriétés égales à leur valeur par défaut omises (le `radius = 10.0` de `ghost.tscn` disparaît).

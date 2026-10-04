@@ -89,7 +89,7 @@ def test_replace_function_garde_la_doc(projet):
 
 def test_set_resource_value_interne_et_tres(projet):
     (projet / "donnees").mkdir()
-    (projet / "donnees" / "zone.tres").write_text('[gd_resource type="CircleShape2D" format=3]\n\n[resource]\nradius = 4.0\n', encoding="utf-8")
+    (projet / "donnees" / "zone.tres").write_text('[gd_resource type="CircleShape2D" format=3]\n\n[resource]\nradius = 4.0\n', encoding="utf-8", newline="\n")
     v = appliquer(projet,
                   {"op": "set_resource_value", "ressource": "res://donnees/zone.tres", "propriete": "radius", "valeur": 9},
                   {"op": "set_resource_value", "ressource": "ghost:CollisionShape2D#shape", "propriete": "radius", "valeur": 12.5})
