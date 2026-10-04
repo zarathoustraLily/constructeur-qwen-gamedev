@@ -5,7 +5,7 @@
 ## Avancement
 
 - [x] Session 1 — Vocabulaire, juge commun, projet de référence, 10 tâches
-- [ ] Session 2 — Traducteurs déterministes (scène ↔ spec, description du projet, éditions)
+- [x] Session 2 — Traducteurs déterministes (scène ↔ spec, description du projet, éditions)
 - [ ] Session 3 — Usine à tâches, portillon, jeux gelés
 - [ ] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
 - [ ] Session 5 — Boucle RFT
@@ -125,9 +125,158 @@ code=0
 - Exécuter `VERIFIER_EN_LOCAL.md` sur la machine Windows et noter le résultat ci-dessous.
 - Session 2 : spec de scène JSON ↔ .tscn (S1 passera par l'écrivain), describe_project, apply_edits.
 
+### Session 2 — 2026-10-04 (branche `claude/session-02-bcedxx`)
+
+**Fait**
+
+- `usine/scene/texte.py` : format texte Godot 4 sans LLM. Valeurs ↔ JSON typé (`{"Vector2": [x, y]}`, `{"ExtResource": "res://…"}`, repli `{"godot": "<brut>"}`), écrites comme Godot 4.7 (`6.0`, mais `Vector2(320, 180)`). Document `.tscn`/`.tres` découpé en sections **sans perte** : `texte()` rend les mêmes octets (LF ou CRLF), une édition ne réécrit que sa ligne ou sa section.
+- `usine/scene/spec.py` + `SPEC_SCENE.md` : spec de scène JSON (nœuds, type ou instance, script, propriétés, groupes, ressources externes et internes, connexions avec flags/binds/unbinds, editables). `scene_read` / `scene_write` déterministes ; id dérivés : `ext_resource` = `<rang>_<h5(chemin)>`, `sub_resource` = `<Type>_<h5(scène::nom d'usage)>`, uid de scène dérivé du chemin (alphabet ResourceUID). `valider_spec` vérifie types, propriétés (natives, variables de script, dynamiques listées), forme des valeurs, scripts compatibles, signaux, méthodes et arité.
+- `usine/scene/preuve.py` (`python -m usine.scene preuve`) : aller-retour sur les scènes d'un projet + 5 scènes générées (`exemples.py` : interface, 3D à ressources imbriquées, piège à binds/unbinds/flags, instances avec variables de script, HUD à metadata typées), contrôle indépendant par Godot (`gd/etat_scene.gd` compare le `SceneState` chargé avant/après). Seconde série sur les mêmes scènes **resauvées par Godot** (`gd/resauver_scene.gd`), pour éprouver le lecteur sur le format de l'éditeur ; les 5 scènes générées sont identiques, octet pour octet, à ce que Godot écrit (colonne `= Godot`).
+- `usine/projet/gdscript.py` (lecture légère des déclarations de premier niveau, réindentation), `index.py` (index du projet, héritage des scripts, `Verificateur` natif + scripts).
+- `usine/projet/decrire.py` : `describe_project` → texte compact et stable + table `ids` (id lisible `<scène>:<chemin>`, ressource interne `<id>#<propriété>`).
+- `usine/projet/editions.py` + `EDITS_GODOT.md` : `apply_edits` avec les 10 opérations. Validation en mémoire (premier refus → rien n'est écrit), copie de travail jugée (import → check_script → load_scene → run_tests), puis `os.replace` fichier par fichier avec détection de conflit et restauration si un remplacement échoue. CLI `python -m usine.projet describe|apply|demo`.
+- `VERIFIER_EN_LOCAL.md` : étapes 7 à 10 (dont un aller-retour en lecture seule sur `D:\GODOT\projet_*`).
+- Tests : `test_scene_texte.py`, `test_scene_spec.py`, `test_gdscript.py`, `test_projet_decrire.py`, `test_editions.py` ; fixture `tests/donnees/sonde_godot472.tscn` (scène réellement sauvée par Godot 4.7.2 : `unique_id`, groupes, chaîne et dictionnaire multilignes).
+
+**Choix**
+
+- Format d'écriture relevé sur Godot 4.7.2 lui-même : plus de `load_steps`, `unique_id=` sur les nœuds (préservé s'il existe, jamais inventé), `groups` avant `instance`, connexions en bloc. Les `ext_resource` n'ont un `uid` que si la spec en donne un (un uid faux ferait avertir Godot).
+- Propriétés d'un nœud écrites natives d'abord, puis `script`, puis variables du script et `metadata/` : c'est l'ordre de Godot, et une variable de script placée avant `script` serait ignorée au chargement. Il faut donc le vocabulaire pour écrire (ouvert par défaut).
+- L'id d'une ressource interne dérive de son **nom d'usage** (`CollisionShape2D:shape`) et non du nom donné dans la spec : une scène écrite par `scene_write` redonne les mêmes octets dès la première relecture.
+- Normalisation de l'aller-retour (`normaliser_tscn`, indépendante de l'écrivain) : retrait de `load_steps` et renumérotation des id dans l'ordre du fichier. Rien d'autre.
+- `apply_edits` s'arrête au premier édit refusé (les suivants peuvent dépendre de lui). Les fichiers sont édités en place, jamais régénérés : seuls changent la zone éditée, la ligne vide qui sépare deux sections, et `load_steps` s'il existe.
+- Catégories d'erreur ajoutées (compatibles) : `id_inconnu`, `vocab_inconnu`, `valeur_invalide`.
+
+**Preuve de fin** (exécutée dans le cloud, Godot 4.7.2 Linux headless)
+
+`python -m usine.scene preuve`
+
+```
+scène                                                normalisé  point fixe  Godot  load_scene  = Godot
+res://scenes/coin.tscn                               oui        oui         oui    —           —
+res://scenes/generees/arene_3d.tscn                  oui        oui         oui    oui         oui
+res://scenes/generees/hud_complet.tscn               oui        oui         oui    oui         oui
+res://scenes/generees/menu_pause.tscn                oui        oui         oui    oui         oui
+res://scenes/generees/piege_zone.tscn                oui        oui         oui    oui         oui
+res://scenes/generees/salle_pieces.tscn              oui        oui         oui    oui         oui
+res://scenes/ghost.tscn                              oui        oui         oui    —           —
+res://scenes/hero.tscn                               oui        oui         oui    —           —
+res://scenes/hud.tscn                                oui        oui         oui    —           —
+res://scenes/main.tscn                               oui        oui         oui    —           —
+res://scenes/coin.tscn [resauvée]                    oui        oui         oui    —           —
+res://scenes/generees/arene_3d.tscn [resauvée]       oui        oui         oui    —           —
+res://scenes/generees/hud_complet.tscn [resauvée]    oui        oui         oui    —           —
+res://scenes/generees/menu_pause.tscn [resauvée]     oui        oui         oui    —           —
+res://scenes/generees/piege_zone.tscn [resauvée]     oui        oui         oui    —           —
+res://scenes/generees/salle_pieces.tscn [resauvée]   oui        oui         oui    —           —
+res://scenes/ghost.tscn [resauvée]                   oui        oui         oui    —           —
+res://scenes/hero.tscn [resauvée]                    oui        oui         oui    —           —
+res://scenes/hud.tscn [resauvée]                     oui        oui         oui    —           —
+res://scenes/main.tscn [resauvée]                    oui        oui         oui    —           —
+
+[resauvée] : la même scène après chargement puis ResourceSaver.save par Godot (format de l'éditeur)
+20/20 scènes conformes (5 générées, 10 resauvées par Godot)
+code=0
+```
+
+`python -m usine.projet demo` (extraits ; la sortie complète contient aussi le diff des 5 fichiers modifiés)
+
+```
+== demo_reference : Démonstration des 10 opérations sur godot/reference : un minuteur de bonus, une pièce déplacée, une supprimée, une collision élargie. Les 37 tests doivent rester verts.
+{
+ "ok": true,
+ "applique": true,
+ "etape": "run_tests",
+ "erreurs": [],
+ "tests": {
+  "total": 37,
+  "passes": 37,
+  "echecs": []
+ },
+ "fichiers": [
+  "res://scenes/coin.tscn",
+  "res://scenes/main.tscn",
+  "res://scripts/hud.gd",
+  "res://scripts/main.gd",
+  "res://scripts/minuteur_bonus.gd"
+ ]
+}
+empreinte avant : fec2cb08a5d39232fff32c18765448c6ffa444e27bd831a7b0bce9c37a7a3ac3
+empreinte après : b0e33044f185eaa6f8be2a3b4d2dde145cf9c6b0019e1a3701cca9fab2eccc71
+[... diff ...]
+=> CONFORME (appliqué, PASS attendu)
+
+== faux_id_reference : Refus à la validation : le deuxième édit vise un nœud qui n'existe pas (Coin9). Rien ne doit être écrit, même pas le premier édit.
+{
+ "ok": false,
+ "applique": false,
+ "etape": "validation",
+ "erreurs": [
+  {
+   "edit": 1,
+   "op": "set_property",
+   "fichier": "res://scenes/main.tscn",
+   "ligne": null,
+   "categorie": "id_inconnu",
+   "message": "édit 1 (set_property) refusé : id inconnu : 'main:Coins/Coin9' (aucun nœud 'Coins/Coin9' dans res://scenes/main.tscn)"
+  }
+ ],
+ "tests": {
+  "total": 0,
+  "passes": 0,
+  "echecs": []
+ },
+ "fichiers": []
+}
+empreinte avant : b0e33044f185eaa6f8be2a3b4d2dde145cf9c6b0019e1a3701cca9fab2eccc71
+empreinte après : b0e33044f185eaa6f8be2a3b4d2dde145cf9c6b0019e1a3701cca9fab2eccc71
+=> CONFORME (refusé, projet intact attendu)
+
+== faux_juge_reference : Refus par le juge : les éditions sont valides, mais le nouveau texte du HUD casse un test (« Pieces » sans accent). La copie de travail est jetée.
+ "etape": "run_tests",
+ "tests": {"total": 37, "passes": 35, "echecs": ["test_hud:test_libelle_pieces", "test_main:test_hud_affiche_les_pieces"]},
+empreinte avant : b0e33044f185eaa6f8be2a3b4d2dde145cf9c6b0019e1a3701cca9fab2eccc71
+empreinte après : b0e33044f185eaa6f8be2a3b4d2dde145cf9c6b0019e1a3701cca9fab2eccc71
+=> CONFORME (refusé, projet intact attendu)
+
+3/3 cas conformes
+code=0
+```
+
+`python -m usine.projet describe godot/reference` (début)
+
+```
+PROJET Reference Usine (Godot 4.7)
+scène principale : res://scenes/main.tscn
+autoloads : GameState = res://scripts/game_state.gd
+ids : <scène>:<chemin du nœud> ; ressource interne : <id>#<propriété>
+
+SCÈNE coin = res://scenes/coin.tscn
+  coin  Area2D  script res://scripts/coin_pickup.gd
+    coin:CollisionShape2D  CollisionShape2D  shape=CircleShape2D(radius=6.0)
+  connexion coin.body_entered → coin._on_body_entered
+
+SCÈNE ghost = res://scenes/ghost.tscn
+  ghost  CharacterBody2D  script res://scripts/ghost.gd  motion_mode=1
+```
+
+`python -m pytest -q`
+
+```
+174 passed in 163.06s (0:02:43)
+code=0
+```
+
+**Reste à faire**
+
+- Session 3 : faire passer les tâches S1 par la spec (l'agent rend une spec JSON, `scene_write` écrit la scène, `valider_spec` puis le juge) ; D2 s'appuie sur `describe_project` + `apply_edits`.
+- Session 4 : exposer `describe_project`, `apply_edits`, `scene_write` et `valider_spec` dans le serveur MCP.
+
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
+- [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
 
@@ -192,6 +341,48 @@ code=0
 
 **Conclusion** : toutes les étapes de `VERIFIER_EN_LOCAL.md` passent avec le Godot Windows 4.7.2. Les trois points « que seul ce test sur ta machine peut confirmer » sont couverts : (1) le Godot console Windows se lance avec les chemins absolus `-s D:\...\usine\juge\gd\*.gd` ; (2) les journaux D1 versionnés (produits sous Linux) sont identiques sous Windows (mêmes catégories, mêmes lignes) ; (3) `taskkill /F /T` fonctionne (testé par `tests\test_processus.py` qui passe).
 
+### Session 2 — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10 (étapes 7 à 9)
+
+Dépôt : `D:\constructeur-qwen-gamedev`, branche `claude/session-02-bcedxx` (commit `bad74b5` — les modules `usine.scene`/`usine.projet` de la session 2 n'existaient pas sur la branche session-1).
+
+**Étape 7 — `python -m usine.scene preuve`** :
+```
+scène                                        normalisé  point fixe  Godot  load_scene
+res://scenes/coin.tscn                       oui        oui         oui    —
+res://scenes/generees/arene_3d.tscn          oui        oui         oui    oui
+res://scenes/generees/hud_complet.tscn       oui        oui         oui    oui
+res://scenes/generees/menu_pause.tscn        oui        oui         oui    oui
+res://scenes/generees/piege_zone.tscn        oui        oui         oui    oui
+res://scenes/generees/salle_pieces.tscn      oui        oui         oui    oui
+res://scenes/ghost.tscn                      oui        oui         oui    —
+res://scenes/hero.tscn                       oui        oui         oui    —
+res://scenes/hud.tscn                        oui        oui         oui    —
+res://scenes/main.tscn                       oui        oui         oui    —
+
+10/10 scènes conformes (5 générées)
+code=0
+```
+**Conforme** : identique à la preuve Linux, y compris la colonne **Godot** (ton Godot Windows 4.7.2 charge les 5 scènes générées avant et après réécriture).
+
+**Étape 8 — `python -m usine.projet describe godot\reference`** :
+**Conforme** : commence par `PROJET Reference Usine (Godot 4.7)` / `scène principale : res://scenes/main.tscn` / `autoloads : GameState = res://scripts/game_state.gd` ; section `SCÈNE coin` avec `coin:CollisionShape2D … shape=CircleShape2D(radius=6.0)` ; finit par `TESTS (lecture seule)` avec les 7 fichiers attendus (`test_coin_pickup (4)`, `test_ghost (6)`, `test_health_component (8)`, `test_hero (7)`, `test_hud (3)`, `test_main (5)`, `test_wave_spawner (4)`). `code=0`.
+
+**Étape 9 — `python -m usine.projet demo`** :
+**Conforme** : `demo_reference` → `"ok": true`, `"applique": true`, `"passes": 37`, empreintes différentes (`47ecf0…` → `c270ed…`), diff des 5 fichiers, `=> CONFORME` ; `faux_id_reference` → `"etape": "validation"`, `"categorie": "id_inconnu"` (Coin9), empreintes identiques, `=> CONFORME` ; `faux_juge_reference` → `"etape": "run_tests"`, `"passes": 35` avec `test_hud:test_libelle_pieces` et `test_main:test_hud_affiche_les_pieces` en échec, empreintes identiques, `=> CONFORME` ; `3/3 cas conformes`, `code=0`. (Les empreintes diffèrent de la preuve Linux — attendues, elles dépendent des octets locaux ; le doc ne fixe que le rapport avant/après.)
+
+**Écart** : l'étape 10 (lecture seule sur `D:\GODOT\projet_*`) et l'étape 6 (`pytest` → `172 passed`) n'ont pas été exécutées à cette passe. La case « Session 2 » reste donc non cochée en attendant.
+
+**Suite (cloud, même jour)** : l'étape 10 est retirée. Les projets `D:\GODOT\projet_*` étaient des essais de Qwen sans guidage, pas des scènes de référence. Elle est remplacée par les lignes `[resauvée]` de l'étape 7 : les 10 scènes réécrites par Godot lui-même, puis l'aller-retour. Ce test a trouvé deux écarts de l'écrivain avec Godot, corrigés : `binds= [...]` (Godot met une espace) et l'ordre des clés de dictionnaire (Godot les trie).
+
+**Seconde passe Windows (commit `c4085bd`)** :
+
+- étape 7 conforme : `20/20 scènes conformes (5 générées, 10 resauvées par Godot)`, `code=0` ;
+- étape 6 : `1 failed, 173 passed in 120.78s`, `EXIT=1`. L'échec est `tests/test_editions.py::test_set_resource_value_interne_et_tres` : le fichier relu vaut `...[resource]\r\nradius = 9.0\r\n` au lieu de `...\n`.
+
+**Cause (vérifiée dans le code)** : c'est le test qui est fautif. Il crée `donnees/zone.tres` avec `Path.write_text` sans `newline`, et sous Windows ce fichier part donc en CRLF. `apply_edits` conserve ensuite ces fins de ligne, ce qui est voulu : `lire_texte` lit avec `newline=""` et `Document.fin_ligne()` réécrit dans le style du fichier, comportement couvert par `test_fins_de_ligne_crlf_conservees`. Le diagnostic de Qwen, « set_resource_value réécrit en CRLF », est faux. **Correctif** : le test écrit son fichier avec `newline="\n"`. Les autres `write_text` des tests ne sont pas comparés octet pour octet. Cloud après correctif : `174 passed in 174.74s`.
+
+**Troisième passe Windows (commit `ead2f55`)** : étape 6 → `python -m pytest -q` → `174 passed in 116.15s`, code 0, aucun `skipped`. Bilan local de la session 2 : étapes 6, 7 (20/20, resauvées comprises), 8 et 9 (3/3) conformes.
+
 ## Pièges connus
 
 - **`--check-only` ignore les autoloads** : un script qui utilise `GameState` échoue avec « Identifier not found ». `check_script` relance alors une compilation avec les autoloads enregistrés (`usine/juge/gd/charger_script.gd`), seulement si toutes les erreurs viennent d'un autoload déclaré.
@@ -204,3 +395,11 @@ code=0
 - **Fins de ligne** : les empreintes portent sur les octets. `.gitattributes` force LF ; sur Windows, ne pas réécrire les tâches avec un éditeur qui passe en CRLF.
 - **Import** : `--import` prend environ 9 s par copie (chargement de l'éditeur) ; c'est l'essentiel du temps d'un jugement (environ 15 s).
 - **`.gitignore` et `donnees/`** : une règle `donnees/` sans barre initiale ignore aussi `tests/donnees/`. Les données de test de la session 1 n'avaient pas été poussées pour cette raison. La règle est maintenant ancrée à la racine (`/donnees/`).
+- **Godot 4.7 écrit `unique_id=` sur chaque nœud** et n'écrit plus `load_steps`. Les scènes de `godot/reference`, écrites à la main, n'ont ni l'un ni l'autre ; le lecteur accepte les deux formes.
+- **Ordre des propriétés dans un `.tscn`** : une variable de script écrite avant la ligne `script = …` est ignorée au chargement. L'écrivain et `apply_edits` rangent donc les natives avant `script` et le reste après.
+- **`Path.read_text` convertit CRLF en LF** (Python 3.11) : tout ce qui réécrit un fichier du projet le lit avec `open(..., newline="")` (`usine.projet.index.lire_texte`).
+- **`Path.write_text` sans `newline="\n"` écrit du CRLF sous Windows** : un fichier de test comparé octet pour octet doit être écrit avec `newline="\n"`, sinon le test passe dans le cloud et échoue chez l'utilisateur.
+- **Scripts `-s` et autoloads** : dans `_init`, les autoloads ne sont pas encore enregistrés (« Identifier not found: GameState ») ; `etat_scene.gd` travaille dans `_process`, comme `charger_scene.gd`.
+- **`PackedScene` n'est pas un tableau** : une vérification de type « commence par Packed » l'avait pris pour un `Packed*Array`.
+- **Écriture de Godot 4.7** relevée par `ResourceSaver.save` : `binds= [...]` avec une espace après `=` ; clés de dictionnaire triées par type Variant puis par valeur ; propriétés égales à leur valeur par défaut omises (le `radius = 10.0` de `ghost.tscn` disparaît).
+- **`ResourceSaver.save` hors éditeur oublie l'uid de la scène** : `resauver_scene.gd` le remet avec `ResourceSaver.set_uid`, comme le fait l'éditeur.

@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/hero.tscn" id="1_ba7va"]
+[ext_resource type="Script" path="res://scripts/hero.gd" id="2_rhfv5"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1rhoy"]
+radius = 6.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ls3nu"]
+albedo_color = Color(0.2, 0.3, 0.4, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_n2mrj"]
+material = SubResource("StandardMaterial3D_ls3nu")
+
+[node name="Racine" type="Node2D" unique_id=564836938]
+
+[node name="Zone" type="Area2D" parent="." unique_id=314314860 groups=["b", "ennemis"]]
+modulate = Color(1, 0.5, 0.25, 1)
+position = Vector2(320.5, 180)
+rotation = 0.1
+scale = Vector2(1e-05, 1e+20)
+
+[node name="Forme" type="CollisionShape2D" parent="Zone" unique_id=449696249]
+shape = SubResource("CircleShape2D_1rhoy")
+
+[node name="Texte" type="Label" parent="." unique_id=884390424]
+unique_name_in_owner = true
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+text = "Ligne \"un\"
+Ligne deux \\ fin"
+metadata/cle = {
+"a": 1,
+"b": [1, 2.5, "x"]
+}
+
+[node name="Ligne" type="Line2D" parent="." unique_id=314172116]
+points = PackedVector2Array(0, 0, 10.25, 3)
+width = 3.0
+
+[node name="Maille" type="MeshInstance3D" parent="." unique_id=1156023940]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 2, 3)
+mesh = SubResource("BoxMesh_n2mrj")
+
+[node name="Hero" type="CharacterBody2D" parent="." unique_id=1078135513 instance=ExtResource("1_ba7va")]
+position = Vector2(5, 5)
+motion_mode = 1
+script = ExtResource("2_rhfv5")
+
+[node name="Minuteur" type="Timer" parent="." unique_id=954883483]
+wait_time = 0.15
+autostart = true
+
+[connection signal="timeout" from="Minuteur" to="." method="queue_free" flags=3]

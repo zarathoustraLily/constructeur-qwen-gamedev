@@ -1,0 +1,22 @@
+{
+ "description": "Démonstration des 10 opérations sur godot/reference : un minuteur de bonus, une pièce déplacée, une supprimée, une collision élargie. Les 37 tests doivent rester verts.",
+ "edits": [
+  {"op": "add_node", "parent": "main", "nom": "MinuteurBonus", "type": "Timer",
+   "proprietes": {"wait_time": 2.5, "one_shot": true}},
+  {"op": "attach_script", "noeud": "main:MinuteurBonus", "script": "res://scripts/minuteur_bonus.gd",
+   "contenu": "extends Timer\n## Minuteur du bonus de pièces.\n\n\nfunc demarrer_bonus() -> void:\n\tstart()\n"},
+  {"op": "add_signal", "script": "res://scripts/minuteur_bonus.gd", "signal": "bonus_termine",
+   "arguments": [{"nom": "pieces", "type": "int"}]},
+  {"op": "add_function", "script": "res://scripts/main.gd",
+   "code": "func _on_bonus_timeout() -> void:\n    GameState.add_coins(1)"},
+  {"op": "connect", "source": "main:MinuteurBonus", "signal": "timeout", "cible": "main", "methode": "_on_bonus_timeout"},
+  {"op": "connect", "source": "main:MinuteurBonus", "signal": "timeout", "cible": "main:MinuteurBonus", "methode": "stop"},
+  {"op": "disconnect", "source": "main:MinuteurBonus", "signal": "timeout", "cible": "main:MinuteurBonus", "methode": "stop"},
+  {"op": "set_property", "noeud": "main:Coins/Coin2", "propriete": "position", "valeur": {"Vector2": [440, 140]}},
+  {"op": "set_property", "noeud": "main:Coins/Coin2", "propriete": "value", "valeur": 2},
+  {"op": "del_node", "noeud": "main:Coins/Coin3"},
+  {"op": "set_resource_value", "ressource": "coin:CollisionShape2D#shape", "propriete": "radius", "valeur": 7},
+  {"op": "replace_function", "script": "res://scripts/hud.gd", "fonction": "_on_coins_changed",
+   "corps": "var texte := \"Pièces : %d\" % total\ncoins_label.text = texte"}
+ ]
+}

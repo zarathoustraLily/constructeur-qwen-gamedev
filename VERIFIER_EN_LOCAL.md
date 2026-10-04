@@ -1,6 +1,7 @@
 # Vérifier en local (Windows 11, cmd.exe)
 
-Ces commandes rejouent sur ta machine la preuve de fin de la session 1, avec ton Godot 4.7.2 Windows.
+Ces commandes rejouent sur ta machine les preuves de fin des sessions 1 et 2, avec ton Godot 4.7.2 Windows.
+Pour la session 2 seule : étapes 1 et 2 si ce n'est pas déjà fait, puis 7 à 9, puis 6.
 Côté machine, **c'est ce document qui fait foi**. Note le résultat dans `ETAT.md`, section « Vérifications locales en attente ».
 
 ## 0. Prérequis
@@ -105,10 +106,85 @@ Si `python -m usine.taches installer` signale une **empreinte invalide**, les fi
 python -m pytest -q
 ```
 
-Attendu : `64 passed` et aucun `skipped` (si Godot est introuvable, les tests moteur apparaissent en `skipped`).
+Attendu : `174 passed` et aucun `skipped` (si Godot est introuvable, les tests moteur apparaissent en `skipped`).
+
+## 7. Session 2 — aller-retour des scènes (.tscn → spec → .tscn)
+
+```bat
+python -m usine.scene preuve
+echo %ERRORLEVEL%
+```
+
+Attendu (une vingtaine de secondes) :
+
+```
+scène                                                normalisé  point fixe  Godot  load_scene  = Godot
+res://scenes/coin.tscn                               oui        oui         oui    —           —
+res://scenes/generees/arene_3d.tscn                  oui        oui         oui    oui         oui
+res://scenes/generees/hud_complet.tscn               oui        oui         oui    oui         oui
+res://scenes/generees/menu_pause.tscn                oui        oui         oui    oui         oui
+res://scenes/generees/piege_zone.tscn                oui        oui         oui    oui         oui
+res://scenes/generees/salle_pieces.tscn              oui        oui         oui    oui         oui
+res://scenes/ghost.tscn                              oui        oui         oui    —           —
+res://scenes/hero.tscn                               oui        oui         oui    —           —
+res://scenes/hud.tscn                                oui        oui         oui    —           —
+res://scenes/main.tscn                               oui        oui         oui    —           —
+res://scenes/coin.tscn [resauvée]                    oui        oui         oui    —           —
+res://scenes/generees/arene_3d.tscn [resauvée]       oui        oui         oui    —           —
+res://scenes/generees/hud_complet.tscn [resauvée]    oui        oui         oui    —           —
+res://scenes/generees/menu_pause.tscn [resauvée]     oui        oui         oui    —           —
+res://scenes/generees/piege_zone.tscn [resauvée]     oui        oui         oui    —           —
+res://scenes/generees/salle_pieces.tscn [resauvée]   oui        oui         oui    —           —
+res://scenes/ghost.tscn [resauvée]                   oui        oui         oui    —           —
+res://scenes/hero.tscn [resauvée]                    oui        oui         oui    —           —
+res://scenes/hud.tscn [resauvée]                     oui        oui         oui    —           —
+res://scenes/main.tscn [resauvée]                    oui        oui         oui    —           —
+
+[resauvée] : la même scène après chargement puis ResourceSaver.save par Godot (format de l'éditeur)
+20/20 scènes conformes (5 générées, 10 resauvées par Godot)
+0
+```
+
+La colonne **Godot** compare ce que ton Godot Windows charge avant et après réécriture. Les lignes `[resauvée]` rejouent l'aller-retour sur les mêmes scènes réécrites par ton Godot lui-même (le format de l'éditeur). La colonne **= Godot** dit que les scènes générées par l'usine sont identiques, octet pour octet, à ce que Godot écrit.
+
+## 8. Session 2 — vue du projet
+
+```bat
+python -m usine.projet describe godot\reference
+```
+
+Attendu : commence par
+
+```
+PROJET Reference Usine (Godot 4.7)
+scène principale : res://scenes/main.tscn
+autoloads : GameState = res://scripts/game_state.gd
+ids : <scène>:<chemin du nœud> ; ressource interne : <id>#<propriété>
+
+SCÈNE coin = res://scenes/coin.tscn
+  coin  Area2D  script res://scripts/coin_pickup.gd
+    coin:CollisionShape2D  CollisionShape2D  shape=CircleShape2D(radius=6.0)
+```
+
+et finit par la section `TESTS (lecture seule)` avec 7 fichiers (`res://tests/test_hero.gd (7 tests)`…).
+
+## 9. Session 2 — éditions : démo PASS, éditions fausses refusées
+
+```bat
+python -m usine.projet demo
+echo %ERRORLEVEL%
+```
+
+Attendu (moins d'une minute ; tout se passe dans une copie temporaire, `godot\reference` n'est pas touché) :
+
+- `== demo_reference` : `"ok": true`, `"applique": true`, `"passes": 37`, deux empreintes **différentes**, puis le diff des 5 fichiers modifiés, puis `=> CONFORME` ;
+- `== faux_id_reference` : `"etape": "validation"`, `"categorie": "id_inconnu"` (Coin9), deux empreintes **identiques**, `=> CONFORME` ;
+- `== faux_juge_reference` : `"etape": "run_tests"`, `"passes": 35` avec `test_hud:test_libelle_pieces` et `test_main:test_hud_affiche_les_pieces` en échec, deux empreintes **identiques**, `=> CONFORME` ;
+- puis `3/3 cas conformes` et `0`.
 
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
 - Les journaux D1 versionnés ont été produits sous Linux. Sous Windows, les numéros de ligne et les catégories sont identiques ; seul le texte d'en-tête du moteur peut différer. Le test D1 ne lit que `reponse.json`, donc le verdict ne change pas.
+- Session 2 : le remplacement atomique `os.replace` sur NTFS, et le chargement par ton Godot Windows des scènes réécrites et resauvées (colonnes Godot et = Godot de l'étape 7).
 - La coupure sur délai utilise `taskkill /F /T /PID <pid lancé par nous>` (testé par `tests\test_processus.py`).
