@@ -42,8 +42,9 @@ def _verdict_court(v: dict[str, Any]) -> dict[str, Any]:
 
 
 class Outils:
-    def __init__(self, projet: Path, godot: Path | None = None):
+    def __init__(self, projet: Path, godot: Path | None = None, index_docs: Path | None = None):
         self.projet = Path(projet).resolve()
+        self.index_docs = index_docs  # None : index par défaut (donnees/rag)
         if not (self.projet / "project.godot").is_file():
             raise ErreurOutil(f"pas de project.godot dans {self.projet}")
         self.godot = godot
@@ -97,10 +98,15 @@ class Outils:
         lignes.append(f"+ {herites} membres hérités : vocab_lookup(classe, membre) pour en vérifier un.")
         return "\n".join(lignes)
 
-    def search_docs(self, requete: str, n: int = 5) -> str:
+    def search_docs(self, requete: str, n: int = 5, source: str = "tout") -> str:
         from usine.rag.index import formater, search_docs
         try:
-            return formater(search_docs(requete, max(1, min(int(n), 10))))
+            if self.index_docs is not None:
+                if not hasattr(self, "_index"):
+                    from usine.rag.index import IndexDocs
+                    self._index = IndexDocs(self.index_docs)
+                return formater(self._index.chercher(requete, max(1, min(int(n), 10)), source))
+            return formater(search_docs(requete, max(1, min(int(n), 10)), source))
         except FileNotFoundError as exc:
             return f"Documentation indisponible : {exc}"
 

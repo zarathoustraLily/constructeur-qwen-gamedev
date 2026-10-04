@@ -2,3 +2,4 @@
 # Installation hors-ligne : pip download -r requirements.txt -d wheelhouse
 #                           pip install --no-index --find-links wheelhouse -r requirements.txt
 pytest>=8.0
+mcp>=1.20,<2      # SDK MCP officiel (serveur usine-godot, session 4)

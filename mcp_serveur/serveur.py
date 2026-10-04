@@ -27,8 +27,8 @@ INSTRUCTIONS = ("Outils Godot 4.7 déterministes sur le projet ouvert. Chemins e
                 "Les écritures sont jugées sur une copie et appliquées seulement si le juge passe.")
 
 
-def creer_serveur(projet: Path, godot: Path | None = None) -> FastMCP:
-    outils = Outils(projet, godot)
+def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | None = None) -> FastMCP:
+    outils = Outils(projet, godot, index_docs)
     mcp = FastMCP(NOM, instructions=INSTRUCTIONS)
     outil = lambda description: mcp.tool(description=description, structured_output=False)  # noqa: E731
 
@@ -36,9 +36,10 @@ def creer_serveur(projet: Path, godot: Path | None = None) -> FastMCP:
     def vocab_lookup(classe: str, membre: str | None = None) -> str:
         return outils.vocab_lookup(classe, membre)
 
-    @outil("Cherche dans la doc Godot 4.7 (nom exact de classe ou Classe.membre en tête).")
-    def search_docs(requete: str, n: int = 5) -> str:
-        return outils.search_docs(requete, n)
+    @outil("Cherche dans la doc Godot 4.7 et le code vérifié des démos officielles. "
+           "source : tout|doc|exemples. Classe ou Classe.membre exact en tête.")
+    def search_docs(requete: str, n: int = 5, source: str = "tout") -> str:
+        return outils.search_docs(requete, n, source)
 
     @outil("Lit une .tscn en spec JSON.")
     def scene_read(chemin: str) -> str:
@@ -76,8 +77,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="serveur.py")
     parser.add_argument("--projet", type=Path, default=Path.cwd())
     parser.add_argument("--godot", type=Path, default=None, help="binaire Godot console (défaut : config.toml)")
+    parser.add_argument("--index", type=Path, default=None, help="index de documentation (défaut : donnees/rag)")
     args = parser.parse_args(argv)
-    creer_serveur(args.projet, args.godot).run("stdio")
+    creer_serveur(args.projet, args.godot, args.index).run("stdio")
     return 0
 
 

@@ -1,11 +1,14 @@
 """CLI du RAG de documentation Godot (hors-ligne).
 
-    python -m usine.rag construire [--docs <copie de godot-docs>] [--sortie <index.sqlite>]
-    python -m usine.rag chercher "CharacterBody2D" [-n 5] [--json]
+    python -m usine.rag construire [--docs <godot-docs>] [--demos <godot-demo-projects>] [--sans-demos]
+    python -m usine.rag chercher "CharacterBody2D" [-n 5] [--source tout|doc|exemples] [--json]
     python -m usine.rag verifier
     python -m usine.rag vecteurs [--url http://127.0.0.1:8080/v1] [--lot 32]   (option sqlite-vec)
 
-`construire` lit `[chemins].docs_godot` de config.toml si --docs est absent.
+`construire` lit `[chemins].docs_godot` et `[chemins].demos_godot` de config.toml si les options
+sont absentes. Les démos sont d'abord vérifiées par Godot (import + compilation de chaque
+script) : une fois par révision du dépôt, rapport dans donnees/rag/verification_demos.json.
+`[rag].demos_exclues` retire des projets entiers (démo devenue source de tâches gelées).
 `verifier` relit chaque fragment de l'index contre les jeux gelés : code 0 si aucune
 solution gelée n'y entre et que l'index a été construit avec le manifeste actuel.
 """
@@ -26,10 +29,14 @@ def main(argv: list[str] | None = None) -> int:
     sous = parser.add_subparsers(dest="commande", required=True)
     p = sous.add_parser("construire", help="godot-docs (rst) → index SQLite FTS5")
     p.add_argument("--docs", type=Path)
+    p.add_argument("--demos", type=Path)
+    p.add_argument("--sans-demos", action="store_true")
+    p.add_argument("--travailleurs", type=int, default=2)
     p.add_argument("--sortie", type=Path)
     p = sous.add_parser("chercher", help="search_docs")
     p.add_argument("requete")
     p.add_argument("-n", type=int, default=5)
+    p.add_argument("--source", default="tout", choices=["tout", "doc", "exemples"])
     p.add_argument("--json", action="store_true")
     p.add_argument("--index", type=Path)
     p = sous.add_parser("verifier", help="aucune solution gelée dans l'index")
@@ -47,16 +54,30 @@ def main(argv: list[str] | None = None) -> int:
         if docs is None:
             print("Renseigner [chemins].docs_godot dans config.toml ou passer --docs.", file=sys.stderr)
             return 2
-        r = rag.construire(docs, args.sortie)
+        from usine.rag.exemples import chemin_demos, verifier_demos
+        demos = None if args.sans_demos else (args.demos or chemin_demos())
+        verification = None
+        if demos is not None:
+            sortie = Path(args.sortie or rag.chemin_index())
+            print(f"Vérification des démos de {demos} (Godot, une fois par révision)…")
+            verification = verifier_demos(demos, sortie.parent / "verification_demos.json", args.travailleurs)
+        exclues = cfg.charger_config().get("rag", {}).get("demos_exclues", [])
+        r = rag.construire(docs, args.sortie, demos=demos, verification=verification, demos_exclues=exclues)
         print(f"index : {r['index']}")
         print(f"pages : {r['pages']}   fragments : {r['fragments']}   durée : {r['duree_s']} s")
+        if r["demos"]:
+            d = r["demos"]
+            print(f"démos : {d['projets']} projets, {d['scripts_verifies']} scripts qui compilent indexés, "
+                  f"{d['scripts_ecartes']} écartés ; projets retirés : {exclues or 'aucun'}")
+        else:
+            print("démos : aucune (exemples vérifiés absents)")
         print(f"gel : {'manifeste ' + r['manifeste'][:16] + '…' if r['manifeste'] else 'aucun manifeste (rien à exclure)'}")
         print(f"fragments exclus (solution gelée) : {len(r['exclus'])}")
         for source, titre, tache in r["exclus"]:
             print(f"  {source} « {titre} » ← {tache}")
         return 0
     if args.commande == "chercher":
-        res = rag.IndexDocs(args.index, plonger=rag.plongeur_configure()).chercher(args.requete, args.n)
+        res = rag.IndexDocs(args.index, plonger=rag.plongeur_configure()).chercher(args.requete, args.n, args.source)
         if args.json:
             print(json.dumps(res, ensure_ascii=False, indent=1))
         else:
