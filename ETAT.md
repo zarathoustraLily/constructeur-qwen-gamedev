@@ -390,6 +390,7 @@ Pour atteindre 50 tâches gelées par compétence, il faut d'autres projets sour
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
 - [ ] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 (chaîne graine 1, `comparer` avec `preuves\rapport_chaine_graine1.json`).
+  Non exécutée : le 2026-10-04, laurent valide la session 3 sur la preuve cloud (l'étape 11 dure environ 2 h sur sa machine). À refaire avant la session 5 si possible, au moins l'étape 6.
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
