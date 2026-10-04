@@ -1,0 +1,7 @@
+{
+ "description": "Refus à la validation : le deuxième édit vise un nœud qui n'existe pas (Coin9). Rien ne doit être écrit, même pas le premier édit.",
+ "edits": [
+  {"op": "set_property", "noeud": "main:Coins/Coin1", "propriete": "position", "valeur": {"Vector2": [100, 100]}},
+  {"op": "set_property", "noeud": "main:Coins/Coin9", "propriete": "position", "valeur": {"Vector2": [0, 0]}}
+ ]
+}

@@ -1,0 +1,8 @@
+{
+ "description": "Refus par le juge : les éditions sont valides, mais le nouveau texte du HUD casse un test (« Pieces » sans accent). La copie de travail est jetée.",
+ "edits": [
+  {"op": "add_node", "parent": "main", "nom": "Repere", "type": "Marker2D"},
+  {"op": "replace_function", "script": "res://scripts/hud.gd", "fonction": "_on_coins_changed",
+   "corps": "coins_label.text = \"Pieces : %d\" % total"}
+ ]
+}

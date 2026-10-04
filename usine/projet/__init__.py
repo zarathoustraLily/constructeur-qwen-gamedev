@@ -1,1 +1,1 @@
-"""describe_project et apply_edits (session 2)."""
+"""describe_project et apply_edits (voir EDITS_GODOT.md)."""
