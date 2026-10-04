@@ -76,3 +76,63 @@ def test_amont_injoignable_donne_502(tmp_path):
 
 def test_amont_depuis_url():
     assert amont_depuis_url("http://127.0.0.1:8080/v1") == ("127.0.0.1", 8080)
+
+
+def _echange_complet(enr, messages, contenu, outils=("scene_write",)):
+    corps = json.dumps({"model": "q", "messages": messages,
+                        "tools": [{"type": "function", "function": {"name": n}} for n in outils]}).encode()
+    rep = json.dumps({"choices": [{"index": 0, "message": {"role": "assistant", "content": contenu}}]}).encode()
+    return enr.enregistrer("/v1/chat/completions", corps, 200, {"content-type": "application/json"}, rep)
+
+
+def test_prompt_systeme_qui_change_ne_coupe_pas_la_session(tmp_path):
+    enr = Enregistreur(tmp_path)
+    u = {"role": "user", "content": "Ajoute un piège"}
+    f1 = _echange_complet(enr, [{"role": "system", "content": "fichiers : a.gd"}, u], "je regarde")
+    f2 = _echange_complet(enr, [{"role": "system", "content": "fichiers : a.gd piege.tscn"}, u,
+                                {"role": "assistant", "content": "je regarde"}, {"role": "user", "content": "et ?"}], "fait")
+    assert f1 == f2
+    entete, messages = lire_session(f2)
+    assert entete["echanges"] == 2 and messages[0]["content"] == "fichiers : a.gd piege.tscn"
+
+
+def test_meme_demande_dans_une_nouvelle_conversation_ouvre_une_autre_session(tmp_path):
+    enr = Enregistreur(tmp_path)
+    m = [{"role": "system", "content": "S"}, {"role": "user", "content": "Ajoute un piège"}]
+    f1 = _echange_complet(enr, m, "r1")
+    _echange_complet(enr, m + [{"role": "assistant", "content": "r1"}, {"role": "user", "content": "suite"}], "r2")
+    f3 = _echange_complet(enr, m, "autre réponse")  # nouvelle conversation, même premier message
+    assert f3 != f1
+    assert lire_session(f1)[0]["echanges"] == 2  # la première n'est pas écrasée
+
+
+def test_requete_de_titre_ne_capte_pas_la_conversation(tmp_path):
+    enr = Enregistreur(tmp_path)
+    u = {"role": "user", "content": "Ajoute un piège"}
+    principal = _echange_complet(enr, [{"role": "system", "content": "Tu es OpenCode."}, u], "je regarde")
+    titre = _echange_complet(enr, [{"role": "system", "content": "Donne un titre."}, u], "Piège", outils=())
+    suite = _echange_complet(enr, [{"role": "system", "content": "Tu es OpenCode."}, u,
+                                   {"role": "assistant", "content": "je regarde"}, {"role": "user", "content": "go"}], "ok")
+    assert titre != principal and suite == principal
+
+
+def test_reponse_gzip_enregistree_decompressee(tmp_path):
+    import gzip
+    enr = Enregistreur(tmp_path)
+    corps = json.dumps({"model": "q", "messages": [{"role": "user", "content": "x"}]}).encode()
+    rep = gzip.compress(json.dumps({"choices": [{"index": 0, "message": {"role": "assistant", "content": "é"}}]}).encode())
+    f = enr.enregistrer("/v1/chat/completions", corps, 200, {"content-type": "application/json",
+                                                             "content-encoding": "gzip"}, rep)
+    assert lire_session(f)[1][-1] == {"role": "assistant", "content": "é"}
+
+
+def test_outils_usine_appel_direct_et_code_mode():
+    from usine.capture.enregistreur import outils_usine
+    messages = [
+        {"role": "assistant", "content": None, "tool_calls": [
+            {"id": "1", "type": "function", "function": {"name": "usine-godot_scene_write", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "1", "content": "usine-godot_faux (résultat, ignoré)"},
+        {"role": "assistant", "content": None, "tool_calls": [
+            {"id": "2", "type": "function", "function": {"name": "code", "arguments": json.dumps(
+                {"code": "const v = await tools[\"usine-godot\"].run_tests({});\nawait tools['godot-ai'].x()"})}}]}]
+    assert outils_usine(messages) == ["scene_write", "run_tests"]

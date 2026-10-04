@@ -1,9 +1,14 @@
 """Enregistreur des échanges OpenAI-compatibles → sessions JSONL (format de CLAUDE.md).
 
 Une session = une conversation d'OpenCode. OpenCode renvoie à chaque tour toute la
-conversation : une requête continue une session quand les messages de la requête précédente
-de cette session en sont un préfixe. Le fichier de la session est réécrit (atomiquement) à
-chaque échange : en-tête, puis les messages de la dernière requête, puis la réponse.
+conversation. Une requête continue la session qui partage avec elle le plus long début de
+conversation (messages hors `system`, au moins le premier message utilisateur), à condition
+d'avoir plus de messages qu'elle : une nouvelle conversation qui commence par la même demande
+ouvre donc une autre session. Le prompt système peut changer d'un tour à l'autre (date, liste
+de fichiers) sans couper la session ; à égalité, on préfère la session de même prompt système
+et de mêmes outils (une requête annexe, comme la génération du titre, n'a ni l'un ni l'autre),
+puis la plus récente. Le fichier de la session est réécrit (atomiquement) à chaque échange :
+en-tête, puis les messages de la dernière requête, puis la réponse.
 
     donnees/sessions/<AAAAMMJJ-HHMMSS>_<id>.jsonl
       {"tache_id": null, "competence": null, "verdict_final": null, "session": id, ...}
@@ -20,9 +25,11 @@ ou un tri manuel les renseignent.
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import os
+import re
 import tempfile
 import threading
 import time
@@ -111,12 +118,19 @@ class Enregistreur:
         # session → {"cles": clés des messages de la dernière requête, "fichier", "debut", "echanges"}
         self.sessions: dict[str, dict[str, Any]] = {}
 
-    def _session_pour(self, cles: list[str]) -> str | None:
-        meilleure, longueur = None, 0
-        for ident, s in self.sessions.items():
-            n = len(s["cles"])
-            if longueur < n <= len(cles) and cles[:n] == s["cles"]:
-                meilleure, longueur = ident, n
+    def _session_pour(self, cles: list[str], systeme: str, outils: str) -> str | None:
+        meilleure, rang = None, None
+        for ordre, (ident, s) in enumerate(self.sessions.items()):
+            if len(cles) <= len(s["cles"]):
+                continue
+            commun = 0
+            while commun < len(s["cles"]) and cles[commun] == s["cles"][commun]:
+                commun += 1
+            if commun == 0:
+                continue
+            r = (commun, s["systeme"] == systeme, s["outils"] == outils, ordre)
+            if rang is None or r > rang:
+                meilleure, rang = ident, r
         return meilleure
 
     def enregistrer(self, chemin: str, requete: bytes, statut: int, entetes: dict[str, str], reponse: bytes) -> Path | None:
@@ -127,6 +141,11 @@ class Enregistreur:
             corps = json.loads(requete.decode("utf-8")) if requete else {}
         except (UnicodeDecodeError, json.JSONDecodeError):
             corps = None
+        if entetes.get("content-encoding", "").lower() == "gzip":
+            try:
+                reponse = gzip.decompress(reponse)  # copie décompressée pour l'enregistrement seulement
+            except (OSError, EOFError):
+                pass
         with self.verrou:
             self._brut(maintenant, {"horodatage": horodatage, "chemin": chemin, "statut": statut,
                                     "requete": corps if corps is not None else requete.decode("utf-8", "replace"),
@@ -139,14 +158,17 @@ class Enregistreur:
             except (UnicodeDecodeError, json.JSONDecodeError):
                 return None
             messages = [message_normalise(m) for m in corps["messages"] if isinstance(m, dict)]
-            cles = [cle_message(m) for m in messages]
-            ident = self._session_pour(cles)
+            cles = [cle_message(m) for m in messages if m.get("role") != "system"]
+            systeme = _empreinte([m.get("content") for m in messages if m.get("role") == "system"])
+            outils = _empreinte(sorted(((t.get("function") or {}).get("name") or "")
+                                       for t in corps.get("tools") or [] if isinstance(t, dict)))
+            ident = self._session_pour(cles, systeme, outils)
             if ident is None:
-                ident = _empreinte([horodatage, cles[:2], len(self.sessions)])[:12]
+                ident = _empreinte([horodatage, cles[:1], len(self.sessions)])[:12]
                 nom = time.strftime("%Y%m%d-%H%M%S", time.localtime(maintenant)) + f"_{ident}.jsonl"
                 self.sessions[ident] = {"fichier": self.dossier / nom, "debut": horodatage, "echanges": 0}
             s = self.sessions[ident]
-            s["cles"] = cles
+            s.update({"cles": cles, "systeme": systeme, "outils": outils})
             s["echanges"] += 1
             entete = {"tache_id": None, "competence": None, "verdict_final": None, "session": ident,
                       "source": "capture", "debut": s["debut"], "fin": horodatage, "echanges": s["echanges"],
@@ -173,6 +195,23 @@ def _ecrire_atomique(chemin: Path, texte: str) -> None:
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
         raise
+
+
+RE_OUTIL_USINE = re.compile(r"""usine-godot(?:_|\\?["']\s*\]\s*\.\s*)([A-Za-z_]\w*)""")
+
+
+def outils_usine(messages: list[dict[str, Any]]) -> list[str]:
+    """Outils de l'usine appelés par l'assistant, dans l'ordre : appel direct (`usine-godot_run_tests`)
+    ou via le Code Mode d'OpenCode (`tools["usine-godot"].run_tests({...})` dans le code envoyé)."""
+    vus: list[str] = []
+    for m in messages:
+        if m.get("role") != "assistant":
+            continue
+        for appel in m.get("tool_calls") or []:
+            f = appel.get("function") or {}
+            vus += RE_OUTIL_USINE.findall(f.get("name") or "")
+            vus += RE_OUTIL_USINE.findall(f.get("arguments") or "")
+    return vus
 
 
 def lire_session(chemin: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:

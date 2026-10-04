@@ -10,7 +10,10 @@ Descriptions courtes : chaque outil déclaré coûte des jetons de prompt à cha
 from __future__ import annotations
 
 import argparse
+import asyncio
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -30,45 +33,52 @@ INSTRUCTIONS = ("Outils Godot 4.7 déterministes sur le projet ouvert. Chemins e
 def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | None = None) -> FastMCP:
     outils = Outils(projet, godot, index_docs)
     mcp = FastMCP(NOM, instructions=INSTRUCTIONS)
+    # Un seul fil d'exécution pour les outils : la boucle stdio reste disponible pendant qu'un
+    # juge tourne, et les connexions SQLite (vocabulaire, index) restent dans le même fil.
+    fil = ThreadPoolExecutor(max_workers=1, thread_name_prefix="usine-outils")
+
+    async def executer(fonction, *args):
+        return await asyncio.get_running_loop().run_in_executor(fil, partial(fonction, *args))
+
     outil = lambda description: mcp.tool(description=description, structured_output=False)  # noqa: E731
 
     @outil("Classe Godot réelle : héritage et membres propres ; avec membre, sa signature (héritage compris).")
-    def vocab_lookup(classe: str, membre: str | None = None) -> str:
-        return outils.vocab_lookup(classe, membre)
+    async def vocab_lookup(classe: str, membre: str | None = None) -> str:
+        return await executer(outils.vocab_lookup, classe, membre)
 
     @outil("Cherche dans la doc Godot 4.7 et le code vérifié des démos officielles. "
            "source : tout|doc|exemples. Classe ou Classe.membre exact en tête.")
-    def search_docs(requete: str, n: int = 5, source: str = "tout") -> str:
-        return outils.search_docs(requete, n, source)
+    async def search_docs(requete: str, n: int = 5, source: str = "tout") -> str:
+        return await executer(outils.search_docs, requete, n, source)
 
     @outil("Lit une .tscn en spec JSON.")
-    def scene_read(chemin: str) -> str:
-        return outils.scene_read(chemin)
+    async def scene_read(chemin: str) -> str:
+        return await executer(outils.scene_read, chemin)
 
     @outil("Écrit une .tscn depuis une spec JSON (format de scene_read), si elle se charge.")
-    def scene_write(chemin: str, spec: dict[str, Any]) -> str:
-        return outils.scene_write(chemin, spec)
+    async def scene_write(chemin: str, spec: dict[str, Any]) -> str:
+        return await executer(outils.scene_write, chemin, spec)
 
     @outil("Vue compacte du projet : scènes, nœuds avec leurs ids, scripts, connexions.")
-    def describe_project() -> str:
-        return outils.describe_project()
+    async def describe_project() -> str:
+        return await executer(outils.describe_project)
 
     @outil("Applique une liste d'éditions (ops : add_node, del_node, set_property, attach_script, connect, "
            "disconnect, add_signal, add_function, replace_function, set_resource_value), tout ou rien.")
-    def apply_edits(edits: list[dict[str, Any]]) -> str:
-        return outils.apply_edits(edits)
+    async def apply_edits(edits: list[dict[str, Any]]) -> str:
+        return await executer(outils.apply_edits, edits)
 
     @outil("Analyse un script .gd (erreurs de parse et de type).")
-    def check_script(chemin: str) -> str:
-        return outils.check_script(chemin)
+    async def check_script(chemin: str) -> str:
+        return await executer(outils.check_script, chemin)
 
     @outil("Charge et instancie une scène en headless.")
-    def load_scene(chemin: str) -> str:
-        return outils.load_scene(chemin)
+    async def load_scene(chemin: str) -> str:
+        return await executer(outils.load_scene, chemin)
 
     @outil("Lance les tests GdUnit4 (défaut res://tests ; ou un dossier, ou une suite).")
-    def run_tests(filtre: str | None = None) -> str:
-        return outils.run_tests(filtre)
+    async def run_tests(filtre: str | None = None) -> str:
+        return await executer(outils.run_tests, filtre)
 
     return mcp
 

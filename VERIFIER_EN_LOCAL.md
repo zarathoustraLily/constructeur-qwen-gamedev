@@ -268,7 +268,7 @@ python -m usine.rag verifier
 echo %ERRORLEVEL%
 ```
 
-Attendu : la ligne `démos : 130 projets, … scripts qui compilent indexés, … écartés` avec les mêmes nombres que dans `ETAT.md` (session 4) ; dans `chercher`, des lignes `[texte] … (demos/…)` ; `verifier` finit par `fragments qui reprennent une solution gelée : 0` et `0`.
+Attendu : la ligne `démos : 130 projets, … scripts qui compilent indexés, … écartés` avec les mêmes nombres que dans `ETAT.md` (session 4) ; dans `chercher`, des lignes `[texte] … (demos/…)` ; `verifier` finit par `fragments qui reprennent une tâche : 0` et `0`. Tant que le gel n'existe pas sur ta machine, il n'y a aucune tâche gelée à contrôler : c'est normal, le contrôle complet est refait quand le gel sera complet (avant la session 5).
 
 ## 14. Session 4 — proxy de capture et serveur MCP (preuves rejouées)
 
@@ -303,7 +303,14 @@ cd /d D:\constructeur-qwen-gamedev
 python -m usine.capture lister
 ```
 
-Attendu : au moins une ligne `<date>_<id>.jsonl  N échanges …  outils : …` dont la liste d'outils contient `usine-godot_scene_write` (ou `usine-godot_apply_edits`) puis `usine-godot_run_tests`. Le fichier est dans `donnees\sessions\`.
+Attendu : pour la session de ta demande, deux lignes du genre
+
+```
+20261005-101500_3f2a9c1b7e04.jsonl  6 échanges, 13 messages, 6 appels d'outils
+    usine-godot : scene_write → run_tests
+```
+
+La seconde ligne liste les outils de l'usine appelés, directement ou par le Code Mode (`tools["usine-godot"].scene_write(...)`) : on attend `scene_write` (ou `apply_edits`) puis `run_tests`. Le fichier est dans `donnees\sessions\`.
 Note dans `ETAT.md` les outils réellement appelés. Si Qwen en appelle d'autres, ce n'est pas un échec : l'usine équipe, elle n'impose rien. Si `lister` affiche `0 sessions`, OpenCode n'est pas passé par le proxy : copie `D:\GODOT\essai_usine\opencode.json` dans le fil.
 
 ## Points que seul ce test sur ta machine peut confirmer

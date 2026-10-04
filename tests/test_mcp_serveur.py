@@ -11,9 +11,8 @@ from mcp_serveur.preuve import preuve
 from usine.portillon.exclusion import Exclusion
 from usine.rag import index as rag
 
-from tests.test_rag import CLASSE_RST
-
 REFERENCE = Path(__file__).resolve().parent.parent / "godot" / "reference"
+CLASSE_RST = Path(__file__).resolve().parent / "donnees" / "rag" / "class_characterbody2d.rst"
 
 
 def test_chemins_hors_du_projet_refuses():
@@ -36,7 +35,7 @@ def test_vocab_lookup():
 def test_preuve_mcp(tmp_path, capsys):
     docs = tmp_path / "docs" / "classes"
     docs.mkdir(parents=True)
-    (docs / "class_characterbody2d.rst").write_text(CLASSE_RST, encoding="utf-8")
+    (docs / "class_characterbody2d.rst").write_text(CLASSE_RST.read_text(encoding="utf-8"), encoding="utf-8")
     rag.construire(tmp_path / "docs", tmp_path / "idx.sqlite", donnees=tmp_path, exclusion=Exclusion(None))
     code = preuve(REFERENCE, tmp_path / "idx.sqlite")
     sortie = capsys.readouterr().out

@@ -2,7 +2,7 @@
 
     python -m usine.rag construire [--docs <godot-docs>] [--demos <godot-demo-projects>] [--sans-demos]
     python -m usine.rag chercher "CharacterBody2D" [-n 5] [--source tout|doc|exemples] [--json]
-    python -m usine.rag verifier
+    python -m usine.rag verifier [--taches <dossier de tâches>] [--temoin <projet source>]
     python -m usine.rag vecteurs [--url http://127.0.0.1:8080/v1] [--lot 32]   (option sqlite-vec)
 
 `construire` lit `[chemins].docs_godot` et `[chemins].demos_godot` de config.toml si les options
@@ -11,6 +11,10 @@ script) : une fois par révision du dépôt, rapport dans donnees/rag/verificati
 `[rag].demos_exclues` retire des projets entiers (démo devenue source de tâches gelées).
 `verifier` relit chaque fragment de l'index contre les jeux gelés : code 0 si aucune
 solution gelée n'y entre et que l'index a été construit avec le manifeste actuel.
+Avec --taches, le contrôle porte sur toutes les tâches du dossier (par exemple
+donnees/candidats, dont le gel est tiré) au lieu du seul manifeste du gel. --temoin passe
+les scripts d'un projet source par le même détecteur (témoin positif : il doit y reconnaître
+des réponses).
 """
 
 from __future__ import annotations
@@ -41,6 +45,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--index", type=Path)
     p = sous.add_parser("verifier", help="aucune solution gelée dans l'index")
     p.add_argument("--index", type=Path)
+    p.add_argument("--taches", type=Path, help="contrôler contre toutes les tâches de ce dossier")
+    p.add_argument("--temoin", type=Path, help="projet source dont les scripts doivent être reconnus")
     p = sous.add_parser("vecteurs", help="plongements sqlite-vec par le llama-server local (option)")
     p.add_argument("--url", default=None)
     p.add_argument("--lot", type=int, default=32)
@@ -87,14 +93,29 @@ def main(argv: list[str] | None = None) -> int:
     if args.commande == "verifier":
         from usine.portillon.exclusion import Exclusion
         idx = rag.IndexDocs(args.index)
-        r = idx.verifier_exclusion(Exclusion.charger())
+        exclusion = Exclusion.depuis_taches(args.taches) if args.taches else Exclusion.charger()
+        r = idx.verifier_exclusion(exclusion)
         print(f"index : {idx.base} ({r['fragments']} fragments, révision godot-docs {idx.meta.get('revision_docs')})")
-        print(f"tâches gelées : {r['taches_gelees']}   exclus à la construction : {r['exclus_a_la_construction']}")
-        print(f"manifeste du gel identique à celui de la construction : {'oui' if r['manifeste_a_jour'] else 'NON (reconstruire)'}")
-        print(f"fragments qui reprennent une solution gelée : {len(r['fuites'])}")
+        if args.taches:
+            print(f"tâches contrôlées : {r['taches_gelees']} (toutes celles de {args.taches})")
+        else:
+            print(f"tâches gelées : {r['taches_gelees']}   exclus à la construction : {r['exclus_a_la_construction']}")
+            print(f"manifeste du gel identique à celui de la construction : "
+                  f"{'oui' if r['manifeste_a_jour'] else 'NON (reconstruire)'}")
+        print(f"fragments qui reprennent une tâche : {len(r['fuites'])}")
         for f in r["fuites"]:
             print(f"  {f['source']} « {f['titre']} » ← {f['tache_id']}")
-        return 0 if not r["fuites"] and r["manifeste_a_jour"] else 1
+        temoin_ok = True
+        if args.temoin:
+            from usine.rag.exemples import fragments_script
+            fr = [f for s in sorted(args.temoin.rglob("*.gd")) if "addons" not in s.relative_to(args.temoin).parts
+                  and ".godot" not in s.relative_to(args.temoin).parts
+                  for f in fragments_script(args.temoin.name, "res://" + s.relative_to(args.temoin).as_posix(),
+                                            s.read_text(encoding="utf-8"))]
+            reconnus = sum(1 for f in fr if exclusion.texte_exclu(f.texte))
+            temoin_ok = reconnus > 0
+            print(f"témoin positif : {reconnus}/{len(fr)} fragments des scripts de {args.temoin} reconnus comme réponses")
+        return 0 if not r["fuites"] and (args.taches or r["manifeste_a_jour"]) and temoin_ok else 1
     from usine.rag import vecteurs
     if not vecteurs.disponible():
         print("sqlite-vec absent : pip install sqlite-vec (option).", file=sys.stderr)

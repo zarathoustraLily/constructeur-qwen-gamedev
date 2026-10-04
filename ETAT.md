@@ -386,11 +386,134 @@ Pour atteindre 50 tâches gelées par compétence, il faut d'autres projets sour
 - Session 4 : appliquer `Exclusion.texte_exclu` à l'index RAG ; exposer `describe_project`, `apply_edits`, `scene_write`, `valider_spec` en MCP.
 - Session 5 : `Exclusion.session_exclue` sur l'export SFT ; `difficulte.filtrer` sur les essais de Qwen.
 
+### Session 4 — 2026-10-04 (branche `claude/session-04-0nbove`)
+
+**Fait**
+
+- `usine/rag/` :
+  - `rst.py` : lecture du rst de godot-docs (branche 4.7, révision `9adca4c`), sans dépendance. Référence des classes : une vue d'ensemble (héritage, résumé, Description), puis un fragment par membre (méthode, propriété, signal, énumération, constante…). Les tableaux récapitulatifs sont sautés (`vocab_lookup` les donne). Guides (`getting_started/`, `tutorials/`) : un fragment par section. Le C# est retiré des onglets de code.
+  - `exemples.py` (demande de laurent, 2026-10-04) : le code des démos officielles `godot-demo-projects` au tag `4.7-6ad6167` (MIT) sert d'exemples vérifiés. 130 projets retenus : tous ceux du tag sauf `mono/` (C#) et l'annexe de laurent (`misc/os_test`, `mobile/android_iap`). Chaque projet est copié, importé, puis chaque script est compilé par Godot 4.7.2 (`gd/verifier_scripts.gd`). Seuls les scripts qui compilent entrent dans l'index. Le rapport `donnees/rag/verification_demos.json` garde l'empreinte SHA-256 de chaque script : il n'est refait que si un script change, et un script modifié depuis sa vérification est écarté.
+  - `index.py` : SQLite FTS5 (`porter unicode61`). Recherche exacte d'abord : `Classe`, `Classe.membre` (héritage compris), `membre` seul, et dans une phrase les mots qui sont des classes (casse exacte) ; puis BM25 avec le titre pondéré ×8. Avec `source="tout"`, la moitié des places revient d'abord aux exemples vérifiés ; `source="doc"` ou `"exemples"` filtre. Chaque fragment passe par `Exclusion.texte_exclu` à la construction ; `verifier` relit tout l'index.
+  - `vecteurs.py` : sqlite-vec en option (`[rag].vecteurs = false`), plongements par `/v1/embeddings` du llama-server local. Hors `requirements.txt`.
+  - CLI `python -m usine.rag construire|chercher|verifier|vecteurs`.
+- `usine/portillon/exclusion.py` : `Exclusion.depuis_taches(dossier)`, un contrôle sur toutes les tâches d'un dossier (sur-ensemble du gel).
+- `mcp_serveur/` : serveur MCP `usine-godot` (SDK officiel `mcp`, FastMCP, stdio), 9 outils, 2 880 caractères de déclaration. Écritures (`scene_write`, `apply_edits`) : copie jugée, puis remplacement atomique. Juges (`check_script`, `load_scene`, `run_tests`) : sur une copie jetable. Les chemins sont limités au projet. Les outils tournent sur un seul fil dédié (connexions SQLite stables, boucle stdio libre). Preuve : `python -m mcp_serveur.preuve`.
+- `skills/` : 13 fiches `usine-<id>-<nom>/SKILL.md` (en-tête `name`, `description`), avec quand s'en servir, entrée, sortie et juge.
+- `outils/opencode_fusion.py` : ajoute `mcp.usine-godot` et `skills.paths` au `opencode.json` du projet. Avec `--proxy`, ajoute aussi la surcharge `provider.<id>.options.baseURL` vers le proxy (fournisseur détecté dans la config globale, lue seulement). Sauvegarde avant écriture, JSONC refusé, `--retirer`.
+- `usine/capture/` : proxy (bibliothèque standard seule), enregistreur (sessions JSONL au format de `CLAUDE.md` + journal brut par jour), faux serveur, preuve, `lister` (outils de l'usine appelés, directement ou par le Code Mode).
+- `requirements.txt` : `mcp`. `config.example.toml` : `[chemins].demos_godot`, section `[rag]`. `CLAUDE.md` : ligne `rag/` de l'arborescence.
+- `VERIFIER_EN_LOCAL.md` : étapes 12 à 16 (environ 15 minutes ; seule l'étape 13 b est longue, et facultative).
+- Tests : `test_rag.py`, `test_capture.py`, `test_opencode_fusion.py`, `test_mcp_serveur.py`.
+
+**Choix**
+
+- Exemples vérifiés = démos officielles 4.7 : décision de laurent, plutôt qu'un tri des extraits de la doc. « Vérifié » veut dire « compile sous Godot 4.7.2 » (chargé et instanciable), pas « exécuté ». La doc reste indexée pour l'API ; ses extraits de code ne sont pas vérifiés.
+- La déclaration « 4.7 » d'une démo ne suffit pas : `2d/tween/main.gd` ne compile pas sous 4.7.2 (Parse Error ligne 77, lambda sur plusieurs lignes) ; `misc/2.5d/addons/node25d/.broken-gdscripts/Basis25D.gd` est cassé exprès. Ce sont les 2 scripts écartés.
+- Vérification sur une copie : l'import de Godot réécrit des fichiers de la démo (`3d/material_testers/models/godot_ball.res` à la première passe).
+- `[rag].demos_exclues` retire un projet entier : une démo qui deviendrait source de tâches gelées doit sortir du RAG (règle 4).
+- Capture : une session est la conversation qui partage le plus long début avec la requête (messages hors `system`), à condition que la requête ait plus de messages qu'elle. Le prompt système peut changer d'un tour à l'autre sans couper la session ; la même demande dans une nouvelle conversation ouvre une autre session ; une requête annexe (titre) ne capte pas la conversation. `tache_id`, `competence`, `verdict_final` restent `null` à la capture.
+- Proxy : contenu relayé tel quel, dans les deux sens ; seuls les en-têtes saut à saut (`Connection`, `Transfer-Encoding`, `Host`, `Expect`…) sont recalculés. Le flux SSE est réécrit morceau par morceau.
+- `valider_spec` n'est pas un outil à part : `scene_write` valide la spec avant d'écrire et renvoie les erreurs au format du verdict.
+- MCP : le serveur reçoit `--projet` (écrit par la fusion), sinon le dossier courant. `timeout` 120 000 ms, comme l'entrée `godot-ai`.
+- Contrôle d'exclusion dans le cloud : la chaîne de la session 3, relancée en fond, avançait trop lentement à côté de la vérification des démos (20 candidates sur 217 en 25 min). Je l'ai arrêtée. Le contrôle porte sur les 217 tâches candidates (`donnees/candidats`), dont le gel est tiré : c'est plus large que le gel.
+
+**Preuve de fin** (exécutée dans le cloud, Godot 4.7.2 Linux headless)
+
+`python -m usine.rag construire --docs <godot-docs 4.7> --demos <godot-demo-projects 4.7-6ad6167>` (fin ; la vérification affiche une ligne par projet)
+
+```
+2d/tween                                      0/1 scripts compilent  (6.5 s)
+misc/2.5d                                     13/14 scripts compilent  (5.0 s)
+[… 128 autres projets, tous n/n …]
+index : /home/claude/constructeur-qwen-gamedev/donnees/rag/godot_docs.sqlite
+pages : 1510   fragments : 27681   durée : 3.1 s
+démos : 130 projets, 446 scripts qui compilent indexés, 2 écartés ; projets retirés : aucun
+gel : aucun manifeste (rien à exclure)
+fragments exclus (solution gelée) : 0
+code=0
+```
+
+`python -m usine.rag chercher CharacterBody2D -n 5`
+
+```
+1. [exact] CharacterBody2D  (classes/class_characterbody2d.rst)
+2. [texte] networking/multiplayer_bomber › rock.gd  (demos/networking/multiplayer_bomber/rock.gd)
+3. [texte] 2d/navigation › character.gd  (demos/2d/navigation/character.gd)
+4. [texte] Using CharacterBody2D/3D › Examples  (tutorials/physics/using_character_body_2d.rst)
+5. [texte] CharacterBody2D.get_position_delta  (classes/class_characterbody2d.rst)
+code=0
+```
+
+`python -m usine.rag verifier --taches donnees/candidats --temoin godot/reference` (aucune reprise des 217 tâches candidates ; le témoin montre que le détecteur reconnaît bien les réponses dans le projet source)
+
+```
+index : /home/claude/constructeur-qwen-gamedev/donnees/rag/godot_docs.sqlite (27681 fragments, révision godot-docs 9adca4c1c72917bfe1b7be3108abed5ce26696a6)
+tâches contrôlées : 217 (toutes celles de donnees/candidats)
+fragments qui reprennent une tâche : 0
+témoin positif : 28/93 fragments des scripts de godot/reference reconnus comme réponses
+code=0
+```
+
+`python -m usine.capture preuve`
+
+```
+GET /v1/models                     relayé
+POST chat/completions #1 (SSE)     requête =  réponse 2561 octets = script  type =  1er morceau à 0.00 s / 0.61 s
+POST chat/completions #2 (JSON)    requête =  réponse 382 octets = script  type =
+POST chat/completions #3 (SSE)     requête =  réponse 1051 octets = script  type =  1er morceau à 0.00 s / 0.36 s
+sessions enregistrées : 1
+session : 3 échanges, 7 messages, en-tête tache_id/competence/verdict_final : oui
+appels d'outils : usine-godot_scene_write → usine-godot_run_tests
+arguments de scene_write recomposés depuis le flux : identiques
+dernier message : {"role": "assistant", "content": "Le piège est ajouté ; les 37 tests passent. ✓"}
+CONFORME
+code=0
+```
+
+`python -m mcp_serveur.preuve`
+
+```
+list_tools        OK   9 outils, 2880 caractères déclarés
+vocab_lookup      OK     0.0 s  signal [Area2D] body_entered(body: Node2D)
+search_docs       OK     0.0 s  1er : CharacterBody2D  (classes/class_characterbody2d.rst)
+scene_read        OK     0.0 s  racine Coin (Area2D)
+scene_write       OK     5.1 s  écrite, load_scene ok
+describe_project  OK     0.0 s  144 lignes, piece2 présente
+apply_edits       OK    14.1 s  appliqué, tests 37/37
+check_script      OK     5.0 s  ok
+load_scene        OK     4.8 s  ok
+run_tests         OK     6.6 s  37/37 tests verts
+apply_edits       OK     0.0 s  refusé à la validation, projet intact
+check_script      OK     0.0 s  chemin hors du projet refusé
+12/12 contrôles conformes
+code=0
+```
+
+`python -m pytest -q`
+
+```
+237 passed in 164.61s (0:02:44)
+code=0
+```
+
+**Reste à faire**
+
+- Exécuter `VERIFIER_EN_LOCAL.md` étapes 12 à 16 sur la machine Windows.
+- Avant la session 5, une fois le gel complété avec les jeux de laurent : retirer du RAG toute démo devenue source (`[rag].demos_exclues`), reconstruire l'index, puis `python -m usine.rag verifier` (il échoue si le manifeste du gel a changé depuis la construction).
+- Session 5 : renseigner `tache_id`/`competence`/`verdict_final` des sessions capturées, `Exclusion.session_exclue` sur l'export SFT.
+- Non fait : contrôle des extraits de code de la doc contre `extension_api.json` (laurent a préféré les démos).
+
+**Pièges**
+
+- Les arguments d'un appel d'outil arrivent en JSON échappé (`tools[\"usine-godot\"].run_tests`) : la détection du Code Mode le gère.
+- La vérification des démos et la chaîne du portillon se disputent les 4 cœurs : ne pas les lancer ensemble.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
 - [ ] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 (chaîne graine 1, `comparer` avec `preuves\rapport_chaine_graine1.json`).
   Non exécutée : le 2026-10-04, laurent valide la session 3 sur la preuve cloud (l'étape 11 dure environ 2 h sur sa machine). À refaire avant la session 5 si possible, au moins l'étape 6.
+- [ ] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 (environ 15 minutes ; l'étape 13 b, longue, est facultative).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10

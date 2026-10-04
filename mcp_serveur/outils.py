@@ -139,8 +139,10 @@ class Outils:
         try:
             erreurs = valider_spec(spec, verif)
             texte = None if erreurs else scene_write(spec, verif)
-        except ErreurSpec as exc:
-            erreurs = [{"fichier": res, "ligne": None, "categorie": "valeur_invalide", "message": str(exc)}]
+        except (ErreurSpec, KeyError, TypeError, ValueError, AttributeError) as exc:
+            # Spec mal formée (champ manquant, mauvais type) : refus à la validation, rien n'est écrit.
+            message = str(exc) if isinstance(exc, ErreurSpec) else f"spec mal formée : {type(exc).__name__} {exc}"
+            erreurs = [{"fichier": res, "ligne": None, "categorie": "valeur_invalide", "message": message}]
         if erreurs:
             verdict["erreurs"] = erreurs
             return _compact(_verdict_court(verdict))

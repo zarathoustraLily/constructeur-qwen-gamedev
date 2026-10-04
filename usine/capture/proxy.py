@@ -24,7 +24,7 @@ from urllib.parse import urlsplit
 from usine.capture.enregistreur import Enregistreur
 
 SAUT_A_SAUT = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "te", "trailer",
-               "trailers", "transfer-encoding", "upgrade", "host"}
+               "trailers", "transfer-encoding", "upgrade", "host", "expect"}
 DELAI_AMONT_S = 3600
 TAILLE_LECTURE = 65536
 

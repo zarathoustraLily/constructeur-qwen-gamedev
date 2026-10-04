@@ -46,15 +46,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.commande == "preuve":
         from usine.capture.preuve import preuve
         return preuve()
-    from usine.capture.enregistreur import lire_session
+    from usine.capture.enregistreur import lire_session, outils_usine
     fichiers = sorted(args.sortie.glob("*.jsonl"))
     for f in fichiers:
         entete, messages = lire_session(f)
-        roles = {}
-        for m in messages:
-            roles[m["role"]] = roles.get(m["role"], 0) + 1
-        appels = [c["function"]["name"] for m in messages for c in (m.get("tool_calls") or [])]
-        print(f"{f.name}  {entete['echanges']} échanges  {len(messages)} messages {roles}  outils : {', '.join(appels) or '—'}")
+        appels = [(c.get("function") or {}).get("name") for m in messages for c in (m.get("tool_calls") or [])]
+        print(f"{f.name}  {entete['echanges']} échanges, {len(messages)} messages, {len(appels)} appels d'outils")
+        print(f"    usine-godot : {' → '.join(outils_usine(messages)) or '—'}")
     print(f"{len(fichiers)} sessions dans {args.sortie}")
     return 0
 

@@ -139,7 +139,7 @@ class IndexDocs:
         if not self.base.is_file():
             raise FileNotFoundError(f"index de documentation absent : {self.base} "
                                     "(python -m usine.rag construire --docs <copie de godot-docs>)")
-        self.con = sqlite3.connect(f"file:{self.base.as_posix()}?mode=ro", uri=True, check_same_thread=False)
+        self.con = sqlite3.connect(self.base.resolve().as_uri() + "?mode=ro", uri=True, check_same_thread=False)
         self.con.row_factory = sqlite3.Row
         self.meta = {r["cle"]: r["valeur"] for r in self.con.execute("SELECT cle, valeur FROM meta")}
         self.plonger = None
@@ -237,10 +237,11 @@ class IndexDocs:
                     if len(resultats) < limite:
                         ajouter([r], "texte")
         if self.plonger is not None and len(resultats) < n:
-            ids = vecteurs.voisins(self.con, self.plonger([requete])[0], n)
+            ids = vecteurs.voisins(self.con, self.plonger([requete])[0], n * 3)
             par_id = {r["id"]: r for r in self.con.execute(
                 f"SELECT * FROM fragments WHERE id IN ({','.join('?' * len(ids))})", ids)} if ids else {}
-            ajouter([par_id[i] for i in ids if i in par_id], "vecteur")
+            ajouter([par_id[i] for i in ids if i in par_id
+                     and (exemples is None or (par_id[i]["genre"] == "exemple") == exemples)], "vecteur")
         for tous in (True, False):
             if len(resultats) < n:
                 ajouter(self.plein_texte(requete, n * 2, tous, exemples=False if places_ex else exemples), "texte")
