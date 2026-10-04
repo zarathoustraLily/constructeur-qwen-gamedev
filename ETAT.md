@@ -7,7 +7,7 @@
 - [x] Session 1 — Vocabulaire, juge commun, projet de référence, 10 tâches
 - [x] Session 2 — Traducteurs déterministes (scène ↔ spec, description du projet, éditions)
 - [x] Session 3 — Usine à tâches, portillon, jeux gelés
-- [ ] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
+- [x] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
 - [ ] Session 5 — Boucle RFT
 - [ ] Session 6 — Mesure
 
@@ -498,7 +498,7 @@ code=0
 
 **Reste à faire**
 
-- Exécuter `VERIFIER_EN_LOCAL.md` étapes 12 à 16 sur la machine Windows.
+- ~~Exécuter `VERIFIER_EN_LOCAL.md` étapes 12 à 16 sur la machine Windows.~~ Fait le 2026-10-04, conforme (voir « Vérifications locales en attente »). Seule l'étape 13 b, facultative, n'a pas été lancée.
 - Avant la session 5, une fois le gel complété avec les jeux de laurent : retirer du RAG toute démo devenue source (`[rag].demos_exclues`), reconstruire l'index, puis `python -m usine.rag verifier` (il échoue si le manifeste du gel a changé depuis la construction).
 - Session 5 : renseigner `tache_id`/`competence`/`verdict_final` des sessions capturées, `Exclusion.session_exclue` sur l'export SFT.
 - Non fait : contrôle des extraits de code de la doc contre `extension_api.json` (laurent a préféré les démos).
@@ -513,7 +513,7 @@ code=0
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
 - [ ] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 (chaîne graine 1, `comparer` avec `preuves\rapport_chaine_graine1.json`).
   Non exécutée : le 2026-10-04, laurent valide la session 3 sur la preuve cloud (l'étape 11 dure environ 2 h sur sa machine). À refaire avant la session 5 si possible, au moins l'étape 6.
-- [ ] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 (environ 15 minutes ; l'étape 13 b, longue, est facultative).
+- [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
@@ -620,6 +620,27 @@ code=0
 **Cause (vérifiée dans le code)** : c'est le test qui est fautif. Il crée `donnees/zone.tres` avec `Path.write_text` sans `newline`, et sous Windows ce fichier part donc en CRLF. `apply_edits` conserve ensuite ces fins de ligne, ce qui est voulu : `lire_texte` lit avec `newline=""` et `Document.fin_ligne()` réécrit dans le style du fichier, comportement couvert par `test_fins_de_ligne_crlf_conservees`. Le diagnostic de Qwen, « set_resource_value réécrit en CRLF », est faux. **Correctif** : le test écrit son fichier avec `newline="\n"`. Les autres `write_text` des tests ne sont pas comparés octet pour octet. Cloud après correctif : `174 passed in 174.74s`.
 
 **Troisième passe Windows (commit `ead2f55`)** : étape 6 → `python -m pytest -q` → `174 passed in 116.15s`, code 0, aucun `skipped`. Bilan local de la session 2 : étapes 6, 7 (20/20, resauvées comprises), 8 et 9 (3/3) conformes.
+
+### Session 4 — 2026-10-04, Windows 11 (étapes 12 à 16)
+
+Résultats transmis par laurent dans le fil de la session 4 (exécution par Qwen dans OpenCode). Le détail complet est dans sa copie locale d'`ETAT.md`.
+
+| Étape | Résultat |
+| --- | --- |
+| 12 — préparation | conforme |
+| 13 a — `construire --sans-demos` | conforme : 1510 pages, 25117 fragments, 13,2 s |
+| 13 a — `chercher CharacterBody2D` | conforme |
+| 13 b — index avec les démos (facultative) | non lancée (15 à 30 min) |
+| « 13c — index vides » (ligne du rapport de Qwen, sans équivalent dans la procédure) | conforme |
+| 14 — `python -m usine.capture preuve` | CONFORME |
+| 14 — `python -m mcp_serveur.preuve` | 12/12 |
+| 15 — `opencode_fusion.py … --proxy` | conforme, après relance avec `--fournisseur llama-local`, comme le prévoit la procédure |
+| 16 — vraie session OpenCode | conforme : Qwen a créé le piège à pointes (script, scène et 4 tests d'abord rouges), l'a intégré à `main.tscn`, 41/41 tests verts ; `lister` montre `scene_write → apply_edits → run_tests` |
+
+Points que seule la machine pouvait confirmer :
+- OpenCode 2.0.6 applique bien la surcharge `provider.llama-local.options.baseURL` du `opencode.json` du projet. La session a été enregistrée par le proxy, donc OpenCode est passé par lui.
+- OpenCode lance le serveur MCP avec la commande écrite par la fusion, et Qwen appelle les outils de l'usine de lui-même.
+- Non confirmé : les nombres de compilation des démos sous Windows (étape 13 b, facultative).
 
 ## Pièges connus
 
