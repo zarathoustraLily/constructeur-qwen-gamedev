@@ -647,6 +647,7 @@ Décision de laurent (2026-10-04) : construire la compétence E d'après sa spec
   - `regles` : raisons `efficience_*` et `rendu_degrade`, qui servent aussi au tri des essais de la session 5 ;
   - options `--competences` et `--e` dans `produire` et `chaine` ;
   - outil MCP `measure_efficiency`, fiche `skills/usine-e-optimisation`, CLAUDE.md (14 compétences).
+- Session précédente (37d90ba) : une paire vérifiée par variante ; une tâche E passée au portillon 3 fois sur 3, avec 8 mutants tués sur 8.
 - Cette session : `tests/test_mcp_serveur.py` attend 13/13 contrôles (le 13e est `measure_efficiency`) ; même correction dans `VERIFIER_EN_LOCAL.md`, étape 14. Nouvelle étape 18.
 
 **Choix**
@@ -696,11 +697,24 @@ Verdicts relus dans le cache : 0
 Durée : 1493 s
 ```
 
-Rejeu dans `/tmp/e10b`, puis `python -m usine.portillon comparer /tmp/e10/portillon/rapport.json /tmp/e10b/portillon/rapport.json`
+Rejeu : `python -m usine.portillon chaine --competences E --e 10 --sortie /tmp/e10b` (même tableau, `Verdicts relus dans le cache : 60`, `Durée : 177 s` ; production refaite, Godot relancé pour les mesures de génération). Puis `python -m usine.portillon comparer /tmp/e10/portillon/rapport.json /tmp/e10b/portillon/rapport.json`, `cmp` des manifestes et `diff -r` des dossiers `geles/`
 
 ```
-(rejeu en cours)
+acceptees                  identique
+acceptees_empreintes       identique
+gelees                     identique
+gelees_empreintes          identique
+rejets_par_raison          identique
+competences                identique
+ecartes_a_la_generation    identique
+doublons_avec_geles        identique
+Résultat identique
+code=0
+manifestes identiques
+gels identiques octet pour octet
 ```
+
+La première chaîne a tourné en même temps que pytest (4 cœurs partagés) : ses 1493 s sont un majorant.
 
 `python -m mcp_serveur.preuve --index <index minimal>` : le conteneur n'a pas l'index complet de la documentation (sans lui, `search_docs` échoue : « index de documentation absent »). L'index minimal est celui de `test_preuve_mcp` (une classe, `tests/donnees/rag/class_characterbody2d.rst`). Sur la machine de laurent, l'index complet existe (étape 13).
 

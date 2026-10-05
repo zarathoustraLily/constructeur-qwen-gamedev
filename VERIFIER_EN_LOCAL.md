@@ -342,7 +342,7 @@ Attendu :
 
 Un échec ici est un écart à signaler : copie la fin de la sortie dans le fil. Le cas le plus probable est un test de temps (`efficience_temps`), puisque le temps est la seule mesure qui dépend de la machine. Signale-le aussi, avec le rapport affiché.
 
-### 18 b. FACULTATIF — une chaîne E sur 10 tâches (environ 25 minutes dans le cloud sur 4 cœurs)
+### 18 b. FACULTATIF — une chaîne E sur 10 tâches (25 minutes au plus dans le cloud sur 4 cœurs)
 
 Elle écrit dans un dossier à part et ne touche ni à `donnees\geles` ni à `donnees\taches`.
 
