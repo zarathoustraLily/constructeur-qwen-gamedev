@@ -13,7 +13,7 @@ func test_shards_are_depth_weighted_not_kill_weighted() -> void:
 	var deep: int = MetaState.shards_for(600.0, 2)      # the full ten minutes
 	assert_that(shallow).is_equal(18)
 	assert_that(deep).is_equal(110)
-	assert_float(float(deep)).override_failure_message("depth has to pay several times what time alone does").is_greater(float(shallow * 4))
+	assert_float(float(deep)).append_failure_message("depth has to pay several times what time alone does").is_greater(float(shallow * 4))
 
 
 func test_a_boss_event_is_worth_more_than_four_minutes_of_hiding() -> void:
@@ -23,7 +23,7 @@ func test_a_boss_event_is_worth_more_than_four_minutes_of_hiding() -> void:
 func test_absorbing_a_run_pays_it() -> void:
 	var m := MetaState.new()
 	m.absorb({"time": 300.0, "kills": 400, "won": true, "boss_events": 1})
-	assert_that(m.shards).override_failure_message("5 minutes and the Prism").is_equal(55)
+	assert_that(m.shards).append_failure_message("5 minutes and the Prism").is_equal(55)
 
 
 func test_continuing_into_endless_is_never_a_currency_loss() -> void:
@@ -37,19 +37,19 @@ func test_continuing_into_endless_is_never_a_currency_loss() -> void:
 	assert_that(m.shards).is_equal(banked)
 	m.update_records({"time": 660.0, "kills": 2400, "won": true, "boss_events": 2,
 			"shards_banked": banked})
-	assert_that(m.shards).override_failure_message("the full run is paid exactly once").is_equal(MetaState.shards_for(660.0, 2))
+	assert_that(m.shards).append_failure_message("the full run is paid exactly once").is_equal(MetaState.shards_for(660.0, 2))
 
 
 func test_buying_spends_once_and_only_when_affordable() -> void:
 	var m := MetaState.new()
 	m.shards = 100
-	assert_bool(m.buy(&"node_keen", 150)).override_failure_message("cannot buy what you cannot afford").is_false()
+	assert_bool(m.buy(&"node_keen", 150)).append_failure_message("cannot buy what you cannot afford").is_false()
 	assert_that(m.shards).is_equal(100)
 	assert_bool(m.buy(&"node_keen", 95)).is_true()
 	assert_that(m.shards).is_equal(5)
 	assert_bool(m.has_purchase(&"node_keen")).is_true()
 	m.shards = 500
-	assert_bool(m.buy(&"node_keen", 95)).override_failure_message("and never twice").is_false()
+	assert_bool(m.buy(&"node_keen", 95)).append_failure_message("and never twice").is_false()
 	assert_that(m.shards).is_equal(500)
 
 
@@ -85,17 +85,17 @@ func test_every_card_node_actually_gates_a_card_that_exists() -> void:
 		for upgrade: UpgradeResource in UpgradeList.ALL:
 			if upgrade.id == node.grants_card:
 				found = upgrade
-		assert_that(found).override_failure_message("%s sells a card that is not in the pool" % node.id).is_not_null()
+		assert_that(found).append_failure_message("%s sells a card that is not in the pool" % node.id).is_not_null()
 		if found != null:
-			assert_that(found.requires_unlock).override_failure_message("%s must be gated by the node that sells it" % found.id).is_equal(node.id)
+			assert_that(found.requires_unlock).append_failure_message("%s must be gated by the node that sells it" % found.id).is_equal(node.id)
 
 
 func test_stat_nodes_carry_a_payload_and_card_nodes_do_not() -> void:
 	for node: SkillNode in SkillList.ALL:
 		if node.kind == SkillNode.Kind.STAT:
-			assert_that(node.payload).override_failure_message("%s is a stat node with nothing to apply" % node.id).is_not_null()
+			assert_that(node.payload).append_failure_message("%s is a stat node with nothing to apply" % node.id).is_not_null()
 		else:
-			assert_that(node.grants_card).override_failure_message("%s is a card node that names no card" % node.id).is_not_equal(&"")
+			assert_that(node.grants_card).append_failure_message("%s is a card node that names no card" % node.id).is_not_equal(&"")
 
 
 func test_stat_nodes_stay_small() -> void:
@@ -106,7 +106,7 @@ func test_stat_nodes_stay_small() -> void:
 	var s := Stats.new()
 	for node: SkillNode in SkillList.ALL:
 		node.apply_to(s)
-	assert_float(float(s.max_hp)).override_failure_message("a full tree must not double the starting HP pool").is_less(float(10))
+	assert_float(float(s.max_hp)).append_failure_message("a full tree must not double the starting HP pool").is_less(float(10))
 	assert_float(float(s.damage_bonus)).is_less(float(3))
 	assert_float(float(s.speed())).is_less(float(130.0 * 1.15))
 	assert_float(float(s.xp_mult)).is_less(float(1.2))

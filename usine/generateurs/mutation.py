@@ -26,7 +26,7 @@ from typing import Any
 
 from usine.generateurs import gabarits
 from usine.generateurs.commun import (Production, echantillon, ecrire_projet, ecrire_tache, ident, journal_execution,
-                                      fichiers_testes, lire_projet, nom_source, tests_regression)
+                                      fichiers_testes, lire_projet, nom_fichier, nom_source, tests_regression)
 from usine.generateurs.operateurs import Mutant, mutants_projet
 from usine.juge import cache
 from usine.juge.verdict import extraire_erreurs_journal
@@ -83,7 +83,7 @@ def _tache_k3(source: Path, sortie: Path, projet: dict[str, str], m: Mutant, ver
     consigne = (f"Des tests sont rouges : {rouges}. Le verdict des tests est dans journal_tests.json. "
                 "Corriger le bug avec le patch le plus petit possible, sans modifier les tests ; "
                 "tous les tests doivent passer.")
-    tache = {"id": ident("k3", nom_source(source), Path(m.fichier).stem, f"l{m.ligne}", m.operateur),
+    tache = {"id": ident("k3", nom_source(source), nom_fichier(projet, m.fichier), f"l{m.ligne}", m.operateur),
              "competence": "K3", "consigne": consigne, "consigne_a_ecrire": None, "origine": ORIGINE,
              "generateur": {"nom": "mutation", "source": nom_source(source), "mutant": m.id},
              "juge": {"patch_max_lignes": PATCH_MAX_LIGNES}}
@@ -101,7 +101,7 @@ def _tache_d1(source: Path, sortie: Path, projet: dict[str, str], m: Mutant) -> 
     categorie = localisees[0]["categorie"]
     depart["journal.txt"] = journal
     reponse = {"categorie": categorie, "fichier": res, "ligne": m.ligne}
-    tache = {"id": ident("d1", nom_source(source), Path(m.fichier).stem, f"l{m.ligne}", m.operateur),
+    tache = {"id": ident("d1", nom_source(source), nom_fichier(projet, m.fichier), f"l{m.ligne}", m.operateur),
              "competence": "D1", "consigne": gabarits.CONSIGNE_D1, "consigne_a_ecrire": None, "origine": ORIGINE,
              "generateur": {"nom": "mutation", "source": nom_source(source), "mutant": m.id},
              "juge": {"etapes": ["run_tests"]}}

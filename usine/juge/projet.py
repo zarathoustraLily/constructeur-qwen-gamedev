@@ -24,8 +24,9 @@ DOSSIER_TESTS_JUGE = "tests_juge"
 
 
 def _hors_addons(projet: Path, motif: str) -> list[Path]:
-    return sorted(p for p in projet.rglob(motif)
-                  if "addons" not in p.relative_to(projet).parts and ".godot" not in p.relative_to(projet).parts)
+    return sorted((p for p in projet.rglob(motif)
+                   if "addons" not in p.relative_to(projet).parts and ".godot" not in p.relative_to(projet).parts),
+                  key=lambda p: p.relative_to(projet).parts)
 
 
 def preparer_copie(source: Path, destination: Path, superpositions: Iterable[Path] = (),

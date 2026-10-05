@@ -29,6 +29,8 @@ TYPES_PAR_EXTENSION = {".gd": "Script", ".tscn": "PackedScene", ".scn": "PackedS
                        ".png": "Texture2D", ".jpg": "Texture2D", ".jpeg": "Texture2D", ".webp": "Texture2D",
                        ".svg": "Texture2D", ".wav": "AudioStreamWAV", ".ogg": "AudioStreamOggVorbis",
                        ".mp3": "AudioStreamMP3", ".ttf": "FontFile", ".otf": "FontFile"}
+# Un modèle importé (.glb…) s'instancie comme une scène : Godot l'écrit `type="PackedScene"`.
+TYPES_PAR_EXTENSION.update({ext: "PackedScene" for ext in SCENES_IMPORTEES})
 
 
 class ErreurSpec(ValueError):

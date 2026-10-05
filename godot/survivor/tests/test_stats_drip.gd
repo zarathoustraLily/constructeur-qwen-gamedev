@@ -29,7 +29,7 @@ func test_cooldown_scale_folds_cards_and_drip() -> void:
 	var s: Stats = _at_level(75)
 	s.fire_rate_mult = 0.88  # one fire-rate card
 	assert_float(float(s.cooldown_scale())).is_equal_approx(float(0.88 * Progression.drip_cooldown_mult(75)), float(0.0001))
-	assert_float(float(s.cooldown_scale())).override_failure_message("the drip can only make it faster").is_less(float(0.88))
+	assert_float(float(s.cooldown_scale())).append_failure_message("the drip can only make it faster").is_less(float(0.88))
 
 
 func test_cooldown_never_falls_through_the_floor() -> void:
@@ -43,8 +43,8 @@ func test_cooldown_never_falls_through_the_floor() -> void:
 func test_volley_count_folds_cards_and_drip() -> void:
 	var s: Stats = _at_level(41)  # +2 from the drip
 	s.projectile_bonus = 1
-	assert_that(s.volley_count(1)).override_failure_message("base + card + drip").is_equal(4)
-	assert_that(s.volley_count(5)).override_failure_message("the scattergun widens by the same amount").is_equal(8)
+	assert_that(s.volley_count(1)).append_failure_message("base + card + drip").is_equal(4)
+	assert_that(s.volley_count(5)).append_failure_message("the scattergun widens by the same amount").is_equal(8)
 
 
 func test_speed_folds_cards_and_capped_drip() -> void:

@@ -1,7 +1,8 @@
 """Cache des verdicts, indexé par le contenu exact de ce qui est jugé.
 
 Une clé = SHA-256 de : fichiers du projet composé (source + superpositions), tests cachés,
-étapes, filtre, version de Godot, et numéro de répétition. Deux jugements de mêmes octets
+étapes, filtre, version de Godot, version du juge (empreinte de son code et de GdUnit4) et
+numéro de répétition. Un juge modifié ne relit donc jamais les verdicts de l'ancien. Deux jugements de mêmes octets
 partagent donc leur verdict ; les répétitions (« 3 fois sur 3 ») restent des exécutions
 distinctes, chacune sous sa propre clé.
 
@@ -32,7 +33,7 @@ def _empreintes(racine: Path, prefixe: str, ignorer_journaux: bool) -> dict[str,
     if racine is None or not Path(racine).is_dir():
         return resultat
     racine = Path(racine)
-    for f in sorted(racine.rglob("*")):
+    for f in sorted(racine.rglob("*"), key=lambda p: p.relative_to(racine).parts):
         if not f.is_file():
             continue
         rel = f.relative_to(racine)
@@ -44,6 +45,32 @@ def _empreintes(racine: Path, prefixe: str, ignorer_journaux: bool) -> dict[str,
     return resultat
 
 
+_VERSION_JUGE: str | None = None
+
+
+def version_juge() -> str:
+    """Empreinte du code qui rend les verdicts : usine/juge (.py, .gd), le socle, GdUnit4.
+
+    Fins de ligne ramenées à LF : la même version donne la même empreinte sous Windows.
+    """
+    global _VERSION_JUGE
+    if _VERSION_JUGE is None:
+        h = hashlib.sha256()
+        juge = Path(__file__).resolve().parent
+        racines = [(juge, sorted((f for f in juge.rglob("*") if f.suffix in (".py", ".gd") and f.is_file()),
+                                 key=lambda f: f.relative_to(juge).parts)),
+                   (juge.parent, [juge.parent / "socle.py"])]
+        gdunit = cfg.chemin_gdunit4() / "plugin.cfg"
+        if gdunit.is_file():
+            racines.append((gdunit.parent, [gdunit]))
+        for racine, fichiers in racines:
+            for f in fichiers:
+                h.update(f"{f.relative_to(racine).as_posix()}\n".encode("utf-8"))
+                h.update(f.read_bytes().replace(b"\r\n", b"\n"))
+        _VERSION_JUGE = h.hexdigest()[:16]
+    return _VERSION_JUGE
+
+
 def cle_jugement(projet: Path, superpositions: Iterable[Path] = (), tests_caches: Path | None = None,
                  etapes: Iterable[str] = ETAPES, filtre: str | None = None, repetition: int = 1) -> str:
     fichiers = _empreintes(projet, "", True)
@@ -52,7 +79,8 @@ def cle_jugement(projet: Path, superpositions: Iterable[Path] = (), tests_caches
     fichiers.update(_empreintes(tests_caches, f"{DOSSIER_TESTS_JUGE}/", False) if tests_caches else {})
     h = hashlib.sha256()
     h.update(json.dumps({"fichiers": fichiers, "etapes": [e for e in ETAPES if e in set(etapes)],
-                         "filtre": filtre, "godot": cfg.version_godot(), "rep": repetition},
+                         "filtre": filtre, "godot": cfg.version_godot(), "juge": version_juge(),
+                         "rep": repetition},
                         sort_keys=True).encode("utf-8"))
     return h.hexdigest()
 

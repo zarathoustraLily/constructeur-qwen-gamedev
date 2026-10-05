@@ -28,13 +28,13 @@ func test_draw_returns_distinct_upgrades() -> void:
 	assert_that(offers.size()).is_equal(3)
 	var ids := offers.map(func(u: UpgradeResource) -> StringName: return u.id)
 	assert_that(ids.size()).is_equal(3)
-	assert_bool(ids[0] != ids[1] and ids[1] != ids[2] and ids[0] != ids[2]).override_failure_message("all distinct").is_true()
+	assert_bool(ids[0] != ids[1] and ids[1] != ids[2] and ids[0] != ids[2]).append_failure_message("all distinct").is_true()
 
 
 func test_maxed_stacks_are_never_offered() -> void:
 	var ups: Array[UpgradeResource] = [_mk("a", 1.0, 2), _mk("b"), _mk("c"), _mk("d")]
 	var offers := _pool(ups).draw(4, {&"a": 2})
-	assert_that(offers.size()).override_failure_message("maxed 'a' excluded").is_equal(3)
+	assert_that(offers.size()).append_failure_message("maxed 'a' excluded").is_equal(3)
 	for u: UpgradeResource in offers:
 		assert_that(u.id).is_not_equal(&"a")
 
@@ -51,7 +51,7 @@ func test_same_seed_same_draws() -> void:
 	var first := _pool(ups_a, 99).draw(3, {})
 	var second := _pool(ups_b, 99).draw(3, {})
 	for i: int in 3:
-		assert_that(first[i].id).override_failure_message("seeded draw %d matches" % i).is_equal(second[i].id)
+		assert_that(first[i].id).append_failure_message("seeded draw %d matches" % i).is_equal(second[i].id)
 
 
 func test_weights_bias_the_draw() -> void:
@@ -61,7 +61,7 @@ func test_weights_bias_the_draw() -> void:
 		var offers := _pool(ups, seed_value).draw(1, {})
 		if offers[0].id == &"common":
 			heavy_first += 1
-	assert_float(float(heavy_first)).override_failure_message("weight-100 picked first in >90/100 seeds").is_greater(float(90))
+	assert_float(float(heavy_first)).append_failure_message("weight-100 picked first in >90/100 seeds").is_greater(float(90))
 
 
 # --- unlock gating ----------------------------------------------------------
@@ -75,7 +75,7 @@ func _locked(id: String, requires: String) -> UpgradeResource:
 func test_locked_upgrades_stay_out_until_unlocked() -> void:
 	var ups: Array[UpgradeResource] = [_locked("orbit", "orbital"), _mk("a"), _mk("b")]
 	var offers := _pool(ups).draw(3, {})
-	assert_that(offers.size()).override_failure_message("the locked one is not offerable").is_equal(2)
+	assert_that(offers.size()).append_failure_message("the locked one is not offerable").is_equal(2)
 	for u: UpgradeResource in offers:
 		assert_that(u.id).is_not_equal(&"orbit")
 
@@ -105,9 +105,9 @@ func test_cards_that_read_the_same_never_share_a_hand() -> void:
 		_described("boots", "+14% move speed"),
 	]
 	var offers := _pool(ups).draw(3, {})
-	assert_that(offers.size()).override_failure_message("the twin is dropped, not the whole pool").is_equal(2)
+	assert_that(offers.size()).append_failure_message("the twin is dropped, not the whole pool").is_equal(2)
 	var texts := offers.map(func(u: UpgradeResource) -> String: return u.description)
-	assert_bool(texts[0] != texts[1]).override_failure_message("no two offers read the same").is_true()
+	assert_bool(texts[0] != texts[1]).append_failure_message("no two offers read the same").is_true()
 
 
 func test_blank_descriptions_do_not_collapse_the_pool() -> void:
@@ -123,6 +123,6 @@ func test_unlimited_stacks_are_always_eligible() -> void:
 	# nothing but a heal. max_stacks <= 0 must never exhaust.
 	var endless := _mk("endless", 1.0, 0)
 	assert_bool(endless.is_eligible(0)).is_true()
-	assert_bool(endless.is_eligible(500)).override_failure_message("unlimited means unlimited").is_true()
+	assert_bool(endless.is_eligible(500)).append_failure_message("unlimited means unlimited").is_true()
 	var capped := _mk("capped", 1.0, 2)
 	assert_bool(capped.is_eligible(2)).is_false()

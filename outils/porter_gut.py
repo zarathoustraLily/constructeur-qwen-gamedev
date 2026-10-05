@@ -2,8 +2,9 @@
 
     python outils/porter_gut.py <dossier_tests_gut> <dossier_sortie>
 
-Traduction déterministe, assertion par assertion (le message éventuel devient
-`override_failure_message`) :
+Traduction déterministe, assertion par assertion. Le message éventuel devient
+`append_failure_message` : comme GUT, l'échec garde « attendu / obtenu » et ajoute le message
+(`override_failure_message` remplacerait les valeurs, que le journal d'un test rouge doit montrer) :
 
     extends GutTest               → extends GdUnitTestSuite
     assert_eq(a, b)               → assert_that(a).is_equal(b)
@@ -89,11 +90,11 @@ def _arguments(texte: str) -> list[str]:
 
 def _traduire(nom: str, args: list[str]) -> str:
     def avec_message(assertion: str, attendus: int) -> str:
-        """Le message GUT éventuel passe avant la vérification : assert_x(v).override_failure_message(m).is_…"""
+        """Le message GUT éventuel passe avant la vérification : assert_x(v).append_failure_message(m).is_…"""
         if len(args) <= attendus:
             return assertion
         appel, verification = assertion.split(").is_", 1)
-        return f"{appel}).override_failure_message({args[attendus]}).is_{verification}"
+        return f"{appel}).append_failure_message({args[attendus]}).is_{verification}"
 
     f = lambda x: f"float({x})"  # noqa: E731
     if nom == "assert_eq":

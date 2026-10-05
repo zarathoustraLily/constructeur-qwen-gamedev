@@ -53,6 +53,10 @@ def produire(sortie: Path, graine: int, nombre_f1: int = 40, travailleurs: int =
             p = etape()
             afficher(f"{nom:<18} {len(p.taches):>4} tâches  {len(p.ecartes):>4} écartés  ({time.monotonic() - debut:.0f} s)")
             total.etendre(p)
+    doubles = sorted({d.name for d in total.taches if total.taches.count(d) > 1})
+    if doubles:
+        # Deux tâches du même id : la seconde a écrasé la première. À corriger dans le générateur.
+        raise ValueError(f"ids de tâches en double (générateur à corriger) : {', '.join(doubles)}")
     rapport: dict[str, Any] = {
         "graine": graine, "sources": [s.nom for s in choisies],
         "taches": sorted(str(d.relative_to(sortie).as_posix()) for d in total.taches),

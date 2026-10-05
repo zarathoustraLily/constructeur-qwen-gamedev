@@ -40,7 +40,8 @@ def fichiers_socle(source: Path) -> list[Path]:
     """Fichiers non textuels du projet source, hors caches et addons, triés."""
     source = Path(source)
     resultat = []
-    for f in sorted(source.rglob("*")):
+    # Tri par composants relatifs, sensible à la casse : même ordre sous Linux et Windows.
+    for f in sorted(source.rglob("*"), key=lambda p: p.relative_to(source).parts):
         if not f.is_file():
             continue
         rel = f.relative_to(source)
@@ -102,7 +103,7 @@ def chemin(nom: str) -> Path:
     if not cible.is_dir():
         raise FileNotFoundError(f"socle {nom} introuvable (ni dans {dossier_socles()}, ni reconstructible "
                                 "depuis godot/)")
-    fichiers = sorted(f for f in cible.rglob("*") if f.is_file())
+    fichiers = sorted((f for f in cible.rglob("*") if f.is_file()), key=lambda f: f.relative_to(cible).parts)
     if f"{nom.rsplit('-', 1)[0]}-{empreinte(cible, fichiers)[:12]}" != nom:
         raise ValueError(f"socle {nom} : contenu modifié (empreinte différente)")
     return cible
@@ -115,7 +116,7 @@ def etendre(projet: Path) -> None:
     if not marqueur.is_file():
         return
     socle = chemin(marqueur.read_text(encoding="utf-8").strip())
-    for f in sorted(socle.rglob("*")):
+    for f in sorted(socle.rglob("*"), key=lambda p: p.relative_to(socle).parts):
         if not f.is_file():
             continue
         dest = projet / f.relative_to(socle)

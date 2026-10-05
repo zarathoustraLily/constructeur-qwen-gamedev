@@ -536,7 +536,17 @@ Décision de laurent (fil « Jeux open source Godot 4.7 ») : brancher 01-surviv
 - Chaîne : une tâche modèle (installée à la main, origine hors générateur) qui double une tâche gelée est retirée de `taches/` et nommée dans le rapport (`modeles_retires`). C'était l'écart de laurent sur la session 3 (`k2_001_take_damage`, `s2_001_mort_du_fantome`).
 - Journaux D1 : le bilan de fuites que Godot écrit en quittant (« ObjectDB instances were leaked at exit », « resources still in use at exit ») est retiré du journal (`commun.sans_bilan_de_sortie`). Il variait d'un lancement à l'autre : le rejeu de la chaîne a donné une empreinte différente pour `d1_kenney_racing_vehicle_l10_chemin_noeud_casse`. Le gel a été refait après la correction.
 - Rapport de la chaîne : nouvelle clé `gelees_empreintes` (id → empreinte de chaque tâche gelée), comparée par `comparer`. Avant, `comparer` ne voyait que les ids gelés, et l'écart ci-dessus lui avait échappé. `comparer` liste aussi les ids qui diffèrent.
-- `tests/test_sources.py` (16 tests). `preuves/rapport_chaine_multi_graine1.json`. `VERIFIER_EN_LOCAL.md` : étape 17.
+- Relecture adversariale du code de la PR (5 relecteurs indépendants, chaque constat reproduit ou réfuté par un second) : 31 constats, 14 confirmés, tous corrigés, avec un test qui échouait avant le correctif :
+  - lot : une erreur affichée hors d'un élément (le `_ready` ou le `_exit_tree` d'un autoload) passait inaperçue ; elle fait maintenant tout revoir un par un ;
+  - second avis de `check_script` : il effaçait toutes les erreurs dès que le script était instanciable ; une erreur d'exécution située dans le script (initialiseur statique) reste maintenant une erreur ;
+  - `load_scene` ne précharge plus que les classes globales que la scène atteint (dépendances, classes nommées dans ses scripts, leurs bases) : une classe cassée sans rapport ne fait plus échouer la scène ; l'UID d'une dépendance passe avant son chemin texte, comme dans Godot ;
+  - cache des verdicts : la clé porte la version du juge (empreinte de `usine/juge`, du socle et de GdUnit4), pour qu'un juge modifié ne relise jamais les verdicts de l'ancien ;
+  - **Windows** : `sorted()` sur des `Path` y ignore la casse ; l'ordre des fichiers, donc le nom des socles et l'empreinte des 61 tâches des nouvelles sources, aurait changé. Tous les tris de chemins se font par composants relatifs (ordre Linux inchangé : 0 empreinte modifiée sur les 171) ;
+  - exclusion (règle 4) : une correction par suppression (`>=` → `>`) ne laissait aucun fragment de réponse ; une copie renommée d'une tâche gelée passait l'exclusion. Le contexte autour du point supprimé compte maintenant ;
+  - tests portés de survivor : `append_failure_message` au lieu d'`override_failure_message`, pour que le journal d'un test rouge garde « attendu / obtenu » (entrée K3) ;
+  - S1 : un modèle importé (`.glb`) a le type `PackedScene` ; ids : deux fichiers homonymes (`power_up.gd` ×2 dans survivor) reçoivent des ids distincts, et `produire` refuse des ids en double ;
+  - `VERIFIER_EN_LOCAL.md` : l'étape 11 (chaîne à une source) est remplacée par l'étape 17 b.
+- `tests/test_sources.py` (21 tests) ; 4 tests moteur de plus dans `tests/test_juge_godot.py`. `preuves/rapport_chaine_multi_graine1.json`. `VERIFIER_EN_LOCAL.md` : étape 17.
 
 **Choix**
 
@@ -619,8 +629,10 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
-- [ ] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 6, 10 et 11 (chaîne graine 1, `comparer` avec `preuves\rapport_chaine_graine1.json`).
-  Non exécutée : le 2026-10-04, laurent valide la session 3 sur la preuve cloud (l'étape 11 dure environ 2 h sur sa machine). À refaire avant la session 5 si possible, au moins l'étape 6.
+- [x] Session 3 — `VERIFIER_EN_LOCAL.md` étapes 10 et 11, lancées par laurent le soir du 2026-10-04 (étape 11 : 1 145 s grâce au cache, 217/214/106/105). Conforme sauf deux écarts expliqués :
+  - 2 doublons avec le gel (`k2_001_take_damage`, `s2_001_mort_du_fantome`) : des tâches modèles de la session 1 installées dans son `donnees\taches`. La chaîne les retire désormais de `taches/` et les nomme (`modeles_retires`).
+  - 7 empreintes K3 différentes : Godot Windows écrit `journal_tests.json` autrement que Linux ; les verdicts sont identiques.
+  L'étape 11 est depuis remplacée par l'étape 17 b (chaîne à 4 sources).
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
 - [ ] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a (17 b facultative). Le gel de la session 3 est remplacé : supprimer `donnees\geles` avant toute chaîne locale.
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).

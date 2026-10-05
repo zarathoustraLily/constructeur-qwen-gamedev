@@ -23,7 +23,7 @@ from typing import Any
 
 from usine.generateurs import gabarits
 from usine.generateurs.commun import (Production, echantillon, ecrire_tache, executer_gd, ident, lire_projet,
-                                      nom_source, scenes_jeu)
+                                      nom_fichier, nom_source, scenes_jeu)
 from usine.scene.exemples import specs_generees
 from usine.scene.spec import ErreurSpec, parcourir, scene_read, scene_write, valider_spec
 from usine.scene.texte import ecrire_valeur
@@ -116,7 +116,7 @@ def generer_s1(source: Path, sortie: Path, plafond: int | None = None, graine: i
     verif = _verificateur(source)
     scenes = echantillon(_sources_scenes(projet, verif, avec_generees), plafond, f"s1:{graine}:{nom_source(source)}")
     for rel, spec, existe in scenes:
-        id_ = ident("s1", nom_source(source), Path(rel).stem)
+        id_ = ident("s1", nom_source(source), nom_fichier(projet, rel))
         erreurs = valider_spec(spec, verif)
         if erreurs:
             prod.ecarter("aller_retour", id_, "spec_invalide", erreurs[0]["message"])
@@ -162,7 +162,7 @@ def generer_s2(source: Path, sortie: Path, plafond: int | None = None, graine: i
         for k, c in enumerate(connexions):
             if (rel, k) not in choisies:
                 continue
-            id_ = ident("s2", nom_source(source), Path(rel).stem, c["signal"], c["methode"])
+            id_ = ident("s2", nom_source(source), nom_fichier(projet, rel), c["signal"], c["methode"])
             sans = dict(spec, connexions=[x for j, x in enumerate(connexions) if j != k])
             depart = dict(projet)
             depart[rel] = scene_write(sans, verif)

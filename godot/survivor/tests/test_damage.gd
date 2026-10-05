@@ -65,7 +65,7 @@ func test_shots_to_kill_scales_with_enemy_hp_not_damage_alone() -> void:
 	assert_that(hp).is_equal(6)
 	assert_that(_shots_to_kill(hp, 1)).is_equal(6)
 	assert_that(_shots_to_kill(hp, 2)).is_equal(3)
-	assert_that(_shots_to_kill(hp, 4)).override_failure_message("partial damage still requires a second hit").is_equal(2)
+	assert_that(_shots_to_kill(hp, 4)).append_failure_message("partial damage still requires a second hit").is_equal(2)
 
 
 func test_damage_curve_keeps_the_base_enemy_killable_late() -> void:
@@ -73,7 +73,7 @@ func test_damage_curve_keeps_the_base_enemy_killable_late() -> void:
 	# upgrades — this is the balance assumption the 5:00 boss depends on, and it
 	# is now pinned against the wave the run is actually in at that moment.
 	var hp: int = _stats(3).effective_hp(WAVE_ENDLESS_1)
-	assert_float(float(_shots_to_kill(hp, 1))).override_failure_message("base weapon still kills a chaser in under 25 shots at 5min").is_less(float(25))
+	assert_float(float(_shots_to_kill(hp, 1))).append_failure_message("base weapon still kills a chaser in under 25 shots at 5min").is_less(float(25))
 
 
 # --- ricochet carry ---------------------------------------------------------
@@ -98,7 +98,7 @@ func test_a_body_that_survives_absorbs_the_whole_hit() -> void:
 
 
 func test_an_exact_kill_leaves_no_remainder() -> void:
-	assert_that(Enemy.absorbed_by(40, 40)).override_failure_message("spent exactly, so the shot stops").is_equal(40)
+	assert_that(Enemy.absorbed_by(40, 40)).append_failure_message("spent exactly, so the shot stops").is_equal(40)
 
 
 func test_absorption_is_never_negative() -> void:
@@ -116,16 +116,16 @@ func test_volley_tax_is_neutral_at_a_weapons_base_count() -> void:
 	# scattergun's 5 pellets ARE its design; only growth the player bought is taxed.
 	assert_float(float(Stats.volley_damage_mult(1, 1))).is_equal_approx(float(1.0), float(0.001))
 	assert_float(float(Stats.volley_damage_mult(5, 5))).is_equal_approx(float(1.0), float(0.001))
-	assert_float(float(Stats.volley_damage_mult(5, 3))).override_failure_message("never a bonus").is_equal_approx(float(1.0), float(0.001))
+	assert_float(float(Stats.volley_damage_mult(5, 3))).append_failure_message("never a bonus").is_equal_approx(float(1.0), float(0.001))
 
 
 func test_volley_damage_grows_sublinearly_with_projectile_count() -> void:
 	# The whole point: total volley damage rises as sqrt(N), not N. The measured
 	# failure was 8 projectiles x +19 damage multiplying into a 7-second boss.
 	var total_at_8: float = 8.0 * Stats.volley_damage_mult(1, 8)
-	assert_float(float(total_at_8)).override_failure_message("8 projectiles deal ~2.8x, not 8x").is_equal_approx(float(2.83), float(0.01))
-	assert_float(float(total_at_8)).override_failure_message("must never scale linearly").is_less(float(8.0))
-	assert_float(float(total_at_8)).override_failure_message("must still be worth taking").is_greater(float(1.0))
+	assert_float(float(total_at_8)).append_failure_message("8 projectiles deal ~2.8x, not 8x").is_equal_approx(float(2.83), float(0.01))
+	assert_float(float(total_at_8)).append_failure_message("must never scale linearly").is_less(float(8.0))
+	assert_float(float(total_at_8)).append_failure_message("must still be worth taking").is_greater(float(1.0))
 
 
 func test_volley_tax_still_rewards_every_extra_projectile() -> void:
@@ -134,7 +134,7 @@ func test_volley_tax_still_rewards_every_extra_projectile() -> void:
 	var previous: float = 0.0
 	for n: int in range(1, 13):
 		var total: float = float(n) * Stats.volley_damage_mult(1, n)
-		assert_float(float(total)).override_failure_message("volley %d must beat volley %d" % [n, n - 1]).is_greater(float(previous))
+		assert_float(float(total)).append_failure_message("volley %d must beat volley %d" % [n, n - 1]).is_greater(float(previous))
 		previous = total
 
 
@@ -164,5 +164,5 @@ func test_xp_from_a_kill_feeds_the_level_curve() -> void:
 	# before M7.2, when levels were 2.4x more expensive.
 	var per_kill: int = Progression.xp_gain(_stats(3, 3).xp_value, 1.0)
 	assert_that(per_kill).is_equal(3)
-	assert_that(per_kill).override_failure_message("one kill, one level, one card").is_equal(Progression.xp_required(1))
-	assert_bool(Progression.offers_card(2)).override_failure_message("and that level-up must offer a card").is_true()
+	assert_that(per_kill).append_failure_message("one kill, one level, one card").is_equal(Progression.xp_required(1))
+	assert_bool(Progression.offers_card(2)).append_failure_message("and that level-up must offer a card").is_true()

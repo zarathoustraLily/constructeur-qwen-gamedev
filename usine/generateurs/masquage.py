@@ -22,7 +22,8 @@ from pathlib import Path
 
 from usine.generateurs import gabarits
 from usine.generateurs.commun import (Production, echantillon, ecrire_tache, executer_gd, ident, identifiants_tests,
-                                      lire_projet, nom_source, scripts_jeu, scripts_testes, tests_regression)
+                                      lire_projet, nom_fichier, nom_source, scripts_jeu, scripts_testes,
+                                      tests_regression)
 from usine.projet.gdscript import Fonction, Script, lire_script
 
 ORIGINE = "generateur:masquage"
@@ -124,7 +125,7 @@ def generer_k2(source: Path, sortie: Path, plafond: int | None = None, graine: i
         for f in s.fonctions:
             if not any(r == rel and g.nom == f.nom and g.ligne_debut == f.ligne_debut for r, g in choisies):
                 continue
-            id_ = ident("k2", nom_source(source), Path(rel).stem, f.nom)
+            id_ = ident("k2", nom_source(source), nom_fichier(projet, rel), f.nom)
             if f.une_ligne:
                 prod.ecarter("masquage", id_, "fonction_sur_une_ligne")
                 continue
@@ -153,7 +154,7 @@ def generer_k1(source: Path, sortie: Path, plafond: int | None = None, graine: i
     projet = lire_projet(source)
     scripts = [r for r in scripts_jeu(projet) if not ciblee or r in scripts_testes(projet)]
     for rel in echantillon(scripts, plafond, f"k1:{graine}:{nom_source(source)}"):
-        id_ = ident("k1", nom_source(source), Path(rel).stem)
+        id_ = ident("k1", nom_source(source), nom_fichier(projet, rel))
         res = "res://" + rel
         sq = squelette(projet[rel])
         if not lire_script(sq).fonctions:

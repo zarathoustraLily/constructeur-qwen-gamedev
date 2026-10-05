@@ -2,7 +2,7 @@
 
 Ces commandes rejouent sur ta machine les preuves de fin des sessions 1 à 3, avec ton Godot 4.7.2 Windows.
 Pour la session 2 seule : étapes 1 et 2 si ce n'est pas déjà fait, puis 7 à 9, puis 6.
-Pour la session 3 seule : étape 6, puis 10 et 11 (l'étape 11 est longue : lance-la quand le PC peut tourner une à deux heures).
+Pour la session 3 seule : étape 6, puis 10. L'étape 11 (chaîne à une source) est remplacée par l'étape 17 b, depuis que l'usine lit quatre jeux sources.
 Pour la session 4 seule : étapes 12 à 16, **environ 15 minutes**. Seule l'étape 13 b est longue, et elle est facultative pour valider la session.
 Pour les jeux sources ajoutés avant la session 5 : étape 17 a, **environ 10 minutes**. L'étape 17 b dure plusieurs heures et elle est **facultative**.
 Côté machine, **c'est ce document qui fait foi**. Note le résultat dans `ETAT.md`, section « Vérifications locales en attente ».
@@ -192,41 +192,15 @@ python -m usine.generateurs invention tests\donnees\invention_exemple.json --sor
 echo %ERRORLEVEL%
 ```
 
-Attendu **avant** l'étape 11 (aucun gel sur ta machine) : `"ok": true` et un dossier `k3_inv_reference_exemple_fictif_add_coins_…`, puis `0`.
+Attendu **sans gel** sur ta machine (pas de dossier `donnees\geles`) : `"ok": true` et un dossier `k3_inv_reference_exemple_fictif_add_coins_…`, puis `0`.
 
-Attendu **après** l'étape 11 : `"ok": false` avec
+Attendu **après** l'étape 17 b (gel à 4 sources) : `"ok": false` avec
 `doublon_fragments : la proposition double la tâche gelée k3_reference_game_state_l12_operateur_arithmetique`, puis `1`.
 C'est voulu : l'exemple fictif corrige la même ligne (`coins += amount`) qu'une tâche gelée, et l'exclusion s'applique aussi à l'invention.
 
-## 11. Session 3 — chaîne complète : candidates, portillon, gel, tâches acceptées
+## 11. Session 3 — chaîne complète (remplacée)
 
-Longue (dans le cloud, 4 cœurs : environ 1 h 40 sans cache). Les verdicts sont mis en cache dans `donnees\cache_juge` : une relance ne refait que ce qui manque.
-
-```bat
-python -m usine.portillon chaine --graine 1 --f1 80
-echo %ERRORLEVEL%
-python -m usine.portillon comparer donnees\portillon\rapport.json preuves\rapport_chaine_graine1.json
-echo %ERRORLEVEL%
-```
-
-Attendu pour la chaîne : le tableau ci-dessous, puis `Doublons avec les jeux gelés dans taches/ : 0` et `0`.
-
-```
-compétence  candidates qualifiées  gelées acceptées  rejets
-D1                   8          8       4         1  doublon_gele 3
-F1                  80         80      40        40  —
-K1                   8          8       4         4  —
-K2                  30         27      13        14  depart_pas_rouge 2, score_mutation_insuffisant 1
-K3                  72         72      36        36  —
-S1                  10         10       5         5  —
-S2                   9          9       4         5  —
-TOTAL              217        214     106       105
-```
-
-Attendu pour `comparer` (rapport Windows contre rapport du cloud, versionné dans `preuves\`) : 7 lignes `identique`, `Résultat identique`, `0`.
-Seule différence admissible : `acceptees_empreintes` sur des tâches `d1_…`, si l'en-tête du journal Godot Windows diffère de Linux. Si c'est le cas, note les ids concernés dans `ETAT.md`. Toute autre différence est un écart à signaler.
-
-Si `donnees\geles\manifeste.json` existe déjà, il est **réutilisé** (le gel ne se refait jamais tout seul). Pour rejouer le tirage, supprime `donnees\geles` avant de lancer la chaîne.
+Cette étape rejouait la chaîne à une seule source (217 candidates, gel de 106 tâches). L'usine lit maintenant quatre jeux sources et le juge a changé : sa preuve (`preuves\rapport_chaine_graine1.json`) ne peut plus être reproduite. **Utilise l'étape 17 b à la place.**
 
 ## 12. Session 4 — préparation (une fois, sur le mini-PC connecté)
 
@@ -328,7 +302,7 @@ python -m usine.juge run godot\kenney_racing
 ```
 
 Attendu :
-- pytest : `16 passed`, puis `0` ;
+- pytest : `21 passed`, puis `0` ;
 - les trois verdicts : `"ok": true`, `"etape": "run_tests"`, `"erreurs": []`, et `"total"` = `"passes"` = **128**, **29** et **22** respectivement.
 
 Un `"ok": false` ici est un écart à signaler : copie le verdict dans le fil.
@@ -354,6 +328,6 @@ Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreint
 - Les journaux D1 versionnés ont été produits sous Linux. Sous Windows, les numéros de ligne et les catégories sont identiques ; seul le texte d'en-tête du moteur peut différer. Le test D1 ne lit que `reponse.json`, donc le verdict ne change pas.
 - Session 2 : le remplacement atomique `os.replace` sur NTFS, et le chargement par ton Godot Windows des scènes réécrites et resauvées (colonnes Godot et = Godot de l'étape 7).
 - La coupure sur délai utilise `taskkill /F /T /PID <pid lancé par nous>` (testé par `tests\test_processus.py`).
-- Session 3 : les mesures faites par Godot Windows (interfaces K1, état des scènes S1, mesures F1 en frames) donnent les mêmes vérités terrain que sous Linux, donc les mêmes empreintes (étape 11, `comparer`).
+- Session 3 : les mesures faites par Godot Windows (interfaces K1, état des scènes S1, mesures F1 en frames) donnent les mêmes vérités terrain que sous Linux, donc les mêmes empreintes (étape 17 b, `comparer`).
 - Session 4 : OpenCode 2.0.6 fusionne bien `provider.<id>.options.baseURL` du projet par-dessus la config globale (étape 16), et lance le serveur MCP avec la commande écrite par la fusion. La compilation des démos par ton Godot Windows donne les mêmes nombres que sous Linux (étape 13 b).
 - Avant la session 5 : les trois jeux sources passent leurs tests sous Godot Windows (étape 17 a), sons Ogg et modèles `.glb` compris.

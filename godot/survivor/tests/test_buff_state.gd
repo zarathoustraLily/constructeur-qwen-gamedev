@@ -14,12 +14,12 @@ func test_a_granted_buff_is_active() -> void:
 func test_it_expires_and_reports_the_expiry_once() -> void:
 	var b := BuffState.new()
 	b.grant(BuffState.HASTE, 1.0)
-	assert_that(b.tick(0.5).size()).override_failure_message("still running").is_equal(0)
+	assert_that(b.tick(0.5).size()).append_failure_message("still running").is_equal(0)
 	var expired := b.tick(0.6)
 	assert_that(expired.size()).is_equal(1)
 	assert_that(expired[0]).is_equal(BuffState.HASTE)
 	assert_bool(b.has(BuffState.HASTE)).is_false()
-	assert_that(b.tick(1.0).size()).override_failure_message("expiry is reported once, not every tick").is_equal(0)
+	assert_that(b.tick(1.0).size()).append_failure_message("expiry is reported once, not every tick").is_equal(0)
 
 
 func test_refreshing_takes_the_longer_duration() -> void:
@@ -28,16 +28,16 @@ func test_refreshing_takes_the_longer_duration() -> void:
 	b.grant(BuffState.SHIELD, 6.0)
 	b.tick(1.0)
 	b.grant(BuffState.SHIELD, 2.0)
-	assert_float(float(b.remaining(BuffState.SHIELD))).override_failure_message("kept the longer one").is_equal_approx(float(5.0), float(0.001))
+	assert_float(float(b.remaining(BuffState.SHIELD))).append_failure_message("kept the longer one").is_equal_approx(float(5.0), float(0.001))
 	b.grant(BuffState.SHIELD, 9.0)
-	assert_float(float(b.remaining(BuffState.SHIELD))).override_failure_message("took the longer one").is_equal_approx(float(9.0), float(0.001))
+	assert_float(float(b.remaining(BuffState.SHIELD))).append_failure_message("took the longer one").is_equal_approx(float(9.0), float(0.001))
 
 
 func test_durations_never_stack_into_permanence() -> void:
 	var b := BuffState.new()
 	for i: int in 10:
 		b.grant(BuffState.SHIELD, 6.0)
-	assert_float(float(b.remaining(BuffState.SHIELD))).override_failure_message("ten pickups is still six seconds, not sixty").is_equal_approx(float(6.0), float(0.001))
+	assert_float(float(b.remaining(BuffState.SHIELD))).append_failure_message("ten pickups is still six seconds, not sixty").is_equal_approx(float(6.0), float(0.001))
 
 
 func test_zero_or_negative_duration_grants_nothing() -> void:
@@ -53,7 +53,7 @@ func test_buffs_are_independent() -> void:
 	b.grant(BuffState.POWER, 5.0)
 	b.tick(1.5)
 	assert_bool(b.has(BuffState.SHIELD)).is_false()
-	assert_bool(b.has(BuffState.POWER)).override_failure_message("one expiring must not clear the others").is_true()
+	assert_bool(b.has(BuffState.POWER)).append_failure_message("one expiring must not clear the others").is_true()
 
 
 func test_active_ids_are_ordered_longest_first() -> void:
@@ -71,9 +71,9 @@ func test_active_ids_are_ordered_longest_first() -> void:
 func test_shield_blocks_damage_without_touching_the_dev_flag() -> void:
 	var h := Health.new(6)
 	h.shielded = true
-	assert_bool(h.take_damage(3, 0.0)).override_failure_message("shield blocks").is_false()
+	assert_bool(h.take_damage(3, 0.0)).append_failure_message("shield blocks").is_false()
 	assert_that(h.hp).is_equal(6)
 	h.shielded = false
-	assert_bool(h.take_damage(3, 5.0)).override_failure_message("and releases cleanly").is_true()
+	assert_bool(h.take_damage(3, 5.0)).append_failure_message("and releases cleanly").is_true()
 	assert_that(h.hp).is_equal(3)
-	assert_bool(h.invincible).override_failure_message("the gameplay buff never wrote to the dev flag").is_false()
+	assert_bool(h.invincible).append_failure_message("the gameplay buff never wrote to the dev flag").is_false()

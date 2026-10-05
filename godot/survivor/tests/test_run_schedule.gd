@@ -42,14 +42,14 @@ func test_wave_at_picks_the_last_started_wave() -> void:
 	var s := _schedule([_wave("a", 0.0), _wave("b", 60.0), _wave("c", 130.0)])
 	assert_that(s.wave_at(0.0).id).is_equal(&"a")
 	assert_that(s.wave_at(59.9).id).is_equal(&"a")
-	assert_that(s.wave_at(60.0).id).override_failure_message("boundary is inclusive").is_equal(&"b")
+	assert_that(s.wave_at(60.0).id).append_failure_message("boundary is inclusive").is_equal(&"b")
 	assert_that(s.wave_at(129.9).id).is_equal(&"b")
-	assert_that(s.wave_at(9999.0).id).override_failure_message("last wave holds forever").is_equal(&"c")
+	assert_that(s.wave_at(9999.0).id).append_failure_message("last wave holds forever").is_equal(&"c")
 
 
 func test_wave_order_in_the_array_does_not_matter() -> void:
 	var s := _schedule([_wave("c", 130.0), _wave("a", 0.0), _wave("b", 60.0)])
-	assert_that(s.wave_at(70.0).id).override_failure_message("selection is by start_time, not index").is_equal(&"b")
+	assert_that(s.wave_at(70.0).id).append_failure_message("selection is by start_time, not index").is_equal(&"b")
 
 
 func test_wave_at_returns_null_before_any_wave_starts() -> void:
@@ -66,17 +66,17 @@ func test_empty_schedule_is_survivable() -> void:
 
 func test_first_boss_lands_at_the_interval_not_at_zero() -> void:
 	var s := _schedule([], 300.0)
-	assert_that(s.boss_time(0)).override_failure_message("the 5:00 boss the prime directive needs").is_equal(300.0)
+	assert_that(s.boss_time(0)).append_failure_message("the 5:00 boss the prime directive needs").is_equal(300.0)
 	assert_that(s.boss_time(1)).is_equal(600.0)
 	assert_that(s.boss_time(2)).is_equal(900.0)
 
 
 func test_boss_count_grows_then_caps() -> void:
 	var s := _schedule([], 300.0, 6, 2)
-	assert_that(s.bosses_at_event(0)).override_failure_message("TWO Prisms at 5:00 — one was a pushover").is_equal(2)
-	assert_that(s.bosses_at_event(1)).override_failure_message("four at 10:00").is_equal(4)
+	assert_that(s.bosses_at_event(0)).append_failure_message("TWO Prisms at 5:00 — one was a pushover").is_equal(2)
+	assert_that(s.bosses_at_event(1)).append_failure_message("four at 10:00").is_equal(4)
 	assert_that(s.bosses_at_event(2)).is_equal(6)
-	assert_that(s.bosses_at_event(9)).override_failure_message("capped — endless stays readable").is_equal(6)
+	assert_that(s.bosses_at_event(9)).append_failure_message("capped — endless stays readable").is_equal(6)
 
 
 func test_boss_cap_of_zero_still_spawns_one() -> void:
@@ -94,8 +94,8 @@ func test_pick_type_returns_null_for_an_empty_wave() -> void:
 func test_missing_weights_default_to_uniform() -> void:
 	var w := _wave("w", 0.0, [_stats("a"), _stats("b")] as Array[EnemyStats])
 	assert_that(w.weight_at(0)).is_equal(1.0)
-	assert_that(w.weight_at(1)).override_failure_message("shorter weights array is legal").is_equal(1.0)
-	assert_that(w.weight_at(5)).override_failure_message("out of range is zero, not an error").is_equal(0.0)
+	assert_that(w.weight_at(1)).append_failure_message("shorter weights array is legal").is_equal(1.0)
+	assert_that(w.weight_at(5)).append_failure_message("out of range is zero, not an error").is_equal(0.0)
 
 
 func test_weights_bias_the_pick() -> void:
@@ -105,11 +105,11 @@ func test_weights_bias_the_pick() -> void:
 				[100.0, 0.01] as Array[float])
 		if w.pick_type(_rng(seed_value)).id == &"common":
 			heavy += 1
-	assert_float(float(heavy)).override_failure_message("weight-100 dominates across seeds").is_greater(float(55))
+	assert_float(float(heavy)).append_failure_message("weight-100 dominates across seeds").is_greater(float(55))
 
 
 func test_same_seed_picks_the_same_type() -> void:
 	var types: Array[EnemyStats] = [_stats("a"), _stats("b"), _stats("c")]
 	var first := _wave("w", 0.0, types, [1.0, 1.0, 1.0] as Array[float]).pick_type(_rng(77))
 	var second := _wave("w", 0.0, types, [1.0, 1.0, 1.0] as Array[float]).pick_type(_rng(77))
-	assert_that(first.id).override_failure_message("seeded runs must reproduce").is_equal(second.id)
+	assert_that(first.id).append_failure_message("seeded runs must reproduce").is_equal(second.id)

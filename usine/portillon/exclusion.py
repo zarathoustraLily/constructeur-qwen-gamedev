@@ -48,7 +48,7 @@ class Exclusion:
         """
         from usine.portillon.dedoublonnage import signature_tache
         competences: dict[str, Any] = {}
-        for fichier in sorted(Path(racine).rglob("tache.json")):
+        for fichier in sorted(Path(racine).rglob("tache.json"), key=lambda p: p.relative_to(racine).parts):
             sig = signature_tache(fichier.parent)
             competences.setdefault(sig["competence"], {"taches": []})["taches"].append(sig)
         return cls({"competences": competences}, **options)

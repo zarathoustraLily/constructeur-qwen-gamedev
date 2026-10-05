@@ -54,10 +54,10 @@ func test_weapons_answer_to_the_run_not_the_profile() -> void:
 	var none: Array[StringName] = []
 	var drafted_scatter: Array[StringName] = [&"scattergun"]
 	var both: Array[StringName] = [&"scattergun", &"lance"]
-	assert_bool(scatter.is_available(none)).override_failure_message("nothing is owned at spawn any more").is_false()
+	assert_bool(scatter.is_available(none)).append_failure_message("nothing is owned at spawn any more").is_false()
 	assert_bool(lance.is_available(none)).is_false()
 	assert_bool(scatter.is_available(drafted_scatter)).is_true()
-	assert_bool(lance.is_available(drafted_scatter)).override_failure_message("drafting one weapon must not hand over the others").is_false()
+	assert_bool(lance.is_available(drafted_scatter)).append_failure_message("drafting one weapon must not hand over the others").is_false()
 	assert_bool(lance.is_available(both)).is_true()
 
 
@@ -66,14 +66,14 @@ func test_a_meta_unlock_offers_a_card_rather_than_a_weapon() -> void:
 	# the Prism puts draft_orbital into the POOL, and only that card grants the
 	# weapon. A profile with every unlock still starts every run blaster-only.
 	var card: UpgradeResource = load("res://resources/upgrades/draft_orbital.tres")
-	assert_that(card.requires_unlock).override_failure_message("the milestone gates the card...").is_equal(MetaState.UNLOCK_ORBITAL)
-	assert_that(card.weapon_id).override_failure_message("...and the card grants the weapon").is_equal(&"orbital")
+	assert_that(card.requires_unlock).append_failure_message("the milestone gates the card...").is_equal(MetaState.UNLOCK_ORBITAL)
+	assert_that(card.weapon_id).append_failure_message("...and the card grants the weapon").is_equal(&"orbital")
 	var s := Stats.new()
-	assert_bool(s.has_weapon(&"orbital")).override_failure_message("a run starts owning nothing").is_false()
+	assert_bool(s.has_weapon(&"orbital")).append_failure_message("a run starts owning nothing").is_false()
 	card.apply_to(s)
 	assert_bool(s.has_weapon(&"orbital")).is_true()
 	card.apply_to(s)
-	assert_that(s.drafted_weapons.size()).override_failure_message("drafting twice is still one weapon").is_equal(1)
+	assert_that(s.drafted_weapons.size()).append_failure_message("drafting twice is still one weapon").is_equal(1)
 
 
 func test_a_weapons_branch_waits_on_the_draft_not_the_unlock() -> void:
@@ -83,5 +83,5 @@ func test_a_weapons_branch_waits_on_the_draft_not_the_unlock() -> void:
 	assert_that(spin.requires_unlock).is_equal(UpgradeResource.weapon_gate(&"orbital"))
 	var unlocked_only: Array[StringName] = [MetaState.UNLOCK_ORBITAL]
 	var drafted: Array[StringName] = [UpgradeResource.weapon_gate(&"orbital")]
-	assert_bool(spin.is_eligible(0, unlocked_only)).override_failure_message("having ever unlocked the orbital must not open its branch").is_false()
+	assert_bool(spin.is_eligible(0, unlocked_only)).append_failure_message("having ever unlocked the orbital must not open its branch").is_false()
 	assert_bool(spin.is_eligible(0, drafted)).is_true()

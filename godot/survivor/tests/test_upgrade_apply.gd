@@ -21,7 +21,7 @@ func test_max_hp_and_damage_are_flat() -> void:
 	_mk(UpgradeResource.Effect.MAX_HP, 2.0).apply_to(s)
 	_mk(UpgradeResource.Effect.DAMAGE, 1.0).apply_to(s)
 	assert_that(s.max_hp).is_equal(8)
-	assert_that(s.damage_bonus).override_failure_message("a modifier, not an absolute").is_equal(1)
+	assert_that(s.damage_bonus).append_failure_message("a modifier, not an absolute").is_equal(1)
 
 
 func test_fire_rate_reduces_interval() -> void:
@@ -46,7 +46,7 @@ func test_heal_does_not_touch_stats() -> void:
 	var s := Stats.new()
 	var before_hp: int = s.max_hp
 	_mk(UpgradeResource.Effect.HEAL, 3.0).apply_to(s)
-	assert_that(s.max_hp).override_failure_message("HEAL is Main's job against Health, not Stats").is_equal(before_hp)
+	assert_that(s.max_hp).append_failure_message("HEAL is Main's job against Health, not Stats").is_equal(before_hp)
 
 
 func test_stacking_compounds() -> void:
@@ -65,9 +65,9 @@ func test_xp_effects_are_additive_and_capped() -> void:
 	_mk(UpgradeResource.Effect.GREED, 0.5).apply_to(s)
 	assert_float(float(s.xp_mult)).is_equal_approx(float(1.5), float(0.001))
 	_mk(UpgradeResource.Effect.XP_GAIN, 0.15).apply_to(s)
-	assert_float(float(s.xp_mult)).override_failure_message("1.5 + 0.15 additive, then clipped to the cap — not 1.5 x 1.15").is_equal_approx(float(1.6), float(0.001))
-	assert_bool(s.greed).override_failure_message("greed still grants the gem magnet").is_true()
+	assert_float(float(s.xp_mult)).append_failure_message("1.5 + 0.15 additive, then clipped to the cap — not 1.5 x 1.15").is_equal_approx(float(1.6), float(0.001))
+	assert_bool(s.greed).append_failure_message("greed still grants the gem magnet").is_true()
 	# Everything the pool can offer, twice over, must not exceed the ceiling.
 	for i: int in 8:
 		_mk(UpgradeResource.Effect.GREED, 0.5).apply_to(s)
-	assert_float(float(s.xp_mult)).override_failure_message("the cap is hard").is_equal_approx(float(Stats.XP_MULT_CAP), float(0.001))
+	assert_float(float(s.xp_mult)).append_failure_message("the cap is hard").is_equal_approx(float(Stats.XP_MULT_CAP), float(0.001))

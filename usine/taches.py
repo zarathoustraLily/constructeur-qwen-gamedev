@@ -41,7 +41,10 @@ def lire_tache(dossier: Path) -> dict[str, Any]:
 def _fichiers(dossier: Path) -> list[Path]:
     if not dossier.is_dir():
         return []
-    return sorted(p for p in dossier.rglob("*") if p.is_file() and ".godot" not in p.relative_to(dossier).parts)
+    # Tri par composants relatifs, sensible à la casse : même ordre (donc même empreinte) sous
+    # Linux et sous Windows, où les chemins se comparent en minuscules.
+    return sorted((p for p in dossier.rglob("*") if p.is_file() and ".godot" not in p.relative_to(dossier).parts),
+                  key=lambda p: p.relative_to(dossier).parts)
 
 
 def calculer_empreinte(dossier: Path, tache: dict[str, Any] | None = None) -> str:
@@ -131,7 +134,7 @@ def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None
 
 
 def lister_taches(racine: Path) -> list[Path]:
-    return sorted(p.parent for p in Path(racine).glob("*/*/tache.json"))
+    return sorted((p.parent for p in Path(racine).glob("*/*/tache.json")), key=lambda p: p.relative_to(racine).parts)
 
 
 def installer_modeles(source: Path | None = None, destination: Path | None = None) -> list[Path]:

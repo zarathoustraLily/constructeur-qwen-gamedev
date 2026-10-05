@@ -14,7 +14,7 @@ import re
 import shutil
 import tempfile
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from usine import config as cfg
@@ -52,7 +52,7 @@ def lire_projet(source: Path) -> dict[str, str]:
     """
     source = Path(source)
     fichiers = {}
-    for f in sorted(source.rglob("*")):
+    for f in sorted(source.rglob("*"), key=lambda p: p.relative_to(source).parts):
         if not f.is_file():
             continue
         rel = f.relative_to(source)
@@ -130,6 +130,15 @@ def fichiers_testes(projet: dict[str, str]) -> set[str]:
 
 def scripts_testes(projet: dict[str, str]) -> set[str]:
     return {rel for rel in fichiers_testes(projet) if rel.endswith(".gd")}
+
+
+def nom_fichier(projet: dict[str, str], rel: str) -> str:
+    """Nom d'un fichier dans les ids de tâches : son nom sans extension, ou son chemin sans extension
+    si un autre fichier du projet, de même extension, porte le même nom (survivor a deux power_up.gd).
+    Sans cela, deux tâches recevaient le même id et la seconde écrasait la première."""
+    p = PurePosixPath(rel)
+    homonymes = [r for r in projet if PurePosixPath(r).suffix == p.suffix and PurePosixPath(r).stem == p.stem]
+    return p.stem if len(homonymes) <= 1 else str(p.with_suffix(""))
 
 
 def ident(*morceaux: Any) -> str:

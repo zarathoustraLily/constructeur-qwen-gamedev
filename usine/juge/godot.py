@@ -126,13 +126,18 @@ def check_script(chemin: Path | str, projet: Path | None = None, godot: Path | N
             verdict["ok"] = False
             return verdict
         reussi = f'{MARQUEUR_SCRIPT}{{"ok":true}}' in avis.sortie
-        # Le marqueur fait foi : charger un script seul, hors de sa scène, fait remonter des
-        # erreurs de cycle (script ↔ scène préchargée, class_name en cours de chargement)
-        # que le jeu ne rencontre jamais. Elles ne comptent que si le script est inutilisable.
-        verdict["erreurs"] = [] if reussi else dedoublonner(extraire_erreurs_journal(avis.sortie))
-        if not reussi and not verdict["erreurs"]:
-            verdict["erreurs"].append(erreur(f"{res_path} : compilation impossible", res_path, categorie="parse_error"))
-        verdict["ok"] = reussi
+        erreurs = dedoublonner(extraire_erreurs_journal(avis.sortie))
+        if reussi:
+            # Script instanciable : charger un script seul, hors de sa scène, fait remonter des
+            # erreurs de cycle (script ↔ scène préchargée, class_name en cours de chargement)
+            # que le jeu ne rencontre jamais ; elles sont écartées. Une erreur d'exécution
+            # située dans le script lui-même (initialiseur statique…) reste une erreur.
+            erreurs = [e for e in erreurs if e["fichier"] == res_path
+                       and e["categorie"] not in ("parse_error", "missing_resource")]
+        elif not erreurs:
+            erreurs.append(erreur(f"{res_path} : compilation impossible", res_path, categorie="parse_error"))
+        verdict["erreurs"] = erreurs
+        verdict["ok"] = reussi and not erreurs
         return verdict
     verdict["ok"] = res.code == 0 and not verdict["erreurs"]
     return verdict
@@ -144,7 +149,8 @@ def verifier_lot(projet: Path, mode: str, chemins: list[Path | str], godot: Path
 
     Renvoie {"a_revoir": [chemins res:// à rejuger un par un], "duree_s": …}. Un élément est à
     revoir si son marqueur manque ou est faux, ou si une erreur du moteur s'affiche pendant sa
-    vérification ; une erreur pendant le chargement des classes globales fait tout revoir.
+    vérification ; une erreur hors d'un élément (autoloads au démarrage ou à la sortie, chargement
+    des classes globales) fait tout revoir.
     Le lot ne fait qu'éviter des lancements : il ne conclut jamais à un échec à lui seul.
     """
     projet = Path(projet)
@@ -160,8 +166,10 @@ def verifier_lot(projet: Path, mode: str, chemins: list[Path | str], godot: Path
     tous["duree_s"] += res.duree_s
     if res.expire:
         return tous
-    segments: dict[str, list[str]] = {}
-    courant = None
+    # Ce qui s'affiche avant « <classes> » (les _ready des autoloads, le lot étant différé) et
+    # après « <fin> » (leurs _exit_tree) n'appartient à aucun élément : une erreur là fait tout revoir.
+    segments: dict[str, list[str]] = {"<avant>": []}
+    courant = "<avant>"
     resultats: dict[str, bool] = {}
     for ligne in res.sortie.splitlines():
         if ligne.startswith(DEBUT_LOT):
@@ -170,9 +178,10 @@ def verifier_lot(projet: Path, mode: str, chemins: list[Path | str], godot: Path
         elif ligne.startswith(MARQUEUR_LOT):
             r = json.loads(ligne[len(MARQUEUR_LOT):])
             resultats[r["chemin"]] = bool(r["ok"])
-        elif courant is not None:
+        else:
             segments[courant].append(ligne)
-    if "<fin>" not in segments or extraire_erreurs_journal("\n".join(segments.get("<classes>", []))):
+    if "<fin>" not in segments or any(extraire_erreurs_journal("\n".join(segments.get(s, [])))
+                                      for s in ("<avant>", "<classes>", "<fin>")):
         return tous
     tous["a_revoir"] = [c for c in res_chemins
                         if not resultats.get(c) or extraire_erreurs_journal("\n".join(segments.get(c, [])))]

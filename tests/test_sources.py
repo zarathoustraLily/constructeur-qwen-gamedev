@@ -40,9 +40,9 @@ def test_porter_gut_assertions_et_messages():
            '\t# assert_eq(commentaire, intact)\n')
     porte = porter(gut)
     assert porte.startswith("extends GdUnitTestSuite\n")
-    assert 'assert_that(f(1, 2)).override_failure_message("somme %d" % [3]).is_equal(3)' in porte
+    assert 'assert_that(f(1, 2)).append_failure_message("somme %d" % [3]).is_equal(3)' in porte
     assert "assert_bool(ok).is_true()" in porte
-    assert 'assert_float(float(v)).override_failure_message("proche").is_equal_approx(float(2.83), float(0.01))' in porte
+    assert 'assert_float(float(v)).append_failure_message("proche").is_equal_approx(float(2.83), float(0.01))' in porte
     assert "assert_float(float(a)).is_greater(float(b))" in porte
     assert "assert_float(float(n)).is_between(float(24), float(26))" in porte
     assert "# assert_eq(commentaire, intact)" in porte
@@ -165,3 +165,43 @@ def test_journal_d1_sans_bilan_de_sortie():
                "ERROR: 6 resources still in use at exit (run with --verbose for details).\n"
                "   at: clear (core/io/resource.cpp:822)\n")
     assert sans_bilan_de_sortie(journal) == "ERROR: res://scripts/hero.gd:10 - Node not found: \"Corps\".\n"
+
+
+# --- revue de la PR des jeux sources -------------------------------------------------------------
+
+def test_ids_de_fichiers_homonymes_distincts():
+    from usine.generateurs.commun import nom_fichier
+    projet = lire_projet(GODOT / "survivor")
+    assert nom_fichier(projet, "resources/power_up.gd") != nom_fichier(projet, "scenes/pickups/power_up.gd")
+    assert nom_fichier(projet, "scripts/health.gd") == "health"
+
+
+def test_reponse_par_suppression_a_des_fragments(tmp_path):
+    from usine.portillon.dedoublonnage import fragments_texte, texte_reponse
+    for sous, op in (("depart", ">="), ("reference", ">")):
+        (tmp_path / sous).mkdir()
+        (tmp_path / sous / "hero.gd").write_text(f"func est_en_dash() -> bool:\n\treturn _dash {op} 0.0\n",
+                                                 encoding="utf-8", newline="\n")
+    assert fragments_texte(texte_reponse(tmp_path))
+
+
+def test_modele_importe_est_une_packed_scene():
+    from usine.scene.spec import type_par_extension
+    assert type_par_extension("res://models/brick.glb") == "PackedScene"
+
+
+def test_tri_des_chemins_independant_de_la_casse_du_systeme():
+    from pathlib import PurePosixPath, PureWindowsPath
+    noms = ["assets/a.ogg", "LICENSE", "README.md", "models/Textures/c.png", "models/block.glb"]
+    # Sans clé, Windows compare en minuscules : l'ordre (donc l'empreinte) changerait.
+    assert sorted(map(PureWindowsPath, noms)) != [PureWindowsPath(n) for n in sorted(map(PurePosixPath, noms))]
+    assert ([p.as_posix() for p in sorted(map(PureWindowsPath, noms), key=lambda p: p.parts)]
+            == [p.as_posix() for p in sorted(map(PurePosixPath, noms), key=lambda p: p.parts)])
+
+
+def test_cle_du_cache_change_avec_le_juge(monkeypatch, tmp_path):
+    from usine.juge import cache
+    (tmp_path / "a.gd").write_text("extends Node\n", encoding="utf-8")
+    avant = cache.cle_jugement(tmp_path)
+    monkeypatch.setattr(cache, "_VERSION_JUGE", "autre")
+    assert cache.cle_jugement(tmp_path) != avant

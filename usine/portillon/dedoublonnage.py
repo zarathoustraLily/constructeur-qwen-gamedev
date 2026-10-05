@@ -51,20 +51,24 @@ def _lire(chemin: Path) -> list[str]:
 
 
 def texte_reponse(dossier: Path, contexte: int = 3) -> str:
-    """Zones que la référence ajoute ou modifie par rapport au départ, en jetons, avec contexte.
+    """Zones que la référence ajoute, modifie ou retire par rapport au départ, en jetons, avec contexte.
+
+    Une suppression (« >= » devenu « > ») ne laisse aucun jeton dans la référence : on garde alors
+    le contexte autour du point retiré, sinon la réponse serait vide et une copie renommée d'une
+    tâche gelée passerait l'exclusion.
 
     Les zones proches fusionnent ; le nom du fichier n'en fait pas partie (la même correction
     dans deux fichiers est la même réponse)."""
     dossier = Path(dossier)
     reference = dossier / "reference"
     zones: list[str] = []
-    for f in sorted(p for p in reference.rglob("*") if p.is_file()):
+    for f in sorted((p for p in reference.rglob("*") if p.is_file()), key=lambda p: p.relative_to(reference).parts):
         rel = f.relative_to(reference)
         avant = jetons("\n".join(_lire(dossier / "depart" / rel)))
         apres = jetons("\n".join(_lire(f)))
         garde: set[int] = set()
         for op, _, _, j1, j2 in difflib.SequenceMatcher(a=avant, b=apres, autojunk=False).get_opcodes():
-            if op in ("replace", "insert"):
+            if op != "equal":
                 garde |= set(range(max(0, j1 - contexte), min(len(apres), j2 + contexte)))
         zone: list[str] = []
         for k in range(len(apres) + 1):

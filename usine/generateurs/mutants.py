@@ -83,7 +83,7 @@ def score_mutation_tache(dossier: Path, maximum: int | None = 8, graine: Any = 0
         fichiers = lire_projet(compose)
     depart = lire_projet(dossier / "depart")
     cibles = {}
-    for f in sorted((dossier / "reference").rglob("*")):
+    for f in sorted((dossier / "reference").rglob("*"), key=lambda p: p.relative_to(dossier / "reference").parts):
         rel = f.relative_to(dossier / "reference").as_posix()
         if f.is_file() and rel.endswith((".gd", ".tscn")) and not rel.startswith("tests/"):
             cibles[rel] = lignes_changees(depart.get(rel), fichiers[rel])
