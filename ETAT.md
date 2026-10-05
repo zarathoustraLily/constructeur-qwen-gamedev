@@ -634,7 +634,7 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
   - 7 empreintes K3 différentes : Godot Windows écrit `journal_tests.json` autrement que Linux ; les verdicts sont identiques.
   L'étape 11 est depuis remplacée par l'étape 17 b (chaîne à 4 sources).
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
-- [ ] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a (17 b facultative). Le gel de la session 3 est remplacé : supprimer `donnees\geles` avant toute chaîne locale.
+- [x] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a, conforme le 2026-10-05 (17 b facultative, non lancée). Détail plus bas.
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
@@ -763,6 +763,24 @@ Points que seule la machine pouvait confirmer :
 - OpenCode lance le serveur MCP avec la commande écrite par la fusion, et Qwen appelle les outils de l'usine de lui-même.
 - Non confirmé : les nombres de compilation des démos sous Windows (étape 13 b, facultative).
 
+### Jeux sources — 2026-10-05, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10 (étape 17 a)
+
+Dépôt : `D:\constructeur-qwen-gamedev`, branche `claude/project-thread-4m421r` (commit `00e3978`, gel à 4 sources refait). Les trois jeux sources (`godot\survivor`, `godot\kenney_platformer`, `godot\kenney_racing`) sont présents.
+
+| Vérification | Attendu | Obtenu | Conforme |
+| --- | --- | --- | --- |
+| `pytest -q tests\test_sources.py` (avec `-X utf8`) | `21 passed` | `21 passed in 61.55s` | oui |
+| `usine.juge run godot\survivor` | ok, 128/128 | ok, 128/128, 11,4 s, exit 0 | oui |
+| `usine.juge run godot\kenney_platformer` | ok, 29/29 | ok, 29/29, 10,2 s, exit 0 | oui |
+| `usine.juge run godot\kenney_racing` | ok, 22/22 | ok, 22/22, 9,7 s, exit 0 | oui |
+
+Écart rencontré (à signaler) : `python -m pytest -q tests\test_sources.py` **sans** `-X utf8` échoue sur 1/21 — `test_copie_de_travail_etend_le_socle_sans_rien_ecraser` (lignes 80-82) : le contenu écrit en UTF-8 (`remplacé par la tâche`) est lu avec l'encoding par défaut de la console Windows (cp1252) et comparé corrompu (`remplacé par la tâche`). Avec `PYTHONUTF8=1` ou `python -X utf8`, les 21 tests passent. C'est un écart de configuration Python/Windows, pas un échec de l'usine. À trancher : ajouter `PYTHONUTF8=1` à la procédure, ou rendre le test indépendant de l'encoding par défaut.
+**Tranché** (cloud, 2026-10-05) : le test lit maintenant le fichier en UTF-8 explicitement ; `python -m pytest -q tests\test_sources.py` doit passer sans `-X utf8`. C'était le seul `read_text()` sans encodage du dépôt.
+
+Point confirmé par cette machine : les sons Ogg et les modèles `.glb` des trois jeux passent le juge sous Godot Windows (l'import de `kenney_racing` a échoué une première fois avec le code `3221225477` — probablement verrou du cache `.godot` — et est passé au second essai sans modification).
+
+L'étape 17 b (gel à 4 sources refait, ~3 h 20) n'a pas été lancée (facultative). `donnees\geles` doit être supprimé avant toute chaîne locale, comme rappelé par la procédure.
+
 ## Pièges connus
 
 - **`--check-only` ignore les autoloads** : un script qui utilise `GameState` échoue avec « Identifier not found ». `check_script` relance alors une compilation avec les autoloads enregistrés (`usine/juge/gd/charger_script.gd`), seulement si toutes les erreurs viennent d'un autoload déclaré.
@@ -786,4 +804,5 @@ Points que seule la machine pouvait confirmer :
 - **Mesurer dans `_initialize`** (script `extends SceneTree`) : les nœuds ajoutés n'ont pas encore leur `_ready` ni d'espace physique. Les scripts de mesure travaillent dans le premier `_process`.
 - **`move_and_slide` hors image physique** utilise le delta de rendu : mesure non reproductible. F1 utilise `move_and_collide(velocity * dt)`.
 - **`queue_free` attend la fin de l'image** : un héros mesuré puis « libéré » restait dans l'espace et bloquait le suivant. `free()` et couches de collision à 0.
+- **Import Godot sous Windows** : le 2026-10-05, l'import de `godot\kenney_racing` a planté une fois (code `3221225477`, soit `0xC0000005`, violation d'accès), puis est passé au second essai sans changement. Non reproduit sous Linux. À surveiller dans une chaîne locale : un import qui plante donne un verdict faux pour cette copie, et le cache des verdicts le garde (un mutant « tué » par un plantage gonfle le score de mutation). Si cela se reproduit, le juge devra relancer un import qui plante avant de juger.
 - **Coût du portillon** : environ 14 jugements par candidate (3 + 3 + jusqu'à 8 mutants), environ 20 s chacun sur 4 cœurs. 1re chaîne complète : 1 h 40. Le cache (`donnees/cache_juge`, clé = contenu jugé) rend les relances rapides.

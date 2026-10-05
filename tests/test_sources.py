@@ -79,7 +79,7 @@ def test_copie_de_travail_etend_le_socle_sans_rien_ecraser(donnees, tmp_path):
     src = ecrire_projet(projet, tmp_path / "src")
     copie = preparer_copie(src, tmp_path / "copie")
     assert (copie / "audio" / "engine.ogg").read_bytes() == (GODOT / "kenney_racing" / "audio" / "engine.ogg").read_bytes()
-    assert (copie / "models" / "Textures" / "colormap.png.import").read_text() == "remplacé par la tâche\n"
+    assert (copie / "models" / "Textures" / "colormap.png.import").read_text(encoding="utf-8") == "remplacé par la tâche\n"
 
 
 def test_socle_modifie_refuse(donnees):
