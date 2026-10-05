@@ -11,7 +11,26 @@
 - [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources (172 tâches)
 - [x] Avant la session 5 — compétence E « optimisation stricte » (gel en attente de Godot 4.8 stable)
 - [ ] Session 5 — Boucle RFT
-- [ ] Session 6 — Mesure
+- [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après la session 5 et le gel 4.8)
+
+## Bilan des 6 sessions (2026-10-05)
+
+| Étape | État dans le cloud | Vérifié sur la machine de laurent |
+| --- | --- | --- |
+| Session 1 — vocabulaire, juge, projet de référence | fait | oui (étapes 1 à 5) |
+| Session 2 — traducteurs déterministes | fait | oui (étapes 6 à 9) |
+| Session 3 — usine à tâches, portillon, gel | fait ; le gel a été refait à 4 sources (172 tâches) | oui (étapes 10 et 11, remplacées par 17 b) |
+| Session 4 — RAG, serveur MCP, fiches, enregistreur | fait | oui (étapes 12 à 16 ; 13 b facultative non lancée) |
+| Avant la session 5 — jeux sources (survivor, Kenney) | fait | oui (17 a ; 17 b facultative non lancée) |
+| Avant la session 5 — compétence E | fait, PR #6 fusionnée ; **gel en attente de Godot 4.8 stable** | non : étape 18 a à lancer |
+| Session 5 — boucle RFT | **pas faite** | — |
+| Session 6 — mesure | fait (code, preuve sur résultats simulés) ; la mesure réelle attend la session 5 (LoRA, harness agentique) et le gel 4.8 | non : étapes 19 a et 19 b à lancer |
+
+Ordre conseillé pour la suite :
+1. session 5 ;
+2. migration vers Godot 4.8 stable et gel complet (section E) ;
+3. premier tour RFT ;
+4. mesure réelle (`python -m usine.mesure executer`, puis `rapport`, puis `regression` après chaque tour).
 
 ## Journal
 
@@ -756,6 +775,134 @@ code=0
 - **Les `PackedArray` se copient à l'affectation** : `var t := grille[c]; t.append(x)` modifie une copie. Il faut remplacer la case (`grille[c] = …`), sinon la référence optimisée n'a pas le même comportement que le départ. Ces tableaux ne sont pas des objets : rien n'est compté dans l'ObjectDB.
 - `OBJECT_COUNT` ne voit pas une création suivie d'une libération dans la même image. Il faut compter avec l'id d'un objet témoin.
 
+### Session 6 — Mesure — 2026-10-05 (branche `claude/competence-e-optimisation-xbhw0j`)
+
+Faite après la compétence E (PR #6 fusionnée), **avant la session 5**, à la demande de laurent. Il n'existe donc ni LoRA Godot ni harness agentique : la mesure réelle attend la session 5 et le gel sous Godot 4.8.
+
+**Fait**
+
+- `usine/mesure/` :
+  - `stats.py` : score au premier essai, intervalle de Wilson à 95 %, règle de victoire, non-régression ;
+  - `client.py` : client de chat sans dépendance (urllib). Pour llama-server, il envoie `response_format` (schéma JSON) et le champ `lora` par requête ; il parle aussi le protocole Messages, pour la frontière ;
+  - `reponses.py` : compétences en un appel (D1, F1, K1, S1, S2) : schéma de la réponse, contexte montré au modèle, et traducteur déterministe réponse → copie de `depart/`, que juge ensuite le juge de la tâche. Les traducteurs :
+    - D1 : `reponse.json` ;
+    - F1 : les `@export` de `hero.gd` ;
+    - K1 : le script à son chemin ;
+    - S1 : `valider_spec` puis `scene_write` ;
+    - S2 : `preparer_edits` (le moteur d'`apply_edits`) ;
+  - `executer.py` : les 4 configurations sur les jeux gelés (empreintes vérifiées contre le manifeste). Résultats en JSONL, une ligne par (tour, configuration, tâche), synchronisée sur disque, avec reprise après coupure. `juger-reponses` note des réponses collectées ailleurs (la frontière) ;
+  - `rapport.py` : `rapport_mesure.md` et `.csv`, une ligne pour chacune des 14 compétences (les 4 scores, la frontière sans et avec RAG, le verdict et son motif), et le tableau de non-régression ;
+  - `simulation.py` : résultats simulés pour la preuve ;
+  - `frontiere.py` : la référence frontière, voir Choix ;
+  - `gamedevbench.py` : l'adaptateur GameDevBench, voir Choix ;
+  - CLI `python -m usine.mesure executer|juger-reponses|rapport|regression|simuler|gamedevbench`.
+- `config.example.toml` : sections `[mesure]`, `[frontiere]` (désactivée) et `[gamedevbench]`.
+- `tests/test_mesure.py` (25 tests, dont un de bout en bout avec Godot : deux tâches D1 modèles, un faux serveur OpenAI-compatible, le vrai juge GdUnit4).
+- `preuves/mesure_simulee/` : le rapport simulé (md et csv), reproductible octet pour octet par `python -m usine.mesure simuler`.
+- `VERIFIER_EN_LOCAL.md` : étape 19 (19 b : mesure réelle des 4 configurations sur F1, avec la durée d'un appel).
+
+**Choix**
+
+- **Règle de victoire** (`stats.verdict`), écrite noir sur blanc :
+  - « au-delà de l'intervalle » : la borne basse de LoRA + RAG est **strictement** au-dessus de la borne haute de base + RAG. Des intervalles qui se touchent ou se chevauchent donnent une égalité ;
+  - « atteint ou dépasse la frontière » : taux de LoRA + RAG ≥ taux de la frontière **avec RAG**, en fractions exactes ;
+  - frontière absente : pas de victoire. Le résultat est une égalité de motif « frontière non mesurée », puisque les deux conditions sont exigées ensemble ;
+  - défaite : LoRA + RAG sous base + RAG au-delà de l'intervalle. Tout le reste est une égalité, avec son motif.
+- **Non-régression** : une compétence recule si sa nouvelle borne haute est sous l'ancienne borne basse. Une baisse dans l'intervalle est signalée sans bloquer. Une compétence absente du nouveau tour bloque aussi.
+- **Même prompt, même schéma, même budget** pour les 4 configurations : un appel par tâche, température 0, graine fixe, `max_jetons` commun, jamais de relance. Les configurations `_rag` ajoutent les extraits de `search_docs` (requête = la consigne). La configuration de base envoie l'échelle 0 pour chaque adaptateur déclaré, car llama-server applique un LoRA chargé à son échelle par défaut.
+- **Compétences agentiques** (K2, K3, E…) : non mesurées par `executer`. Le harness de la session 5 écrira des lignes au même format, et `rapport` les prendra telles quelles.
+- **Frontière** : `python -m usine.mesure.frontiere`. Elle ne tourne que si `[frontiere] active = true` **et** si `--appel-externe` est passé. Aucun module ne l'importe (vérifié par un test). Elle ne fait que **collecter** les réponses, sur le mini-PC en ligne ; elles sont jugées hors-ligne sur la machine, avec exactement le même prompt que Qwen.
+- **GameDevBench** :
+  - le dépôt est public (`waynchi/gamedevbench`, Apache 2.0) : 333 tâches, Godot 4.4.1 exact, un solveur OpenCode intégré, `final_results.json` et `results/leaderboard.csv` (meilleur pass@1 : 69,97 %) ;
+  - le dépôt ne donne **aucune catégorie par tâche** : le sous-ensemble « logique de gameplay » demande une liste d'ids (`--ids`), et seul le score sur les 333 tâches est comparable au classement ;
+  - l'adaptateur ne réécrit pas leur harness. Il vérifie le dépôt et Godot 4.4.1, décompresse les archives (sans bash), écrit la liste des tâches, lance leur runner et lit le score (Wilson et classement publié).
+
+**Preuve de fin** (cloud, Godot 4.7.2 Linux headless)
+
+`python -m usine.mesure simuler --dossier preuves/mesure_simulee` (résultats simulés : aucun modèle n'a tourné)
+
+```
+| Compétence | n | base | base + RAG | LoRA | LoRA + RAG | frontière | frontière + RAG | Verdict | Motif |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| C1 | — | — | — | — | — | — | — | **non mesuré** | LoRA + RAG ou base + RAG non mesurée |
+| C2 | — | — | — | — | — | — | — | **non mesuré** | LoRA + RAG ou base + RAG non mesurée |
+| S1 | 50 | 50,0 % [36,6 ; 63,4] (25/50) | 60,0 % [46,2 ; 72,4] (30/50) | 80,0 % [67,0 ; 88,8] (40/50) | 88,0 % [76,2 ; 94,4] (44/50) | — | — | **égalité** | gain sur base + RAG, mais frontière non mesurée : victoire non établie |
+| S2 | 50 | 60,0 % [46,2 ; 72,4] (30/50) | 70,0 % [56,2 ; 80,9] (35/50) | 30,0 % [19,1 ; 43,8] (15/50) | 36,0 % [24,1 ; 49,9] (18/50) | 82,0 % [69,2 ; 90,2] (41/50) | 88,0 % [76,2 ; 94,4] (44/50) | **défaite** | LoRA + RAG sous base + RAG au-delà de l'intervalle |
+| S3 | — | — | — | — | — | — | — | **non mesuré** | LoRA + RAG ou base + RAG non mesurée |
+| K1 | 50 | 60,0 % [46,2 ; 72,4] (30/50) | 64,0 % [50,1 ; 75,9] (32/50) | 66,0 % [52,2 ; 77,6] (33/50) | 70,0 % [56,2 ; 80,9] (35/50) | 76,0 % [62,6 ; 85,7] (38/50) | 80,0 % [67,0 ; 88,8] (40/50) | **égalité** | intervalles qui se chevauchent : pas de gain au-delà de l'intervalle |
+| K2 | 50 | 24,0 % [14,3 ; 37,4] (12/50) | 28,0 % [17,5 ; 41,7] (14/50) | 40,0 % [27,6 ; 53,8] (20/50) | 44,0 % [31,2 ; 57,7] (22/50) | — | — | **égalité** | intervalles qui se chevauchent : pas de gain au-delà de l'intervalle |
+| K3 | 50 | 36,0 % [24,1 ; 49,9] (18/50) | 40,0 % [27,6 ; 53,8] (20/50) | 62,0 % [48,2 ; 74,1] (31/50) | 68,0 % [54,2 ; 79,2] (34/50) | — | — | **égalité** | gain sur base + RAG, mais frontière non mesurée : victoire non établie |
+| K4 | — | — | — | — | — | — | — | **non mesuré** | LoRA + RAG ou base + RAG non mesurée |
+| D1 | 50 | 40,0 % [27,6 ; 53,8] (20/50) | 48,0 % [34,8 ; 61,5] (24/50) | 70,0 % [56,2 ; 80,9] (35/50) | 80,0 % [67,0 ; 88,8] (40/50) | 60,0 % [46,2 ; 72,4] (30/50) | 72,0 % [58,3 ; 82,5] (36/50) | **victoire** | gain sur base + RAG et frontière atteinte |
+| D2 | — | — | — | — | — | — | — | **non mesuré** | LoRA + RAG ou base + RAG non mesurée |
+| F1 | 50 | 20,0 % [11,2 ; 33,0] (10/50) | 24,0 % [14,3 ; 37,4] (12/50) | 60,0 % [46,2 ; 72,4] (30/50) | 66,0 % [52,2 ; 77,6] (33/50) | 80,0 % [67,0 ; 88,8] (40/50) | 84,0 % [71,5 ; 91,7] (42/50) | **égalité** | gain sur base + RAG, mais sous la frontière |
+| F2 | — | — | — | — | — | — | — | **non mesuré** | LoRA + RAG ou base + RAG non mesurée |
+| E | 50 | 10,0 % [4,3 ; 21,4] (5/50) | 12,0 % [5,6 ; 23,8] (6/50) | 18,0 % [9,8 ; 30,8] (9/50) | 20,0 % [11,2 ; 33,0] (10/50) | — | — | **égalité** | intervalles qui se chevauchent : pas de gain au-delà de l'intervalle |
+
+Bilan : défaite 1, non mesuré 6, victoire 1, égalité 6
+```
+
+Non-régression entre ce tour et un second tour simulé où D1 recule (`python -m usine.mesure regression <t0> <t1>`)
+
+```
+Non-régression (LoRA + RAG) :
+
+compétence                       ancien                      nouveau  statut
+D1         80,0 % [67,0 ; 88,8] (40/50) 40,0 % [27,6 ; 53,8] (20/50)  recul  ← BLOQUANT
+E          20,0 % [11,2 ; 33,0] (10/50) 20,0 % [11,2 ; 33,0] (10/50)  stable
+F1         66,0 % [52,2 ; 77,6] (33/50) 66,0 % [52,2 ; 77,6] (33/50)  stable
+K1         70,0 % [56,2 ; 80,9] (35/50) 70,0 % [56,2 ; 80,9] (35/50)  stable
+K2         44,0 % [31,2 ; 57,7] (22/50) 44,0 % [31,2 ; 57,7] (22/50)  stable
+K3         68,0 % [54,2 ; 79,2] (34/50) 68,0 % [54,2 ; 79,2] (34/50)  stable
+S1         88,0 % [76,2 ; 94,4] (44/50) 88,0 % [76,2 ; 94,4] (44/50)  stable
+S2         36,0 % [24,1 ; 49,9] (18/50) 36,0 % [24,1 ; 49,9] (18/50)  stable
+
+RECUL : D1
+code=1
+```
+
+Même tour contre lui-même : `Aucune compétence ne recule.`, code 0.
+
+Cas limites de la règle de victoire (`tests/test_mesure.py`) :
+- intervalles qui se touchent (borne basse = borne haute) ;
+- intervalles qui se chevauchent ;
+- frontière absente et frontière à n = 0 ;
+- frontière atteinte à égalité de taux (40/50 contre 32/40) ;
+- sous la frontière ;
+- défaite ;
+- baisse dans l'intervalle (pas une défaite) ;
+- configuration non mesurée.
+
+`python -m pytest -q`
+
+```
+SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module named 'sqlite_vec'
+306 passed, 1 skipped in 452.78s (0:07:32)
+```
+
+`python -m pytest -q tests/test_mesure.py` (après le dernier correctif du client)
+
+```
+25 passed in 23.18s
+```
+
+**Reste à faire**
+
+- **Session 5** (boucle RFT), pas encore faite :
+  - `rft/essais` doit réutiliser `usine.mesure.client` (appel, `lora`, schéma) et `usine.mesure.reponses` (schémas, contexte, traducteurs, `juger_reponse`) pour les compétences en un appel ;
+  - le harness agentique doit écrire ses essais au format des lignes de résultats, pour que `rapport` mesure aussi K2, K3 et E.
+- Mesure réelle : après le premier LoRA (session 5) et le gel sous Godot 4.8 stable (voir la section E).
+- `VERIFIER_EN_LOCAL.md` étape 19 a et 19 b. La durée d'un appel recale l'hypothèse de 15 s du document de conception.
+- GameDevBench : obtenir la liste des tâches « Gameplay Logic » si laurent veut ce sous-ensemble. Le runner officiel n'a pas été essayé sous Windows.
+
+**Pièges**
+
+- **llama-server applique un LoRA chargé à son échelle par défaut** : une requête sans champ `lora` n'est pas « la base ». La configuration de base envoie l'échelle 0 explicitement.
+- **Mode strict des schémas OpenAI** : il refuse un objet libre (la spec S1, les éditions S2). Le client n'envoie donc pas `strict`, ce que llama-server ignore de toute façon.
+- **urllib met en forme les noms d'en-têtes** (`X-api-key`) : un faux serveur doit les comparer sans tenir compte de la casse.
+- **Plusieurs tours dans un même fichier de résultats** : sans `--tour`, `rapport` refuse, sinon n serait gonflé.
+- **Ligne JSONL tronquée par une coupure** : elle est ignorée à la lecture, et l'essai est refait à la reprise.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -766,6 +913,8 @@ code=0
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
 - [x] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a, conforme le 2026-10-05 (17 b facultative, non lancée). Détail plus bas.
 - [ ] Compétence E — `VERIFIER_EN_LOCAL.md` étape 18 a (moins de 15 minutes ; 18 b facultative).
+- [ ] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 19 a (2 minutes) et 19 b (mesure réelle sur F1, 10 tâches : noter la durée d'un appel) ; 19 c (GameDevBench) et 19 d (frontière) facultatives.
+- Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
