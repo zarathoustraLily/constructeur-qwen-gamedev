@@ -900,6 +900,102 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 - **Plusieurs tours dans un même fichier de résultats** : sans `--tour`, `rapport` refuse, sinon n serait gonflé.
 - **Ligne JSONL tronquée par une coupure** : elle est ignorée à la lecture, et l'essai est refait à la reprise.
 
+### Session 5 — Boucle RFT — 2026-10-05 (branche `claude/competence-e-optimisation-xbhw0j`, faite après la session 6)
+
+**Fait**
+
+- `usine/rft/` : un pipeline de production de données, pas un orchestrateur autour de Qwen à l'usage (règle 1).
+  - `essais.py` : Qwen résout chaque tâche N fois, le juge note chaque essai, et la session est enregistrée au format commun : en-tête `{tache_id, competence, verdict_final, …}`, puis un message par ligne, dans `sessions/<tâche>/essai_<n>.jsonl`, écrit de façon atomique.
+    - Compétences en un appel (D1, F1, K1, S1, S2) : appel direct à llama-server, sortie contrainte par le schéma JSON de la compétence, LoRA choisi par requête (`lora`). Les schémas et les traducteurs réponse → projet sont ceux de la mesure (`usine/mesure/reponses.py`).
+    - Compétences agentiques : sur une copie de travail de `depart/`, socle posé. Les tests cachés ne sont copiés qu'au jugement.
+  - `agent.py` : l'agent minimal maison, deuxième harnais et repli d'OpenCode. Il a les mêmes outils que le serveur MCP (définitions lues sur le serveur FastMCP, implémentation `mcp_serveur.outils`), plus `list_files`, `read_file` et `write_file`, limités au projet. La fiche de la compétence est dans le message système, et un budget de pas fixe s'applique.
+  - `opencode.py` : OpenCode non interactif, `opencode run --format json --dir <copie> --model … "<consigne>"`, la forme du solveur OpenCode de GameDevBench. Le proxy de capture tourne en processus sur un port libre, devant llama-server ; un `opencode.json` de projet est fusionné dans la copie (serveur MCP, fiches, baseURL du proxy), puis retiré avant le jugement. **À confirmer par laurent** : VERIFIER 19 c.
+  - `filtre.py` : la solution réussie la plus courte (production du modèle), à égalité le plus petit n° d'essai. Les tâches jamais réussies vont dans `a_refaire.txt`, l'entrée du tour suivant (`--depuis`). Le filtre de difficulté prévu depuis la session 3 (`usine/portillon/difficulte.py`) est maintenant branché : sur N = 8 essais, une tâche réussie plus de 6 fois est « acquise » (`acquises.txt`) et n'est pas exportée.
+  - `export.py` :
+    - `sft.jsonl` : messages au format chat OpenAI, outils en JSON ;
+    - le format sharegpt de LLaMA-Factory (`human` / `gpt` / `function_call` / `observation`) avec `dataset_info.json` ;
+    - `qwen38_qlora_r16.yaml` : QLoRA rang 16, 4 bits, `packing: false`, `neat_packing: false`, `train_on_prompt: false` ; seules des clés tirées des exemples de LLaMA-Factory ;
+    - Unsloth : `config_unsloth.json` et `entrainer_unsloth.py` (`train_on_responses_only`, `packing=False`) ;
+    - la perte ne porte que sur les messages assistant ;
+    - règle 4 : une session d'une tâche gelée, ou dont le texte reprend les fragments d'une tâche gelée, est écartée ; `tour` refuse aussi d'essayer une tâche gelée.
+  - `gguf.py` :
+    - la commande `convert_lora_to_gguf.py --base … --outfile … --outtype f16 <adaptateur>` ;
+    - le lanceur `.bat` llama-server : un `--lora` par adaptateur, ids en commentaire, `--reasoning off --reasoning-budget 0 --no-prefill-assistant` ;
+    - `-ngl` refusé ; fins de ligne CRLF, `chcp 65001`.
+  - `tour.py` : essais → filtre → export. `registre.csv` est réécrit de façon atomique après **chaque** tâche : une tâche finie n'est jamais refaite, une tâche coupée est refaite en entier.
+  - `preuve.py` et CLI `python -m usine.rft tour|exporter|gguf|lanceur|preuve`.
+- Mesure (session 6) complétée : les compétences agentiques sont maintenant mesurées par l'agent maison. Sans RAG, `search_docs` est retiré ; avec RAG, l'outil est présent et les extraits sont ajoutés à la tâche. Les sessions sont gardées à côté des résultats, et `--sans-agentiques` les exclut.
+- `usine/mesure/client.py` : outils (`tools`) et message assistant complet (`tool_calls`).
+- **Générateur corrigé (règle 5)** : la consigne D1 (`gabarits.CONSIGNE_D1`) affichait `{{"categorie": …}}`. Les accolades étaient doublées comme pour un `.format()` qui n'a jamais lieu, et Qwen voyait ce texte faux dans toutes les tâches D1. Le correctif est dans le gabarit, et les tâches modèles sont régénérées par `outils/construire_taches_modeles.py` : seules les deux `tache.json` D1 changent (consigne et empreinte), les huit autres sortent identiques octet pour octet. Toutes les empreintes D1 changent donc ; rien n'est gelé en ce moment.
+- `config.example.toml` : `[rft]` ; `[opencode]` (cli, fournisseur, modèle, délai) ; `[mesure] max_pas`.
+- `tests/test_rft.py` (14 tests). L'un fait passer le harnais OpenCode par un faux CLI qui traverse le **vrai** proxy de capture ; un autre rejoue la preuve avec Godot. `tests/test_mesure.py` : un test de plus pour la mesure agentique.
+- `preuves/rft_mini_tour/` : registre, retenus, `a_refaire.txt`, bilan et données exportées du mini-tour.
+- `VERIFIER_EN_LOCAL.md` : étape 19 (19 b : vrai mini-tour sur 20 tâches en un appel, avec le temps par essai). La mesure devient l'étape 20.
+
+**Choix**
+
+- **N essais différents** : en un appel, température 0,7 et graine + n° d'essai (`[rft]`). À température 0, les N réponses seraient identiques. La mesure, elle, reste à température 0 et à un seul essai.
+- **N = 8 essais, tâche gardée de 1 à 6 réussites** : ce sont les valeurs par défaut du filtre de difficulté écrit à la session 3. La preuve cloud travaille à 3 essais, sans plafond, pour rester courte.
+- **Harnais agentique par défaut : l'agent maison.** Il tourne sans OpenCode et dans le cloud, avec les mêmes outils et les mêmes fiches. Le harnais OpenCode est prêt, mais attend la réponse de laurent (19 c).
+- **« Plus courte »** = la production du modèle, pas la conversation entière : les résultats d'outils ne comptent pas, car ils ne sont pas appris.
+- **Sharegpt** : un message assistant qui porte un texte et des appels d'outils perd son texte : le tour `function_call` de LLaMA-Factory ne porte que les appels. Plusieurs résultats d'outils successifs forment un seul tour `observation`. Le format `sft.jsonl` (Unsloth) garde tout.
+- **Gabarit LLaMA-Factory** : `template: qwen3`, à vérifier sur la machine (le nom du gabarit de Qwen3.8 dépend de la version). Les noms d'arguments d'Unsloth et de TRL sont aussi à vérifier : ils n'ont pas pu être exécutés ici.
+
+**Preuve de fin** (cloud, Godot 4.7.2 Linux headless)
+
+`python -m usine.rft preuve`. Le mini-tour porte sur les 2 tâches D1 modèles et 3 tâches F1 tirées par le générateur inverse, 3 essais chacune. Le faux serveur OpenAI-compatible est juste quand sha256(« tâche:graine ») mod 100 < 60. Le vrai juge GdUnit4 note chaque essai. Une coupure est simulée après 7 appels, puis le tour reprend.
+
+```
+d1_001_identifiant_inconnu                         essai 0  NON run_tests       5.1 s
+d1_001_identifiant_inconnu                         essai 1  OK  run_tests       5.3 s
+d1_001_identifiant_inconnu                         essai 2  OK  run_tests       5.3 s
+d1_002_cible_nulle                                 essai 0  OK  run_tests       5.4 s
+d1_002_cible_nulle                                 essai 1  OK  run_tests       5.2 s
+d1_002_cible_nulle                                 essai 2  OK  run_tests       5.3 s
+f1_reference_hero_speed120p0_dash_speed860p0_dash_duration0p06_dash_cooldown1p25 essai 0  OK  run_tests       8.1 s
+-- coupure simulée après 7 appels
+f1_reference_hero_speed120p0_dash_speed860p0_dash_duration0p06_dash_cooldown1p25 essai 0  OK  run_tests       8.4 s
+f1_reference_hero_speed120p0_dash_speed860p0_dash_duration0p06_dash_cooldown1p25 essai 1  OK  run_tests       8.3 s
+f1_reference_hero_speed120p0_dash_speed860p0_dash_duration0p06_dash_cooldown1p25 essai 2  OK  run_tests       8.1 s
+f1_reference_hero_speed220p0_dash_speed620p0_dash_duration0p3_dash_cooldown0p85 essai 0  NON run_tests       8.3 s
+f1_reference_hero_speed220p0_dash_speed620p0_dash_duration0p3_dash_cooldown0p85 essai 1  NON run_tests       7.9 s
+f1_reference_hero_speed220p0_dash_speed620p0_dash_duration0p3_dash_cooldown0p85 essai 2  NON run_tests       7.8 s
+f1_reference_hero_speed250p0_dash_speed540p0_dash_duration0p21_dash_cooldown1p1 essai 0  NON run_tests       7.7 s
+f1_reference_hero_speed250p0_dash_speed540p0_dash_duration0p21_dash_cooldown1p1 essai 1  NON run_tests       7.7 s
+f1_reference_hero_speed250p0_dash_speed540p0_dash_duration0p21_dash_cooldown1p1 essai 2  NON run_tests       7.4 s
+5 tâches × 3 essais ; coupure après 2 tâches finies ; 9 appels à la reprise
+Retenues : 3 (attendu : 3) ; à refaire : ['f1_reference_hero_speed220p0_dash_speed620p0_dash_duration0p3_dash_cooldown0p85', 'f1_reference_hero_speed250p0_dash_speed540p0_dash_duration0p21_dash_cooldown1p1']
+Export : {'exportees': 3, 'par_competence': {'D1': 2, 'F1': 1}, 'ecartees': {}}
+OK    solutions gardées = tâches avec au moins un essai juste
+OK    chaque essai noté juste par le juge l'est par le serveur
+OK    registre complet, sans doublon
+OK    reprise : seuls les essais manquants sont refaits
+OK    export : JSONL et configurations valides
+OK    export : une session par solution gardée
+OK    tâches jamais réussies → a_refaire.txt
+CONFORME
+```
+
+`python -m pytest -q`
+
+```
+SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module named 'sqlite_vec'
+321 passed, 1 skipped in 519.49s (0:08:39)
+```
+
+**Reste à faire**
+
+- `VERIFIER_EN_LOCAL.md` 19 a et 19 b, avec le temps réel par essai, qui recale l'hypothèse de 15 s. 19 c : la réponse de laurent sur OpenCode en ligne de commande.
+- Le premier vrai tour, puis l'entraînement (19 d), après le gel complet sous Godot 4.8 : les tâches d'entraînement doivent être tirées **après** le gel, pour que l'exclusion de la règle 4 porte sur le gel définitif.
+- Ensuite, la mesure (étape 20) et `regression` après chaque tour.
+
+**Pièges**
+
+- **À température 0, N essais = N fois la même réponse** : il faut faire varier la graine *et* une température > 0.
+- **Un message assistant qui porte un texte et des appels d'outils** n'a pas d'équivalent dans le tour `function_call` de LLaMA-Factory.
+- **Le harnais OpenCode écrit un `opencode.json` dans la copie de travail** : il faut le retirer avant le jugement, sinon il entrerait dans la solution.
+- **Un CLI externe ne laisse pas choisir la graine** : en mode OpenCode, les N essais ne diffèrent que par l'aléa du serveur.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
