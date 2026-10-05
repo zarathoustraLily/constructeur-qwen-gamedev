@@ -8,7 +8,7 @@
 - [x] Session 2 — Traducteurs déterministes (scène ↔ spec, description du projet, éditions)
 - [x] Session 3 — Usine à tâches, portillon, jeux gelés
 - [x] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
-- [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources
+- [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources (172 tâches)
 - [ ] Avant la session 5 — compétence E « optimisation stricte » et son gel
 - [ ] Session 5 — Boucle RFT
 - [ ] Session 6 — Mesure
@@ -541,7 +541,7 @@ Décision de laurent (fil « Jeux open source Godot 4.7 ») : brancher 01-surviv
   - second avis de `check_script` : il effaçait toutes les erreurs dès que le script était instanciable ; une erreur d'exécution située dans le script (initialiseur statique) reste maintenant une erreur ;
   - `load_scene` ne précharge plus que les classes globales que la scène atteint (dépendances, classes nommées dans ses scripts, leurs bases) : une classe cassée sans rapport ne fait plus échouer la scène ; l'UID d'une dépendance passe avant son chemin texte, comme dans Godot ;
   - cache des verdicts : la clé porte la version du juge (empreinte de `usine/juge`, du socle et de GdUnit4), pour qu'un juge modifié ne relise jamais les verdicts de l'ancien ;
-  - **Windows** : `sorted()` sur des `Path` y ignore la casse ; l'ordre des fichiers, donc le nom des socles et l'empreinte des 61 tâches des nouvelles sources, aurait changé. Tous les tris de chemins se font par composants relatifs (ordre Linux inchangé : 0 empreinte modifiée sur les 171) ;
+  - **Windows** : `sorted()` sur des `Path` y ignore la casse ; l'ordre des fichiers, donc le nom des socles et l'empreinte des 61 tâches des nouvelles sources, aurait changé. Tous les tris de chemins se font par composants relatifs (ordre Linux inchangé : 0 empreinte modifiée sur les 171 tâches du gel d'alors) ;
   - exclusion (règle 4) : une correction par suppression (`>=` → `>`) ne laissait aucun fragment de réponse ; une copie renommée d'une tâche gelée passait l'exclusion. Le contexte autour du point supprimé compte maintenant ;
   - tests portés de survivor : `append_failure_message` au lieu d'`override_failure_message`, pour que le journal d'un test rouge garde « attendu / obtenu » (entrée K3) ;
   - S1 : un modèle importé (`.glb`) a le type `PackedScene` ; ids : deux fichiers homonymes (`power_up.gd` ×2 dans survivor) reçoivent des ids distincts, et `produire` refuse des ids en double ;
@@ -550,7 +550,7 @@ Décision de laurent (fil « Jeux open source Godot 4.7 ») : brancher 01-surviv
 
 **Choix**
 
-- **Le gel de la session 3 (106 tâches) est remplacé** par un gel à 4 sources (171 tâches). Aucun entraînement n'a eu lieu, la règle 4 tient. Le tirage de `godot/reference` diffère de celui de la session 3, parce que le juge a changé.
+- **Le gel de la session 3 (106 tâches) est remplacé** par un gel à 4 sources (172 tâches). Aucun entraînement n'a eu lieu, la règle 4 tient. Le tirage de `godot/reference` diffère de celui de la session 3, parce que le juge a changé.
 - Plafonds par source : sans eux, survivor (76 scripts) aurait noyé les autres sources. Les plafonds de K1 suivent le nombre de scripts testés.
 - Les démos du RAG ne sont pas des sources : rien à retirer de l'index (`[rag].demos_exclues` reste vide).
 - F1 reste sur `godot/reference` : il lui faut une fonction de mesure par jeu (vitesse du héros en frames). Les jeux 3D n'en ont pas encore.
@@ -558,32 +558,32 @@ Décision de laurent (fil « Jeux open source Godot 4.7 ») : brancher 01-surviv
 
 **Preuve de fin** (cloud, Godot 4.7.2 Linux headless, 4 cœurs)
 
-`python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4` (fin ; gel refait après la correction des journaux D1. La première chaîne, sans cache, avait pris 11 998 s pour le même tableau)
+`python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4` (fin ; gel refait **sans cache** après la relecture, puisque la version du juge entre dans la clé du cache)
 
 ```
 compétence  candidates qualifiées  gelées acceptées  rejets
 D1                  12         12       6         2  doublon_gele 4
 F1                 100        100      50        50  —
 K1                  29         24      12        12  reference_pas_verte 4, score_mutation_insuffisant 1
-K2                 102         73      36        37  depart_pas_rouge 14, instable 1, score_mutation_insuffisant 14
+K2                 102         74      37        37  depart_pas_rouge 14, score_mutation_insuffisant 14
 K3                 136        134      50        83  doublon_gele 1, score_mutation_insuffisant 2
 S1                  21         21      10        11  —
 S2                  14         14       7         6  doublon_gele 1
-TOTAL              414        378     171       201
+TOTAL              414        379     172       201
 
-Rejets du portillon par raison : depart_pas_rouge 14, doublon_gele 6, instable 1, reference_pas_verte 4, score_mutation_insuffisant 17
+Rejets du portillon par raison : depart_pas_rouge 14, doublon_gele 6, reference_pas_verte 4, score_mutation_insuffisant 17
 Écartés à la génération : d1_journal_sans_erreur_localisee 28, fonction_sur_une_ligne 2, k3_tests_non_executes 40, mutant_survivant 157, script_sans_methode 1, spec_invalide 8
 Acceptées : 201 sur 7 compétences (D1, F1, K1, K2, K3, S1, S2)
 Doublons avec les jeux gelés dans taches/ : 0
-Verdicts relus dans le cache : 2403
-Durée : 654 s
+Verdicts relus dans le cache : 792
+Durée : 12679 s
 ```
 
-Tâches gelées par source : reference 110 (D1 3, F1 50, K1 5, K2 13, K3 29, S1 6, S2 4), survivor 23 (K1 2, K2 12, K3 7, S1 2), kenney_platformer 26 (D1 1, K1 5, K2 9, K3 7, S1 2, S2 2), kenney_racing 12 (D1 2, K2 2, K3 7, S2 1).
+Tâches gelées par source : reference 110 (D1 3, F1 50, K1 5, K2 13, K3 29, S1 6, S2 4), survivor 23 (K1 2, K2 12, K3 7, S1 2), kenney_platformer 26 (D1 1, K1 5, K2 9, K3 7, S1 2, S2 2), kenney_racing 13 (D1 2, K2 3, K3 7, S2 1).
 
 Rejeu complet dans un autre dossier de sortie (production refaite, Godot relancé pour les journaux et les mesures ; verdicts du portillon relus dans le cache, clé = contenu jugé), puis comparaison :
 
-`python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4 --sortie <autre dossier>` (même tableau, `Durée : 646 s`), puis `python -m usine.portillon comparer donnees/portillon/rapport.json <autre dossier>/portillon/rapport.json`, `cmp` des manifestes et `diff -r` des dossiers `geles/`
+`python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4 --sortie <autre dossier>` (même tableau, `Verdicts relus dans le cache : 2406`, `Durée : 651 s`), puis `python -m usine.portillon comparer donnees/portillon/rapport.json <autre dossier>/portillon/rapport.json`, `cmp` des manifestes et `diff -r` des dossiers `geles/`
 
 ```
 acceptees                  identique
@@ -604,7 +604,7 @@ gels identiques octet pour octet
 
 ```
 SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module named 'sqlite_vec'
-252 passed, 1 skipped in 231.51s (0:03:51)
+261 passed, 1 skipped in 259.24s (0:04:19)
 ```
 
 **Reste à faire**

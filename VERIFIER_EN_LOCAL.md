@@ -319,7 +319,7 @@ python -m usine.portillon comparer donnees\portillon\rapport.json preuves\rappor
 echo %ERRORLEVEL%
 ```
 
-Attendu pour la chaîne : `TOTAL 414 378 171 201` sur la dernière ligne du tableau, et `Doublons avec les jeux gelés dans taches/ : 0`. Si tes tâches modèles de la session 1 doublent une tâche gelée, la ligne `Tâches modèles retirées de taches/ …` les nomme : c'est voulu.
+Attendu pour la chaîne : `TOTAL 414 379 172 201` sur la dernière ligne du tableau, et `Doublons avec les jeux gelés dans taches/ : 0`. Si tes tâches modèles de la session 1 doublent une tâche gelée, la ligne `Tâches modèles retirées de taches/ …` les nomme : c'est voulu.
 Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreintes` et `gelees_empreintes` sur des tâches `k3_…` ou `d1_…` (Godot Windows écrit ses journaux autrement que Linux, les verdicts ne changent pas). Les ids qui diffèrent sont listés sous la ligne : copie-les dans le fil.
 
 ## Points que seul ce test sur ta machine peut confirmer
