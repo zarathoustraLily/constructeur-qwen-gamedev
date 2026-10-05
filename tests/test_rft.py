@@ -166,7 +166,7 @@ def test_tour_reprise_sans_doublon(tmp_path):
         return Reponse('{"x": "bon, plus long"}' if (tid, client.graine) == ("d1_0", 1) else
                        ('{"x": "bon"}' if bon else '{"x": "faux"}'), 0.1)
 
-    r = ReglagesRft(n_essais=3, graine=1)
+    r = ReglagesRft(n_essais=3, graine=1, maxi_reussites=None)
     sortie = tmp_path / "t1"
 
     def coupe(*a, **k):
@@ -330,3 +330,14 @@ def test_preuve_mini_tour_juste_a_60_pour_cent(tmp_path):
     res = executer_preuve(tmp_path, afficher=lambda s: None)
     assert all(res["controles"].values()), res["controles"]
     assert len(res["retenus"]) == 3 and len(res["a_refaire"]) == 2 and res["taches_finies_avant_coupure"] == 2
+
+
+def test_filtre_de_difficulte_ecarte_les_taches_acquises():
+    reg = [{"tache_id": t, "essai": str(n), "ok": str(ok), "longueur": "10"}
+           for t, oks in (("acquise", [1, 1, 1, 1]), ("utile", [0, 1, 1, 0]), ("dure", [0, 0, 0, 0]))
+           for n, ok in enumerate(map(bool, oks))]
+    retenus, a_refaire = filtre.retenir(reg)
+    gardes, ecartes = filtre.appliquer_difficulte(reg, retenus, essais=4, mini=1, maxi=3)
+    assert [l["tache_id"] for l in gardes] == ["utile"] and ecartes == {"acquise": "trop_facile"}
+    assert a_refaire == ["dure"]
+    assert filtre.appliquer_difficulte(reg, retenus, essais=4, maxi=None) == (retenus, {})

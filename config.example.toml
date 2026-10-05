@@ -76,7 +76,9 @@ python = ["uv", "run", "python"]
 
 [rft]
 # Boucle RFT (session 5) : python -m usine.rft tour --sortie donnees\rft\t1
-n_essais = 4                # essais par tâche
+n_essais = 8                # essais par tâche
+mini_reussites = 1          # filtre de difficulté : tâche gardée si réussie entre mini et maxi fois sur n_essais
+maxi_reussites = 6          # au-delà : déjà acquise, non exportée (-1 : sans plafond)
 temperature = 0.7           # > 0 : sinon les N essais d'une tâche en un appel seraient identiques
 graine = 1                  # graine de l'essai n = graine + n
 lora_id = -1                # -1 : réglage du serveur ; sinon id du LoRA (ordre des --lora) à l'échelle 1

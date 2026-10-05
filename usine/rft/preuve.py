@@ -133,7 +133,8 @@ def executer_preuve(dossier: Path, n_essais: int = 3, couper_apres: int = 7, gra
     serveur = ServeurJuste60(reperes)
     try:
         # graine 4 : 8 essais justes sur 15 (53 %) et deux tâches jamais réussies (elles passent au tour suivant)
-        r = ReglagesRft(client=Reglages(url=serveur.url), n_essais=n_essais, temperature=0.7, graine=graine)
+        r = ReglagesRft(client=Reglages(url=serveur.url), n_essais=n_essais, temperature=0.7, graine=graine,
+                        maxi_reussites=None)
         sortie = dossier / "tour"
         appels = {"n": 0}
 

@@ -320,7 +320,7 @@ echo %ERRORLEVEL%
 ```
 
 Attendu pour la chaîne : `TOTAL 414 379 172 201` sur la dernière ligne du tableau, et `Doublons avec les jeux gelés dans taches/ : 0`. Si tes tâches modèles de la session 1 doublent une tâche gelée, la ligne `Tâches modèles retirées de taches/ …` les nomme : c'est voulu.
-Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreintes` et `gelees_empreintes` sur des tâches `k3_…` ou `d1_…` (Godot Windows écrit ses journaux autrement que Linux, les verdicts ne changent pas). Les ids qui diffèrent sont listés sous la ligne : copie-les dans le fil.
+Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreintes` et `gelees_empreintes` sur des tâches `k3_…` ou `d1_…` (Godot Windows écrit ses journaux autrement que Linux, les verdicts ne changent pas). Depuis la correction de la consigne D1 (2026-10-05, accolades doublées), toutes les tâches `d1_…` ont une autre empreinte que dans cette preuve : c'est attendu. Les ids qui diffèrent sont listés sous la ligne : copie-les dans le fil.
 
 ## 18. Avant la session 5 — compétence E « optimisation stricte »
 
@@ -365,7 +365,7 @@ python -m usine.rft preuve
 ```
 
 Attendu :
-- pytest : `13 passed`, puis `0` ;
+- pytest : `14 passed`, puis `0` ;
 - la preuve : 15 lignes d'essai et une ligne `-- coupure simulée après 7 appels`. Ensuite, `5 tâches × 3 essais ; coupure après 2 tâches finies ; 9 appels à la reprise`, puis `Retenues : 3 (attendu : 3)` et deux tâches F1 à refaire. Viennent sept lignes `OK`, puis `CONFORME`.
 
 ### 19 b. Vrai mini-tour sur 20 tâches en un appel (environ 20 à 40 minutes) : temps par essai
@@ -378,7 +378,7 @@ python -m usine.rft tour --sortie donnees\rft\essai20 --competences D1 F1 K1 S1 
 
 Attendu :
 - une ligne par essai (`<tâche>  essai 0  OK  run_tests  12.3 s`) ;
-- puis `40 essais faits, 0 tâches déjà faites (reprise) ; retenues …, à refaire … ; export {...}` ;
+- puis `40 essais faits, 0 tâches déjà faites (reprise) ; retenues …, acquises …, à refaire … ; export {...}` ;
 - puis `Temps par essai : médiane … s, moyenne … s, max … s (40 essais)`.
 
 S'il y a moins de 4 tâches par compétence, le total est plus petit : c'est normal.

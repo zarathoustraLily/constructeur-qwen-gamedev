@@ -17,7 +17,7 @@ CATEGORIES_D1 = ["parse_error", "null_instance", "invalid_node_path", "signal_mi
 CONSIGNE_D1 = (
     "Le fichier journal.txt contient la sortie de Godot quand on lance ce projet en headless. "
     "Trouver l'erreur à l'origine du problème et écrire res://reponse.json au format "
-    '{{"categorie": "...", "fichier": "res://...", "ligne": N}}, où fichier:ligne est la ligne du script '
+    '{"categorie": "...", "fichier": "res://...", "ligne": N}, où fichier:ligne est la ligne du script '
     "qui provoque l'erreur. Catégories possibles : " + ", ".join(CATEGORIES_D1) + ". "
     "Ne modifier aucun autre fichier."
 )

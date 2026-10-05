@@ -9,6 +9,7 @@
   sessions/<tache_id>/essai_<n>.jsonl
   retenus.csv       la solution retenue de chaque tâche réussie (filtre.py)
   a_refaire.txt     les tâches jamais réussies : entrée du tour suivant (--depuis)
+  acquises.txt      les tâches réussies plus de maxi_reussites fois sur N : non exportées
   export/           données et configurations d'entraînement (export.py)
 
 Les tâches viennent de donnees/taches (acceptées par le portillon, déjà dédoublonnées du gel).
@@ -106,6 +107,8 @@ def tour(taches: list[Path], sortie: Path, r: ReglagesRft, exclusion=None, base_
         lignes = [l for l in lignes if l["tache_id"] != tid] + nouveaux
         ecrire_registre(registre, lignes)            # atomique, après chaque tâche
     retenus, a_refaire = filtre.retenir(lignes)
+    retenus, acquises = filtre.appliquer_difficulte(lignes, retenus, r.n_essais, r.mini_reussites, r.maxi_reussites)
+    _ecrire_atomique(sortie / "acquises.txt", "".join(f"{t}\n" for t in sorted(acquises)))
     tampon = io.StringIO()
     w = csv.DictWriter(tampon, fieldnames=COLONNES, lineterminator="\n")
     w.writeheader()
@@ -113,7 +116,7 @@ def tour(taches: list[Path], sortie: Path, r: ReglagesRft, exclusion=None, base_
     _ecrire_atomique(sortie / "retenus.csv", tampon.getvalue())
     _ecrire_atomique(sortie / "a_refaire.txt", "".join(f"{t}\n" for t in a_refaire))
     bilan_export = export.exporter(retenus, sortie / "sessions", sortie / "export", exclusion, base_hf)
-    bilan.update({"retenus": len(retenus), "a_refaire": len(a_refaire), "export": bilan_export,
+    bilan.update({"retenus": len(retenus), "a_refaire": len(a_refaire), "acquises": len(acquises), "export": bilan_export,
                   "duree_s": round(time.monotonic() - debut, 1)})
     _ecrire_atomique(sortie / "bilan.json", json.dumps({k: v for k, v in bilan.items() if k != "durees_s"},
                                                         ensure_ascii=False, indent=2) + "\n")

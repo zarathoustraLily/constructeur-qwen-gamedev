@@ -70,7 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         bilan = tour(taches, a.sortie, r, exclusion, _base_hf(config))
         d = bilan["durees_s"]
         print(f"{bilan['essais']} essais faits, {bilan['reprises']} tâches déjà faites (reprise) ; "
-              f"retenues {bilan['retenus']}, à refaire {bilan['a_refaire']} ; export {bilan['export']}")
+              f"retenues {bilan['retenus']}, acquises {bilan['acquises']}, à refaire {bilan['a_refaire']} ; "
+              f"export {bilan['export']}")
         if d:
             print(f"Temps par essai : médiane {statistics.median(d):.1f} s, moyenne {statistics.fmean(d):.1f} s, "
                   f"max {max(d):.1f} s ({len(d)} essais) ; durée du tour {bilan['duree_s']} s")
@@ -80,7 +81,11 @@ def main(argv: list[str] | None = None) -> int:
         from usine.portillon.exclusion import Exclusion
         from usine.rft import export, filtre
         from usine.rft.tour import lire_registre
-        retenus, _ = filtre.retenir(lire_registre(a.sortie / "registre.csv"))
+        from usine.rft.essais import reglages_depuis_config
+        r = reglages_depuis_config(config)
+        registre = lire_registre(a.sortie / "registre.csv")
+        retenus, _ = filtre.retenir(registre)
+        retenus, _ = filtre.appliquer_difficulte(registre, retenus, r.n_essais, r.mini_reussites, r.maxi_reussites)
         print(export.exporter(retenus, a.sortie / "sessions", a.sortie / "export", Exclusion.charger(),
                               _base_hf(config)))
         return 0

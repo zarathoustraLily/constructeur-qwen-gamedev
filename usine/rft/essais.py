@@ -34,7 +34,9 @@ HARNAIS = ("agent", "opencode")
 @dataclass
 class ReglagesRft:
     client: Reglages = field(default_factory=Reglages)
-    n_essais: int = 4
+    n_essais: int = 8
+    mini_reussites: int = 1                      # filtre de difficulté (usine/portillon/difficulte.py) :
+    maxi_reussites: int | None = 6               # au-delà, tâche « acquise », non exportée ; None : sans plafond
     temperature: float = 0.7
     graine: int = 1
     lora: list[dict[str, Any]] | None = None     # champ `lora` des requêtes ; None : réglage du serveur
@@ -52,7 +54,10 @@ def reglages_depuis_config(config: dict[str, Any] | None = None) -> ReglagesRft:
     rft = config.get("rft", {})
     client = reglages_mesure(config).client
     lora_id = rft.get("lora_id")
-    return ReglagesRft(client=client, n_essais=int(rft.get("n_essais", 4)),
+    maxi = rft.get("maxi_reussites", 6)
+    return ReglagesRft(client=client, n_essais=int(rft.get("n_essais", 8)),
+                       mini_reussites=int(rft.get("mini_reussites", 1)),
+                       maxi_reussites=None if maxi is None or int(maxi) < 0 else int(maxi),
                        temperature=float(rft.get("temperature", 0.7)), graine=int(rft.get("graine", 1)),
                        lora=None if lora_id is None or lora_id == -1 else [{"id": int(lora_id), "scale": 1.0}],
                        avec_rag=bool(rft.get("avec_rag", False)), n_docs=int(rft.get("n_docs", 5)),

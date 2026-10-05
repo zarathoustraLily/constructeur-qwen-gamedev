@@ -10,8 +10,8 @@
 - [x] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
 - [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources (172 tâches)
 - [x] Avant la session 5 — compétence E « optimisation stricte » (gel en attente de Godot 4.8 stable)
-- [ ] Session 5 — Boucle RFT
-- [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après la session 5 et le gel 4.8)
+- [x] Session 5 — Boucle RFT (cloud : code et preuve ; vrai tour après le gel 4.8)
+- [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après le premier LoRA et le gel 4.8)
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -23,13 +23,13 @@
 | Session 4 — RAG, serveur MCP, fiches, enregistreur | fait | oui (étapes 12 à 16 ; 13 b facultative non lancée) |
 | Avant la session 5 — jeux sources (survivor, Kenney) | fait | oui (17 a ; 17 b facultative non lancée) |
 | Avant la session 5 — compétence E | fait, PR #6 fusionnée ; **gel en attente de Godot 4.8 stable** | non : étape 18 a à lancer |
-| Session 5 — boucle RFT | **pas faite** | — |
-| Session 6 — mesure | fait (code, preuve sur résultats simulés) ; la mesure réelle attend la session 5 (LoRA, harness agentique) et le gel 4.8 | non : étapes 19 a et 19 b à lancer |
+| Session 5 — boucle RFT | fait (code, preuve : mini-tour contre un faux serveur juste à 60 %, vrai juge) ; harnais OpenCode à confirmer | non : étapes 19 a et 19 b à lancer, 19 c à confirmer |
+| Session 6 — mesure | fait (code, preuve sur résultats simulés ; agentiques mesurées par l'agent maison) ; la mesure réelle attend le premier LoRA et le gel 4.8 | non : étapes 20 a et 20 b à lancer |
 
 Ordre conseillé pour la suite :
-1. session 5 ;
+1. vérifications locales 18 a, 19 a et b, 20 a et b ; réponse sur OpenCode en ligne de commande (19 c) ;
 2. migration vers Godot 4.8 stable et gel complet (section E) ;
-3. premier tour RFT ;
+3. premier tour RFT (`python -m usine.rft tour`), entraînement, GGUF, lanceur (19 d) ;
 4. mesure réelle (`python -m usine.mesure executer`, puis `rapport`, puis `regression` après chaque tour).
 
 ## Journal
@@ -777,7 +777,7 @@ code=0
 
 ### Session 6 — Mesure — 2026-10-05 (branche `claude/competence-e-optimisation-xbhw0j`)
 
-Faite après la compétence E (PR #6 fusionnée), **avant la session 5**, à la demande de laurent. Il n'existe donc ni LoRA Godot ni harness agentique : la mesure réelle attend la session 5 et le gel sous Godot 4.8.
+Faite après la compétence E (PR #6 fusionnée), puis complétée après la session 5 (même branche) : les compétences agentiques sont mesurées par l'agent maison. La mesure réelle attend le premier LoRA et le gel sous Godot 4.8.
 
 **Fait**
 
@@ -799,7 +799,7 @@ Faite après la compétence E (PR #6 fusionnée), **avant la session 5**, à la 
 - `config.example.toml` : sections `[mesure]`, `[frontiere]` (désactivée) et `[gamedevbench]`.
 - `tests/test_mesure.py` (25 tests, dont un de bout en bout avec Godot : deux tâches D1 modèles, un faux serveur OpenAI-compatible, le vrai juge GdUnit4).
 - `preuves/mesure_simulee/` : le rapport simulé (md et csv), reproductible octet pour octet par `python -m usine.mesure simuler`.
-- `VERIFIER_EN_LOCAL.md` : étape 19 (19 b : mesure réelle des 4 configurations sur F1, avec la durée d'un appel).
+- `VERIFIER_EN_LOCAL.md` : étape 20 (20 b : mesure réelle des 4 configurations sur F1, avec la durée d'un appel).
 
 **Choix**
 
@@ -810,7 +810,7 @@ Faite après la compétence E (PR #6 fusionnée), **avant la session 5**, à la 
   - défaite : LoRA + RAG sous base + RAG au-delà de l'intervalle. Tout le reste est une égalité, avec son motif.
 - **Non-régression** : une compétence recule si sa nouvelle borne haute est sous l'ancienne borne basse. Une baisse dans l'intervalle est signalée sans bloquer. Une compétence absente du nouveau tour bloque aussi.
 - **Même prompt, même schéma, même budget** pour les 4 configurations : un appel par tâche, température 0, graine fixe, `max_jetons` commun, jamais de relance. Les configurations `_rag` ajoutent les extraits de `search_docs` (requête = la consigne). La configuration de base envoie l'échelle 0 pour chaque adaptateur déclaré, car llama-server applique un LoRA chargé à son échelle par défaut.
-- **Compétences agentiques** (K2, K3, E…) : non mesurées par `executer`. Le harness de la session 5 écrira des lignes au même format, et `rapport` les prendra telles quelles.
+- **Compétences agentiques** (K2, K3, E…) : une session de l'agent maison de la session 5 par tâche et par configuration. Le budget de pas est le même pour les quatre. Sans RAG, `search_docs` est retiré ; avec RAG, l'outil est présent et les extraits sont ajoutés à la tâche. La session est gardée dans `<résultats>.sessions/`, et `--sans-agentiques` les exclut.
 - **Frontière** : `python -m usine.mesure.frontiere`. Elle ne tourne que si `[frontiere] active = true` **et** si `--appel-externe` est passé. Aucun module ne l'importe (vérifié par un test). Elle ne fait que **collecter** les réponses, sur le mini-PC en ligne ; elles sont jugées hors-ligne sur la machine, avec exactement le même prompt que Qwen.
 - **GameDevBench** :
   - le dépôt est public (`waynchi/gamedevbench`, Apache 2.0) : 333 tâches, Godot 4.4.1 exact, un solveur OpenCode intégré, `final_results.json` et `results/leaderboard.csv` (meilleur pass@1 : 69,97 %) ;
@@ -888,11 +888,8 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 
 **Reste à faire**
 
-- **Session 5** (boucle RFT), pas encore faite :
-  - `rft/essais` doit réutiliser `usine.mesure.client` (appel, `lora`, schéma) et `usine.mesure.reponses` (schémas, contexte, traducteurs, `juger_reponse`) pour les compétences en un appel ;
-  - le harness agentique doit écrire ses essais au format des lignes de résultats, pour que `rapport` mesure aussi K2, K3 et E.
 - Mesure réelle : après le premier LoRA (session 5) et le gel sous Godot 4.8 stable (voir la section E).
-- `VERIFIER_EN_LOCAL.md` étape 19 a et 19 b. La durée d'un appel recale l'hypothèse de 15 s du document de conception.
+- `VERIFIER_EN_LOCAL.md` étapes 20 a et 20 b. La durée d'un appel recale l'hypothèse de 15 s du document de conception.
 - GameDevBench : obtenir la liste des tâches « Gameplay Logic » si laurent veut ce sous-ensemble. Le runner officiel n'a pas été essayé sous Windows.
 
 **Pièges**
@@ -913,7 +910,8 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
 - [x] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a, conforme le 2026-10-05 (17 b facultative, non lancée). Détail plus bas.
 - [ ] Compétence E — `VERIFIER_EN_LOCAL.md` étape 18 a (moins de 15 minutes ; 18 b facultative).
-- [ ] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 19 a (2 minutes) et 19 b (mesure réelle sur F1, 10 tâches : noter la durée d'un appel) ; 19 c (GameDevBench) et 19 d (frontière) facultatives.
+- [ ] Session 5 — `VERIFIER_EN_LOCAL.md` étapes 19 a (5 minutes) et 19 b (vrai mini-tour sur 20 tâches en un appel : noter le temps par essai) ; 19 c : dire si OpenCode en ligne de commande doit servir ; 19 d (entraînement, GGUF, lanceur) facultative et longue.
+- [ ] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 20 a (2 minutes) et 20 b (mesure réelle sur F1, 10 tâches : noter la durée d'un appel) ; 20 c (GameDevBench) et 20 d (frontière) facultatives.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
