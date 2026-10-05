@@ -353,6 +353,92 @@ echo %ERRORLEVEL%
 
 Attendu : `efficience E         10 tâches     0 écartés` à la production, puis la ligne `E` du tableau avec 10 candidates, 0 rejet et `TOTAL 10 10 5 5`. Les empreintes peuvent différer de celles du cloud (journaux Godot Windows), mais pas les nombres.
 
+## 19. Session 6 — mesure
+
+### 19 a. Tests et rapport simulé (environ 2 minutes)
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+python -m pytest -q tests\test_mesure.py
+echo %ERRORLEVEL%
+python -m usine.mesure simuler
+```
+
+Attendu :
+- pytest : `25 passed`, puis `0` ;
+- `simuler` affiche le tableau des 14 compétences et finit par `Bilan : défaite 1, non mesuré 6, victoire 1, égalité 6`. Le rapport est écrit dans `donnees\mesure\simulation\`. Vérifie qu'il est identique à la preuve du cloud : `fc /b donnees\mesure\simulation\rapport_mesure.md preuves\mesure_simulee\rapport_mesure.md` doit répondre « aucune différence ».
+
+### 19 b. Mesure réelle des 4 configurations sur une compétence en un appel (F1, 10 tâches, environ 30 à 60 minutes)
+
+Il faut :
+- llama-server lancé comme d'habitude (port 8080), Qwen3.8-27B chargé ;
+- l'index du RAG (étape 13) ;
+- des tâches F1 gelées dans `donnees\geles`. Sinon, ajoute `--geles donnees\taches` : les tâches acceptées suffisent pour mesurer la durée, mais ce n'est pas un score de référence.
+
+**LoRA.** Les configurations `lora` et `lora_rag` demandent un adaptateur chargé par llama-server (`--lora <fichier>.gguf`), déclaré dans `config.toml` :
+
+```toml
+[mesure]
+lora_ids = [0]
+lora_actif = 0
+```
+
+Tant que la session 5 n'a produit aucun LoRA Godot, il y a deux possibilités :
+- mesurer seulement `base` et `base_rag`, avec `lora_ids = []` et `--configurations base base_rag` ;
+- charger un autre adaptateur compatible avec Qwen3.8-27B : le chemin LoRA est alors vérifié, mais le score ne veut rien dire.
+
+```bat
+python -m usine.mesure executer --competences F1 --limite 10 --tour essai
+python -m usine.mesure rapport donnees\mesure\resultats_essai.jsonl --tour essai
+```
+
+Attendu :
+- `executer` affiche une ligne par essai (`base      f1_… OK  run_tests  appel 12.3 s`), puis `40 essais faits, 0 déjà présents (reprise)`. Avec deux configurations, ce sera `20 essais faits`. Vient ensuite la ligne `Durée d'un appel : médiane … s, moyenne … s, max … s` ;
+- coupe-le (Ctrl+C) puis relance-le : seuls les essais manquants sont refaits (`… déjà présents (reprise)`) ;
+- `rapport` affiche la ligne F1 avec `n` = 10 et les scores des configurations mesurées.
+
+Note dans `ETAT.md` :
+- la ligne `Durée d'un appel` ;
+- la durée totale ;
+- la ligne F1 du rapport.
+
+Si llama-server répond `HTTP 400` sur `response_format`, copie le message dans le fil : la contrainte par schéma JSON de ton build est à vérifier.
+
+### 19 c. FACULTATIF et LONG — GameDevBench (Godot 4.4.1 séparé)
+
+Sur le mini-PC, en ligne :
+- `git clone https://github.com/waynchi/gamedevbench` ;
+- télécharger Godot 4.4.1 stable pour Windows ;
+- les dépendances Python de `pyproject.toml` en wheelhouse.
+
+Puis, sur la machine, renseigne `[gamedevbench] depot` et `[godot] console_gamedevbench` dans `config.toml` :
+
+```bat
+python -m usine.mesure gamedevbench preparer
+python -m usine.mesure gamedevbench lancer
+python -m usine.mesure gamedevbench score --resultats <dépôt>\results\final_results.json
+```
+
+Attendu pour `preparer` : `Godot : 4.4.1.stable…`, `333 tâches`, puis la commande qui sera lancée. Le runner officiel vise Linux et macOS (confinement par bubblewrap, Xvfb). Sous Windows, il tourne en `--confinement off`, donc le score est marqué « non confiné » ; et rien n'a été vérifié sous Windows. Une session OpenCode par tâche : prévoir une nuit au moins.
+
+### 19 d. FACULTATIF — référence frontière (appel externe, depuis le mini-PC en ligne)
+
+Désactivée par défaut. Mets `[frontiere] active = true`, `url`, `modele` et `protocole` dans le `config.toml` du mini-PC. La clé ne va pas dans `config.toml` : elle va dans la variable d'environnement nommée par `cle_env`. Copie aussi `donnees\geles` et `donnees\rag` sur le mini-PC.
+
+```bat
+set FRONTIERE_CLE=<ta clé>
+python -m usine.mesure.frontiere --appel-externe --competences F1 --limite 10
+```
+
+Puis, sur la machine, hors-ligne :
+
+```bat
+python -m usine.mesure juger-reponses donnees\mesure\frontiere_reponses.jsonl
+python -m usine.mesure rapport donnees\mesure\resultats_essai.jsonl donnees\mesure\resultats_frontiere.jsonl --tour essai
+```
+
+Attendu : les colonnes `frontière` et `frontière + RAG` sont remplies pour F1, et le verdict est calculé contre `frontière + RAG`.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
@@ -363,3 +449,4 @@ Attendu : `efficience E         10 tâches     0 écartés` à la production, pu
 - Session 4 : OpenCode 2.0.6 fusionne bien `provider.<id>.options.baseURL` du projet par-dessus la config globale (étape 16), et lance le serveur MCP avec la commande écrite par la fusion. La compilation des démos par ton Godot Windows donne les mêmes nombres que sous Linux (étape 13 b).
 - Avant la session 5 : les trois jeux sources passent leurs tests sous Godot Windows (étape 17 a), sons Ogg et modèles `.glb` compris.
 - Compétence E : les mesures d'efficience sous Godot Windows (allocations, lots de dessin, signature du rendu) donnent les mêmes verdicts que sous Linux ; le temps par image, relatif à la référence mesurée sur la même machine, reste sous les seuils (étape 18).
+- Session 6 : la contrainte par schéma JSON (`response_format`) et le champ `lora` par requête de ton build de llama-server ; la durée réelle d'un appel en un appel (étape 19 b), qui recale l'hypothèse de 15 s du document de conception.

@@ -42,3 +42,28 @@ seuil_fragments = 0.8       # Jaccard des fragments de réponse au-delà duquel 
 [rag]
 vecteurs = false            # true : recherche aussi par vecteurs sqlite-vec (python -m usine.rag vecteurs)
 demos_exclues = []          # projets de démo retirés de l'index, par ex. ["3d/truck_town"] s'il devient source de tâches gelées
+
+[mesure]
+# Même budget pour les 4 configurations (base ± RAG, LoRA ± RAG) : un appel par tâche, jamais de relance.
+max_jetons = 4096
+temperature = 0.0
+graine = 1
+delai_s = 600               # délai d'un appel à llama-server
+n_docs = 5                  # extraits du RAG ajoutés au prompt (configurations « _rag »)
+lora_ids = [0]              # adaptateurs chargés par llama-server (--lora), dans l'ordre ; [] si aucun
+lora_actif = 0              # adaptateur mesuré (les autres sont envoyés à l'échelle 0)
+
+[frontiere]
+# Référence frontière : appel EXTERNE, désactivé. Jamais lancé automatiquement.
+# python -m usine.mesure.frontiere --appel-externe (depuis le mini-PC en ligne)
+active = false
+protocole = "openai"        # openai (chat/completions, schéma JSON) ou anthropic (API Messages)
+url = 'A_RENSEIGNER'        # par ex. https://api.anthropic.com/v1
+modele = 'A_RENSEIGNER'
+cle_env = "FRONTIERE_CLE"   # variable d'environnement qui porte la clé (jamais la clé ici)
+
+[gamedevbench]
+depot = 'A_RENSEIGNER'      # copie du dépôt waynchi/gamedevbench (récupérée en ligne sur le mini-PC)
+modele = "llamacpp/qwen"    # fournisseur/modèle tel que déclaré dans la config OpenCode
+confinement = "off"         # « strict » exige Linux et bubblewrap ; « off » : résultat marqué non confiné
+python = ["uv", "run", "python"]
