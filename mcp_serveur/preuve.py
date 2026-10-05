@@ -3,7 +3,7 @@
     python -m mcp_serveur.preuve [--projet godot/reference]
 
 Le projet est d'abord copié dans un dossier jetable : scene_write et apply_edits y écrivent.
-Contrôles : 9 outils déclarés ; chaque appel réussit ; un appel faux est refusé proprement
+Contrôles : 10 outils déclarés ; chaque appel réussit ; un appel faux est refusé proprement
 (chemin hors du projet, édition invalide) sans rien écrire.
 """
 
@@ -20,7 +20,7 @@ from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
 OUTILS = ["vocab_lookup", "search_docs", "scene_read", "scene_write", "describe_project", "apply_edits",
-          "check_script", "load_scene", "run_tests"]
+          "check_script", "load_scene", "run_tests", "measure_efficiency"]
 
 
 async def _preuve(projet: Path, index: Path | None = None) -> list[tuple[str, bool, str]]:
@@ -76,6 +76,10 @@ async def _preuve(projet: Path, index: Path | None = None) -> list[tuple[str, bo
             await appel("load_scene", {"chemin": "res://scenes/main.tscn"}, verdict(), lambda t: "ok")
             await appel("run_tests", {}, verdict(),
                         lambda t: f"{json.loads(t)['tests']['passes']}/{json.loads(t)['tests']['total']} tests verts")
+            await appel("measure_efficiency", {"scene": "res://scenes/main.tscn"},
+                        lambda e, t: not e and json.loads(t)["ok"] and len(json.loads(t)["rendu"]) == 3,
+                        lambda t: f"{json.loads(t)['allocations_apres_echauffement']} allocations, "
+                                  f"{json.loads(t)['lots_de_dessin']} lots")
             # Refus propres.
             avant = (projet / "scenes" / "coin.tscn").read_bytes()
             await appel("apply_edits", {"edits": [{"op": "set_property", "noeud": "coin:Inexistant",
@@ -95,7 +99,7 @@ def preuve(source: Path, index: Path | None = None) -> int:
         lignes = asyncio.run(_preuve(projet, index))
     for nom, ok, detail in lignes:
         print(f"{nom:<17} {'OK ' if ok else 'ÉCHEC'}  {detail}")
-    tout = all(ok for _, ok, _ in lignes) and len(lignes) == 12
+    tout = all(ok for _, ok, _ in lignes) and len(lignes) == 13
     print(f"{sum(ok for _, ok, _ in lignes)}/{len(lignes)} contrôles conformes")
     return 0 if tout else 1
 

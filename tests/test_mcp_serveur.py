@@ -40,4 +40,4 @@ def test_preuve_mcp(tmp_path, capsys):
     code = preuve(REFERENCE, tmp_path / "idx.sqlite")
     sortie = capsys.readouterr().out
     assert code == 0, sortie
-    assert "12/12 contrôles conformes" in sortie
+    assert "13/13 contrôles conformes" in sortie

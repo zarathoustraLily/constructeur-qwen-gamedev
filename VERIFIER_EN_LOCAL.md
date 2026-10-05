@@ -252,7 +252,7 @@ python -m usine.capture preuve
 python -m mcp_serveur.preuve
 ```
 
-Attendu : `CONFORME` pour la première ; `12/12 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions).
+Attendu : `CONFORME` pour la première ; `13/13 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; 12/12 avant la compétence E et son outil `measure_efficiency`).
 
 ## 15. Session 4 — brancher l'usine sur un projet
 
@@ -322,6 +322,37 @@ echo %ERRORLEVEL%
 Attendu pour la chaîne : `TOTAL 414 379 172 201` sur la dernière ligne du tableau, et `Doublons avec les jeux gelés dans taches/ : 0`. Si tes tâches modèles de la session 1 doublent une tâche gelée, la ligne `Tâches modèles retirées de taches/ …` les nomme : c'est voulu.
 Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreintes` et `gelees_empreintes` sur des tâches `k3_…` ou `d1_…` (Godot Windows écrit ses journaux autrement que Linux, les verdicts ne changent pas). Les ids qui diffèrent sont listés sous la ligne : copie-les dans le fil.
 
+## 18. Avant la session 5 — compétence E « optimisation stricte »
+
+Rien n'est gelé à cette étape : le gel attend Godot 4.8 stable.
+
+### 18 a. Tests et outil MCP (moins de 15 minutes)
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+python -m pytest -q tests\test_efficience.py
+echo %ERRORLEVEL%
+python -m mcp_serveur.preuve
+echo %ERRORLEVEL%
+```
+
+Attendu :
+- pytest : `20 passed` (environ 7 min dans le cloud), puis `0` ;
+- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `13/13 contrôles conformes` et `0`.
+
+Un échec ici est un écart à signaler : copie la fin de la sortie dans le fil. Le cas le plus probable est un test de temps (`efficience_temps`), puisque le temps est la seule mesure qui dépend de la machine. Signale-le aussi, avec le rapport affiché.
+
+### 18 b. FACULTATIF — une chaîne E sur 10 tâches (25 minutes au plus dans le cloud sur 4 cœurs)
+
+Elle écrit dans un dossier à part et ne touche ni à `donnees\geles` ni à `donnees\taches`.
+
+```bat
+python -m usine.portillon chaine --competences E --e 10 --sortie %TEMP%\e10
+echo %ERRORLEVEL%
+```
+
+Attendu : `efficience E         10 tâches     0 écartés` à la production, puis la ligne `E` du tableau avec 10 candidates, 0 rejet et `TOTAL 10 10 5 5`. Les empreintes peuvent différer de celles du cloud (journaux Godot Windows), mais pas les nombres.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
@@ -331,3 +362,4 @@ Attendu pour `comparer` : `identique` partout sauf, au plus, `acceptees_empreint
 - Session 3 : les mesures faites par Godot Windows (interfaces K1, état des scènes S1, mesures F1 en frames) donnent les mêmes vérités terrain que sous Linux, donc les mêmes empreintes (étape 17 b, `comparer`).
 - Session 4 : OpenCode 2.0.6 fusionne bien `provider.<id>.options.baseURL` du projet par-dessus la config globale (étape 16), et lance le serveur MCP avec la commande écrite par la fusion. La compilation des démos par ton Godot Windows donne les mêmes nombres que sous Linux (étape 13 b).
 - Avant la session 5 : les trois jeux sources passent leurs tests sous Godot Windows (étape 17 a), sons Ogg et modèles `.glb` compris.
+- Compétence E : les mesures d'efficience sous Godot Windows (allocations, lots de dessin, signature du rendu) donnent les mêmes verdicts que sous Linux ; le temps par image, relatif à la référence mesurée sur la même machine, reste sous les seuils (étape 18).

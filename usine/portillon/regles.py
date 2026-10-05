@@ -7,6 +7,13 @@ Une tâche est acceptée si :
      les mutants étant pris dans la zone que la référence change (mutants.py) ;
   4. elle n'est pas un doublon d'un jeu gelé (empreinte ou fragments) — vérifié par chaine.py.
 
+Compétence E (optimisation stricte) : le juge ajoute l'étape « mesure_efficience »
+(usine/efficience/juge.py). Le départ doit y échouer (comportement intact, efficience
+insuffisante) et la référence y passer. Si la référence échoue à cette étape, la raison du
+rejet est la catégorie de l'erreur : efficience_allocations, efficience_draw_calls,
+efficience_temps ou rendu_degrade. Ces quatre raisons servent aussi au tri des essais de Qwen
+(session 5) : ce sont les catégories du verdict d'un candidat refusé.
+
 Chaque rejet porte une raison (RAISONS) et un détail lisible.
 """
 
@@ -28,7 +35,23 @@ RAISONS = {
     "score_mutation_insuffisant": "les tests cachés tuent trop peu de mutants",
     "doublon_gele": "doublon d'une tâche des jeux gelés (empreinte ou fragments)",
     "doublon_candidat": "doublon d'une autre candidate déjà acceptée (empreinte)",
+    # Compétence E (étape mesure_efficience)
+    "efficience_draw_calls": "lots de dessin au-delà de la référence × 1,05",
+    "efficience_allocations": "objets alloués après l'échauffement (attendu : 0)",
+    "efficience_temps": "temps par image au-delà de la référence × 1,15",
+    "rendu_degrade": "un réglage ou un élément de rendu diffère de la référence",
 }
+RAISONS_EFFICIENCE = ("efficience_draw_calls", "efficience_allocations", "efficience_temps", "rendu_degrade")
+
+
+def raison_efficience(verdict: dict[str, Any]) -> str | None:
+    """Raison E d'un verdict refusé à l'étape mesure_efficience (première erreur catégorisée)."""
+    if verdict.get("ok") or verdict.get("etape") != "mesure_efficience":
+        return None
+    for e in verdict.get("erreurs", []):
+        if e.get("categorie") in RAISONS_EFFICIENCE:
+            return e["categorie"]
+    return None
 
 
 @dataclass
@@ -66,6 +89,21 @@ def _resume(v: dict[str, Any]) -> str:
     return f"{'PASS' if v['ok'] else 'FAIL'}@{v['etape']} {v['tests']['passes']}/{v['tests']['total']}"
 
 
+def _efficience(v: dict[str, Any]) -> dict[str, Any]:
+    """Les trois sous-critères E et le rendu, en bref, pour le journal du portillon."""
+    m = v["metriques"]
+    r: dict[str, Any] = {"raison": raison_efficience(v)}
+    if "draw_calls" in m:
+        r["lots"] = [m["draw_calls"]["valeur"], m["draw_calls"]["reference"]]
+    if "allocations_actives_apres_warmup" in m:
+        r["allocations"] = m["allocations_actives_apres_warmup"]["delta_objets"]
+    if "temps_cpu_relatif" in m:
+        r["temps_ratio"] = m["temps_cpu_relatif"]["ratio"]
+    if "rendu" in m:
+        r["rendu_intact"] = m["rendu"]["ok"]
+    return r
+
+
 def evaluer(dossier: Path, reglages: Reglages) -> Decision:
     """Règles 1 à 3. Les verdicts passent par le cache (une clé par répétition)."""
     dossier = Path(dossier)
@@ -90,11 +128,15 @@ def evaluer(dossier: Path, reglages: Reglages) -> Decision:
                 break
         d.mesures[version] = [_resume(v) for v in verdicts]
         d.mesures[f"{version}_cache"] = sum(bool(v.get("depuis_cache")) for v in verdicts)
+        if "metriques" in verdicts[-1]:
+            d.mesures[f"{version}_efficience"] = _efficience(verdicts[-1])
         if any(v["ok"] != attendu for v in verdicts):
             if len(verdicts) > 1:
                 d.raison = "instable"
+            elif version == "depart":
+                d.raison = "depart_pas_rouge"
             else:
-                d.raison = "depart_pas_rouge" if version == "depart" else "reference_pas_verte"
+                d.raison = raison_efficience(verdicts[-1]) or "reference_pas_verte"
             d.detail = f"{version} : {', '.join(d.mesures[version])}"
             if verdicts[-1]["erreurs"]:
                 d.detail += " — " + verdicts[-1]["erreurs"][0]["message"][:200]

@@ -80,6 +80,11 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def run_tests(filtre: str | None = None) -> str:
         return await executer(outils.run_tests, filtre)
 
+    @outil("Mesure d'efficience (copie, headless) : allocations après échauffement, lots de dessin, "
+           "empreinte du rendu aux images 180/240/300, temps indicatif. Défaut : scène principale.")
+    async def measure_efficiency(scene: str | None = None) -> str:
+        return await executer(outils.measure_efficiency, scene)
+
     return mcp
 
 

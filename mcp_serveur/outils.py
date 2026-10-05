@@ -1,4 +1,4 @@
-"""Les 9 outils exposés à OpenCode, en fonctions Python simples (testables sans MCP).
+"""Les 10 outils exposés à OpenCode, en fonctions Python simples (testables sans MCP).
 
 Chaque outil travaille sur UN projet Godot, fixé au lancement du serveur (`--projet`, par
 défaut le dossier courant). Les chemins se donnent en `res://…` ou relatifs au projet ;
@@ -6,7 +6,8 @@ rien ne sort du projet.
 
 Toute écriture (scene_write, apply_edits) suit la règle 7 : copie de travail jugée, puis
 remplacement atomique seulement si le juge passe. Les juges (check_script, load_scene,
-run_tests) tournent aussi sur une copie jetable : le projet de l'utilisateur ne change pas.
+run_tests) tournent aussi sur une copie jetable : le projet de l'utilisateur ne change pas,
+comme la mesure d'efficience (measure_efficiency, compétence E).
 """
 
 from __future__ import annotations
@@ -196,6 +197,41 @@ class Outils:
         if not self.disque(cible).exists():
             raise ErreurOutil(f"tests absents : {cible}")
         return _compact(_verdict_court(self._sur_copie(lambda c: juges.run_tests(c, cible, self.godot))))
+
+
+    def measure_efficiency(self, scene: str | None = None) -> str:
+        """Mesure d'efficience (compétence E) sur une copie : allocations d'objets après 60 images
+        d'échauffement, lots de dessin (comptés dans l'arbre, médiane), empreinte de ce qui serait
+        affiché aux images 180/240/300 (identique avant et après = rendu intact), temps indicatif."""
+        from usine.efficience import mesure
+        from usine.scene.texte import lire_document
+        if scene:
+            res = self.res(scene)
+        else:
+            res = None
+            for section in lire_document((self.projet / "project.godot").read_text(encoding="utf-8")).sections:
+                if section.balise == "application":
+                    e = section.propriete("run/main_scene")
+                    res = e.valeur if e else None
+            if not res:
+                raise ErreurOutil("pas de scène principale : donner `scene`")
+        if not self.disque(res).is_file():
+            raise ErreurOutil(f"scène absente : {res}")
+        r = mesure.Reglages(scene=res)
+        try:
+            with mesure.Copie.ouvrir(self.projet) as c:
+                m = mesure.lancer(c.projet, r, "deterministe")
+                t = mesure.lancer(c.projet, r, "temps")
+        except mesure.ErreurMesure as e:
+            return _compact({"ok": False, "erreur": str(e)[:1500]})
+        return _compact({
+            "ok": True, "scene": res,
+            "allocations_apres_echauffement": m["allocations"],
+            "lots_de_dessin": m["lots"],
+            "rendu": [{"image": x["image"], "empreinte": x["elements"]["hachage"][:16],
+                       "elements": x["elements"]["nombre"]} for x in m["rendu"]],
+            "temps_image_us_indicatif": t["temps_image_us"],
+        })
 
 
 def _signature(m: dict[str, Any]) -> str:

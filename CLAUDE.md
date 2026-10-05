@@ -2,7 +2,7 @@
 
 ## Mission
 
-Construire une **usine** qui fabrique des données vérifiées pour entraîner un LoRA de **Qwen3.8-27B** sur **13 compétences étroites** de développement Godot, puis mesurer honnêtement le gain obtenu.
+Construire une **usine** qui fabrique des données vérifiées pour entraîner un LoRA de **Qwen3.8-27B** sur **14 compétences étroites** de développement Godot, puis mesurer honnêtement le gain obtenu.
 
 Qwen travaille dans **OpenCode**. L'usine l'équipe d'outils et trie ses sessions. On commence par Godot ; Unreal 5.8 réutilisera la même usine plus tard.
 
@@ -60,7 +60,7 @@ Conséquences :
 9. **Pas de réseau à l'exécution** et pas d'appel externe ; le seul serveur LLM est local. Exception : le script optionnel de référence frontière (session 6), jamais lancé automatiquement.
 10. **Langue** : commentaires, messages et documents en français ; identifiants cohérents dans chaque module.
 
-## Les 13 compétences
+## Les 14 compétences
 
 | ID | Entrée → sortie | Juge (sans LLM) | Mode |
 | --- | --- | --- | --- |
@@ -77,6 +77,9 @@ Conséquences :
 | D2 | Description du projet → liste d'éditions | Applicateur déterministe, puis tests | Agentique |
 | F1 | Cible chiffrée → valeurs de réglage | Test en physique déterministe (mesures en frames) | Un appel |
 | F2 | Signal de jeu → widget mis à jour | Test headless qui lit le widget | Agentique |
+| E | Jeu 2D non optimisé → même jeu, plus efficace (optimisation stricte) | Comportement intact (tests), rendu intact (réglages et signature de l'affichage), 0 allocation après l'échauffement, lots de dessin ≤ référence × 1,05, temps ≤ référence × 1,15 | Agentique |
+
+E (ajoutée le 2026-10-05, spécification de laurent) : la tâche contient un départ naïf et une référence optimisée, vérifiés identiques en comportement et en rendu à la génération. Les seuils sont relatifs à la référence, sauf les allocations (0). En headless, les draw calls valent 0 : les lots de dessin sont comptés dans l'arbre de la scène. Le temps est mesuré au moment de juger, sur la même machine, et seulement pour les tâches qui le déclarent. Détails : `usine/efficience/`.
 
 Hors catalogue : le game design, le « fun », le rendu et l'animation n'ont pas de juge exact. Ils restent des décisions de l'utilisateur.
 
@@ -118,6 +121,7 @@ usine/            paquet Python
   capture/        proxy OpenAI-compatible → sessions JSONL
   rft/            essais, filtre, export SFT, conversion GGUF, lanceur multi-LoRA
   mesure/         4 configurations, GameDevBench, rapport
+  efficience/     compétence E : mesure headless (allocations, lots, rendu, temps), rendu intact, juge
   rag/            doc Godot 4.7 + démos officielles 4.7 qui compilent → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
 mcp_serveur/      serveur MCP (stdio) qui expose les outils
 skills/           une fiche par compétence (SKILL.md)
@@ -136,7 +140,7 @@ ETAT.md           journal de reprise
 - **Victoire étroite** : les deux conditions à la fois.
   - LoRA + RAG dépasse base + RAG au-delà de l'intervalle.
   - LoRA + RAG atteint ou dépasse la référence frontière, mesurée sans adaptation et avec le même RAG.
-- **Après chaque tour**, on rejoue les 13 jeux gelés : aucune compétence ne doit reculer.
+- **Après chaque tour**, on rejoue les 14 jeux gelés : aucune compétence ne doit reculer.
 
 ## Manière de travailler dans une session
 

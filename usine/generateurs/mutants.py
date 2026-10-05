@@ -48,12 +48,16 @@ def tirer(mutants: list[Mutant], maximum: int | None, graine: Any) -> list[Mutan
     return [m for m in mutants if m.id in choisis]
 
 
-def _juger(fichiers: dict[str, str], m: Mutant, tests: Path, etapes: list[str]) -> bool:
-    """Vrai si le mutant est tué."""
+def _juger(fichiers: dict[str, str], m: Mutant, tests: Path, etapes: list[str], tache: Path | None = None) -> bool:
+    """Vrai si le mutant est tué. Avec `tache` : jugé comme un candidat de cette tâche (juge complet,
+    efficience comprise pour la compétence E)."""
     with tempfile.TemporaryDirectory(prefix="usine_mutant_") as tmp:
         mute = dict(fichiers)
         mute[m.fichier] = m.appliquer(fichiers[m.fichier])
         src = ecrire_projet(mute, Path(tmp) / "src")
+        if tache is not None:
+            from usine.taches import juger_tache
+            return not juger_tache(tache, candidat=src, repetition=1)["ok"]
         return not cache.juger(src, [], tests, etapes, repetition=1)["ok"]
 
 
@@ -88,7 +92,9 @@ def score_mutation_tache(dossier: Path, maximum: int | None = 8, graine: Any = 0
         if f.is_file() and rel.endswith((".gd", ".tscn")) and not rel.startswith("tests/"):
             cibles[rel] = lignes_changees(depart.get(rel), fichiers[rel])
     mutants = tirer(mutants_projet(fichiers, cibles), maximum, f"{graine}:{tache['id']}")
-    tues = [_juger(fichiers, m, dossier / "tests_caches", etapes) for m in mutants]
+    # Compétence E : un mutant qui casse l'efficience sans changer le comportement est tué aussi.
+    complet = dossier if "mesure_efficience" in tache else None
+    tues = [_juger(fichiers, m, dossier / "tests_caches", etapes, complet) for m in mutants]
     return _resultat(mutants, tues)
 
 
