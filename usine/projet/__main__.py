@@ -29,7 +29,8 @@ EXEMPLES = Path(__file__).resolve().parent / "exemples"
 def empreinte_dossier(dossier: Path) -> str:
     """SHA-256 des chemins et contenus de tous les fichiers (hors .godot)."""
     h = hashlib.sha256()
-    for f in sorted(p for p in Path(dossier).rglob("*") if p.is_file() and ".godot" not in p.relative_to(dossier).parts):
+    for f in sorted((p for p in Path(dossier).rglob("*") if p.is_file() and ".godot" not in p.relative_to(dossier).parts),
+                    key=lambda p: p.relative_to(dossier).parts):
         h.update(f.relative_to(dossier).as_posix().encode("utf-8") + b"\n")
         h.update(hashlib.sha256(f.read_bytes()).hexdigest().encode("ascii"))
     return h.hexdigest()
@@ -62,7 +63,7 @@ def demo(projet_ref: Path) -> int:
             print(f"empreinte après : {apres}")
             conforme = verdict["applique"] == attendu and ((avant != apres) if attendu else (avant == apres))
             if attendu:
-                for p in sorted(copie.rglob("*")):
+                for p in sorted(copie.rglob("*"), key=lambda p: p.relative_to(copie).parts):
                     rel = p.relative_to(copie).as_posix()
                     if p.is_file() and p.suffix in (".gd", ".tscn"):
                         nouveau = p.read_text(encoding="utf-8")

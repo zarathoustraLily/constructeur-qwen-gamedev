@@ -26,7 +26,7 @@ from typing import Any
 from usine.generateurs.produire import produire
 from usine.portillon.dedoublonnage import Index, signature_tache
 from usine.portillon.exclusion import Exclusion
-from usine.portillon.gel import geler
+from usine.portillon.gel import geler, lire_manifeste
 from usine.portillon.regles import Decision, Reglages, evaluer
 from usine.taches import lire_tache, lister_taches
 
@@ -37,13 +37,17 @@ def _ecrire(chemin: Path, texte: str) -> None:
 
 
 def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40, cible_gel: int = 50,
-           part_gel: float = 0.5, afficher=print) -> dict[str, Any]:
+           part_gel: float = 0.5, afficher=print, sources: list[str] | None = None,
+           completer_gel: bool = False) -> dict[str, Any]:
+    """`completer_gel` : un gel existant reçoit des tâches des nouvelles sources (jamais de retrait),
+    à faire avant tout entraînement ; sinon il est réutilisé tel quel."""
     sortie = Path(sortie)
     reglages = Reglages.depuis_config(graine)
     debut = time.monotonic()
 
     afficher("== 1. Production des candidates")
-    prod = produire(sortie / "candidats", graine, nombre_f1=nombre_f1, travailleurs=travailleurs, afficher=afficher)
+    prod = produire(sortie / "candidats", graine, nombre_f1=nombre_f1, travailleurs=travailleurs, afficher=afficher,
+                    sources=sources)
     candidats = sorted(prod.taches, key=lambda d: (d.parent.name, d.name))
 
     afficher(f"== 2. Portillon ({len(candidats)} candidates, {reglages.repetitions} répétitions, "
@@ -78,7 +82,12 @@ def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40
             qualifiees.setdefault(decisions[d].competence, []).append(d)
 
     afficher("== 3. Gel")
-    manifeste = geler(sortie, qualifiees, graine, cible_gel, part_gel)
+    deja = lire_manifeste(sortie)
+    if completer_gel and deja is not None:
+        # Les tâches déjà gelées ne se retirent pas et ne se comptent qu'une fois (gel.tirer).
+        geles_ids = {t["id"] for e in deja["competences"].values() for t in e["taches"]}
+        qualifiees = {c: [d for d in ds if d.name not in geles_ids] for c, ds in qualifiees.items()}
+    manifeste = geler(sortie, qualifiees, graine, cible_gel, part_gel, completer=completer_gel)
     gelees = {t["id"] for e in manifeste["competences"].values() for t in e["taches"]}
     exclusion = Exclusion(manifeste, seuil=reglages.seuil_fragments)
 
@@ -104,11 +113,19 @@ def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40
         acceptees.append(cible)
 
     # Contrôle final : aucune tâche du dossier d'entraînement (modèles compris) ne double un gel.
+    # Une tâche modèle (godot/taches_modeles, installée à la main) qui double une tâche gelée
+    # quitte le dossier d'entraînement (règle 4) ; `python -m usine.taches installer` la remettrait.
+    modeles_retires = []
+    for t in lister_taches(dossier_taches):
+        if exclusion.tache_exclue(t) and not str(lire_tache(t).get("origine", "")).startswith("generateur:"):
+            modeles_retires.append(t.name)
+            shutil.rmtree(t)
     restants = [t for t in lister_taches(dossier_taches) if exclusion.tache_exclue(t)]
 
     lignes = [json.dumps(decisions[d].ligne(), ensure_ascii=False, sort_keys=True) for d in candidats]
     _ecrire(sortie / "portillon" / "journal.jsonl", "\n".join(lignes) + "\n")
     rapport = _rapport(candidats, decisions, prod.ecartes, manifeste, acceptees, restants, graine, reglages)
+    rapport["modeles_retires"] = sorted(modeles_retires)
     _ecrire(sortie / "portillon" / "rapport.json", json.dumps(rapport, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     rapport["duree_s"] = round(time.monotonic() - debut)
     return rapport
@@ -141,6 +158,8 @@ def _rapport(candidats, decisions, ecartes, manifeste, acceptees, restants, grai
         "acceptees": sorted(f"{p.parent.name}/{p.name}" for p in acceptees),
         "acceptees_empreintes": {p.name: lire_tache(p)["empreinte"] for p in sorted(acceptees)},
         "gelees": {c: [t["id"] for t in e["taches"]] for c, e in sorted(manifeste["competences"].items())},
+        # Empreintes du gel : un rejeu doit redonner les mêmes octets, pas seulement les mêmes ids.
+        "gelees_empreintes": {t["id"]: t["empreinte"] for e in manifeste["competences"].values() for t in e["taches"]},
         "doublons_avec_geles": [p.name for p in restants],
         "verdicts_depuis_cache": sum(decisions[d].mesures.get("depart_cache", 0)
                                      + decisions[d].mesures.get("reference_cache", 0) for d in candidats),
@@ -158,5 +177,7 @@ def afficher_rapport(r: dict[str, Any], afficher=print) -> None:
     afficher("Écartés à la génération : " + (", ".join(f"{k} {v}" for k, v in r["ecartes_a_la_generation"].items()) or "aucun"))
     comps = [c for c, v in r["competences"].items() if v["acceptees"]]
     afficher(f"Acceptées : {len(r['acceptees'])} sur {len(comps)} compétences ({', '.join(comps)})")
+    if r.get("modeles_retires"):
+        afficher(f"Tâches modèles retirées de taches/ (doublent un gel) : {', '.join(r['modeles_retires'])}")
     afficher(f"Doublons avec les jeux gelés dans taches/ : {len(r['doublons_avec_geles'])}")
     afficher(f"Verdicts relus dans le cache : {r['verdicts_depuis_cache']}")

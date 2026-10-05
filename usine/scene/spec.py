@@ -17,8 +17,8 @@ import hashlib
 import re
 from typing import Any
 
-from usine.scene.texte import (Document, Section, ecrire_valeur, echapper, format_attribut, lire_document,
-                               references, remplacer_references, type_cle)
+from usine.scene.texte import (SCENES_IMPORTEES, Document, Section, ecrire_valeur, echapper, format_attribut,
+                               lire_document, references, remplacer_references, type_cle)
 
 VERSION_SPEC = 1
 ALPHABET_H5 = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -29,6 +29,8 @@ TYPES_PAR_EXTENSION = {".gd": "Script", ".tscn": "PackedScene", ".scn": "PackedS
                        ".png": "Texture2D", ".jpg": "Texture2D", ".jpeg": "Texture2D", ".webp": "Texture2D",
                        ".svg": "Texture2D", ".wav": "AudioStreamWAV", ".ogg": "AudioStreamOggVorbis",
                        ".mp3": "AudioStreamMP3", ".ttf": "FontFile", ".otf": "FontFile"}
+# Un modèle importé (.glb…) s'instancie comme une scène : Godot l'écrit `type="PackedScene"`.
+TYPES_PAR_EXTENSION.update({ext: "PackedScene" for ext in SCENES_IMPORTEES})
 
 
 class ErreurSpec(ValueError):
@@ -557,7 +559,7 @@ def valider_spec(spec: dict[str, Any], verif) -> list[dict[str, Any]]:
             erreurs.append(_erreur(lieu, f"{type_} n'est pas un Node"))
         instance = n.get("instance")
         if instance:
-            if not instance.startswith("res://") or not instance.endswith((".tscn", ".scn")):
+            if not instance.startswith("res://") or not instance.lower().endswith((".tscn", ".scn") + SCENES_IMPORTEES):
                 erreurs.append(_erreur(lieu, f"instance : chemin de scène attendu ({instance!r})", "valeur_invalide"))
             elif projet is not None:
                 if not projet.existe(instance):

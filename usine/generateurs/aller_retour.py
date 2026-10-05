@@ -22,10 +22,10 @@ from pathlib import Path
 from typing import Any
 
 from usine.generateurs import gabarits
-from usine.generateurs.commun import (Production, ecrire_tache, executer_gd, ident, lire_projet, nom_source,
-                                      scenes_jeu)
+from usine.generateurs.commun import (Production, echantillon, ecrire_tache, executer_gd, ident, lire_projet,
+                                      nom_fichier, nom_source, scenes_jeu)
 from usine.scene.exemples import specs_generees
-from usine.scene.spec import parcourir, scene_read, scene_write, valider_spec
+from usine.scene.spec import ErreurSpec, parcourir, scene_read, scene_write, valider_spec
 from usine.scene.texte import ecrire_valeur
 
 ORIGINE = "generateur:aller_retour"
@@ -88,13 +88,19 @@ def plan_spec(spec: dict[str, Any]) -> dict[str, Any]:
                        for chemin, _, n in parcourir(spec["racine"])}}
 
 
-def _sources_scenes(projet: dict[str, str], verif) -> list[tuple[str, dict[str, Any], bool]]:
-    """(chemin relatif, spec, la scène existe-t-elle dans le projet source)."""
+def _sources_scenes(projet: dict[str, str], verif, avec_generees: bool = True) -> list[tuple[str, dict[str, Any], bool]]:
+    """(chemin relatif, spec, la scène existe-t-elle dans le projet source).
+
+    Les scènes générées de la session 2 sont écrites pour godot/reference (`avec_generees`)."""
     resultat = []
     for rel in sorted(scenes_jeu(projet)):
-        resultat.append((rel, scene_read(projet[rel], "res://" + rel), True))
-    for spec in specs_generees():
-        resultat.append((spec["chemin"][len("res://"):], spec, False))
+        try:
+            resultat.append((rel, scene_read(projet[rel], "res://" + rel), True))
+        except ErreurSpec:
+            continue  # format que scene_read ne couvre pas : pas de tâche plutôt qu'une tâche fausse
+    if avec_generees:
+        for spec in specs_generees():
+            resultat.append((spec["chemin"][len("res://"):], spec, False))
     return resultat
 
 
@@ -103,12 +109,14 @@ def _verificateur(source: Path):
     return verificateur(source)
 
 
-def generer_s1(source: Path, sortie: Path) -> Production:
+def generer_s1(source: Path, sortie: Path, plafond: int | None = None, graine: int = 0,
+               avec_generees: bool = True) -> Production:
     prod = Production()
     projet = lire_projet(source)
     verif = _verificateur(source)
-    for rel, spec, existe in _sources_scenes(projet, verif):
-        id_ = ident("s1", nom_source(source), Path(rel).stem)
+    scenes = echantillon(_sources_scenes(projet, verif, avec_generees), plafond, f"s1:{graine}:{nom_source(source)}")
+    for rel, spec, existe in scenes:
+        id_ = ident("s1", nom_source(source), nom_fichier(projet, rel))
         erreurs = valider_spec(spec, verif)
         if erreurs:
             prod.ecarter("aller_retour", id_, "spec_invalide", erreurs[0]["message"])
@@ -137,17 +145,24 @@ def generer_s1(source: Path, sortie: Path) -> Production:
     return prod
 
 
-def generer_s2(source: Path, sortie: Path) -> Production:
+def generer_s2(source: Path, sortie: Path, plafond: int | None = None, graine: int = 0,
+               avec_generees: bool = True) -> Production:
+    """`plafond` : au plus tant de connexions retirées, tirées avec la graine."""
     prod = Production()
     projet = lire_projet(source)
     verif = _verificateur(source)
-    for rel, spec, existe in _sources_scenes(projet, verif):
+    toutes = [(rel, spec, existe, k) for rel, spec, existe in _sources_scenes(projet, verif, avec_generees)
+              for k in range(len(spec.get("connexions", [])))]
+    choisies = set((rel, k) for rel, _, _, k in echantillon(toutes, plafond, f"s2:{graine}:{nom_source(source)}"))
+    for rel, spec, existe in _sources_scenes(projet, verif, avec_generees):
         connexions = spec.get("connexions", [])
         if not connexions:
             continue
         complet = scene_write(spec, verif) if not existe else projet[rel]
         for k, c in enumerate(connexions):
-            id_ = ident("s2", nom_source(source), Path(rel).stem, c["signal"], c["methode"])
+            if (rel, k) not in choisies:
+                continue
+            id_ = ident("s2", nom_source(source), nom_fichier(projet, rel), c["signal"], c["methode"])
             sans = dict(spec, connexions=[x for j, x in enumerate(connexions) if j != k])
             depart = dict(projet)
             depart[rel] = scene_write(sans, verif)

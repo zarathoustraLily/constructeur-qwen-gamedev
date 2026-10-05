@@ -25,8 +25,8 @@ from pathlib import Path
 from typing import Any
 
 from usine.generateurs import gabarits
-from usine.generateurs.commun import (Production, ecrire_projet, ecrire_tache, ident, journal_execution, lire_projet,
-                                      nom_source, tests_regression)
+from usine.generateurs.commun import (Production, echantillon, ecrire_projet, ecrire_tache, ident, journal_execution,
+                                      fichiers_testes, lire_projet, nom_fichier, nom_source, tests_regression)
 from usine.generateurs.operateurs import Mutant, mutants_projet
 from usine.juge import cache
 from usine.juge.verdict import extraire_erreurs_journal
@@ -83,7 +83,7 @@ def _tache_k3(source: Path, sortie: Path, projet: dict[str, str], m: Mutant, ver
     consigne = (f"Des tests sont rouges : {rouges}. Le verdict des tests est dans journal_tests.json. "
                 "Corriger le bug avec le patch le plus petit possible, sans modifier les tests ; "
                 "tous les tests doivent passer.")
-    tache = {"id": ident("k3", nom_source(source), Path(m.fichier).stem, f"l{m.ligne}", m.operateur),
+    tache = {"id": ident("k3", nom_source(source), nom_fichier(projet, m.fichier), f"l{m.ligne}", m.operateur),
              "competence": "K3", "consigne": consigne, "consigne_a_ecrire": None, "origine": ORIGINE,
              "generateur": {"nom": "mutation", "source": nom_source(source), "mutant": m.id},
              "juge": {"patch_max_lignes": PATCH_MAX_LIGNES}}
@@ -101,7 +101,7 @@ def _tache_d1(source: Path, sortie: Path, projet: dict[str, str], m: Mutant) -> 
     categorie = localisees[0]["categorie"]
     depart["journal.txt"] = journal
     reponse = {"categorie": categorie, "fichier": res, "ligne": m.ligne}
-    tache = {"id": ident("d1", nom_source(source), Path(m.fichier).stem, f"l{m.ligne}", m.operateur),
+    tache = {"id": ident("d1", nom_source(source), nom_fichier(projet, m.fichier), f"l{m.ligne}", m.operateur),
              "competence": "D1", "consigne": gabarits.CONSIGNE_D1, "consigne_a_ecrire": None, "origine": ORIGINE,
              "generateur": {"nom": "mutation", "source": nom_source(source), "mutant": m.id},
              "juge": {"etapes": ["run_tests"]}}
@@ -110,11 +110,16 @@ def _tache_d1(source: Path, sortie: Path, projet: dict[str, str], m: Mutant) -> 
                         tests), ""
 
 
-def generer(source: Path, sortie: Path, graine: int, travailleurs: int = 4) -> Production:
+def generer(source: Path, sortie: Path, graine: int, travailleurs: int = 4, plafond: int | None = None,
+            ciblee: bool = False) -> Production:
+    """`ciblee` : mutants seulement dans les scripts et scènes que les tests atteignent (commun.fichiers_testes) ;
+    `plafond` : au plus tant de mutants jugés, tirés avec la graine (gros projets sources)."""
     prod = Production()
     projet = lire_projet(source)
     tests = tests_regression(projet)
-    mutants = tirer_un_par_ligne(mutants_projet(projet, operateurs=OPERATEURS_CORPS), graine)
+    cibles = {rel: None for rel in sorted(fichiers_testes(projet))} if ciblee else None
+    mutants = tirer_un_par_ligne(mutants_projet(projet, cibles, operateurs=OPERATEURS_CORPS), graine)
+    mutants = echantillon(mutants, plafond, f"mutation:{graine}:{nom_source(source)}")
 
     with ThreadPoolExecutor(max_workers=max(1, travailleurs)) as pool:
         verdicts = list(pool.map(lambda m: juger_mutant(projet, m, tests), mutants))

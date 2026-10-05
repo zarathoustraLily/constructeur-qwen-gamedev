@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from usine import config as cfg
+from usine import socle
 from usine.juge import godot as juges
 from usine.juge.verdict import nouveau_verdict
 
@@ -23,17 +24,20 @@ DOSSIER_TESTS_JUGE = "tests_juge"
 
 
 def _hors_addons(projet: Path, motif: str) -> list[Path]:
-    return sorted(p for p in projet.rglob(motif)
-                  if "addons" not in p.relative_to(projet).parts and ".godot" not in p.relative_to(projet).parts)
+    return sorted((p for p in projet.rglob(motif)
+                   if "addons" not in p.relative_to(projet).parts and ".godot" not in p.relative_to(projet).parts),
+                  key=lambda p: p.relative_to(projet).parts)
 
 
 def preparer_copie(source: Path, destination: Path, superpositions: Iterable[Path] = (),
                    tests_caches: Path | None = None) -> Path:
-    """Copie `source` dans `destination`, applique les superpositions, ajoute GdUnit4 et les tests cachés."""
+    """Copie `source` dans `destination`, applique les superpositions, pose le socle (usine/socle.py),
+    ajoute GdUnit4 et les tests cachés."""
     destination = Path(destination)
     shutil.copytree(source, destination, ignore=IGNORES_COPIE)
     for sup in superpositions:
         shutil.copytree(sup, destination, dirs_exist_ok=True, ignore=IGNORES_COPIE)
+    socle.etendre(destination)
     addon = destination / "addons" / "gdUnit4"
     if not addon.is_dir():
         shutil.copytree(cfg.chemin_gdunit4(), addon, ignore=IGNORES_COPIE)
@@ -55,15 +59,23 @@ def juger_sur_place(projet: Path, filtre: str | Iterable[str] | None = None, eta
         imp = juges.importer(projet, godot)
         if not imp["ok"]:
             resultats.append(imp)
+    # Scripts et scènes : un lancement pour tout le lot, puis le juge élément par élément
+    # seulement pour ce que le lot n'a pas validé (verdict identique, beaucoup moins de lancements).
     if not resultats and "check_script" in etapes:
-        for script in _hors_addons(projet, "*.gd"):
-            if DOSSIER_TESTS_JUGE in script.relative_to(projet).parts:
+        scripts = [s for s in _hors_addons(projet, "*.gd") if DOSSIER_TESTS_JUGE not in s.relative_to(projet).parts]
+        a_revoir = set(juges.verifier_lot(projet, "scripts", scripts, godot)["a_revoir"])
+        for script in scripts:
+            if juges.chemin_res(script, projet) not in a_revoir:
                 continue
             r = juges.check_script(script, projet, godot)
             if not r["ok"]:
                 resultats.append(r)
     if not resultats and "load_scene" in etapes:
-        for scene in _hors_addons(projet, "*.tscn"):
+        scenes = _hors_addons(projet, "*.tscn")
+        a_revoir = set(juges.verifier_lot(projet, "scenes", scenes, godot)["a_revoir"])
+        for scene in scenes:
+            if juges.chemin_res(scene, projet) not in a_revoir:
+                continue
             r = juges.load_scene(scene, projet, godot)
             if not r["ok"]:
                 resultats.append(r)

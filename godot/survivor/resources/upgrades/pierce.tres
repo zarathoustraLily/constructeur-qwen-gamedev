@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UpgradeResource" format=3]
+
+[ext_resource type="Script" path="res://resources/upgrade.gd" id="1_6fpgo"]
+
+[resource]
+script = ExtResource("1_6fpgo")
+rarity = 2
+id = &"pierce"
+display_name = "Piercing Rounds"
+description = "Shots punch through +2 enemies"
+effect = 9
+magnitude = 2.0
+max_stacks = 3

@@ -9,14 +9,16 @@ corrige dans le générateur, jamais à la main dans le dossier produit.
 from __future__ import annotations
 
 import json
+import random
 import re
 import shutil
 import tempfile
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from usine import config as cfg
+from usine import socle
 from usine.juge import godot as juges
 from usine.juge.projet import preparer_copie
 from usine.processus import executer
@@ -42,16 +44,27 @@ class Production:
 
 
 def lire_projet(source: Path) -> dict[str, str]:
-    """Fichiers texte du projet source (hors addons, caches et .uid) : {chemin relatif posix: texte}."""
+    """Fichiers texte du projet source (hors addons et caches) : {chemin relatif posix: texte}.
+
+    Les fichiers .uid (non versionnés) sont ignorés. Les fichiers non textuels (sons, images,
+    modèles, .import) restent dans le socle du projet (usine/socle.py) : le dictionnaire porte
+    alors son nom sous la clé `.usine_socle`, et toute copie de travail les retrouve.
+    """
     source = Path(source)
     fichiers = {}
-    for f in sorted(source.rglob("*")):
+    for f in sorted(source.rglob("*"), key=lambda p: p.relative_to(source).parts):
         if not f.is_file():
             continue
         rel = f.relative_to(source)
         if EXCLUS & set(rel.parts) or f.suffix == ".uid":
             continue
+        if rel.as_posix() != socle.MARQUEUR and not socle.est_texte(f):
+            continue
         fichiers[rel.as_posix()] = f.read_text(encoding="utf-8")
+    if socle.MARQUEUR not in fichiers:
+        nom = socle.construire(source)
+        if nom is not None:
+            fichiers[socle.MARQUEUR] = nom + "\n"
     return fichiers
 
 
@@ -70,6 +83,62 @@ def scripts_jeu(projet: dict[str, str]) -> list[str]:
 
 def scenes_jeu(projet: dict[str, str]) -> list[str]:
     return [rel for rel in projet if rel.endswith(".tscn") and not rel.startswith("tests/")]
+
+
+def echantillon(elements: list[Any], plafond: int | None, cle: str) -> list[Any]:
+    """Au plus `plafond` éléments, tirés avec une graine fixe ; ordre d'origine conservé."""
+    if plafond is None or len(elements) <= plafond:
+        return list(elements)
+    choisis = set(random.Random(cle).sample(range(len(elements)), plafond))
+    return [e for k, e in enumerate(elements) if k in choisis]
+
+
+_REF_RES = re.compile(r'res://[^"\s)]+\.(?:gd|tscn)')
+_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+def identifiants_tests(projet: dict[str, str]) -> set[str]:
+    """Identifiants qui apparaissent dans les tests du projet (noms de méthodes, de classes…)."""
+    return {m for rel, t in projet.items() if rel.startswith("tests/") for m in _IDENT.findall(t)}
+
+
+def fichiers_testes(projet: dict[str, str]) -> set[str]:
+    """Scripts et scènes du jeu que les tests atteignent : par leur class_name, leur nom d'autoload, leur chemin
+    res://, ou par une scène chargée dans les tests (et les scènes qu'elle instancie, de proche en
+    proche). Approximation syntaxique, sans exécuter : sert seulement à ne pas gaspiller de
+    jugements sur du code qu'aucun test ne peut voir ; le portillon reste l'autorité."""
+    tests = "\n".join(t for rel, t in projet.items() if rel.startswith("tests/"))
+    noms = identifiants_tests(projet)
+    vus: set[str] = set()
+    a_voir = [r[len("res://"):] for r in _REF_RES.findall(tests)]
+    while a_voir:
+        rel = a_voir.pop()
+        if rel in vus or rel not in projet:
+            continue
+        vus.add(rel)
+        if rel.endswith(".tscn"):
+            a_voir += [r[len("res://"):] for r in _REF_RES.findall(projet[rel])]
+    for nom, chemin in re.findall(r'^(\w+)="\*?res://([^"]+)"', projet.get("project.godot", ""), re.M):
+        if nom in noms or f'"{nom}"' in tests:
+            vus.add(chemin)
+    for rel in scripts_jeu(projet):
+        m = re.search(r"^class_name\s+(\w+)", projet[rel], re.M)
+        if m and m.group(1) in noms:
+            vus.add(rel)
+    return {rel for rel in vus if rel.endswith((".gd", ".tscn")) and not rel.startswith("tests/")}
+
+
+def scripts_testes(projet: dict[str, str]) -> set[str]:
+    return {rel for rel in fichiers_testes(projet) if rel.endswith(".gd")}
+
+
+def nom_fichier(projet: dict[str, str], rel: str) -> str:
+    """Nom d'un fichier dans les ids de tâches : son nom sans extension, ou son chemin sans extension
+    si un autre fichier du projet, de même extension, porte le même nom (survivor a deux power_up.gd).
+    Sans cela, deux tâches recevaient le même id et la seconde écrasait la première."""
+    p = PurePosixPath(rel)
+    homonymes = [r for r in projet if PurePosixPath(r).suffix == p.suffix and PurePosixPath(r).stem == p.stem]
+    return p.stem if len(homonymes) <= 1 else str(p.with_suffix(""))
 
 
 def ident(*morceaux: Any) -> str:
@@ -131,4 +200,24 @@ def journal_execution(fichiers: dict[str, str]) -> str:
         res = executer([cfg.chemin_godot(), "--headless", "--path", projet, "--fixed-fps", "60",
                         "--quit-after", "3"], delai_s=120)
         texte = sans_ansi(res.sortie).replace(str(projet), "<projet>")
-    return texte.replace("\r\n", "\n")
+    return sans_bilan_de_sortie(texte.replace("\r\n", "\n"))
+
+
+_BILAN_SORTIE = re.compile(r"\b(?:leaked|in use|exist) at exit\b", re.I)
+
+
+def sans_bilan_de_sortie(texte: str) -> str:
+    """Retire le bilan de fuites que Godot écrit en quittant (et sa ligne « at: » qui suit).
+
+    Ce bilan varie d'un lancement à l'autre (sons encore en lecture, objets pas encore libérés) :
+    gardé, il rendait l'empreinte d'une tâche D1 non reproductible. Il ne localise aucune erreur.
+    """
+    lignes, sortie, sauter = texte.split("\n"), [], False
+    for ligne in lignes:
+        if sauter and ligne.lstrip().startswith("at:"):
+            sauter = False
+            continue
+        sauter = bool(_BILAN_SORTIE.search(ligne))
+        if not sauter:
+            sortie.append(ligne)
+    return "\n".join(sortie)

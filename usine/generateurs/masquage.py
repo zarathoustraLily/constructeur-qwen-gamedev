@@ -21,8 +21,9 @@ import json
 from pathlib import Path
 
 from usine.generateurs import gabarits
-from usine.generateurs.commun import (Production, ecrire_tache, executer_gd, ident, lire_projet, nom_source,
-                                      scripts_jeu, tests_regression)
+from usine.generateurs.commun import (Production, echantillon, ecrire_tache, executer_gd, ident, identifiants_tests,
+                                      lire_projet, nom_fichier, nom_source, scripts_jeu, scripts_testes,
+                                      tests_regression)
 from usine.projet.gdscript import Fonction, Script, lire_script
 
 ORIGINE = "generateur:masquage"
@@ -93,15 +94,38 @@ def decrire_interface(texte: str, res: str) -> str:
     return "\n".join(lignes)
 
 
-def generer_k2(source: Path, sortie: Path) -> Production:
+RAPPELS_MOTEUR = ("_ready", "_process", "_physics_process", "_init", "_input", "_unhandled_input")
+
+
+def _fonctions_k2(projet: dict[str, str], ciblee: bool) -> list[tuple[str, Fonction]]:
+    """(script, fonction) à masquer. `ciblee` : seulement ce que les tests peuvent voir (nom cité dans
+    les tests, ou rappel du moteur / de signal d'un script que les tests atteignent)."""
+    noms = identifiants_tests(projet) if ciblee else set()
+    testes = scripts_testes(projet) if ciblee else set()
+    resultat = []
+    for rel in scripts_jeu(projet):
+        for f in lire_script(projet[rel], "res://" + rel).fonctions:
+            if ciblee and f.nom not in noms and not (rel in testes and (f.nom in RAPPELS_MOTEUR
+                                                                        or f.nom.startswith("_on_"))):
+                continue
+            resultat.append((rel, f))
+    return resultat
+
+
+def generer_k2(source: Path, sortie: Path, plafond: int | None = None, graine: int = 0,
+               ciblee: bool = False) -> Production:
+    """`plafond` : au plus tant de méthodes, tirées avec la graine (gros projets sources)."""
     prod = Production()
     projet = lire_projet(source)
     regression = tests_regression(projet)
+    choisies = echantillon(_fonctions_k2(projet, ciblee), plafond, f"k2:{graine}:{nom_source(source)}")
     for rel in scripts_jeu(projet):
         s = lire_script(projet[rel], "res://" + rel)
         classe = s.class_name or Path(rel).stem
         for f in s.fonctions:
-            id_ = ident("k2", nom_source(source), Path(rel).stem, f.nom)
+            if not any(r == rel and g.nom == f.nom and g.ligne_debut == f.ligne_debut for r, g in choisies):
+                continue
+            id_ = ident("k2", nom_source(source), nom_fichier(projet, rel), f.nom)
             if f.une_ligne:
                 prod.ecarter("masquage", id_, "fonction_sur_une_ligne")
                 continue
@@ -124,11 +148,13 @@ def generer_k2(source: Path, sortie: Path) -> Production:
     return prod
 
 
-def generer_k1(source: Path, sortie: Path) -> Production:
+def generer_k1(source: Path, sortie: Path, plafond: int | None = None, graine: int = 0,
+               ciblee: bool = False) -> Production:
     prod = Production()
     projet = lire_projet(source)
-    for rel in scripts_jeu(projet):
-        id_ = ident("k1", nom_source(source), Path(rel).stem)
+    scripts = [r for r in scripts_jeu(projet) if not ciblee or r in scripts_testes(projet)]
+    for rel in echantillon(scripts, plafond, f"k1:{graine}:{nom_source(source)}"):
+        id_ = ident("k1", nom_source(source), nom_fichier(projet, rel))
         res = "res://" + rel
         sq = squelette(projet[rel])
         if not lire_script(sq).fonctions:

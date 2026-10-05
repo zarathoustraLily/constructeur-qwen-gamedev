@@ -22,6 +22,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+# Modèles importés : Godot les instancie comme des scènes (racine Node3D par défaut).
+SCENES_IMPORTEES = (".glb", ".gltf", ".fbx", ".blend", ".obj", ".dae")
+
 # Constructeurs dont les arguments sont des entiers (écrits sans partie décimale).
 CONSTRUCTEURS_ENTIERS = {"Vector2i", "Vector3i", "Vector4i", "Rect2i", "PackedByteArray",
                          "PackedInt32Array", "PackedInt64Array"}

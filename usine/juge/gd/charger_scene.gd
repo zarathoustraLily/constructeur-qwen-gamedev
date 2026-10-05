@@ -10,8 +10,64 @@ var _instance: Node = null
 var _fini: bool = false
 
 
+func _profondeur(nom: StringName, bases: Dictionary) -> int:
+	var n := 0
+	while bases.has(nom):
+		nom = bases[nom]
+		n += 1
+	return n
+
+
+## Classes globales que la scène peut atteindre, chargées de la base vers les dérivées avant
+## elle (voir charger_script.gd). Atteignables : les dépendances de la scène, de proche en proche,
+## plus les classes nommées dans le texte de ces scripts, avec leurs classes de base. Une classe
+## cassée que la scène n'atteint pas n'est pas chargée : elle ne fait pas échouer la scène.
+func _charger_classes_globales(scene: String) -> void:
+	var bases := {}
+	var chemins := {}
+	for c in ProjectSettings.get_global_class_list():
+		bases[c["class"]] = c["base"]
+		chemins[c["class"]] = c["path"]
+	var motifs := {}
+	for nom in chemins:
+		var motif := RegEx.new()
+		motif.compile("\\b%s\\b" % nom)
+		motifs[nom] = motif
+	var atteints := {scene: true}
+	var a_voir: Array[String] = [scene]
+	var classes := {}
+	while not a_voir.is_empty():
+		var chemin: String = a_voir.pop_back()
+		var suivants: Array[String] = []
+		if ResourceLoader.exists(chemin):
+			for dependance in ResourceLoader.get_dependencies(chemin):
+				suivants.append(_chemin_dependance(dependance))
+		if chemin.get_extension() == "gd" and FileAccess.file_exists(chemin):
+			var texte := FileAccess.get_file_as_string(chemin)
+			for nom in chemins:
+				if motifs[nom].search(texte) != null:
+					var n: StringName = nom
+					while chemins.has(n):
+						classes[n] = true
+						suivants.append(chemins[n])
+						n = bases.get(n, &"")
+		for suivant in suivants:
+			if not suivant.is_empty() and not atteints.has(suivant):
+				atteints[suivant] = true
+				a_voir.append(suivant)
+	for nom in chemins:
+		if atteints.has(chemins[nom]):
+			classes[nom] = true
+	var noms := classes.keys()
+	noms.sort_custom(func(a, b): return [_profondeur(a, bases), str(a)] < [_profondeur(b, bases), str(b)])
+	for nom in noms:
+		ResourceLoader.load(chemins[nom])
+
+
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
+	if not args.is_empty():
+		_charger_classes_globales(args[0])
 	var rapport := {
 		"scene": "",
 		"chargee": false,
@@ -61,15 +117,17 @@ func _process(_delta: float) -> bool:
 	return _fini
 
 
-## « uid://…::Type::res://x » ou « res://x::Type » → « res://x ».
+## « uid://…::Type::res://x » ou « res://x::Type » → « res://x ». Comme le chargeur de Godot,
+## l'UID passe avant le chemin texte (un script déplacé avec son .uid garde son UID).
 func _chemin_dependance(dependance: String) -> String:
-	for morceau in dependance.split("::"):
-		if morceau.begins_with("res://"):
-			return morceau
-	if dependance.begins_with("uid://"):
-		var id := ResourceUID.text_to_id(dependance.split("::")[0])
+	var morceaux := dependance.split("::")
+	if morceaux[0].begins_with("uid://"):
+		var id := ResourceUID.text_to_id(morceaux[0])
 		if ResourceUID.has_id(id):
 			return ResourceUID.get_id_path(id)
+	for morceau in morceaux:
+		if morceau.begins_with("res://"):
+			return morceau
 	return ""
 
 

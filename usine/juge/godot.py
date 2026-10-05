@@ -21,6 +21,9 @@ SCRIPT_SCENE = Path(__file__).resolve().parent / "gd" / "charger_scene.gd"
 SCRIPT_COMPILATION = Path(__file__).resolve().parent / "gd" / "charger_script.gd"
 MARQUEUR_SCENE = "@@JUGE_SCENE@@"
 MARQUEUR_SCRIPT = "@@JUGE_SCRIPT@@"
+SCRIPT_LOT = Path(__file__).resolve().parent / "gd" / "verifier_lot.gd"
+DEBUT_LOT = "@@JUGE_LOT_DEBUT@@"
+MARQUEUR_LOT = "@@JUGE_LOT@@"
 CACHE_CLASSES = Path(".godot") / "global_script_class_cache.cfg"
 DOSSIER_RAPPORTS = ".usine_rapports"
 
@@ -86,18 +89,19 @@ def autoloads(projet: Path) -> list[str]:
     return noms
 
 
-def _seulement_autoloads(erreurs: list[dict[str, Any]], noms: list[str]) -> bool:
-    """Vrai si toutes les erreurs viennent d'un autoload inconnu de --check-only."""
+def _autoload_inconnu(erreurs: list[dict[str, Any]], noms: list[str]) -> bool:
+    """Vrai si --check-only signale un autoload inconnu (il ne les enregistre pas).
+
+    L'autoload peut être utilisé par le script lui-même ou par un script dont il dépend
+    (« Failed to compile depended scripts », « Could not resolve class » en cascade) : dans
+    ces cas, seul le second avis, avec les autoloads enregistrés, fait foi. Une vraie erreur
+    y reste visible, puisque le script n'est alors pas instanciable.
+    """
     if not noms or not erreurs:
         return False
-    motif = re.compile(r"Identifier not found: (?:%s)\b" % "|".join(map(re.escape, noms)))
-    vues_autoload = False
-    for e in erreurs:
-        if motif.search(e["message"]):
-            vues_autoload = True
-        elif not re.search(r"Failed to load script .* \"Compilation failed\"", e["message"]):
-            return False
-    return vues_autoload
+    motif = re.compile(r"Identifier not found: (?:%s)\b|Failed to compile depended scripts|"
+                       r"Could not resolve class" % "|".join(map(re.escape, noms)))
+    return any(motif.search(e["message"]) for e in erreurs)
 
 
 def check_script(chemin: Path | str, projet: Path | None = None, godot: Path | None = None,
@@ -113,7 +117,7 @@ def check_script(chemin: Path | str, projet: Path | None = None, godot: Path | N
         verdict["erreurs"] = dedoublonner(extraire_erreurs_journal(res.sortie))
         if res.code != 0 and not verdict["erreurs"]:
             verdict["erreurs"].append(erreur(f"{res_path} : échec de --check-only (code {res.code})", res_path, categorie="parse_error"))
-    if res.code != 0 and _seulement_autoloads(verdict["erreurs"], autoloads(projet)):
+    if _autoload_inconnu(verdict["erreurs"], autoloads(projet)):
         # Second avis : compilation avec les autoloads enregistrés.
         avis = executer([_godot(godot), "--headless", "--path", projet, "-s", SCRIPT_COMPILATION, "--", res_path],
                         delai_s=_delai(delai_s))
@@ -121,14 +125,67 @@ def check_script(chemin: Path | str, projet: Path | None = None, godot: Path | N
         if _expiration(verdict, avis, f"check_script {res_path}"):
             verdict["ok"] = False
             return verdict
-        verdict["erreurs"] = dedoublonner(extraire_erreurs_journal(avis.sortie))
         reussi = f'{MARQUEUR_SCRIPT}{{"ok":true}}' in avis.sortie
-        if not reussi and not verdict["erreurs"]:
-            verdict["erreurs"].append(erreur(f"{res_path} : compilation impossible", res_path, categorie="parse_error"))
-        verdict["ok"] = reussi and not verdict["erreurs"]
+        erreurs = dedoublonner(extraire_erreurs_journal(avis.sortie))
+        if reussi:
+            # Script instanciable : charger un script seul, hors de sa scène, fait remonter des
+            # erreurs de cycle (script ↔ scène préchargée, class_name en cours de chargement)
+            # que le jeu ne rencontre jamais ; elles sont écartées. Une erreur d'exécution
+            # située dans le script lui-même (initialiseur statique…) reste une erreur.
+            erreurs = [e for e in erreurs if e["fichier"] == res_path
+                       and e["categorie"] not in ("parse_error", "missing_resource")]
+        elif not erreurs:
+            erreurs.append(erreur(f"{res_path} : compilation impossible", res_path, categorie="parse_error"))
+        verdict["erreurs"] = erreurs
+        verdict["ok"] = reussi and not erreurs
         return verdict
     verdict["ok"] = res.code == 0 and not verdict["erreurs"]
     return verdict
+
+
+def verifier_lot(projet: Path, mode: str, chemins: list[Path | str], godot: Path | None = None,
+                 delai_s: float | None = None) -> dict[str, Any]:
+    """Vérifie tous les scripts (mode « scripts ») ou toutes les scènes (« scenes ») en un lancement.
+
+    Renvoie {"a_revoir": [chemins res:// à rejuger un par un], "duree_s": …}. Un élément est à
+    revoir si son marqueur manque ou est faux, ou si une erreur du moteur s'affiche pendant sa
+    vérification ; une erreur hors d'un élément (autoloads au démarrage ou à la sortie, chargement
+    des classes globales) fait tout revoir.
+    Le lot ne fait qu'éviter des lancements : il ne conclut jamais à un échec à lui seul.
+    """
+    projet = Path(projet)
+    imp = _assurer_import(projet, godot, delai_s)
+    res_chemins = [chemin_res(c, projet) for c in chemins]
+    tous = {"a_revoir": list(res_chemins), "duree_s": imp["duree_s"] if imp else 0.0}
+    if not res_chemins:
+        tous["a_revoir"] = []
+        return tous
+    delai = _delai(delai_s) * max(1, len(res_chemins) // 10 + 1)
+    res = executer([_godot(godot), "--headless", "--path", projet, "-s", SCRIPT_LOT, "--", mode, *res_chemins],
+                   delai_s=delai)
+    tous["duree_s"] += res.duree_s
+    if res.expire:
+        return tous
+    # Ce qui s'affiche avant « <classes> » (les _ready des autoloads, le lot étant différé) et
+    # après « <fin> » (leurs _exit_tree) n'appartient à aucun élément : une erreur là fait tout revoir.
+    segments: dict[str, list[str]] = {"<avant>": []}
+    courant = "<avant>"
+    resultats: dict[str, bool] = {}
+    for ligne in res.sortie.splitlines():
+        if ligne.startswith(DEBUT_LOT):
+            courant = ligne[len(DEBUT_LOT):].strip()
+            segments.setdefault(courant, [])
+        elif ligne.startswith(MARQUEUR_LOT):
+            r = json.loads(ligne[len(MARQUEUR_LOT):])
+            resultats[r["chemin"]] = bool(r["ok"])
+        else:
+            segments[courant].append(ligne)
+    if "<fin>" not in segments or any(extraire_erreurs_journal("\n".join(segments.get(s, [])))
+                                      for s in ("<avant>", "<classes>", "<fin>")):
+        return tous
+    tous["a_revoir"] = [c for c in res_chemins
+                        if not resultats.get(c) or extraire_erreurs_journal("\n".join(segments.get(c, [])))]
+    return tous
 
 
 def load_scene(chemin: Path | str, projet: Path | None = None, godot: Path | None = None,

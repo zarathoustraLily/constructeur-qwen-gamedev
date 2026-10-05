@@ -1,6 +1,7 @@
 """CLI des générateurs.
 
     python -m usine.generateurs produire [--graine 1] [--sortie DOSSIER] [--f1 40] [--travailleurs 4]
+                                         [--sources reference survivor …]
     python -m usine.generateurs mutants <projet> <dossier_tests> [--max N] [--graine G]
     python -m usine.generateurs invention <proposition.json> [--sortie DOSSIER]
 """
@@ -28,6 +29,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--sortie", type=Path, default=cfg.dossier_donnees() / "candidats")
     p.add_argument("--f1", type=int, default=40, help="nombre de tirages F1")
     p.add_argument("--travailleurs", type=int, default=4)
+    p.add_argument("--sources", nargs="*", default=None, help="projets sources (défaut : tous, voir sources.py)")
     sous.add_parser("mutants", help="score de mutation d'un dossier de tests (voir mutants.py)")
     p = sous.add_parser("invention", help="valider une proposition de tâche et l'écrire")
     p.add_argument("proposition", type=Path)
@@ -36,7 +38,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.commande == "produire":
         from usine.generateurs.produire import produire
-        prod = produire(args.sortie, args.graine, nombre_f1=args.f1, travailleurs=args.travailleurs)
+        prod = produire(args.sortie, args.graine, nombre_f1=args.f1, travailleurs=args.travailleurs,
+                        sources=args.sources)
         print(f"{len(prod.taches)} tâches candidates dans {args.sortie}")
         return 0 if prod.taches else 1
     from usine.generateurs.invention import ErreurInvention, materialiser
