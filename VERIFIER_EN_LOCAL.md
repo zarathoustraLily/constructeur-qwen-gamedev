@@ -252,7 +252,7 @@ python -m usine.capture preuve
 python -m mcp_serveur.preuve
 ```
 
-Attendu : `CONFORME` pour la première ; `12/12 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions).
+Attendu : `CONFORME` pour la première ; `13/13 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; 12/12 avant la compétence E et son outil `measure_efficiency`).
 
 ## 15. Session 4 — brancher l'usine sur un projet
 
