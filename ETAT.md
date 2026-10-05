@@ -9,7 +9,7 @@
 - [x] Session 3 — Usine à tâches, portillon, jeux gelés
 - [x] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
 - [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources (172 tâches)
-- [ ] Avant la session 5 — compétence E « optimisation stricte » et son gel
+- [x] Avant la session 5 — compétence E « optimisation stricte » (gel en attente de Godot 4.8 stable)
 - [ ] Session 5 — Boucle RFT
 - [ ] Session 6 — Mesure
 
@@ -626,6 +626,122 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 - `comparer` sur les seuls ids gelés ne prouve pas le déterminisme : comparer aussi les empreintes, ou `diff -r` des dossiers `geles/`.
 - `rsync` n'existe pas dans le conteneur : `tar` pour copier en excluant.
 
+### Avant la session 5 — compétence E « optimisation stricte » — 2026-10-05 (branche `claude/competence-e-optimisation-opoyoo`)
+
+Décision de laurent (2026-10-04) : construire la compétence E d'après sa spec, dans une étape à part. Puis, le 2026-10-05 : **ne rien geler**. Le gel (les 4 jeux sources et E) attend Godot 4.8 stable.
+
+**Fait**
+
+- `usine/efficience/` : le juge d'efficience, hors de `usine/juge`. Ce dossier n'a pas été touché, pour ne pas invalider le cache des verdicts : la version du juge commun entre dans sa clé, et les verdicts E ont leur propre clé (`mesure.version_efficience`), qui inclut cette version.
+  - `gd/mesurer_efficience.gd` : mesure headless (`--fixed-fps 60`). Allocations : compteur de l'ObjectDB, lu dans les bits hauts de l'id d'un objet témoin à la fin de l'échauffement puis à la fin de la fenêtre. Lots de dessin : comptés dans l'arbre de la scène, médiane sur la fenêtre. Signature de ce qui serait affiché aux images de contrôle. Temps par image (`Time.get_ticks_usec`), médiane.
+  - `rendu_intact.py` : contrôle statique du rendu (`project.godot` et nœuds de rendu des scènes).
+  - `juge.py` : le juge commun d'abord (comportement : tests cachés verts), puis l'étape `mesure_efficience`. Seuils : 0 allocation après l'échauffement ; lots ≤ référence × 1,05 ; temps ≤ référence × 1,15 (médianes de 3 exécutions alternées, mesurées au moment de juger, seulement pour les tâches qui le déclarent) ; rendu identique à la référence. Nouvelles catégories d'erreur : `efficience_allocations`, `efficience_draw_calls`, `efficience_temps`, `rendu_degrade`.
+- `usine/generateurs/efficience.py` : paires départ naïf / référence optimisée, 10 variantes en 3 familles.
+  - allocations : `tir`, `eclats`, `vagues`, `objets` ;
+  - lots : `textures`, `materiaux`, `atlas` ;
+  - temps : `voisins`, `carte`, `chemins`.
+
+  À la génération, chaque paire est vérifiée : même comportement (`etat()` identique octet pour octet aux images de contrôle) ; même rendu (signature et réglages) ; départ mesurablement pire sur le critère de sa famille (temps : au moins 3 × la référence). Les identifiants sont renommés d'une paire à l'autre pour éviter les doublons. `tache.json` porte `mesure_efficience` : les réglages et la vérité terrain déterministe (lots, allocations). Le temps n'y est jamais écrit : il dépend de la machine.
+- Branchement :
+  - `taches.juger_tache` et `mutants` (les mutants E sont jugés par le juge d'efficience) ;
+  - `regles` : raisons `efficience_*` et `rendu_degrade`, qui servent aussi au tri des essais de la session 5 ;
+  - options `--competences` et `--e` dans `produire` et `chaine` ;
+  - outil MCP `measure_efficiency`, fiche `skills/usine-e-optimisation`, CLAUDE.md (14 compétences).
+- Cette session : `tests/test_mcp_serveur.py` attend 13/13 contrôles (le 13e est `measure_efficiency`) ; même correction dans `VERIFIER_EN_LOCAL.md`, étape 14. Nouvelle étape 18.
+
+**Choix**
+
+- **Rien n'est gelé.** Le gel à 4 sources (172 tâches) de la section précédente reste le seul gel de référence. La chaîne E de la preuve écrit son gel dans `/tmp` : ce n'est qu'une démonstration.
+- Les draw calls valent toujours 0 en headless : les lots sont comptés dans l'arbre (plan B de la spec). Un lot est une suite d'éléments consécutifs dans l'ordre de dessin qui partagent texture et matériau.
+- Allocations : `OBJECT_COUNT` ne voit pas une création suivie d'une libération dans la même image. Le compteur de l'ObjectDB, lui, voit chaque création.
+- Le temps est la seule mesure qui varie d'une exécution à l'autre. Il est toujours relatif à la référence, mesurée sur la même machine au moment de juger, et n'entre jamais dans une empreinte. Une référence jugée contre elle-même a un rapport de 1 par définition.
+- Aucune référence n'utilise MultiMesh : son rendu n'est pas vérifiable en headless (voir Pièges).
+- Les jeux E sont écrits par le générateur, pas pris dans les jeux sources : la paire naïf / optimisé y est construite et prouvée équivalente.
+
+**Preuve de fin** (cloud, Godot 4.7.2 Linux headless, 4 cœurs)
+
+`python -m pytest -q tests/test_efficience.py`
+
+```
+....................                                                     [100%]
+20 passed in 404.04s (0:06:44)
+```
+
+`python -m pytest -q --deselect tests/test_efficience.py` (le reste de la suite, lancé à part pendant la chaîne ; avec les 20 tests ci-dessus : 281 passed, 1 skipped)
+
+```
+SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module named 'sqlite_vec'
+261 passed, 1 skipped, 20 deselected in 568.91s (0:09:28)
+```
+
+`python -m usine.portillon chaine --competences E --e 10 --sortie /tmp/e10`
+
+```
+== 1. Production des candidates
+-- sans source (jeux écrits par le générateur)
+efficience E         10 tâches     0 écartés  (213 s)
+== 2. Portillon (10 candidates, 3 répétitions, seuil mutants 50%, 8 mutants max par tâche)
+== 3. Gel
+== 4. Exclusion des jeux gelés et écriture des tâches acceptées
+
+compétence  candidates qualifiées  gelées acceptées  rejets
+E                   10         10       5         5  —
+TOTAL               10         10       5         5
+
+Rejets du portillon par raison : aucun
+Écartés à la génération : aucun
+Acceptées : 5 sur 1 compétences (E)
+Doublons avec les jeux gelés dans taches/ : 0
+Verdicts relus dans le cache : 0
+Durée : 1493 s
+```
+
+Rejeu dans `/tmp/e10b`, puis `python -m usine.portillon comparer /tmp/e10/portillon/rapport.json /tmp/e10b/portillon/rapport.json`
+
+```
+(rejeu en cours)
+```
+
+`python -m mcp_serveur.preuve --index <index minimal>` : le conteneur n'a pas l'index complet de la documentation (sans lui, `search_docs` échoue : « index de documentation absent »). L'index minimal est celui de `test_preuve_mcp` (une classe, `tests/donnees/rag/class_characterbody2d.rst`). Sur la machine de laurent, l'index complet existe (étape 13).
+
+```
+list_tools        OK   10 outils, 3289 caractères déclarés
+vocab_lookup      OK     0.1 s  signal [Area2D] body_entered(body: Node2D)
+search_docs       OK     0.0 s  1er : CharacterBody2D  (classes/class_characterbody2d.rst)
+scene_read        OK     0.0 s  racine Coin (Area2D)
+scene_write       OK    13.2 s  écrite, load_scene ok
+describe_project  OK     0.0 s  144 lignes, piece2 présente
+apply_edits       OK    26.0 s  appliqué, tests 37/37
+check_script      OK    10.6 s  ok
+load_scene        OK    13.2 s  ok
+run_tests         OK    18.6 s  37/37 tests verts
+measure_efficiency OK    13.6 s  0 allocations, 3 lots
+apply_edits       OK     0.0 s  refusé à la validation, projet intact
+check_script      OK     0.0 s  chemin hors du projet refusé
+13/13 contrôles conformes
+code=0
+```
+
+**Reste à faire**
+
+- Exécuter `VERIFIER_EN_LOCAL.md` étape 18 sous Windows (moins de 15 min).
+- **Migration vers Godot 4.8 stable**, avant tout gel (décision de laurent) :
+  - vocabulaire : régénérer `extension_api.json` et la base SQLite (`usine/vocab`) ;
+  - juge et GdUnit4 : la version de GdUnit4 pour 4.8, les filtres de bruit, l'écriture des `.tscn` (`unique_id`, ordre des propriétés), puis les tests moteur ;
+  - les 4 jeux sources (`godot/reference`, `survivor`, `kenney_platformer`, `kenney_racing`) : leurs tests doivent rester verts sous 4.8 ;
+  - RAG : la documentation et les démos officielles 4.8 (`[rag]` dans `config.toml`) ;
+  - gel complet : les 4 jeux sources et E, en une seule chaîne (3 h et plus), puis le rejeu et `comparer` ;
+  - mesures E à refaire sous 4.8 : le compteur d'allocations lu dans l'id d'objet, les draw calls toujours à 0 en headless ? le MultiMesh toujours illisible ?
+- Session 5 : les verdicts E refusés donnent leurs raisons (`efficience_*`, `rendu_degrade`) au tri des essais.
+
+**Pièges**
+
+- **MultiMesh illisible en headless** : le serveur de rendu factice ne garde pas les données d'instances (`get_instance_transform_2d` rend l'identité, `buffer` est vide). On ne peut pas prouver qu'un MultiMesh dessine la même chose que des sprites. Il entre dans la signature sous une forme opaque, donc un candidat qui remplace des sprites par un MultiMesh échoue à la comparaison de rendu. Aucune référence n'en utilise.
+- **`quit()` dans `_initialize` ne rend pas la main** : on ne peut pas tout faire dans `_initialize` puis quitter. La simulation, la mesure et le `quit()` final se font dans `_process` (`mesurer_efficience.gd`, `SCRIPT_ETAT` du générateur).
+- **`_ready` n'a lieu qu'à la première image dans un script `-s`** : un jeu ajouté à l'arbre pendant `_initialize` n'est pas encore prêt. La simulation et les mesures commencent dans le premier `_process`.
+- **Les `PackedArray` se copient à l'affectation** : `var t := grille[c]; t.append(x)` modifie une copie. Il faut remplacer la case (`grille[c] = …`), sinon la référence optimisée n'a pas le même comportement que le départ. Ces tableaux ne sont pas des objets : rien n'est compté dans l'ObjectDB.
+- `OBJECT_COUNT` ne voit pas une création suivie d'une libération dans la même image. Il faut compter avec l'id d'un objet témoin.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -635,6 +751,7 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
   L'étape 11 est depuis remplacée par l'étape 17 b (chaîne à 4 sources).
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
 - [x] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a, conforme le 2026-10-05 (17 b facultative, non lancée). Détail plus bas.
+- [ ] Compétence E — `VERIFIER_EN_LOCAL.md` étape 18 a (moins de 15 minutes ; 18 b facultative).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
 ### Résultat local — 2026-10-04, Windows 11, Godot 4.7.2 Windows console, Python 3.12.10
