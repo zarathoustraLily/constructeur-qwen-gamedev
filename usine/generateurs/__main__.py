@@ -1,6 +1,7 @@
 """CLI des générateurs.
 
-    python -m usine.generateurs produire [--graine 1] [--sortie DOSSIER] [--f1 40] [--travailleurs 4]
+    python -m usine.generateurs produire [--graine 1] [--sortie DOSSIER] [--f1 40] [--e 120] [--travailleurs 4]
+                                         [--sources …] [--competences …]
                                          [--sources reference survivor …]
     python -m usine.generateurs mutants <projet> <dossier_tests> [--max N] [--graine G]
     python -m usine.generateurs invention <proposition.json> [--sortie DOSSIER]
@@ -30,6 +31,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--f1", type=int, default=40, help="nombre de tirages F1")
     p.add_argument("--travailleurs", type=int, default=4)
     p.add_argument("--sources", nargs="*", default=None, help="projets sources (défaut : tous, voir sources.py)")
+    p.add_argument("--competences", nargs="*", default=None, help="compétences à produire (défaut : toutes)")
+    p.add_argument("--e", type=int, default=None, help="nombre de paires E (optimisation stricte)")
     sous.add_parser("mutants", help="score de mutation d'un dossier de tests (voir mutants.py)")
     p = sous.add_parser("invention", help="valider une proposition de tâche et l'écrire")
     p.add_argument("proposition", type=Path)
@@ -38,8 +41,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.commande == "produire":
         from usine.generateurs.produire import produire
+        from usine.generateurs.efficience import NOMBRE_DEFAUT
         prod = produire(args.sortie, args.graine, nombre_f1=args.f1, travailleurs=args.travailleurs,
-                        sources=args.sources)
+                        sources=args.sources, competences=args.competences,
+                        nombre_e=args.e if args.e is not None else NOMBRE_DEFAUT)
         print(f"{len(prod.taches)} tâches candidates dans {args.sortie}")
         return 0 if prod.taches else 1
     from usine.generateurs.invention import ErreurInvention, materialiser

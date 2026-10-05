@@ -9,6 +9,10 @@ Dans <sortie>/ :
   portillon/journal.jsonl    une ligne par décision (acceptée ou rejet + raison)
   portillon/rapport.json     volumes par compétence et statistiques de rejet par raison
 
+`competences` (par exemple ["E"]) ne produit et ne juge que ces compétences : les tâches
+acceptées des autres compétences restent dans taches/, et le gel existant n'est complété que
+pour elles (avec `completer_gel`) ou créé s'il n'existe pas.
+
 Le cache des verdicts (donnees/cache_juge) est partagé : une seconde exécution avec la même
 graine rejoue la génération et le tirage, et réutilise les verdicts déjà calculés.
 """
@@ -23,6 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
+from usine.generateurs.efficience import NOMBRE_DEFAUT as NOMBRE_E
 from usine.generateurs.produire import produire
 from usine.portillon.dedoublonnage import Index, signature_tache
 from usine.portillon.exclusion import Exclusion
@@ -38,7 +43,8 @@ def _ecrire(chemin: Path, texte: str) -> None:
 
 def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40, cible_gel: int = 50,
            part_gel: float = 0.5, afficher=print, sources: list[str] | None = None,
-           completer_gel: bool = False) -> dict[str, Any]:
+           completer_gel: bool = False, competences: list[str] | None = None,
+           nombre_e: int = NOMBRE_E) -> dict[str, Any]:
     """`completer_gel` : un gel existant reçoit des tâches des nouvelles sources (jamais de retrait),
     à faire avant tout entraînement ; sinon il est réutilisé tel quel."""
     sortie = Path(sortie)
@@ -47,7 +53,7 @@ def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40
 
     afficher("== 1. Production des candidates")
     prod = produire(sortie / "candidats", graine, nombre_f1=nombre_f1, travailleurs=travailleurs, afficher=afficher,
-                    sources=sources)
+                    sources=sources, competences=competences, nombre_e=nombre_e)
     candidats = sorted(prod.taches, key=lambda d: (d.parent.name, d.name))
 
     afficher(f"== 2. Portillon ({len(candidats)} candidates, {reglages.repetitions} répétitions, "
@@ -94,7 +100,8 @@ def chaine(sortie: Path, graine: int, travailleurs: int = 4, nombre_f1: int = 40
     afficher("== 4. Exclusion des jeux gelés et écriture des tâches acceptées")
     dossier_taches = sortie / "taches"
     for ancien in lister_taches(dossier_taches):
-        if str(lire_tache(ancien).get("origine", "")).startswith("generateur:"):
+        t = lire_tache(ancien)
+        if str(t.get("origine", "")).startswith("generateur:") and (not competences or t["competence"] in competences):
             shutil.rmtree(ancien)
     acceptees: list[Path] = []
     for d in candidats:

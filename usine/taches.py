@@ -9,6 +9,10 @@
 Champ optionnel `juge` de tache.json :
     etapes            sous-ensemble de import/check_script/load_scene/run_tests (défaut : toutes)
     patch_max_lignes  plafond de lignes +/- entre depart/ et le candidat (K3)
+
+Champ optionnel `mesure_efficience` (compétence E) : le verdict commun, s'il passe, est complété
+par l'étape « mesure_efficience » (usine/efficience/juge.py) : rendu intact, allocations,
+lots de dessin et temps, relatifs à la référence de la tâche.
 """
 
 from __future__ import annotations
@@ -129,6 +133,9 @@ def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None
         verdict = cache.juger(source, superpositions, dossier / "tests_caches", etapes, repetition)
     else:
         verdict = juger_projet(source, f"res://{DOSSIER_TESTS_JUGE}", etapes, superpositions, dossier / "tests_caches")
+    if "mesure_efficience" in tache:
+        from usine.efficience.juge import completer
+        verdict = completer(verdict, dossier, tache, source, superpositions, repetition)
     verdict["tache_id"] = tache["id"]
     return verdict
 

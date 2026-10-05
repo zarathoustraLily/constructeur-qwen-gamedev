@@ -2,6 +2,7 @@
 
     python -m usine.portillon chaine [--graine 1] [--sortie donnees] [--travailleurs 4] [--f1 40]
                                      [--sources reference survivor …] [--completer-gel]
+                                     [--competences E …] [--e 120]
     python -m usine.portillon evaluer <dossier_tache> [--graine 1]
     python -m usine.portillon comparer <rapport1.json> <rapport2.json>
 """
@@ -29,6 +30,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--travailleurs", type=int, default=4)
     p.add_argument("--f1", type=int, default=40)
     p.add_argument("--sources", nargs="*", default=None, help="projets sources (défaut : tous, voir sources.py)")
+    p.add_argument("--competences", nargs="*", default=None,
+                   help="compétences à traiter (défaut : toutes) ; les tâches acceptées des autres restent")
+    p.add_argument("--e", type=int, default=None, help="nombre de paires E (optimisation stricte)")
     p.add_argument("--completer-gel", action="store_true",
                    help="compléter un gel existant (nouvelle source) au lieu de le réutiliser tel quel")
     p = sous.add_parser("evaluer", help="règles du portillon sur une tâche")
@@ -40,8 +44,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.commande == "chaine":
         from usine.portillon.chaine import afficher_rapport, chaine
+        from usine.generateurs.efficience import NOMBRE_DEFAUT
         r = chaine(args.sortie, args.graine, args.travailleurs, args.f1, sources=args.sources,
-                   completer_gel=args.completer_gel)
+                   completer_gel=args.completer_gel, competences=args.competences,
+                   nombre_e=args.e if args.e is not None else NOMBRE_DEFAUT)
         afficher_rapport(r)
         print(f"Durée : {r['duree_s']} s")
         return 0 if r["acceptees"] and not r["doublons_avec_geles"] else 1
