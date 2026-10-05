@@ -37,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--competences", nargs="*", default=None)
     e.add_argument("--limite", type=int, default=None, help="tâches par compétence")
     e.add_argument("--index", type=Path, default=None, help="index du RAG (défaut : donnees/rag)")
+    e.add_argument("--sans-agentiques", action="store_true", help="ne mesurer que les compétences en un appel")
 
     j = sous.add_parser("juger-reponses", help="juger des réponses collectées (référence frontière)")
     j.add_argument("reponses", type=Path)
@@ -81,14 +82,14 @@ def _commande(a: argparse.Namespace) -> int:
         r_.tour, r_.index = a.tour, a.index
         sortie = a.sortie or mesure / f"resultats_{a.tour}.jsonl"
         bilan = ex.executer(a.geles or cfg.dossier_donnees(config) / "geles", sortie, r_, a.configurations,
-                            a.competences, a.limite)
+                            a.competences, a.limite, agentiques=not a.sans_agentiques)
         d = bilan["durees_appel_s"]
         print(f"{bilan['faites']} essais faits, {bilan['reprises']} déjà présents (reprise) ; résultats : {sortie}")
         if d:
-            print(f"Durée d'un appel : médiane {statistics.median(d):.1f} s, moyenne {statistics.fmean(d):.1f} s, "
-                  f"max {max(d):.1f} s ({len(d)} appels)")
+            print(f"Durée d'un appel (ou d'une session agentique) : médiane {statistics.median(d):.1f} s, "
+                  f"moyenne {statistics.fmean(d):.1f} s, max {max(d):.1f} s ({len(d)} essais)")
         for comp, n in bilan["non_mesurees"].items():
-            print(f"Non mesurées : {comp} ({n} tâches, agentique)")
+            print(f"Non mesurées : {comp} ({n} tâches, agentiques exclues)")
         return 0
 
     if a.cmd == "juger-reponses":

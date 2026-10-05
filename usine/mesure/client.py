@@ -47,6 +47,7 @@ class Reponse:
     jetons_entree: int = 0
     jetons_sortie: int = 0
     fin: str | None = None
+    message: dict[str, Any] | None = None    # message assistant complet (tool_calls compris), protocole openai
 
 
 def _poster(url: str, corps: dict[str, Any], entetes: dict[str, str], delai_s: float) -> dict[str, Any]:
@@ -63,9 +64,11 @@ def _poster(url: str, corps: dict[str, Any], entetes: dict[str, str], delai_s: f
 
 
 def corps_openai(r: Reglages, messages: list[dict[str, Any]], schema: dict[str, Any] | None,
-                 lora: list[dict[str, Any]] | None) -> dict[str, Any]:
+                 lora: list[dict[str, Any]] | None, outils: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     corps: dict[str, Any] = {"model": r.modele, "messages": messages, "max_tokens": r.max_jetons,
                              "temperature": r.temperature, "seed": r.graine, "stream": False}
+    if outils:
+        corps["tools"] = outils
     if schema is not None:
         corps["response_format"] = {"type": "json_schema",
                                     "json_schema": {"name": "reponse", "schema": schema}}
@@ -75,23 +78,27 @@ def corps_openai(r: Reglages, messages: list[dict[str, Any]], schema: dict[str, 
 
 
 def completer(r: Reglages, messages: list[dict[str, Any]], schema: dict[str, Any] | None = None,
-              lora: list[dict[str, Any]] | None = None) -> Reponse:
-    """Un appel ; renvoie le texte de l'assistant et l'usage. ErreurAppel en cas d'échec."""
+              lora: list[dict[str, Any]] | None = None, outils: list[dict[str, Any]] | None = None) -> Reponse:
+    """Un appel ; renvoie le texte de l'assistant et l'usage. ErreurAppel en cas d'échec.
+    `outils` (format OpenAI « tools ») : protocole openai seulement ; le message complet, avec ses
+    tool_calls, est dans Reponse.message."""
     debut = time.monotonic()
     base = r.url.rstrip("/")
     if r.protocole == "openai":
         entetes = dict(r.entetes)
         if r.cle:
             entetes["Authorization"] = f"Bearer {r.cle}"
-        donnees = _poster(f"{base}/chat/completions", corps_openai(r, messages, schema, lora), entetes, r.delai_s)
+        donnees = _poster(f"{base}/chat/completions", corps_openai(r, messages, schema, lora, outils), entetes,
+                          r.delai_s)
         try:
             choix = donnees["choices"][0]
-            contenu = choix["message"].get("content") or ""
+            message = dict(choix["message"])
+            contenu = message.get("content") or ""
         except (KeyError, IndexError, TypeError) as exc:
             raise ErreurAppel(f"réponse inattendue : {str(donnees)[:300]}") from exc
         usage = donnees.get("usage") or {}
         return Reponse(contenu, round(time.monotonic() - debut, 3), int(usage.get("prompt_tokens", 0)),
-                       int(usage.get("completion_tokens", 0)), choix.get("finish_reason"))
+                       int(usage.get("completion_tokens", 0)), choix.get("finish_reason"), message)
     if r.protocole == "anthropic":
         systeme = "\n\n".join(m["content"] for m in messages if m["role"] == "system")
         corps = {"model": r.modele, "max_tokens": r.max_jetons, "temperature": r.temperature,

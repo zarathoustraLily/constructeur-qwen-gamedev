@@ -14,8 +14,11 @@ Résultats : JSONL, une ligne par (tour, configuration, tâche), écrite et sync
 dès que la tâche est jugée. Une exécution coupée reprend là où elle s'est arrêtée : une ligne déjà
 présente (même tour, configuration, id et empreinte) n'est pas refaite.
 
-Compétences agentiques (K2, K3, E…) : non mesurées ici. Il leur faut le harness agentique de la
-session 5 (OpenCode en mode non interactif ou agent minimal), qui écrira des lignes au même format.
+Compétences agentiques (K2, K3, E…) : une session de l'agent maison (usine/rft/agent.py, mêmes
+outils que le serveur MCP) sur une copie de travail, puis le juge de la tâche. Même budget de pas
+pour les quatre configurations ; sans RAG, l'outil search_docs est retiré ; avec RAG, il est
+présent et les extraits sont ajoutés à la tâche. La session est gardée à côté des résultats
+(<résultats>.sessions/<configuration>/<tâche>.jsonl).
 """
 
 from __future__ import annotations
@@ -46,6 +49,7 @@ class ReglagesMesure:
     n_docs: int = 5                                             # extraits du RAG par tâche
     index: Path | None = None                                   # index du RAG (défaut : donnees/rag)
     tour: str = "t0"
+    max_pas: int = 40                                           # budget de l'agent (compétences agentiques)
 
 
 def reglages_depuis_config(config: dict[str, Any] | None = None) -> ReglagesMesure:
@@ -58,7 +62,8 @@ def reglages_depuis_config(config: dict[str, Any] | None = None) -> ReglagesMesu
                       graine=int(mesure.get("graine", Reglages.graine)),
                       delai_s=float(mesure.get("delai_s", Reglages.delai_s)))
     return ReglagesMesure(client=client, lora_ids=[int(i) for i in mesure.get("lora_ids", [0])],
-                          lora_actif=int(mesure.get("lora_actif", 0)), n_docs=int(mesure.get("n_docs", 5)))
+                          lora_actif=int(mesure.get("lora_actif", 0)), n_docs=int(mesure.get("n_docs", 5)),
+                          max_pas=int(mesure.get("max_pas", 40)))
 
 
 def lora_requete(avec_lora: bool, r: ReglagesMesure) -> list[dict[str, Any]] | None:
@@ -156,8 +161,10 @@ def executer(geles: Path, sortie: Path, r: ReglagesMesure, configurations: Itera
              appeler: Callable[..., Reponse] = completer,
              juger: Callable[[Path, str], dict[str, Any]] = reponses.juger_reponse,
              doc: Callable[[str, ReglagesMesure], str] = documentation,
-             afficher: Callable[[str], None] = print) -> dict[str, Any]:
-    """Mesure les configurations demandées. Renvoie un bilan (faites, reprises, non mesurées)."""
+             afficher: Callable[[str], None] = print, agentiques: bool = True,
+             juger_projet: Callable[[Path, Path], dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Mesure les configurations demandées. Renvoie un bilan (faites, reprises, non mesurées).
+    `agentiques=False` : les compétences agentiques sont comptées comme non mesurées."""
     from usine.taches import lire_tache
     configurations = list(configurations)
     inconnues = [c for c in configurations if c not in CONFIGURATIONS]
@@ -171,11 +178,12 @@ def executer(geles: Path, sortie: Path, r: ReglagesMesure, configurations: Itera
     bilan: dict[str, Any] = {"faites": 0, "reprises": 0, "non_mesurees": {}, "durees_appel_s": []}
     for comp in sorted(par_comp):
         dossiers = par_comp[comp][:limite] if limite else par_comp[comp]
-        if comp not in reponses.COMPETENCES_UN_APPEL:
+        un_appel = comp in reponses.COMPETENCES_UN_APPEL
+        if not un_appel and not agentiques:
             bilan["non_mesurees"][comp] = len(dossiers)
-            afficher(f"{comp} : {len(dossiers)} tâches non mesurées (agentique : harness de la session 5)")
+            afficher(f"{comp} : {len(dossiers)} tâches non mesurées (agentiques exclues)")
             continue
-        schema = reponses.SCHEMAS[comp]
+        schema = reponses.SCHEMAS.get(comp)
         for dossier in dossiers:
             tache = lire_tache(dossier)
             docs: str | None = None
@@ -186,6 +194,16 @@ def executer(geles: Path, sortie: Path, r: ReglagesMesure, configurations: Itera
                 avec_lora, avec_rag = CONFIGURATIONS[conf]
                 if avec_rag and docs is None:
                     docs = doc(tache["consigne"], r)
+                if not un_appel:
+                    ligne = essai_agentique(dossier, tache, conf, r, docs if avec_rag else None, avec_rag,
+                                            lora_requete(avec_lora, r), appeler, juger_projet,
+                                            sortie.with_name(sortie.name + ".sessions"))
+                    bilan["durees_appel_s"].append(ligne["duree_appel_s"])
+                    ajouter_ligne(sortie, ligne)
+                    bilan["faites"] += 1
+                    afficher(f"{conf:9s} {tache['id']:50s} {'OK ' if ligne['ok'] else 'NON'} {ligne['etape']}  "
+                             f"session {ligne['duree_appel_s']:.1f} s")
+                    continue
                 msgs = reponses.messages(dossier / "depart", tache["consigne"], comp, docs if avec_rag else None)
                 try:
                     rep: Reponse | None = appeler(r.client, msgs, schema, lora_requete(avec_lora, r))
@@ -202,6 +220,36 @@ def executer(geles: Path, sortie: Path, r: ReglagesMesure, configurations: Itera
                 afficher(f"{conf:9s} {tache['id']:50s} {'OK ' if ligne['ok'] else 'NON'} "
                          f"{ligne['etape']}  appel {ligne['duree_appel_s'] or 0:.1f} s")
     return bilan
+
+
+def essai_agentique(dossier: Path, tache: dict[str, Any], conf: str, r: ReglagesMesure, docs: str | None,
+                    avec_rag: bool, lora: list[dict[str, Any]] | None, appeler: Callable[..., Reponse],
+                    juger_projet: Callable[[Path, Path], dict[str, Any]] | None, sessions: Path) -> dict[str, Any]:
+    """Une session de l'agent maison sur une copie de depart/, puis le juge de la tâche."""
+    import tempfile
+    from usine.juge.projet import preparer_copie
+    from usine.rft import agent
+    from usine.rft.essais import ecrire_session
+    from usine.taches import juger_tache
+    juger = juger_projet or (lambda d, copie: juger_tache(d, candidat=copie))
+    debut = time.monotonic()
+    with tempfile.TemporaryDirectory(prefix="usine_mesure_") as tmp:
+        copie = preparer_copie(dossier / "depart", Path(tmp) / "projet")
+        messages, outils, fin = agent.resoudre(copie, tache["consigne"], tache["competence"], r.client, lora,
+                                               r.max_pas, appeler, () if avec_rag else ("search_docs",), docs)
+        duree_session = time.monotonic() - debut
+        debut_juge = time.monotonic()
+        verdict = juger(dossier, copie)
+        duree_juge = time.monotonic() - debut_juge
+    ecrire_session(Path(sessions) / conf / f"{tache['id']}.jsonl",
+                   {"tache_id": tache["id"], "competence": tache["competence"], "empreinte": tache["empreinte"],
+                    "verdict_final": {k: verdict.get(k) for k in ("ok", "etape", "erreurs", "tests")},
+                    "configuration": conf, "tour": r.tour, "fin": fin, "tools": outils}, messages)
+    dernier = next((m.get("content") or "" for m in reversed(messages) if m.get("role") == "assistant"), "")
+    ligne = ligne_resultat(tache, conf, r.tour, verdict, Reponse(dernier, round(duree_session, 3), fin=fin),
+                           dernier, duree_juge, r.client.modele)
+    ligne["pas"] = sum(1 for m in messages if m.get("role") == "assistant")
+    return ligne
 
 
 def juger_reponses(fichier_reponses: Path, geles: Path, sortie: Path,

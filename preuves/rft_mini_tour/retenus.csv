@@ -1,0 +1,4 @@
+tache_id,competence,essai,ok,etape,longueur,duree_s,session
+d1_001_identifiant_inconnu,D1,1,True,run_tests,76,5.866,d1_001_identifiant_inconnu/essai_1.jsonl
+d1_002_cible_nulle,D1,0,True,run_tests,80,5.524,d1_002_cible_nulle/essai_0.jsonl
+f1_reference_hero_speed120p0_dash_speed860p0_dash_duration0p06_dash_cooldown1p25,F1,0,True,run_tests,83,8.2,f1_reference_hero_speed120p0_dash_speed860p0_dash_duration0p06_dash_cooldown1p25/essai_0.jsonl

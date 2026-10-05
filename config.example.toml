@@ -18,6 +18,11 @@ port_proxy = 8090           # OpenCode -> proxy (8090) -> llama-server (8080)
 
 [opencode]
 config_globale = '~/.config/opencode/opencode.json'
+# Harnais OpenCode non interactif (session 5, production de données seulement ; à confirmer) :
+cli = "opencode"            # moteur en ligne de commande : opencode run --format json --dir <copie> ...
+fournisseur = 'A_RENSEIGNER' # id du fournisseur llama-server dans ta config OpenCode globale
+modele = 'A_RENSEIGNER'      # « fournisseur/modèle » passé à --model
+delai_s = 1800              # délai d'un essai OpenCode (production de données)
 
 [chemins]
 donnees = "donnees"
@@ -52,6 +57,7 @@ delai_s = 600               # délai d'un appel à llama-server
 n_docs = 5                  # extraits du RAG ajoutés au prompt (configurations « _rag »)
 lora_ids = [0]              # adaptateurs chargés par llama-server (--lora), dans l'ordre ; [] si aucun
 lora_actif = 0              # adaptateur mesuré (les autres sont envoyés à l'échelle 0)
+max_pas = 40                # budget de l'agent maison pour les compétences agentiques (appels par tâche)
 
 [frontiere]
 # Référence frontière : appel EXTERNE, désactivé. Jamais lancé automatiquement.
@@ -67,3 +73,15 @@ depot = 'A_RENSEIGNER'      # copie du dépôt waynchi/gamedevbench (récupéré
 modele = "llamacpp/qwen"    # fournisseur/modèle tel que déclaré dans la config OpenCode
 confinement = "off"         # « strict » exige Linux et bubblewrap ; « off » : résultat marqué non confiné
 python = ["uv", "run", "python"]
+
+[rft]
+# Boucle RFT (session 5) : python -m usine.rft tour --sortie donnees\rft\t1
+n_essais = 4                # essais par tâche
+temperature = 0.7           # > 0 : sinon les N essais d'une tâche en un appel seraient identiques
+graine = 1                  # graine de l'essai n = graine + n
+lora_id = -1                # -1 : réglage du serveur ; sinon id du LoRA (ordre des --lora) à l'échelle 1
+avec_rag = false            # extraits du RAG dans le prompt des compétences en un appel
+harnais = "agent"           # compétences agentiques : agent (maison) ou opencode
+max_pas = 40                # budget de l'agent maison (appels au modèle par essai)
+serveur_llama = 'A_RENSEIGNER'  # llama-server.exe (lanceur multi-LoRA : python -m usine.rft lanceur)
+modele_gguf = 'A_RENSEIGNER'    # Qwen3.8-27B GGUF Q4

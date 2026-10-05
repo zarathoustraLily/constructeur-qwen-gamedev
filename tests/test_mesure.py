@@ -312,10 +312,11 @@ def test_executer_quatre_configurations_et_reprise(tmp_path):
     sortie = tmp_path / "resultats.jsonl"
     with pytest.raises(Coupure):
         ex.executer(geles, sortie, r, appeler=lambda *a: appeler(*a, couper_apres=5), juger=faux_juge, doc=doc,
-                    afficher=lambda s: None)
+                    afficher=lambda s: None, agentiques=False)
     assert len(ex.lire_resultats([sortie])) == 5
     appels.clear()
-    bilan = ex.executer(geles, sortie, r, appeler=appeler, juger=faux_juge, doc=doc, afficher=lambda s: None)
+    bilan = ex.executer(geles, sortie, r, appeler=appeler, juger=faux_juge, doc=doc, afficher=lambda s: None,
+                        agentiques=False)
     assert (bilan["faites"], bilan["reprises"], bilan["non_mesurees"]) == (7, 5, {"K2": 1})
     assert len(appels) == 7
     lignes = ex.lire_resultats([sortie])
@@ -326,6 +327,33 @@ def test_executer_quatre_configurations_et_reprise(tmp_path):
     # même prompt pour les 4 configurations, aux extraits du RAG près
     contenus = [l["reponse"] for l in lignes]
     assert all(c in ('{"x": "bon"}', '{"x": "faux"}') for c in contenus)
+
+
+def test_executer_agentique_par_l_agent_maison(tmp_path):
+    geles = tmp_path / "geles"
+    shutil.copytree(MODELES / "K2" / "k2_001_take_damage", geles / "K2" / "k2_001_take_damage")
+    recus = []
+
+    def appeler(client, msgs, schema, lora, outils=None):
+        recus.append((schema, lora, sorted(o["function"]["name"] for o in outils), msgs[1]["content"]))
+        return Reponse("Fini.", 0.2, message={"role": "assistant", "content": "Fini."})
+
+    juges = []
+    sortie = tmp_path / "res.jsonl"
+    bilan = ex.executer(geles, sortie, ex.ReglagesMesure(lora_ids=[0]), configurations=["base", "lora_rag"],
+                        appeler=appeler, doc=lambda c, r: "EXTRAIT-RAG", afficher=lambda s: None,
+                        juger_projet=lambda d, copie: juges.append(copie.name) or
+                        {"ok": True, "etape": "run_tests", "erreurs": [], "tests": {"total": 3, "passes": 3, "echecs": []}})
+    assert bilan["faites"] == 2 and bilan["non_mesurees"] == {} and juges == ["projet", "projet"]
+    (s0, l0, o0, u0), (s1, l1, o1, u1) = recus
+    assert s0 is None and l0 == [{"id": 0, "scale": 0.0}] and l1 == [{"id": 0, "scale": 1.0}]
+    assert "search_docs" not in o0 and "search_docs" in o1 and set(o1) - set(o0) == {"search_docs"}
+    assert "EXTRAIT-RAG" not in u0 and "EXTRAIT-RAG" in u1
+    lignes = {l["configuration"]: l for l in ex.lire_resultats([sortie])}
+    assert lignes["base"]["ok"] and lignes["base"]["pas"] == 1 and lignes["base"]["reponse"] == "Fini."
+    session = tmp_path / "res.jsonl.sessions" / "lora_rag" / "k2_001_take_damage.jsonl"
+    entete = json.loads(session.read_text(encoding="utf-8").splitlines()[0])
+    assert entete["configuration"] == "lora_rag" and entete["verdict_final"]["ok"] is True
 
 
 def test_taches_gelees_refuse_une_tache_modifiee(tmp_path):
