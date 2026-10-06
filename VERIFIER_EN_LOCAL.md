@@ -517,6 +517,28 @@ python -m usine.mesure rapport donnees\mesure\resultats_essai.jsonl donnees\mesu
 
 Attendu : les colonnes `frontière` et `frontière + RAG` sont remplies pour F1, et le verdict est calculé contre `frontière + RAG`.
 
+## 21. Gel complet sous Godot 4.7.2, compétence E comprise (une nuit)
+
+Décision du 2026-10-06 : on gèle sous Godot 4.7.2 ; le passage à 4.8 viendra plus tard. Lance cette étape le soir : la chaîne dure environ 3 h 30 sans E dans le cloud, sur 4 cœurs. E y ajoute à peu près autant, soit 7 à 8 h en tout sur 4 travailleurs. Le gel précédent de ta machine (session 3) est remplacé : aucun entraînement n'a eu lieu.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git pull
+rmdir /s /q donnees\geles
+python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4
+echo %ERRORLEVEL%
+python -c "import json; m = json.load(open(r'donnees\geles\manifeste.json', encoding='utf-8')); [print(c, len(v['taches']), 'complet' if v.get('complet') else 'incomplet') for c, v in sorted(m['competences'].items())]"
+python -m usine.rag verifier
+```
+
+Attendu :
+- le tableau de la chaîne a une ligne par compétence : D1, E, F1, K1, K2, K3, S1, S2. Sans E, les nombres sont proches de ceux du gel cloud du 2026-10-04 (TOTAL 414 379 172 201) ; la ligne E compte environ 120 candidates et 50 gelées au plus ;
+- `Doublons avec les jeux gelés dans taches/ : 0`, puis `0` pour `%ERRORLEVEL%` ;
+- le script Python affiche une ligne par compétence (nombre de tâches gelées, complet ou incomplet). F1, K3 et E doivent être complets ;
+- `verifier` finit par `fragments qui reprennent une tâche : 0` : aucune tâche gelée n'est dans le RAG.
+
+Copie dans le fil le tableau de la chaîne et les lignes du script. Garde le dossier `donnees\geles` : c'est le jeu de test définitif tant que personne ne décide de le compléter (`--completer-gel`, avant tout entraînement).
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
