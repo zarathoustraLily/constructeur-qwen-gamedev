@@ -1,9 +1,9 @@
 {
  "id": "d1_001_identifiant_inconnu",
  "competence": "D1",
- "consigne": "Le fichier journal.txt contient la sortie de Godot quand on lance ce projet en headless. Trouver l'erreur à l'origine du problème et écrire res://reponse.json au format {{\"categorie\": \"...\", \"fichier\": \"res://...\", \"ligne\": N}}, où fichier:ligne est la ligne du script qui provoque l'erreur. Catégories possibles : parse_error, null_instance, invalid_node_path, signal_missing, type_error, missing_resource, autre. Ne modifier aucun autre fichier.",
+ "consigne": "Le fichier journal.txt contient la sortie de Godot quand on lance ce projet en headless. Trouver l'erreur à l'origine du problème et écrire res://reponse.json au format {\"categorie\": \"...\", \"fichier\": \"res://...\", \"ligne\": N}, où fichier:ligne est la ligne du script qui provoque l'erreur. Catégories possibles : parse_error, null_instance, invalid_node_path, signal_missing, type_error, missing_resource, autre. Ne modifier aucun autre fichier.",
  "origine": "modele_manuel_session_01",
- "empreinte": "0a9f247d8f7177a8e2b400d6c89f3855444684b88809a3512c3d3052114a37a5",
+ "empreinte": "edc68280f866dd7fb581e224af7119a4506f54445cf34db178d8f35aecdccdf5",
  "gelee": false,
  "juge": {
   "etapes": [

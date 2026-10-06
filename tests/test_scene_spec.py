@@ -136,3 +136,18 @@ def test_preuve_godot_aller_retour():
     lignes = []
     assert preuve(REFERENCE, afficher=lignes.append) == 0, "\n".join(lignes)
     assert lignes[-1].startswith("20/20 scènes conformes (5 générées, 10 resauvées par Godot)")
+
+
+def test_structure_invalide_rendue_en_erreurs_sans_plantage():
+    from usine.scene.spec import structure_spec, valider_spec
+    cas = [([], "objet JSON"), ({}, "racine absente"), ({"racine": "Node2D"}, "objet attendu"),
+           ({"racine": {"nom": "A", "enfants": "B"}}, "liste attendue"),
+           ({"racine": {"nom": "A", "type": 3}}, "texte attendu"),
+           ({"racine": {"nom": "A"}, "ressources_internes": ["forme"]}, "objet attendu"),
+           ({"racine": {"nom": "A"}, "ressources_internes": [{"type": "CircleShape2D"}]}, "nom : texte attendu"),
+           ({"racine": {"nom": "A"}, "ressources_externes": {"chemin": "res://a.gd"}}, "liste attendue")]
+    for spec, attendu in cas:
+        erreurs = structure_spec(spec)
+        assert erreurs and attendu in erreurs[0]["message"], (spec, erreurs)
+        assert valider_spec(spec, None) == erreurs           # refusée avant de lire le vocabulaire
+    assert structure_spec({"racine": {"nom": "A", "type": "Node2D", "enfants": [{"nom": "B"}]}}) == []
