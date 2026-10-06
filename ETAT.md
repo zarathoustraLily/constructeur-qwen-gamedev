@@ -9,7 +9,8 @@
 - [x] Session 3 — Usine à tâches, portillon, jeux gelés
 - [x] Session 4 — RAG Godot, serveur MCP, fiches de compétences, enregistreur
 - [x] Avant la session 5 — jeux sources supplémentaires (survivor, kits Kenney), gel à 4 sources (172 tâches)
-- [x] Avant la session 5 — compétence E « optimisation stricte » (gel en attente de Godot 4.8 stable)
+- [x] Avant la session 5 — compétence E « optimisation stricte »
+- [ ] Gel complet sous Godot 4.7.2 (décision du 2026-10-06), avec E : `VERIFIER_EN_LOCAL.md` étape 21, une nuit sur la machine
 - [x] Session 5 — Boucle RFT (cloud : code et preuve ; vrai tour après le gel 4.8)
 - [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après le premier LoRA et le gel 4.8)
 
@@ -22,14 +23,15 @@
 | Session 3 — usine à tâches, portillon, gel | fait ; le gel a été refait à 4 sources (172 tâches) | oui (étapes 10 et 11, remplacées par 17 b) |
 | Session 4 — RAG, serveur MCP, fiches, enregistreur | fait | oui (étapes 12 à 16 ; 13 b facultative non lancée) |
 | Avant la session 5 — jeux sources (survivor, Kenney) | fait | oui (17 a ; 17 b facultative non lancée) |
-| Avant la session 5 — compétence E | fait, PR #6 fusionnée ; **gel en attente de Godot 4.8 stable** | oui (18 a, 2026-10-06) |
+| Avant la session 5 — compétence E | fait, PR #6 fusionnée ; gel avec les autres sous Godot 4.7.2 (étape 21) | oui (18 a, 2026-10-06) |
 | Session 5 — boucle RFT | fait (code, preuve : mini-tour contre un faux serveur juste à 60 %, vrai juge) ; harnais OpenCode à confirmer | oui (19 a et 19 b, 2026-10-06) ; 19 c : pas de CLI OpenCode, harnais = agent maison |
 | Session 6 — mesure | fait (code, preuve sur résultats simulés ; agentiques mesurées par l'agent maison) ; la mesure réelle attend le premier LoRA et le gel 4.8 | oui (20 a et 20 b, 2026-10-06) |
 
-Ordre conseillé pour la suite :
-1. migration vers Godot 4.8 stable et gel complet (section E) ;
-2. premier tour RFT (`python -m usine.rft tour`), entraînement, GGUF, lanceur (19 d) ;
-3. mesure réelle (`python -m usine.mesure executer`, puis `rapport`, puis `regression` après chaque tour).
+Ordre conseillé pour la suite (décision du 2026-10-06 : on reste sous Godot 4.7.2, la 4.8 viendra plus tard) :
+1. gel complet sous Godot 4.7.2, E compris (étape 21) ;
+2. compléter le gel (`--completer-gel`) avec de nouveaux jeux sources et les générateurs manquants (C1, C2, S3, K4, D2, F2), **avant** le premier entraînement, ou décider de figer tel quel ;
+3. premier tour RFT (`python -m usine.rft tour`), entraînement, GGUF, lanceur (19 d) ;
+4. mesure réelle (`python -m usine.mesure executer`, puis `rapport`, puis `regression` après chaque tour).
 
 ## Journal
 
@@ -995,6 +997,14 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 - **Le harnais OpenCode écrit un `opencode.json` dans la copie de travail** : il faut le retirer avant le jugement, sinon il entrerait dans la solution.
 - **Un CLI externe ne laisse pas choisir la graine** : en mode OpenCode, les N essais ne diffèrent que par l'aléa du serveur.
 
+### Décision du 2026-10-06 — on reste sous Godot 4.7.2
+
+laurent : « pour le moment on va utiliser Godot 4.7, on fera l'adaptation plus tard ». Cette décision remplace celle du 2026-10-05, qui faisait attendre le gel à Godot 4.8 stable (encore en snapshot dev 4, sortie prévue au quatrième trimestre 2026).
+
+- **Le gel se fait maintenant, sous 4.7.2, E compris** : `VERIFIER_EN_LOCAL.md` étape 21, une nuit sur la machine. Par défaut, la chaîne produit 120 candidates E, dont 50 gelées au plus.
+- **Couverture du gel** : seules F1 et K3 atteignent 50 tâches gelées (dernier gel cloud : D1 6, K1 12, K2 37, S1 10, S2 7). C1, C2, S3, K4, D2 et F2 n'ont pas encore de générateur. Un gel se complète par `chaine --completer-gel`, sans rien retirer, mais **seulement avant le premier entraînement** (`usine/portillon/gel.py`, règle 4). Avant d'entraîner, il faut donc soit ajouter des sources et des générateurs puis compléter le gel, soit décider de figer le gel tel quel.
+- **Migration vers 4.8, plus tard** : le gel 4.7.2 ne pourra pas être retiré après un entraînement (règle 4). La migration devra rejuger les tâches gelées sous 4.8 et réparer leurs générateurs au besoin (règle 5). Ce n'est pas un nouveau tirage.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1007,6 +1017,7 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 - [x] Compétence E — `VERIFIER_EN_LOCAL.md` étape 18 a, conforme le 2026-10-06 (18 b facultative, non lancée). Détail plus bas.
 - [x] Session 5 — `VERIFIER_EN_LOCAL.md` étapes 19 a et 19 b conformes le 2026-10-06, après trois correctifs Windows faits dans le cloud (détail plus bas). 19 c : pas d'OpenCode en ligne de commande sur la machine, le harnais reste l'agent maison. 19 d (entraînement) non lancée.
 - [x] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 20 a et 20 b conformes le 2026-10-06 (20 c et 20 d facultatives, non lancées).
+- [ ] Gel complet sous Godot 4.7.2 — `VERIFIER_EN_LOCAL.md` étape 21 (une nuit).
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
