@@ -441,7 +441,7 @@ python -m usine.mesure simuler
 ```
 
 Attendu :
-- pytest : `26 passed`, puis `0` ;
+- pytest : `27 passed`, puis `0` ;
 - `simuler` affiche le tableau des 14 compétences et finit par `Bilan : défaite 1, non mesuré 6, victoire 1, égalité 6`. Le rapport est écrit dans `donnees\mesure\simulation\`. Vérifie qu'il est identique à la preuve du cloud : `fc /b donnees\mesure\simulation\rapport_mesure.md preuves\mesure_simulee\rapport_mesure.md` doit répondre « aucune différence ».
 
 ### 20 b. Mesure réelle des 4 configurations sur une compétence en un appel (F1, 10 tâches, environ 30 à 60 minutes)

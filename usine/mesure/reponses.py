@@ -190,14 +190,12 @@ def appliquer(competence: str, reponse: Any, projet: Path) -> list[str]:
         if not isinstance(spec, dict):
             raise ReponseInvalide("S1 : spec (objet) attendue")
         verif = verificateur(projet)
+        refus = valider_spec(spec, verif)
+        if refus:
+            raise ReponseInvalide("spec refusée : " + "; ".join(str(e.get("message", e)) for e in refus[:3]))
         try:
-            refus = valider_spec(spec, verif)
-            if refus:
-                raise ReponseInvalide("spec refusée : " + "; ".join(str(e.get("message", e)) for e in refus[:3]))
             texte = scene_write(spec, verif)
-        except (ErreurSpec, KeyError, TypeError, ValueError) as exc:
-            if isinstance(exc, ReponseInvalide):
-                raise
+        except (ErreurSpec, KeyError, TypeError, ValueError, AttributeError) as exc:
             raise ReponseInvalide(f"spec refusée : {exc}") from exc
         _ecrire(chemin, texte)
         return [reponse["chemin"]]
@@ -242,4 +240,6 @@ def juger_reponse(dossier: Path, texte: str) -> dict[str, Any]:
             appliquer(tache["competence"], reponse, copie)
         except ReponseInvalide as exc:
             return verdict_reponse_invalide(str(exc), tache["id"])
+        except Exception as exc:  # noqa: BLE001 — une réponse du modèle ne doit jamais arrêter un tour
+            return verdict_reponse_invalide(f"réponse inapplicable ({type(exc).__name__} : {exc})", tache["id"])
         return juger_tache(dossier, candidat=copie)

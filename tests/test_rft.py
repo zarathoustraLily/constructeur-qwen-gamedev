@@ -138,7 +138,8 @@ def test_conversion_et_lanceur(tmp_path):
     assert b"\r\n" in octets and b"\n" not in octets.replace(b"\r\n", b"")
     commande = texte.strip().splitlines()[-1]
     assert "-ngl" not in commande.split() and commande.endswith("--reasoning off --reasoning-budget 0 --no-prefill-assistant")
-    assert '--lora "D:/a.gguf" --lora "D:/b.gguf"' in texte and "rem   1 = b.gguf" in texte
+    # chemins natifs de la plateforme (antislashs sous Windows) : on compare à str(Path(...))
+    assert f'--lora "{Path("D:/a.gguf")}" --lora "{Path("D:/b.gguf")}"' in texte and "rem   1 = b.gguf" in texte
     assert "--lora-init-without-apply" not in texte
     with pytest.raises(ValueError, match="interdite"):
         gguf.lanceur_bat(Path("s"), Path("m"), [], options=["-ngl", "99"])

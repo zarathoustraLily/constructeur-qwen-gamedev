@@ -22,15 +22,14 @@
 | Session 3 — usine à tâches, portillon, gel | fait ; le gel a été refait à 4 sources (172 tâches) | oui (étapes 10 et 11, remplacées par 17 b) |
 | Session 4 — RAG, serveur MCP, fiches, enregistreur | fait | oui (étapes 12 à 16 ; 13 b facultative non lancée) |
 | Avant la session 5 — jeux sources (survivor, Kenney) | fait | oui (17 a ; 17 b facultative non lancée) |
-| Avant la session 5 — compétence E | fait, PR #6 fusionnée ; **gel en attente de Godot 4.8 stable** | non : étape 18 a à lancer |
-| Session 5 — boucle RFT | fait (code, preuve : mini-tour contre un faux serveur juste à 60 %, vrai juge) ; harnais OpenCode à confirmer | non : étapes 19 a et 19 b à lancer, 19 c à confirmer |
-| Session 6 — mesure | fait (code, preuve sur résultats simulés ; agentiques mesurées par l'agent maison) ; la mesure réelle attend le premier LoRA et le gel 4.8 | non : étapes 20 a et 20 b à lancer |
+| Avant la session 5 — compétence E | fait, PR #6 fusionnée ; **gel en attente de Godot 4.8 stable** | oui (18 a, 2026-10-06) |
+| Session 5 — boucle RFT | fait (code, preuve : mini-tour contre un faux serveur juste à 60 %, vrai juge) ; harnais OpenCode à confirmer | oui (19 a et 19 b, 2026-10-06) ; 19 c : pas de CLI OpenCode, harnais = agent maison |
+| Session 6 — mesure | fait (code, preuve sur résultats simulés ; agentiques mesurées par l'agent maison) ; la mesure réelle attend le premier LoRA et le gel 4.8 | oui (20 a et 20 b, 2026-10-06) |
 
 Ordre conseillé pour la suite :
-1. vérifications locales 18 a, 19 a et b, 20 a et b ; réponse sur OpenCode en ligne de commande (19 c) ;
-2. migration vers Godot 4.8 stable et gel complet (section E) ;
-3. premier tour RFT (`python -m usine.rft tour`), entraînement, GGUF, lanceur (19 d) ;
-4. mesure réelle (`python -m usine.mesure executer`, puis `rapport`, puis `regression` après chaque tour).
+1. migration vers Godot 4.8 stable et gel complet (section E) ;
+2. premier tour RFT (`python -m usine.rft tour`), entraînement, GGUF, lanceur (19 d) ;
+3. mesure réelle (`python -m usine.mesure executer`, puis `rapport`, puis `regression` après chaque tour).
 
 ## Journal
 
@@ -985,7 +984,7 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 
 **Reste à faire**
 
-- `VERIFIER_EN_LOCAL.md` 19 a et 19 b, avec le temps réel par essai, qui recale l'hypothèse de 15 s. 19 c : la réponse de laurent sur OpenCode en ligne de commande.
+- Fait le 2026-10-06 : 19 a et 19 b conformes ; 19 c, pas de CLI OpenCode, le harnais reste l'agent maison.
 - Le premier vrai tour, puis l'entraînement (19 d), après le gel complet sous Godot 4.8 : les tâches d'entraînement doivent être tirées **après** le gel, pour que l'exclusion de la règle 4 porte sur le gel définitif.
 - Ensuite, la mesure (étape 20) et `regression` après chaque tour.
 
@@ -1005,9 +1004,9 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
   L'étape 11 est depuis remplacée par l'étape 17 b (chaîne à 4 sources).
 - [x] Session 4 — `VERIFIER_EN_LOCAL.md` étapes 12 à 16 conformes le 2026-10-04 (l'étape 13 b, facultative, n'a pas été lancée). Détail plus bas.
 - [x] Jeux sources — `VERIFIER_EN_LOCAL.md` étape 17 a, conforme le 2026-10-05 (17 b facultative, non lancée). Détail plus bas.
-- [ ] Compétence E — `VERIFIER_EN_LOCAL.md` étape 18 a (moins de 15 minutes ; 18 b facultative).
-- [ ] Session 5 — `VERIFIER_EN_LOCAL.md` étapes 19 a (5 minutes) et 19 b (vrai mini-tour sur 20 tâches en un appel : noter le temps par essai) ; 19 c : dire si OpenCode en ligne de commande doit servir ; 19 d (entraînement, GGUF, lanceur) facultative et longue.
-- [ ] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 20 a (2 minutes) et 20 b (mesure réelle sur F1, 10 tâches : noter la durée d'un appel) ; 20 c (GameDevBench) et 20 d (frontière) facultatives.
+- [x] Compétence E — `VERIFIER_EN_LOCAL.md` étape 18 a, conforme le 2026-10-06 (18 b facultative, non lancée). Détail plus bas.
+- [x] Session 5 — `VERIFIER_EN_LOCAL.md` étapes 19 a et 19 b conformes le 2026-10-06, après trois correctifs Windows faits dans le cloud (détail plus bas). 19 c : pas d'OpenCode en ligne de commande sur la machine, le harnais reste l'agent maison. 19 d (entraînement) non lancée.
+- [x] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 20 a et 20 b conformes le 2026-10-06 (20 c et 20 d facultatives, non lancées).
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
@@ -1154,6 +1153,32 @@ Dépôt : `D:\constructeur-qwen-gamedev`, branche `claude/project-thread-4m421r`
 Point confirmé par cette machine : les sons Ogg et les modèles `.glb` des trois jeux passent le juge sous Godot Windows (l'import de `kenney_racing` a échoué une première fois avec le code `3221225477` — probablement verrou du cache `.godot` — et est passé au second essai sans modification).
 
 L'étape 17 b (gel à 4 sources refait, ~3 h 20) n'a pas été lancée (facultative). `donnees\geles` doit être supprimé avant toute chaîne locale, comme rappelé par la procédure.
+
+### Sessions E, 5 et 6 — 2026-10-06, Windows 11, Godot 4.7.2 Windows console (étapes 18 a, 19, 20)
+
+Lancées par laurent sur la branche `claude/competence-e-optimisation-xbhw0j` (PR #7).
+
+| Vérification | Attendu | Obtenu | Conforme |
+| --- | --- | --- | --- |
+| 18 a — `pytest -q tests\test_efficience.py` | `20 passed` | `20 passed` (194,9 s) | oui |
+| 18 a — `python -m mcp_serveur.preuve` | 13/13 | 13/13, `measure_efficiency` compris | oui |
+| 19 a — `pytest -q tests\test_rft.py` | `14 passed` | `14 passed` après le correctif 1 ci-dessous | oui |
+| 19 a — `python -m usine.rft preuve` | `CONFORME` | `CONFORME` (15 essais, coupure simulée) | oui |
+| 19 b — vrai mini-tour, 20 tâches en un appel | 40 essais au plus, temps par essai | 19 tâches × 2 essais, 150,3 s, 7 solutions retenues | oui |
+| 19 c — OpenCode en ligne de commande | réponse de laurent | CLI absent (application de bureau seulement) | — |
+| 20 a — `pytest -q tests\test_mesure.py` | `26 passed` | `26 passed` | oui |
+| 20 a — `python -m usine.mesure simuler` | identique à la preuve | identique octet pour octet | oui |
+| 20 b — mesure F1, 10 tâches, base et base_rag | 20 essais, durée d'un appel | 20 essais ; base 0/10, base_rag 0/10 ; appel médian 1,9 s | oui |
+
+**Durée d'un essai** : l'appel médian vaut 1,9 s en un appel (F1), et le jugement s'y ajoute. L'hypothèse de 15 s du document de conception est donc très pessimiste pour les compétences en un appel. Il faudra la remesurer sur les agentiques. Qwen de base ne réussit aucune des 10 tâches F1, avec ou sans RAG : la marge pour le LoRA est entière.
+
+**19 c tranché** : la machine n'a pas `opencode` en ligne de commande, donc le harnais des compétences agentiques reste l'agent maison (`[rft] harnais = "agent"`, valeur par défaut).
+
+**Trois défauts relevés sur la machine, corrigés dans le cloud (2026-10-06), chacun avec un test qui reproduit le cas** :
+1. **`tests/test_rft.py`, lanceur** : le test comparait les chemins du `.bat` à `D:/a.gguf`. Or le code écrit les chemins natifs, `D:\a.gguf` sous Windows, ce qui est correct dans un `.bat`. Le test compare maintenant à `str(Path(...))`, et le code ne change pas.
+2. **`usine/scene/spec.py`** : `valider_spec` plantait sur une spec malformée, par exemple une chaîne au lieu d'un objet dans `ressources_internes` : c'est arrivé avec une vraie réponse de Qwen en 19 b. Le correctif local ignorait ces entrées. Le correctif retenu les **refuse** : une nouvelle fonction, `structure_spec`, vérifie la forme (objets, listes, textes) avant toute lecture, et rend une erreur par entrée malformée.
+3. **`usine/mesure/reponses.py`** : un plantage du traducteur pouvait arrêter tout un tour. `juger_reponse` transforme maintenant toute exception du traducteur en verdict « reponse » en échec, avec le nom de l'exception.
+Les modifications locales non commitées de ces trois fichiers et d'`ETAT.md` sont abandonnées au profit de cette version (`git checkout -- …`, puis `git pull`).
 
 ## Pièges connus
 

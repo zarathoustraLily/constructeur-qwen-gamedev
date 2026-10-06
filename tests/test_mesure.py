@@ -255,6 +255,26 @@ def test_appliquer_s1_par_l_ecrivain(tmp_path):
         reponses.appliquer("S1", {"chemin": "res://scenes/x.tscn", "spec": faux}, _copie_depart(tmp_path / "b", tache))
 
 
+def test_reponse_malformee_jamais_un_plantage(tmp_path, monkeypatch):
+    """Relevé sous Windows (2026-10-06) : une spec S1 malformée de Qwen faisait planter le tour."""
+    tache = MODELES / "S1" / "s1_001_heart_pickup"
+    for spec in ({"racine": {"nom": "A", "type": "Area2D"}, "ressources_internes": ["forme"]},
+                 {"racine": "Area2D"}, {"ressources_internes": []},
+                 {"racine": {"nom": "A", "type": "Area2D", "enfants": {"nom": "B"}}},
+                 {"racine": {"nom": "A", "type": "Area2D"}, "ressources_externes": [{"type": "Script"}]}):
+        with pytest.raises(reponses.ReponseInvalide, match="spec refusée"):
+            reponses.appliquer("S1", {"chemin": "res://scenes/x.tscn", "spec": spec}, _copie_depart(tmp_path / str(id(spec)), tache))
+    # tout autre plantage d'un traducteur devient un verdict « reponse » en échec
+    d = fausse_tache(tmp_path / "geles", "D1", "d1_0")
+
+    def plante(*a):
+        raise AttributeError("'str' object has no attribute 'get'")
+
+    monkeypatch.setattr(reponses, "appliquer", plante)
+    v = reponses.juger_reponse(d, '{"categorie": "autre"}')
+    assert (v["ok"], v["etape"]) == (False, "reponse") and "AttributeError" in v["erreurs"][0]["message"]
+
+
 def test_contexte_et_messages_identiques_hors_rag():
     tache = MODELES / "D1" / "d1_001_identifiant_inconnu"
     consigne = json.loads((tache / "tache.json").read_text(encoding="utf-8"))["consigne"]

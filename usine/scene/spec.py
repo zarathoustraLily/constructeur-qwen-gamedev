@@ -471,12 +471,66 @@ def _erreur(lieu: str, message: str, categorie: str = "vocab_inconnu") -> dict[s
     return {"fichier": lieu, "ligne": None, "categorie": categorie, "message": message}
 
 
+def structure_spec(spec: Any) -> list[dict[str, Any]]:
+    """Forme de la spec (objets, listes, chaînes là où on les attend), avant toute lecture.
+
+    Une spec vient souvent d'un modèle : une entrée qui n'a pas la bonne forme (une chaîne au lieu
+    d'un objet dans ressources_internes, par exemple) est une erreur à rendre, jamais un plantage.
+    """
+    erreurs: list[dict[str, Any]] = []
+    if not isinstance(spec, dict):
+        return [_erreur("spec", "la spec doit être un objet JSON", "valeur_invalide")]
+
+    def chaine_optionnelle(lieu: str, objet: dict, cle: str) -> None:
+        if cle in objet and objet[cle] is not None and not isinstance(objet[cle], str):
+            erreurs.append(_erreur(lieu, f"{cle} : texte attendu ({objet[cle]!r})", "valeur_invalide"))
+
+    def noeud(n: Any, lieu: str) -> None:
+        if not isinstance(n, dict):
+            erreurs.append(_erreur(lieu, f"nœud : objet attendu ({n!r})", "valeur_invalide"))
+            return
+        for cle in ("nom", "type", "script", "instance"):
+            chaine_optionnelle(lieu, n, cle)
+        if not isinstance(n.get("proprietes", {}), dict):
+            erreurs.append(_erreur(lieu, "proprietes : objet attendu", "valeur_invalide"))
+        enfants = n.get("enfants", [])
+        if not isinstance(enfants, list):
+            erreurs.append(_erreur(lieu, "enfants : liste attendue", "valeur_invalide"))
+            return
+        for i, e in enumerate(enfants):
+            noeud(e, f"{lieu}/{e.get('nom') if isinstance(e, dict) else i}")
+
+    if "racine" not in spec:
+        erreurs.append(_erreur("spec", "racine absente", "valeur_invalide"))
+    else:
+        noeud(spec["racine"], "spec:.")
+    for cle, champ in (("ressources_internes", "nom"), ("ressources_externes", "chemin"), ("connexions", None)):
+        liste = spec.get(cle, [])
+        if not isinstance(liste, list):
+            erreurs.append(_erreur("spec", f"{cle} : liste attendue", "valeur_invalide"))
+            continue
+        for i, r in enumerate(liste):
+            if not isinstance(r, dict):
+                erreurs.append(_erreur(f"spec::{cle}[{i}]", f"objet attendu ({r!r})", "valeur_invalide"))
+            elif champ and not isinstance(r.get(champ), str):
+                erreurs.append(_erreur(f"spec::{cle}[{i}]", f"{champ} : texte attendu ({r.get(champ)!r})",
+                                       "valeur_invalide"))
+            elif cle == "ressources_internes":
+                chaine_optionnelle(f"spec::{r[champ]}", r, "type")
+                if not isinstance(r.get("proprietes", {}), dict):
+                    erreurs.append(_erreur(f"spec::{r[champ]}", "proprietes : objet attendu", "valeur_invalide"))
+    return erreurs
+
+
 def valider_spec(spec: dict[str, Any], verif) -> list[dict[str, Any]]:
     """Vérifie une spec contre le vocabulaire réel (et les scripts du projet si verif.projet).
 
-    Renvoie une liste d'erreurs au format du verdict ; vide si la spec est correcte.
+    Renvoie une liste d'erreurs au format du verdict ; vide si la spec est correcte. Une spec de
+    forme invalide (structure_spec) est refusée avant toute autre vérification.
     """
-    erreurs: list[dict[str, Any]] = []
+    erreurs = structure_spec(spec)
+    if erreurs:
+        return erreurs
     projet = verif.projet
     lieu_scene = spec.get("chemin", "spec")
     internes = {r.get("nom"): r for r in spec.get("ressources_internes", [])}
