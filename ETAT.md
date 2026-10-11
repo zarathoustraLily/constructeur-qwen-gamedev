@@ -1092,7 +1092,7 @@ case 5 (ligne 2, colonne 1) : image 180, 3.00 s de jeu
     2.40 s Player : touché -1, vie 4
 ```
 
-Suite complète : voir la ligne suivante.
+Suite complète, `python -m pytest -q` : `356 passed, 1 skipped in 821.74s` (sqlite_vec absent). Le tri « captures sans verdict » a été ajouté pendant ce passage ; `tests/test_structure.py` refait après : `6 passed`.
 
 **Reste à faire** : étape 23 sur la machine ; brancher `capture_ecran` de `campagne_harnais.py` (hors dépôt) sur `usine.retour.capture` ; pièges des fiches tirés des 1 025 essais ratés de t1 (`donnees/rft/t1`, sur la machine) : ceux d'aujourd'hui sont écrits à la main. Puis point 4 de l'ordre de laurent : la mesure par campagnes, avec et sans béquille.
 
