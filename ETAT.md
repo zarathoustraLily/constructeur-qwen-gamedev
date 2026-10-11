@@ -14,8 +14,9 @@
 - [x] Session 5 — Boucle RFT (cloud : code et preuve ; vrai tour après le gel 4.8)
 - [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après le premier LoRA et le gel 4.8)
 - [x] Béquille, point 1 — retour des outils (2026-10-11) : `VERIFIER_EN_LOCAL.md` étape 22
-- [ ] Béquille, point 2 — socle propre, plan d'organisation, juge de structure
-- [ ] Béquille, point 3/4 — consulter le plan, déclarer l'action, graphe de fiches
+- [x] Béquille, points 2, 6, 9 — socle propre et jouable, plan d'organisation, juge de structure (2026-10-11) : étape 23
+- [x] Béquille, points 3, 4, 5 — déclaration d'action (`prepare_action`), 15 fiches par besoin et par situation (2026-10-11) : étape 23
+- [x] Béquille, point 8 — grille de captures horodatées et journal `Trace` (`capture_frames`) (2026-10-11) : étape 23
 - [ ] Béquille — mesure : même campagne de deux heures, avec et sans chaque béquille
 - [ ] Béquille — entraînement sur la démarche (harnais identique à l'usage)
 
@@ -1058,6 +1059,49 @@ $ python -m usine.retour verifier godot/survivor
 - Un membre absent d'une classe Godot n'est signalé que s'il n'existe dans aucune classe dérivée ni aucun script du projet : `var n: Node` puis `n.position` est un accès dynamique valide.
 - Le vérificateur ne suit pas les types à travers les appels (`get_node()`, retours de fonctions) : il se tait plutôt que de deviner.
 
+### Béquille, points 2 à 9 — socle, fiches, captures — 2026-10-11 (branche `claude/project-thread-12uh5s`)
+
+**Fait**
+
+- `godot/socle_jeu/` : jeu complet rangé selon le plan numéroté 0_autoload … 7_tests (titre, intro, niveau 1 jouable avec quatre drones posés à la main, fin), `ORGANISATION.md` (rôles, « qui connaît qui », conventions, 7 modèles d'ajout avec l'exemple à imiter), `AGENTS.md` (le bloc permanent et les règles avant/après donnés à laurent, avec `prepare_action` et `capture_frames` nommés). 22 tests GdUnit4.
+- `usine/structure/` : juge de structure (rangement, noms, class_name, dépendances entre dossiers) → outil MCP `check_structure` ; tri des sessions (plan lu avant d'écrire, écritures hors plan, écritures répétées, captures sans verdict écrit).
+- `usine/fiches/` : 10 besoins et 5 situations en JSON, cinq rubriques (à considérer, où travailler, API, exemples, pièges) plus les voisins ; outil MCP `prepare_action(but, type_action, fichiers, besoins, situations)`. Chaque nom d'API est vérifié dans `extension_api.json` par les tests ; chaque exemple est extrait d'un vrai fichier (projet d'abord, sinon socle).
+- `0_autoload/capture.gd` + `usine/retour/capture.py` : grille d'images aux numéros demandés (`--fixed-fps 60`), légende par case avec les lignes du journal `Trace`, touches tenues (`--capture-press=move_up:10-70`) ; posé dans la copie si le projet ne l'a pas. Outil MCP `capture_frames`, commande `python -m usine.retour capturer`.
+- `Trace` : temps de jeu (images physiques / cadence) au lieu du temps réel, et branchement des nœuds déjà présents au démarrage (la scène principale entre dans l'arbre avant son `_ready` : aucun état ni coup n'était noté en jeu réel).
+- La première capture a montré un écran noir : caméra et vaisseau tournés à l'envers (`Transform3D(1,0,0, 0,0,-1, 0,1,0)` regarde vers le haut). Corrigé dans `level_base.tscn` et `player.tscn`.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Xvfb pour la capture.
+
+```
+$ python -m pytest -q tests/test_fiches.py tests/test_structure.py tests/test_retour.py -m "not godot"
+29 passed
+$ python -c "Outils(Path('godot/socle_jeu')).run_tests()"   # 7_tests du socle
+{"ok":true,"etape":"run_tests","tests":{"total":22,"passes":22,"echecs":[]}}
+$ python -m usine.structure verifier godot/socle_jeu
+"ok": true
+$ python -m mcp_serveur.preuve
+prepare_action    OK     0.0 s  fiches etat et minuterie rendues
+capture_frames    OK     8.2 s  grille capture_….png : 2 cases, 4 par li
+15/16 contrôles conformes   # search_docs : pas d'index de doc par défaut dans le cloud ; le test pytest lui en donne un
+$ capture du niveau 1, touches move_up:10-70 et fire:40-300
+case 3 (ligne 1, colonne 3) : image 100, 1.67 s de jeu
+    1.60 s Drone3 : détruit, score +100
+case 5 (ligne 2, colonne 1) : image 180, 3.00 s de jeu
+    2.40 s Player : touché -1, vie 4
+```
+
+Suite complète : voir la ligne suivante.
+
+**Reste à faire** : étape 23 sur la machine ; brancher `capture_ecran` de `campagne_harnais.py` (hors dépôt) sur `usine.retour.capture` ; pièges des fiches tirés des 1 025 essais ratés de t1 (`donnees/rft/t1`, sur la machine) : ceux d'aujourd'hui sont écrits à la main. Puis point 4 de l'ordre de laurent : la mesure par campagnes, avec et sans béquille.
+
+**Pièges**
+
+- En headless, `RenderingServer.frame_post_draw` n'arrive jamais : la capture n'attend que si un écran existe, et écrit alors la légende sans image.
+- Dans le cloud, la capture passe par `xvfb-run` et `--rendering-method gl_compatibility` (llvmpipe).
+- Les drones attendent tant que le joueur est hors de leur portée : une capture sans touche montre une scène immobile, c'est normal.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1072,6 +1116,7 @@ $ python -m usine.retour verifier godot/survivor
 - [x] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 20 a et 20 b conformes le 2026-10-06 (20 c et 20 d facultatives, non lancées).
 - [ ] Gel complet sous Godot 4.7.2 — `VERIFIER_EN_LOCAL.md` étape 21 (une nuit).
 - [ ] Béquille, point 1 — `VERIFIER_EN_LOCAL.md` étape 22 (retour des outils).
+- [ ] Béquille, points 2 à 9 — `VERIFIER_EN_LOCAL.md` étape 23 (socle, fiches, captures).
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 

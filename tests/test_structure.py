@@ -75,3 +75,16 @@ def test_session_a_trier():
     assert r["plan_lu_avant_ecriture"] is False
     assert r["ecritures_hors_plan"] == ["res://scripts/laser.gd", "res://scripts/laser.gd"]
     assert r["ecritures_repetees"] == 1
+
+
+def _capture():
+    return {"role": "assistant", "content": "", "tool_calls": [{"id": "1", "type": "function", "function": {
+        "name": "capture_frames", "arguments": json.dumps({"images": [30, 90]})}}]}
+
+
+def test_verdict_apres_capture():
+    resultat = {"role": "tool", "tool_call_id": "1", "content": "case 1 …"}
+    muet = verifier_session([_lit("res://plan.md"), _capture(), resultat, _ecrit("res://3_entities/player/player.gd")])
+    assert not muet["ok"] and muet["captures_sans_verdict"] == 1
+    verdict = {"role": "assistant", "content": "Je vois le vaisseau monter et tirer ; lisible ; rien ne cloche."}
+    assert verifier_session([_lit("res://plan.md"), _capture(), resultat, verdict])["ok"]

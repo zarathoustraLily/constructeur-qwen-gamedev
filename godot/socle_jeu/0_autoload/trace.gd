@@ -4,6 +4,8 @@ extends Node
 ## Il se branche tout seul sur chaque StateMachine et chaque HealthComponent qui entre dans l'arbre.
 ## Avec `-- --trace=<fichier>` en argument, il écrit aussi les positions des nœuds du groupe
 ## « trace » toutes les SAMPLE_PERIOD secondes, puis tout le journal dans le fichier en quittant.
+## Le temps noté est le temps de jeu (images physiques / cadence) : avec --fixed-fps 60 il est exact
+## et il correspond à la légende des captures (0_autoload/capture.gd).
 
 const MAX_LINES := 2000
 const SAMPLE_PERIOD := 0.5
@@ -11,6 +13,7 @@ const SAMPLE_PERIOD := 0.5
 var lines: PackedStringArray = []
 var file_path: String = ""
 var _sample_left: float = SAMPLE_PERIOD
+var _watched: Dictionary[int, bool] = {}
 
 
 func _ready() -> void:
@@ -19,12 +22,15 @@ func _ready() -> void:
 		if arg.begins_with("--trace="):
 			file_path = arg.trim_prefix("--trace=")
 	get_tree().node_added.connect(_on_node_added)
+	# La scène principale peut entrer dans l'arbre avant ce _ready : on branche aussi ce qui y est déjà.
+	_watch_tree(get_tree().root)
 	EventBus.enemy_killed.connect(func(enemy: Node3D, points: int) -> void: event(enemy, "détruit, score +%d" % points))
 	EventBus.player_died.connect(func() -> void: event(self, "joueur mort"))
 
 
 func event(source: Node, text: String) -> void:
-	var line := "%.2f s %s : %s" % [Time.get_ticks_msec() / 1000.0, source.name if source != null else "?", text]
+	var game_time := float(Engine.get_physics_frames()) / Engine.physics_ticks_per_second
+	var line := "%.2f s %s : %s" % [game_time, source.name if source != null else "?", text]
 	lines.append(line)
 	if lines.size() > MAX_LINES:
 		lines = lines.slice(lines.size() - MAX_LINES)
@@ -60,7 +66,17 @@ func _write_file() -> void:
 		f.store_string("\n".join(lines) + "\n")
 
 
+func _watch_tree(node: Node) -> void:
+	_on_node_added(node)
+	for child in node.get_children():
+		_watch_tree(child)
+
+
 func _on_node_added(node: Node) -> void:
+	if _watched.has(node.get_instance_id()):
+		return
+	if node is StateMachine or node is HealthComponent:
+		_watched[node.get_instance_id()] = true  # un nœud qui sort puis rentre n'est branché qu'une fois
 	var machine := node as StateMachine
 	if machine != null:
 		machine.state_changed.connect(func(from: StringName, to: StringName) -> void:

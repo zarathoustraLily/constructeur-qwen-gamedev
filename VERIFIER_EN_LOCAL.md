@@ -252,7 +252,7 @@ python -m usine.capture preuve
 python -m mcp_serveur.preuve
 ```
 
-Attendu : `CONFORME` pour la première ; `14/14 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; 13/13 avant le juge de structure `check_structure`, 12/12 avant la compétence E).
+Attendu : `CONFORME` pour la première ; `16/16 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; une fenêtre de jeu s’ouvre une seconde pour `capture_frames` ; 15/15 avant cet outil, 14/14 avant l’outil `prepare_action`, 13/13 avant le juge de structure `check_structure`, 12/12 avant la compétence E).
 
 ## 15. Session 4 — brancher l'usine sur un projet
 
@@ -338,7 +338,7 @@ echo %ERRORLEVEL%
 
 Attendu :
 - pytest : `20 passed` (environ 7 min dans le cloud), puis `0` ;
-- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `14/14 contrôles conformes` et `0`.
+- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `16/16 contrôles conformes` et `0`.
 
 Un échec ici est un écart à signaler : copie la fin de la sortie dans le fil. Le cas le plus probable est un test de temps (`efficience_temps`), puisque le temps est la seule mesure qui dépend de la machine. Signale-le aussi, avec le rapport affiché.
 
@@ -564,7 +564,37 @@ Attendu :
 - `survivor` : `68 scripts, 0 problème(s)` ;
 - `projet_starfox` : la liste des accès suspects des scripts écrits par Qwen, s'il y en a, puis le total. Chaque ligne `✗` doit être une vraie faute (membre inexistant dans Godot 4.7.2, ou mauvais nombre d'arguments). Si une ligne te paraît fausse, copie-la dans le fil : c'est le vérificateur qu'on corrige.
 
+## 23. Socle rangé, fiches et captures (béquille, points 2 à 9) — environ 10 minutes
+
+Ce qui change pour Qwen :
+- `godot\socle_jeu` est un jeu complet et rangé (titre, intro, niveau 1 jouable, fin), avec `ORGANISATION.md` (le plan et les exemples à imiter) et `AGENTS.md` (ton bloc permanent et les règles avant/après, avec les deux nouveaux outils) ;
+- `check_structure` dit si un fichier est mal rangé ou si un dossier en connaît un autre qu'il ne devrait pas ;
+- `prepare_action` : Qwen donne son but, le type d'ajout, ses fichiers et coche ses besoins dans une liste fermée ; il reçoit d'un coup où travailler, l'exemple à imiter et une fiche par besoin (à considérer, API avec signatures officielles, exemple tiré du projet, pièges, voisins) ;
+- `capture_frames` : le jeu tourne quelques secondes et renvoie une grille d'images horodatées, avec pour chaque case ce que le journal a noté (états, coups, score). Il peut tenir des touches (`move_up:10-70`).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+```
+
+Même précaution qu'à l'étape 22 si des fichiers apparaissent en `M`. Sinon :
+
+```bat
+git pull
+py -3.12 -m pytest -q tests\test_fiches.py tests\test_structure.py tests\test_retour.py tests\test_mcp_serveur.py
+py -3.12 -m usine.structure verifier godot\socle_jeu
+py -3.12 -m usine.retour capturer godot\socle_jeu --scene res://2_sequence/levels/level_01/level_01.tscn --images 20,60,100,140,180,220,260,300 --touche move_up:10-70 --touche fire:40-300 --sortie %TEMP%\capture_socle
+```
+
+Attendu :
+- pytest : tout passe (une fenêtre de jeu s'ouvre et se ferme seule plusieurs fois) ;
+- structure : `"ok": true` ;
+- capture : une légende de 8 cases ; vers la case 3, `Drone3 : détruit, score +100` ; ensuite `Player : touché -1, vie 4`, puis 3, 2, 1. Ouvre la grille (`%TEMP%\capture_socle\capture_….png`) : le vaisseau bleu monte, tire, un drone rouge disparaît, les deux voisins descendent sur lui.
+- Pour l'essayer dans OpenCode : ouvre une copie de `godot\socle_jeu` comme dossier de travail, avec le serveur MCP de l'usine déclaré dans son `opencode.json` (étape 16).
+
 ## Points que seul ce test sur ta machine peut confirmer
+
+- Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
 - Les journaux D1 versionnés ont été produits sous Linux. Sous Windows, les numéros de ligne et les catégories sont identiques ; seul le texte d'en-tête du moteur peut différer. Le test D1 ne lit que `reponse.json`, donc le verdict ne change pas.

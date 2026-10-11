@@ -1,0 +1,39 @@
+{
+ "id": "effet_visuel",
+ "genre": "besoin",
+ "titre": "Effet visuel",
+ "a_considerer": [
+  "un effet = une scène dans 3_entities/effects/<effet>/ qui se détruit elle-même",
+  "l'acteur l'expose en @export var <effet>: PackedScene, posé dans sa scène",
+  "l'effet s'ajoute au parent de l'acteur, pas à l'acteur (qui peut disparaître)"
+ ],
+ "ou_travailler": [
+  "3_entities/effects/<effet>/<effet>.tscn et <effet>.gd",
+  "6_assets/materials/ pour ses matériaux"
+ ],
+ "api": [
+  "CPUParticles3D.one_shot",
+  "CPUParticles3D.emitting",
+  "CPUParticles3D.finished",
+  "GPUParticles3D.restart",
+  "Node.queue_free"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://3_entities/effects/impact/impact.gd"
+  },
+  {
+   "fichier": "res://3_entities/enemies/drone/drone.gd",
+   "fonction": "_play_hit_effect"
+  }
+ ],
+ "pieges": [
+  "ajouter l'effet comme enfant d'un ennemi qui meurt : l'effet disparaît avec lui",
+  "particules jamais libérées : relier finished à queue_free"
+ ],
+ "voisins": [
+  "animation",
+  "son",
+  "collision"
+ ]
+}

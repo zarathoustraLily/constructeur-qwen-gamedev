@@ -1,0 +1,34 @@
+{
+ "id": "donnees",
+ "genre": "besoin",
+ "titre": "Réglages en ressources",
+ "a_considerer": [
+  "toute valeur réglable est une propriété @export d'une classe de 1_core/data/",
+  "sa valeur vit dans un .tres de 5_data/, référencé par la scène de l'acteur",
+  "aucun nombre magique dans les scripts d'acteurs"
+ ],
+ "ou_travailler": [
+  "1_core/data/<classe>.gd pour la propriété",
+  "5_data/<catégorie>/<nom>.tres pour la valeur"
+ ],
+ "api": [
+  "Resource.resource_path",
+  "ResourceLoader.load"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://1_core/data/actor_stats.gd"
+  },
+  {
+   "fichier": "res://5_data/enemies/drone.tres"
+  }
+ ],
+ "pieges": [
+  "modifier le .tres partagé à l'exécution : tous les ennemis du type changent (duplicate() d'abord)",
+  "une propriété ajoutée à la classe mais pas au .tres : la valeur par défaut s'applique sans prévenir"
+ ],
+ "voisins": [
+  "etat",
+  "collision"
+ ]
+}

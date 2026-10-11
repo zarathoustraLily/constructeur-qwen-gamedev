@@ -1,0 +1,42 @@
+{
+ "id": "minuterie",
+ "genre": "besoin",
+ "titre": "Minuterie, délai, cadence",
+ "a_considerer": [
+  "une durée réglable vit dans un .tres de 5_data, pas en dur",
+  "décompte dans _process/_physics_process pour ce qui se répète (cadence, invincibilité) : aucun nœud créé",
+  "SceneTree.create_timer pour un délai unique ; un nœud Timer quand l'éditeur doit le régler",
+  "que se passe-t-il pendant la pause (process_mode) ?"
+ ],
+ "ou_travailler": [
+  "le composant ou l'état qui attend : 1_core/components/ ou 3_entities/<acteur>/states/"
+ ],
+ "api": [
+  "Timer.start",
+  "Timer.timeout",
+  "Timer.one_shot",
+  "Timer.wait_time",
+  "SceneTree.create_timer",
+  "SceneTreeTimer.timeout",
+  "Node.process_mode"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://1_core/components/health_component.gd",
+   "fonction": "_process"
+  },
+  {
+   "fichier": "res://2_sequence/levels/level_base/level_base.gd",
+   "fonction": "_end"
+  }
+ ],
+ "pieges": [
+  "créer un Timer ou un create_timer à chaque image : une allocation par image",
+  "Timer.start() sans argument reprend wait_time ; start(-1) aussi",
+  "un timer de SceneTree continue pendant la pause sauf si process_always = false"
+ ],
+ "voisins": [
+  "etat",
+  "animation"
+ ]
+}

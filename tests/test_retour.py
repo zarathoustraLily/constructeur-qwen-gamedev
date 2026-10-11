@@ -169,3 +169,25 @@ def test_check_script_joint_vocabulaire_et_fiches(tmp_path):
     assert v["fiches"][0]["pour"] == "res://scripts/neuf.gd:4"
     assert "CharacterBody3D.move_and_slide() -> bool" in v["fiches"][0]["fiche"]
     assert v["vocabulaire"].startswith("Vocabulaire Godot 4.7.2 dans res://scripts/neuf.gd")
+
+
+def test_capture_posee_dans_un_projet_qui_ne_l_a_pas(tmp_path):
+    from usine.retour.capture import INJECTE, _poser_capture
+    (tmp_path / "project.godot").write_text("[application]\n\nrun/main_scene=\"res://m.tscn\"\n", encoding="utf-8")
+    _poser_capture(tmp_path)
+    _poser_capture(tmp_path)  # une seule fois
+    texte = (tmp_path / "project.godot").read_text(encoding="utf-8")
+    assert texte.count("Capture=") == 1 and f'Capture="*{INJECTE}"' in texte
+    assert (tmp_path / "addons" / "usine_capture" / "capture.gd").is_file()
+
+
+@pytest.mark.godot
+def test_capture_du_socle(tmp_path):
+    from usine import config as cfg
+    from usine.retour.capture import capturer
+    r = capturer(cfg.RACINE / "godot" / "socle_jeu", [20, 100], "res://2_sequence/levels/level_01/level_01.tscn",
+                 ["move_up:10-70", "fire:40-100"], tmp_path)
+    assert r["ok"], r
+    legende = r["legende"]
+    assert "case 2 (ligne 1, colonne 2) : image 100, 1.67 s de jeu" in legende
+    assert "Player : idle → move" in legende and "Drone3 : détruit, score +100" in legende

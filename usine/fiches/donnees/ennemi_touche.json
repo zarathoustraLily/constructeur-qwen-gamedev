@@ -1,0 +1,36 @@
+{
+ "id": "ennemi_touche",
+ "genre": "situation",
+ "titre": "Un ennemi est touché",
+ "a_considerer": [
+  "points de vie (HealthComponent) et invincibilité brève",
+  "retour visuel et sonore à l'impact",
+  "score si le coup tue (EventBus.enemy_killed)",
+  "passage à l'état « dead » au dernier point de vie"
+ ],
+ "ou_travailler": [
+  "3_entities/enemies/<type>/",
+  "1_core/components/"
+ ],
+ "api": [
+  "Area3D.area_entered",
+  "Node.create_tween"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://3_entities/enemies/drone/drone.gd",
+   "fonction": "_ready"
+  },
+  {
+   "fichier": "res://1_core/components/hurtbox_component.gd"
+  }
+ ],
+ "pieges": [
+  "infliger les dégâts dans le projectile ET dans la cible : coup compté deux fois"
+ ],
+ "voisins": [
+  "collision",
+  "effet_visuel",
+  "mort_acteur"
+ ]
+}

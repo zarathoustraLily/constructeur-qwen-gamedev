@@ -1,0 +1,37 @@
+{
+ "id": "animation",
+ "genre": "besoin",
+ "titre": "Animation, interpolation",
+ "a_considerer": [
+  "un mouvement simple et ponctuel : Tween créé par le nœud (create_tween)",
+  "une animation éditable ou en boucle : AnimationPlayer dans la scène",
+  "enchaîner une action à la fin : tween_callback"
+ ],
+ "ou_travailler": [
+  "l'état ou le script de l'acteur qui la déclenche"
+ ],
+ "api": [
+  "Node.create_tween",
+  "Tween.tween_property",
+  "Tween.tween_callback",
+  "Tween.set_ease",
+  "Tween.set_trans",
+  "AnimationPlayer.play",
+  "AnimationPlayer.animation_finished"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://3_entities/enemies/drone/states/drone_dead.gd",
+   "fonction": "enter"
+  }
+ ],
+ "pieges": [
+  "Tween créé par un autre nœud que celui animé : il continue si l'animé est libéré",
+  "chemin de propriété en String au lieu de NodePath (^\"scale\")"
+ ],
+ "voisins": [
+  "etat",
+  "effet_visuel",
+  "interface"
+ ]
+}

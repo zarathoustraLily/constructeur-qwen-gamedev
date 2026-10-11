@@ -243,6 +243,22 @@ class Outils:
         from usine.structure import verifier_projet
         return _compact(_verdict_court(verifier_projet(self.projet)))
 
+    def prepare_action(self, but: str, type_action: str, fichiers: list[str], besoins: list[str],
+                       situations: list[str] | None = None) -> str:
+        """Déclaration d'action : plan, chaîne à imiter, fichiers face au plan, fiches des besoins cochés."""
+        from usine.fiches import preparer_action
+        from usine.vocab import ouvrir
+        return preparer_action(self.projet, but, type_action, list(fichiers or []), list(besoins or []),
+                               list(situations or []), ouvrir())
+
+    def capture_frames(self, images: list[int], scene: str | None = None, touches: list[str] | None = None) -> str:
+        """Grille d'images horodatées du jeu (fenêtré, sur une copie) et journal Trace par case."""
+        from usine.retour.capture import capturer
+        r = capturer(self.projet, images, self.res(scene) if scene else None, touches or [], godot=self.godot)
+        if not r["ok"]:
+            return _compact({"ok": False, "erreur": r.get("erreur")})
+        return f"{r['legende']}\nimage : {r['grille'] or 'aucune (pas de rendu)'}"
+
     def measure_efficiency(self, scene: str | None = None) -> str:
         """Mesure d'efficience (compétence E) sur une copie : allocations d'objets après 60 images
         d'échauffement, lots de dessin (comptés dans l'arbre, médiane), empreinte de ce qui serait

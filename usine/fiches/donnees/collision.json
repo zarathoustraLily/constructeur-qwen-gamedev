@@ -1,0 +1,42 @@
+{
+ "id": "collision",
+ "genre": "besoin",
+ "titre": "Collisions, zones de coups",
+ "a_considerer": [
+  "corps physiques (CharacterBody3D) et zones (Area3D) n'ont pas les mêmes couches",
+  "couches du socle : 1 décor, 2 corps joueur, 3 corps ennemis, 4 tirs joueur, 5 tirs ennemis, 6 zone de coups joueur, 7 zone de coups ennemis",
+  "une HitboxComponent porte les coups, une HurtboxComponent les reçoit et les passe au HealthComponent",
+  "désactiver une forme pendant un signal physique : set_deferred"
+ ],
+ "ou_travailler": [
+  "1_core/components/ pour le mécanisme, la scène de l'acteur pour les couches"
+ ],
+ "api": [
+  "Area3D.area_entered",
+  "Area3D.body_entered",
+  "CollisionObject3D.collision_layer",
+  "CollisionObject3D.collision_mask",
+  "Area3D.monitoring",
+  "Area3D.monitorable",
+  "CollisionShape3D.disabled",
+  "Object.set_deferred"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://1_core/components/hitbox_component.gd"
+  },
+  {
+   "fichier": "res://1_core/components/hurtbox_component.gd"
+  }
+ ],
+ "pieges": [
+  "collision_mask d'une zone qui ne contient pas la couche de la cible : aucun signal, aucune erreur",
+  "modifier disabled ou monitorable directement dans area_entered : erreur « flushing queries »",
+  "monitoring = false sur la zone qui doit détecter"
+ ],
+ "voisins": [
+  "etat",
+  "effet_visuel",
+  "donnees"
+ ]
+}

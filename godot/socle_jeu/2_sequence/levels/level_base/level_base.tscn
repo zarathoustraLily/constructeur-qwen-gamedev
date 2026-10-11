@@ -32,7 +32,7 @@ environment = SubResource("Environment_level")
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.866, 0, -0.866, 0.5, 0, 10, 0)
 
 [node name="Camera" type="Camera3D" parent="World"]
-transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 30, 0)
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 30, 0)
 projection = 1
 size = 36.0
 current = true

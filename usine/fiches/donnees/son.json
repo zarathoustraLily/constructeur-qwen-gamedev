@@ -1,0 +1,34 @@
+{
+ "id": "son",
+ "genre": "besoin",
+ "titre": "Son",
+ "a_considerer": [
+  "les sons passent par AudioManager (0_autoload) : lecteurs réutilisés, aucun nœud créé par son",
+  "le fichier audio va dans 6_assets/audio/, sa référence dans un .tres ou un @export",
+  "AudioStreamPlayer3D quand la position compte"
+ ],
+ "ou_travailler": [
+  "6_assets/audio/",
+  "0_autoload/audio_manager.gd (à appeler, pas à copier)"
+ ],
+ "api": [
+  "AudioStreamPlayer.play",
+  "AudioStreamPlayer.stream",
+  "AudioStreamPlayer.bus",
+  "AudioStreamPlayer3D.play"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://0_autoload/audio_manager.gd",
+   "fonction": "play_sfx"
+  }
+ ],
+ "pieges": [
+  "créer un AudioStreamPlayer par son puis l'oublier : fuite de nœuds",
+  "un lecteur enfant d'un acteur qui meurt coupe le son avec lui"
+ ],
+ "voisins": [
+  "effet_visuel",
+  "interface"
+ ]
+}

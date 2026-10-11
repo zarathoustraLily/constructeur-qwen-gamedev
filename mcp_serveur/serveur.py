@@ -87,6 +87,21 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def check_structure() -> str:
         return await executer(outils.check_structure)
 
+    @outil("Avant d'agir : déclare ton but, le type d'ajout (etat, ennemi, arme, reglage, interface, niveau, "
+           "effet_visuel, autre), les fichiers prévus et les besoins cochés dans la liste fermée (minuterie, etat, "
+           "collision, son, effet_visuel, animation, interface, donnees, camera, sauvegarde) ; situations "
+           "facultatives (ennemi_touche, mort_acteur, tir, apparition_ennemis, fin_de_niveau). Rend en une fois "
+           "où travailler, l'exemple à imiter et une fiche par besoin : à considérer, API, exemple, pièges, voisins.")
+    async def prepare_action(but: str, type_action: str, fichiers: list[str], besoins: list[str],
+                             situations: list[str] | None = None) -> str:
+        return await executer(outils.prepare_action, but, type_action, fichiers, besoins, situations)
+
+    @outil("Lance le jeu (copie, fenêtré, 60 images/s) et rend une grille d'images horodatées avec, pour "
+           "chaque case, ce que le journal a noté (états, coups, score). touches : « action:de-à » en images, "
+           "ex. move_up:10-70. Défaut : scène principale.")
+    async def capture_frames(images: list[int], scene: str | None = None, touches: list[str] | None = None) -> str:
+        return await executer(outils.capture_frames, images, scene, touches)
+
     @outil("Mesure d'efficience (copie, headless) : allocations après échauffement, lots de dessin, "
            "empreinte du rendu aux images 180/240/300, temps indicatif. Défaut : scène principale.")
     async def measure_efficiency(scene: str | None = None) -> str:

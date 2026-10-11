@@ -2,7 +2,8 @@
 
 - le plan (ORGANISATION.md ou plan.md) a été lu avant la première écriture ;
 - chaque fichier écrit est dans un dossier du plan ;
-- aucune écriture n'en répète une autre à l'identique (même fichier, même contenu).
+- aucune écriture n'en répète une autre à l'identique (même fichier, même contenu) ;
+- chaque capture d'écran est suivie d'un verdict écrit (le message suivant de Qwen a du texte).
 Les messages sont au format chat OpenAI de l'enregistreur (role, content, tool_calls).
 """
 
@@ -17,6 +18,7 @@ from usine.structure.regles import DOSSIERS, FICHIERS_RACINE, dossier_de
 PLANS = ("ORGANISATION.md", "plan.md")
 LECTURES = {"read_file", "read", "view"}
 ECRITURES = {"write_file", "write", "edit"}
+CAPTURES = {"capture_frames", "capture_ecran"}
 
 
 def _appels(messages: Iterable[dict[str, Any]]):
@@ -35,7 +37,20 @@ def _chemin(args: dict[str, Any]) -> str:
     return chemin if chemin.startswith("res://") else "res://" + chemin.lstrip("./")
 
 
+def _captures_sans_verdict(messages: list[dict[str, Any]]) -> int:
+    """Captures après lesquelles le message suivant de Qwen n'a aucun texte."""
+    manques = 0
+    for i, m in enumerate(messages):
+        if m.get("role") != "assistant" or not any((a.get("function") or {}).get("name") in CAPTURES
+                                                   for a in m.get("tool_calls") or []):
+            continue
+        suivant = next((n for n in messages[i + 1:] if n.get("role") == "assistant"), None)
+        manques += suivant is not None and not str(suivant.get("content") or "").strip()
+    return manques
+
+
 def verifier_session(messages: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    messages = list(messages)
     plan_lu = False
     plan_avant_ecriture: bool | None = None
     hors_plan: list[str] = []
@@ -56,10 +71,12 @@ def verifier_session(messages: Iterable[dict[str, Any]]) -> dict[str, Any]:
         cle = (chemin, hashlib.sha256(contenu.encode()).hexdigest())
         repetees += cle in vues
         vues.add(cle)
+    sans_verdict = _captures_sans_verdict(messages)
     return {
-        "ok": plan_avant_ecriture is not False and not hors_plan and repetees == 0,
+        "ok": plan_avant_ecriture is not False and not hors_plan and repetees == 0 and sans_verdict == 0,
         "plan_lu_avant_ecriture": plan_avant_ecriture,
         "ecritures_hors_plan": hors_plan,
         "ecritures_repetees": repetees,
+        "captures_sans_verdict": sans_verdict,
         "dossiers_du_plan": list(DOSSIERS),
     }

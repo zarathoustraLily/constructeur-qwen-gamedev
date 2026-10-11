@@ -1,0 +1,34 @@
+{
+ "id": "sauvegarde",
+ "genre": "besoin",
+ "titre": "Sauvegarde",
+ "a_considerer": [
+  "ce qui se sauvegarde vit dans GameState (0_autoload)",
+  "fichier dans user://, jamais dans res:// (lecture seule une fois exporté)",
+  "ConfigFile ou JSON pour des valeurs simples"
+ ],
+ "ou_travailler": [
+  "0_autoload/game_state.gd"
+ ],
+ "api": [
+  "ConfigFile.set_value",
+  "ConfigFile.get_value",
+  "ConfigFile.save",
+  "FileAccess.open",
+  "FileAccess.store_string",
+  "JSON.stringify",
+  "JSON.parse_string"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://0_autoload/game_state.gd"
+  }
+ ],
+ "pieges": [
+  "écrire dans res:// : marche dans l'éditeur, échoue dans le jeu exporté",
+  "FileAccess.open renvoie null en cas d'échec : le vérifier"
+ ],
+ "voisins": [
+  "donnees"
+ ]
+}

@@ -1,0 +1,39 @@
+{
+ "id": "etat",
+ "genre": "besoin",
+ "titre": "Comportement par états",
+ "a_considerer": [
+  "un comportement = un état : un script dans states/, un nœud enfant de la StateMachine",
+  "enter() prépare, exit() nettoie (vitesse, invincibilité, recharge), physics_update() décide de la transition",
+  "les transitions passent par transition_requested.emit(&\"nom\"), en minuscules",
+  "l'état lit l'acteur (actor) et ses réglages (stats), jamais l'interface"
+ ],
+ "ou_travailler": [
+  "3_entities/<acteur>/states/<acteur>_<etat>.gd",
+  "le nœud dans la StateMachine de <acteur>.tscn",
+  "7_tests/3_entities/test_<acteur>.gd"
+ ],
+ "api": [
+  "CharacterBody3D.move_and_slide",
+  "Node.get_tree"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://3_entities/player/states/player_dash.gd"
+  },
+  {
+   "fichier": "res://1_core/state_machine/state_machine.gd",
+   "fonction": "transition_to"
+  }
+ ],
+ "pieges": [
+  "oublier exit() : l'invincibilité ou la vitesse du dash restent actives",
+  "nommer le nœud « Dash » et demander &\"Dash\" : la machine compare en minuscules",
+  "changer d'état puis continuer la fonction : faire return juste après emit"
+ ],
+ "voisins": [
+  "minuterie",
+  "animation",
+  "collision"
+ ]
+}
