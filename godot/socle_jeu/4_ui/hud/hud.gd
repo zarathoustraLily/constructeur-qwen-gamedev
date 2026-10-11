@@ -1,14 +1,14 @@
 class_name Hud
 extends CanvasLayer
-## Score et vie, mis à jour par les signaux du bus (aucune lecture à chaque image).
+## Interface de jeu : score et vie. Elle affiche, elle ne décide de rien (aucune lecture à chaque image).
+## Entrées : show_health() (le niveau l'appelle). Dépend de : GameState (score_changed).
 
 @onready var score_label: Label = $Margin/Box/Score
 @onready var health_label: Label = $Margin/Box/Health
 
 
 func _ready() -> void:
-	EventBus.score_changed.connect(show_score)
-	EventBus.player_damaged.connect(show_health)
+	GameState.score_changed.connect(show_score)
 	show_score(GameState.score)
 
 

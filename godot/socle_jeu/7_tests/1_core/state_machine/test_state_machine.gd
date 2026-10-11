@@ -5,7 +5,7 @@ extends GdUnitTestSuite
 func _machine() -> StateMachine:
 	var owner_node: Node = auto_free(Node.new())
 	var machine := StateMachine.new()
-	for nom in ["Idle", "Run"]:
+	for nom: String in ["Idle", "Run"]:
 		var state := State.new()
 		state.name = nom
 		machine.add_child(state)
@@ -25,4 +25,3 @@ func test_transition_et_signal() -> void:
 	machine.current.transition_requested.emit(&"run")
 	assert_str(machine.current_name()).is_equal("run")
 	assert_array(vus).contains_exactly(["idle>run"])
-

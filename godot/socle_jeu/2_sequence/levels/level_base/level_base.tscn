@@ -6,6 +6,10 @@
 [ext_resource type="PackedScene" path="res://4_ui/overlays/pause/pause_menu.tscn" id="4_pause"]
 [ext_resource type="PackedScene" path="res://4_ui/overlays/debug/debug_overlay.tscn" id="5_debug"]
 [ext_resource type="Material" path="res://6_assets/materials/floor.tres" id="6_floor"]
+[ext_resource type="Resource" path="res://5_data/game/game_rules.tres" id="7_rules"]
+[ext_resource type="PackedScene" path="res://3_entities/projectiles/bullet/bullet_player.tscn" id="8_bullet_player"]
+[ext_resource type="PackedScene" path="res://3_entities/projectiles/bullet/bullet_enemy.tscn" id="9_bullet_enemy"]
+[ext_resource type="PackedScene" path="res://3_entities/effects/impact/impact.tscn" id="10_impact"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 material = ExtResource("6_floor")
@@ -22,6 +26,10 @@ ambient_light_color = Color(0.5, 0.55, 0.65, 1)
 
 [node name="LevelBase" type="Node"]
 script = ExtResource("1_level")
+rules = ExtResource("7_rules")
+player_projectile = ExtResource("8_bullet_player")
+enemy_projectile = ExtResource("9_bullet_enemy")
+hit_effect = ExtResource("10_impact")
 
 [node name="World" type="Node3D" parent="."]
 
@@ -52,6 +60,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
 [node name="Enemies" type="Node3D" parent="World"]
 
 [node name="Projectiles" type="Node3D" parent="World"]
+
+[node name="Effects" type="Node3D" parent="World"]
 
 [node name="Hud" parent="." instance=ExtResource("3_hud")]
 

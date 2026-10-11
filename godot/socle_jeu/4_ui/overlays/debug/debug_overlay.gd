@@ -1,6 +1,7 @@
 class_name DebugOverlay
 extends CanvasLayer
 ## Mise au point (touche F3) : l'état courant et la vie de chaque nœud du groupe « debuggable ».
+## Dépend de : StateMachine et HealthComponent (1_core), trouvés par le groupe « debuggable ».
 
 
 func _ready() -> void:

@@ -25,8 +25,11 @@ func test_images_triees() -> void:
 
 
 func test_touches() -> void:
-	assert_array(CAPTURE.parse_press("move_up:10-90")).is_equal([&"move_up", 10, 90])
-	assert_array(CAPTURE.parse_press("voler:10-90")).is_empty()
+	var press: CAPTURE.Press = CAPTURE.parse_press("move_up:10-90")
+	assert_str(String(press.action)).is_equal("move_up")
+	assert_int(press.first).is_equal(10)
+	assert_int(press.last).is_equal(90)
+	assert_object(CAPTURE.parse_press("voler:10-90")).is_null()
 
 
 func test_inerte_sans_argument() -> void:

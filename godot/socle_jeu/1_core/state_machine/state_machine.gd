@@ -2,6 +2,7 @@ class_name StateMachine
 extends Node
 ## Machine à états générique : ses enfants State sont les états, nommés en minuscules.
 ## Elle ne connaît aucun acteur en particulier ; le journal (Trace) écoute `state_changed`.
+## Entrées : transition_to(). Possède : l'état courant. Émet : state_changed.
 
 signal state_changed(from: StringName, to: StringName)
 
@@ -12,6 +13,7 @@ var _states: Dictionary[StringName, State] = {}
 
 
 func _ready() -> void:
+	process_physics_priority = ProcessOrder.MOVEMENT
 	for child in get_children():
 		var state := child as State
 		if state == null:
@@ -24,11 +26,6 @@ func _ready() -> void:
 	if initial_state != null:
 		current = initial_state
 		current.enter()
-
-
-func _process(delta: float) -> void:
-	if current != null:
-		current.update(delta)
 
 
 func _physics_process(delta: float) -> void:

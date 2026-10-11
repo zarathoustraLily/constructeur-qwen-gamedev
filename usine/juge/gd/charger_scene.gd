@@ -29,7 +29,7 @@ func _charger_classes_globales(scene: String) -> void:
 		bases[c["class"]] = c["base"]
 		chemins[c["class"]] = c["path"]
 	var motifs := {}
-	for nom in chemins:
+	for nom: Variant in chemins:
 		var motif := RegEx.new()
 		motif.compile("\\b%s\\b" % nom)
 		motifs[nom] = motif
@@ -44,7 +44,7 @@ func _charger_classes_globales(scene: String) -> void:
 				suivants.append(_chemin_dependance(dependance))
 		if chemin.get_extension() == "gd" and FileAccess.file_exists(chemin):
 			var texte := FileAccess.get_file_as_string(chemin)
-			for nom in chemins:
+			for nom: Variant in chemins:
 				if motifs[nom].search(texte) != null:
 					var n: StringName = nom
 					while chemins.has(n):
@@ -55,12 +55,12 @@ func _charger_classes_globales(scene: String) -> void:
 			if not suivant.is_empty() and not atteints.has(suivant):
 				atteints[suivant] = true
 				a_voir.append(suivant)
-	for nom in chemins:
+	for nom: Variant in chemins:
 		if atteints.has(chemins[nom]):
 			classes[nom] = true
 	var noms := classes.keys()
-	noms.sort_custom(func(a, b): return [_profondeur(a, bases), str(a)] < [_profondeur(b, bases), str(b)])
-	for nom in noms:
+	noms.sort_custom(func(a: Variant, b: Variant) -> bool: return [_profondeur(a, bases), str(a)] < [_profondeur(b, bases), str(b)])
+	for nom: Variant in noms:
 		ResourceLoader.load(chemins[nom])
 
 
@@ -111,9 +111,15 @@ func _initialize() -> void:
 
 
 func _process(_delta: float) -> bool:
-	if _instance != null and not _fini:
+	if _fini or _rapport.is_empty():
+		return _fini
+	# Une scène qui se libère dès sa première image (projectile sans vitesse…) : on le note et on
+	# termine, au lieu d'attendre une instance qui n'existe plus jusqu'au délai du juge.
+	if is_instance_valid(_instance):
 		_decrire(_instance, _instance, _rapport["noeuds"])
-		_terminer(_rapport, 0)
+	else:
+		_rapport["liberee_avant_description"] = true
+	_terminer(_rapport, 0)
 	return _fini
 
 

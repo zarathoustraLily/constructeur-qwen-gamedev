@@ -1,11 +1,10 @@
 [gd_resource type="Resource" script_class="WeaponStats" format=3]
 
 [ext_resource type="Script" path="res://1_core/data/weapon_stats.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://3_entities/projectiles/bullet/bullet_enemy.tscn" id="2_projectile"]
 
 [resource]
 script = ExtResource("1_script")
-projectile = ExtResource("2_projectile")
+id = &"drone_gun"
 damage = 1
 fire_rate = 1.2
 projectile_speed = 12.0

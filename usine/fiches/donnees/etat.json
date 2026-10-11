@@ -6,12 +6,12 @@
   "un comportement = un état : un script dans states/, un nœud enfant de la StateMachine",
   "enter() prépare, exit() nettoie (vitesse, invincibilité, recharge), physics_update() décide de la transition",
   "les transitions passent par transition_requested.emit(&\"nom\"), en minuscules",
-  "l'état lit l'acteur (actor) et ses réglages (stats), jamais l'interface"
+  "l'état lit l'acteur (actor), ses réglages (stats) et ses intentions (pas Input), jamais l'interface"
  ],
  "ou_travailler": [
   "3_entities/<acteur>/states/<acteur>_<etat>.gd",
   "le nœud dans la StateMachine de <acteur>.tscn",
-  "7_tests/3_entities/test_<acteur>.gd"
+  "7_tests/3_entities/<acteur>/test_<acteur>.gd"
  ],
  "api": [
   "CharacterBody3D.move_and_slide",
@@ -35,5 +35,10 @@
   "minuterie",
   "animation",
   "collision"
+ ],
+ "regles": [
+  "SIM-05",
+  "SIM-01",
+  "ARC-04"
  ]
 }

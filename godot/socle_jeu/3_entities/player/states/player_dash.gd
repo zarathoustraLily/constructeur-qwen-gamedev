@@ -9,13 +9,13 @@ func enter() -> void:
 	var player := actor as Player
 	_direction = player.move_input.normalized() if not player.move_input.is_zero_approx() else player.aim
 	_time_left = player.stats.dash_duration
-	player.health.invulnerable = true
+	player.health.set_invulnerable(true)
 
 
 func exit() -> void:
 	var player := actor as Player
-	player.health.invulnerable = false
-	player.dash_cooldown_left = player.stats.dash_cooldown
+	player.health.set_invulnerable(false)
+	player.start_dash_cooldown()
 
 
 func physics_update(delta: float) -> void:

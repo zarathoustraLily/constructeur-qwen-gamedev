@@ -4,7 +4,7 @@
  "titre": "Un acteur tire",
  "a_considerer": [
   "arme = WeaponComponent + WeaponStats (cadence, vitesse, dégâts, durée de vie)",
-  "le projectile est ajouté au conteneur World/Projectiles du niveau",
+  "le projectile et son conteneur (World/Projectiles) sont fournis par le niveau via setup()",
   "couches : tirs joueur 4, tirs ennemis 5"
  ],
  "ou_travailler": [
@@ -32,5 +32,10 @@
   "collision",
   "donnees",
   "effet_visuel"
+ ],
+ "regles": [
+  "DAT-01",
+  "ARC-06",
+  "SIM-02"
  ]
 }

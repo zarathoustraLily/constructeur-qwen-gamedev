@@ -6,6 +6,7 @@
   "corps physiques (CharacterBody3D) et zones (Area3D) n'ont pas les mêmes couches",
   "couches du socle : 1 décor, 2 corps joueur, 3 corps ennemis, 4 tirs joueur, 5 tirs ennemis, 6 zone de coups joueur, 7 zone de coups ennemis",
   "une HitboxComponent porte les coups, une HurtboxComponent les reçoit et les passe au HealthComponent",
+  "la détection reste dans les composants ; le calcul des dégâts est une fonction testable sans scène (SIM-10)",
   "désactiver une forme pendant un signal physique : set_deferred"
  ],
  "ou_travailler": [
@@ -38,5 +39,9 @@
   "etat",
   "effet_visuel",
   "donnees"
+ ],
+ "regles": [
+  "SIM-10",
+  "DOSSIERS"
  ]
 }

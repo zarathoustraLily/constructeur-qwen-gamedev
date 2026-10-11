@@ -5,11 +5,12 @@ import pytest
 from usine import config as cfg
 from usine.fiches import MODELES, charger, extraire_exemple, ids, preparer_action, signature_api
 from usine.fiches import _disque
+from usine.regles.catalogue import REGLES
 from usine.retour.verification import Signatures
 from usine.vocab import ouvrir
 
 SOCLE = cfg.RACINE / "godot" / "socle_jeu"
-RUBRIQUES = {"id", "genre", "titre", "a_considerer", "ou_travailler", "api", "exemples", "pieges", "voisins"}
+RUBRIQUES = {"id", "genre", "titre", "a_considerer", "ou_travailler", "api", "exemples", "pieges", "voisins", "regles"}
 
 
 @pytest.fixture(scope="module")
@@ -32,6 +33,8 @@ def test_fiche_reelle(fid, vocab):
     # Règle 6 : chaque nom d'API existe dans extension_api.json.
     assert [n for n in fiche["api"] if signature_api(n, signatures) is None] == []
     assert [v for v in fiche["voisins"] if v not in charger()] == []
+    # Chaque fiche rappelle au moins une règle, et seulement des règles du catalogue.
+    assert fiche["regles"] and [r for r in fiche["regles"] if r not in REGLES] == []
     # Chaque exemple est extrait d'un vrai fichier du socle (fonction ou nœud présents).
     assert [e for e in fiche["exemples"] if extraire_exemple(e) is None] == []
 
@@ -54,6 +57,7 @@ def test_preparer_action(vocab):
     assert "aucun test déclaré" in texte
     assert "Timer.start(time_sec: float = -1)" in texte
     assert "func physics_update(delta: float) -> void:" in texte  # exemple tiré de player_dash.gd
+    assert "SIM-08 : une durée de gameplay s'arrête en pause" in texte  # règle rappelée par la fiche minuterie
     for titre in ("Comportement par états", "Minuterie", charger()["ennemi_touche"]["titre"]):
         assert titre in texte
 

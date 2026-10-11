@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://3_entities/player/states/player_idle.gd" id="9_idle"]
 [ext_resource type="Script" path="res://3_entities/player/states/player_move.gd" id="10_move"]
 [ext_resource type="Script" path="res://3_entities/player/states/player_dash.gd" id="11_dash"]
+[ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="12_input"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_ship"]
 material = ExtResource("3_mat")
@@ -66,3 +67,7 @@ script = ExtResource("10_move")
 
 [node name="Dash" type="Node" parent="StateMachine"]
 script = ExtResource("11_dash")
+
+[node name="Input" type="Node" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("12_input")
+player = NodePath("..")

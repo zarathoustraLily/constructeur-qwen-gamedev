@@ -1,11 +1,13 @@
 extends Node
 ## Journal de comportement : ce que fait le jeu, en texte, horodaté.
-##   « 2.40 s Drone2 : chase → attack », « 2.61 s Player : touché, vie 2 », « score +100 ».
+##   « 2.40 s Drone2 : chase → attack », « 2.61 s Player : touché -1, vie 2 ».
 ## Il se branche tout seul sur chaque StateMachine et chaque HealthComponent qui entre dans l'arbre.
 ## Avec `-- --trace=<fichier>` en argument, il écrit aussi les positions des nœuds du groupe
 ## « trace » toutes les SAMPLE_PERIOD secondes, puis tout le journal dans le fichier en quittant.
 ## Le temps noté est le temps de jeu (images physiques / cadence) : avec --fixed-fps 60 il est exact
 ## et il correspond à la légende des captures (0_autoload/capture.gd).
+## Entrées : event(source, texte), clear(). Dépend de : StateMachine, HealthComponent (1_core).
+## Possède : lines. Il est dans le groupe « journal » (la capture le trouve ainsi).
 
 const MAX_LINES := 2000
 const SAMPLE_PERIOD := 0.5
@@ -18,14 +20,13 @@ var _watched: Dictionary[int, bool] = {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(&"journal")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--trace="):
 			file_path = arg.trim_prefix("--trace=")
 	get_tree().node_added.connect(_on_node_added)
 	# La scène principale peut entrer dans l'arbre avant ce _ready : on branche aussi ce qui y est déjà.
 	_watch_tree(get_tree().root)
-	EventBus.enemy_killed.connect(func(enemy: Node3D, points: int) -> void: event(enemy, "détruit, score +%d" % points))
-	EventBus.player_died.connect(func() -> void: event(self, "joueur mort"))
 
 
 func event(source: Node, text: String) -> void:

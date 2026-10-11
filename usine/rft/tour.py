@@ -30,7 +30,10 @@ from usine.mesure.client import Reponse, completer
 from usine.rft import export, filtre
 from usine.rft.essais import Essai, ReglagesRft, essayer
 
-COLONNES = ("tache_id", "competence", "essai", "ok", "etape", "longueur", "duree_s", "session")
+COLONNES = ("tache_id", "competence", "essai", "ok", "etape", "longueur", "duree_s", "session",
+            "violations", "structure_ok", "session_ok")
+# Registres écrits avant le juge des règles : colonnes absentes, valeurs neutres.
+DEFAUTS = {"violations": 0, "structure_ok": True, "session_ok": True}
 
 
 def lire_registre(chemin: Path) -> list[dict[str, Any]]:
@@ -45,13 +48,14 @@ def ecrire_registre(chemin: Path, lignes: Iterable[dict[str, Any]]) -> None:
     w = csv.DictWriter(tampon, fieldnames=COLONNES, lineterminator="\n")
     w.writeheader()
     for l in sorted(lignes, key=lambda l: (l["tache_id"], int(l["essai"]))):
-        w.writerow({k: l[k] for k in COLONNES})
+        w.writerow({k: l.get(k, DEFAUTS.get(k)) for k in COLONNES})
     _ecrire_atomique(Path(chemin), tampon.getvalue())
 
 
 def _ligne(e: Essai) -> dict[str, Any]:
     return {"tache_id": e.tache_id, "competence": e.competence, "essai": e.essai, "ok": e.ok, "etape": e.etape,
-            "longueur": e.longueur, "duree_s": e.duree_s, "session": e.session}
+            "longueur": e.longueur, "duree_s": e.duree_s, "session": e.session, "violations": e.violations,
+            "structure_ok": e.structure_ok, "session_ok": e.session_ok}
 
 
 def selectionner(racine: Path, competences: Iterable[str] | None = None, depuis: Path | None = None,
@@ -112,7 +116,7 @@ def tour(taches: list[Path], sortie: Path, r: ReglagesRft, exclusion=None, base_
     tampon = io.StringIO()
     w = csv.DictWriter(tampon, fieldnames=COLONNES, lineterminator="\n")
     w.writeheader()
-    w.writerows({k: l[k] for k in COLONNES} for l in retenus)
+    w.writerows({k: l.get(k, DEFAUTS.get(k)) for k in COLONNES} for l in retenus)
     _ecrire_atomique(sortie / "retenus.csv", tampon.getvalue())
     _ecrire_atomique(sortie / "a_refaire.txt", "".join(f"{t}\n" for t in a_refaire))
     bilan_export = export.exporter(retenus, sortie / "sessions", sortie / "export", exclusion, base_hf)

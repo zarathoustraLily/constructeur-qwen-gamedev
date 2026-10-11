@@ -4,8 +4,9 @@
  "titre": "Effet visuel",
  "a_considerer": [
   "un effet = une scène dans 3_entities/effects/<effet>/ qui se détruit elle-même",
-  "l'acteur l'expose en @export var <effet>: PackedScene, posé dans sa scène",
-  "l'effet s'ajoute au parent de l'acteur, pas à l'acteur (qui peut disparaître)"
+  "c'est le script _view de l'acteur qui le joue, en écoutant un signal (damaged, died) ; la logique et les états n'en savent rien",
+  "la scène d'effet est un @export du niveau, transmise au _view par setup()",
+  "l'effet s'ajoute au conteneur World/Effects du niveau, pas à l'acteur (qui peut disparaître)"
  ],
  "ou_travailler": [
   "3_entities/effects/<effet>/<effet>.tscn et <effet>.gd",
@@ -20,11 +21,11 @@
  ],
  "exemples": [
   {
-   "fichier": "res://3_entities/effects/impact/impact.gd"
+   "fichier": "res://3_entities/enemies/drone/drone_view.gd",
+   "fonction": "_on_damaged"
   },
   {
-   "fichier": "res://3_entities/enemies/drone/drone.gd",
-   "fonction": "_play_hit_effect"
+   "fichier": "res://3_entities/effects/impact/impact.gd"
   }
  ],
  "pieges": [
@@ -35,5 +36,10 @@
   "animation",
   "son",
   "collision"
+ ],
+ "regles": [
+  "ARC-02",
+  "ARC-03",
+  "SIM-09"
  ]
 }

@@ -8,7 +8,7 @@
   "enchaîner une action à la fin : tween_callback"
  ],
  "ou_travailler": [
-  "l'état ou le script de l'acteur qui la déclenche"
+  "le script _view de l'acteur (présentation), jamais la logique ni les états"
  ],
  "api": [
   "Node.create_tween",
@@ -21,8 +21,8 @@
  ],
  "exemples": [
   {
-   "fichier": "res://3_entities/enemies/drone/states/drone_dead.gd",
-   "fonction": "enter"
+   "fichier": "res://3_entities/enemies/drone/drone_view.gd",
+   "fonction": "_on_died"
   }
  ],
  "pieges": [
@@ -33,5 +33,10 @@
   "etat",
   "effet_visuel",
   "interface"
+ ],
+ "regles": [
+  "ARC-02",
+  "ARC-03",
+  "DAT-01"
  ]
 }

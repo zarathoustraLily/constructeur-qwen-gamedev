@@ -1,10 +1,11 @@
 class_name HitboxComponent
 extends Area3D
 ## Zone qui porte des coups : au contact d'une HurtboxComponent, elle lui inflige `damage`.
+## Émet : hit.
 
 signal hit(hurtbox: HurtboxComponent)
 
-@export var damage: int = 1
+var damage: int = 0
 
 
 func _ready() -> void:

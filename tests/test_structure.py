@@ -28,12 +28,12 @@ def test_un_projet_sans_plan_est_signale():
 
 def test_violations(tmp_path):
     projet = _copie(tmp_path)
-    # Le cœur qui connaît le bus d'événements (0_autoload) : interdit.
+    # Le cœur qui connaît un autoload (0_autoload) : interdit.
     sm = projet / "1_core" / "state_machine" / "state_machine.gd"
     sm.write_text(sm.read_text(encoding="utf-8").replace("\tstate_changed.emit(from, current_name())",
-                                                        "\tstate_changed.emit(from, current_name())\n\tEventBus.player_died.emit()"),
+                                                        "\tstate_changed.emit(from, current_name())\n\tGameState.add_score(0)"),
                   encoding="utf-8")
-    # Un acteur qui charge une scène d'interface : interdit (ils se parlent par EventBus).
+    # Un acteur qui charge une scène d'interface : interdit.
     drone = projet / "3_entities" / "enemies" / "drone" / "drone.gd"
     drone.write_text(drone.read_text(encoding="utf-8") + '\nconst HUD := preload("res://4_ui/hud/hud.tscn")\n',
                      encoding="utf-8")
@@ -43,11 +43,11 @@ def test_violations(tmp_path):
     (projet / "scripts" / "boss.gd").write_text("class_name GrosBoss\nextends Node\n", encoding="utf-8")
     messages = [e["message"] for e in verifier_projet(projet)["erreurs"]]
     attendus = [
-        "1_core (le cœur) ne doit pas connaître res://0_autoload/event_bus.gd",
-        "3_entities (les acteurs) ne doit pas connaître res://4_ui/hud/hud.tscn",
-        "script dans 5_data (les réglages) : ce dossier ne contient aucun code",
-        "fichier à la racine",
-        "dossier « scripts » hors du plan d'organisation",
+        "DOSSIERS : 1_core (le cœur) ne doit pas connaître res://0_autoload/game_state.gd",
+        "DOSSIERS : 3_entities (les acteurs) ne doit pas connaître res://4_ui/hud/hud.tscn",
+        "DOSSIERS : script dans 5_data (les réglages) : ce dossier ne contient aucun code",
+        "ORG-01 : fichier à la racine",
+        "ORG-01 : dossier « scripts » hors du plan d'organisation",
     ]
     for a in attendus:
         assert any(m.startswith(a) for m in messages), (a, messages)

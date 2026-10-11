@@ -5,7 +5,7 @@
  "a_considerer": [
   "une étape finit par finish(&\"done\" | &\"retry\" | &\"restart\")",
   "GameFlow passe à l'étape suivante de sequence.tres",
-  "un délai avant de quitter laisse voir la fin"
+  "un délai avant de quitter laisse voir la fin : create_timer(rules.level_end_delay, false), qui s'arrête en pause"
  ],
  "ou_travailler": [
   "2_sequence/levels/level_base/level_base.gd",
@@ -32,5 +32,9 @@
  "voisins": [
   "apparition_ennemis",
   "mort_acteur"
+ ],
+ "regles": [
+  "SIM-08",
+  "SIM-07"
  ]
 }

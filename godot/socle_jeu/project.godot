@@ -10,12 +10,15 @@ config/features=PackedStringArray("4.7")
 
 [autoload]
 
-EventBus="*res://0_autoload/event_bus.gd"
 GameState="*res://0_autoload/game_state.gd"
 Trace="*res://0_autoload/trace.gd"
 AudioManager="*res://0_autoload/audio_manager.gd"
 GameFlow="*res://0_autoload/game_flow.gd"
 Capture="*res://0_autoload/capture.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=2
 
 [display]
 

@@ -12,24 +12,37 @@ extends Node
 ## Toujours passer --fixed-fps 60 : l'image N tombe alors à N/60 s de jeu.
 ## En headless rien n'est dessiné : la légende et le journal sont écrits quand même.
 ## Sans --capture, le nœud s'éteint et ne coûte rien.
+## Dépend de : le journal (groupe « journal »), s'il existe.
+
+
+## Une touche tenue de la première à la dernière image.
+class Press:
+	var action: StringName
+	var first: int
+	var last: int
+
+	func _init(new_action: StringName, new_first: int, new_last: int) -> void:
+		action = new_action
+		first = new_first
+		last = new_last
+
 
 const GAP := 4
 const BACKDROP := Color(0.08, 0.08, 0.11, 1.0)
-const DEFAULT_FRAMES := [30, 60, 90, 120, 150, 180, 210, 240]
+const DEFAULT_FRAMES: Array[int] = [30, 60, 90, 120, 150, 180, 210, 240]
 
 var capturing: bool = false
 var _frame: int = 0
-## [action, première image, dernière image] : touches tenues pendant la capture.
-var _presses: Array[Array] = []
+var _presses: Array[Press] = []
 
 
 func _process(_delta: float) -> void:
 	_frame += 1
 	for press in _presses:
-		if _frame == press[1]:
-			Input.action_press(press[0])
-		elif _frame == press[2] + 1:
-			Input.action_release(press[0])
+		if _frame == press.first:
+			Input.action_press(press.action)
+		elif _frame == press.last + 1:
+			Input.action_release(press.action)
 
 
 func _ready() -> void:
@@ -47,7 +60,7 @@ func _ready() -> void:
 			scale = float(arg.trim_prefix("--capture-scale="))
 		elif arg.begins_with("--capture-press="):
 			var press := parse_press(arg.trim_prefix("--capture-press="))
-			if not press.is_empty():
+			if press != null:
 				_presses.append(press)
 		elif arg.begins_with("--capture-cols="):
 			cols = maxi(1, int(arg.trim_prefix("--capture-cols=")))
@@ -58,9 +71,9 @@ func _ready() -> void:
 	var shots: Array[Image] = []
 	var legend: PackedStringArray = []
 	var fps := Engine.physics_ticks_per_second
-	# Le journal Trace est lu s'il existe : la capture marche aussi dans un projet qui ne l'a pas.
-	var trace := get_node_or_null(^"/root/Trace")
-	var seen: int = trace.lines.size() if trace != null else 0
+	# Le journal est lu s'il existe : la capture marche aussi dans un projet qui ne l'a pas.
+	var trace := get_tree().get_first_node_in_group(&"journal")
+	var seen: int = _journal(trace).size()
 	for i in frames.size():
 		while _frame < frames[i]:
 			await get_tree().process_frame
@@ -75,10 +88,10 @@ func _ready() -> void:
 			shots.append(img)
 		legend.append("case %d (ligne %d, colonne %d) : image %d, %.2f s de jeu"
 				% [i + 1, i / cols + 1, i % cols + 1, frames[i], float(frames[i]) / fps])
-		if trace != null:
-			for line: String in trace.lines.slice(seen):
-				legend.append("    " + line)
-			seen = trace.lines.size()
+		var lines := _journal(trace)
+		for line in lines.slice(seen):
+			legend.append("    " + line)
+		seen = lines.size()
 	if shots.is_empty():
 		legend.insert(0, "pas d'image : rendu absent (headless) ; le journal reste valable")
 	else:
@@ -92,6 +105,10 @@ func _ready() -> void:
 	get_tree().quit()
 
 
+func _journal(trace: Node) -> PackedStringArray:
+	return trace.get(&"lines") as PackedStringArray if trace != null else PackedStringArray()
+
+
 static func parse_frames(raw: String) -> PackedInt32Array:
 	var out := PackedInt32Array()
 	for piece in raw.split(",", false):
@@ -100,13 +117,14 @@ static func parse_frames(raw: String) -> PackedInt32Array:
 	return out
 
 
-## « move_up:0-90 » → [&"move_up", 0, 90] ; [] si l'action n'existe pas ou si le texte est faux.
-static func parse_press(raw: String) -> Array:
+## « move_up:0-90 » → la touche move_up tenue des images 0 à 90 ; null si l'action n'existe pas
+## ou si le texte est faux.
+static func parse_press(raw: String) -> Press:
 	var action := StringName(raw.get_slice(":", 0))
 	var span := raw.get_slice(":", 1)
 	if not InputMap.has_action(action) or not span.contains("-"):
-		return []
-	return [action, int(span.get_slice("-", 0)), int(span.get_slice("-", 1))]
+		return null
+	return Press.new(action, int(span.get_slice("-", 0)), int(span.get_slice("-", 1)))
 
 
 static func compose(shots: Array[Image], cols: int) -> Image:

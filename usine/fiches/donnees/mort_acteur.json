@@ -5,8 +5,8 @@
  "a_considerer": [
   "quitter tout de suite le groupe « enemies » (fin de niveau)",
   "couper collisions et zone de coups en différé",
-  "prévenir le jeu par EventBus",
-  "animation puis queue_free"
+  "le niveau, qui écoute health.died, compte les points ; le _view joue la disparition",
+  "décompte de stats.death_duration dans l'état, puis queue_free"
  ],
  "ou_travailler": [
   "3_entities/<acteur>/states/<acteur>_dead.gd"
@@ -20,6 +20,10 @@
  "exemples": [
   {
    "fichier": "res://3_entities/enemies/drone/states/drone_dead.gd"
+  },
+  {
+   "fichier": "res://3_entities/enemies/drone/drone_view.gd",
+   "fonction": "_on_died"
   }
  ],
  "pieges": [
@@ -30,5 +34,10 @@
   "animation",
   "effet_visuel",
   "fin_de_niveau"
+ ],
+ "regles": [
+  "SIM-05",
+  "ARC-02",
+  "ARC-07"
  ]
 }

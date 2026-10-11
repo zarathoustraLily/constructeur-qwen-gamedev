@@ -3,7 +3,8 @@
  "genre": "besoin",
  "titre": "Sauvegarde",
  "a_considerer": [
-  "ce qui se sauvegarde vit dans GameState (0_autoload)",
+  "ce qui se sauvegarde vit dans GameState (0_autoload) : l'état logique, pas l'arbre de scènes",
+  "des identifiants (id des définitions), la progression, la graine, et un numéro de version",
   "fichier dans user://, jamais dans res:// (lecture seule une fois exporté)",
   "ConfigFile ou JSON pour des valeurs simples"
  ],
@@ -30,5 +31,9 @@
  ],
  "voisins": [
   "donnees"
+ ],
+ "regles": [
+  "DAT-08",
+  "DAT-06"
  ]
 }

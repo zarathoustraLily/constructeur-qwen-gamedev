@@ -1,35 +1,48 @@
 class_name Drone
 extends CharacterBody3D
-## Drone ennemi : attend, poursuit le joueur, tire à portée, meurt. Un état par comportement
-## (states/), réglages dans 5_data/enemies/drone.tres. Se pose à la main dans un niveau.
+## Drone ennemi (simulation) : attend, poursuit sa cible, tire à portée, meurt. Un état par
+## comportement (states/), réglages dans 5_data/enemies/drone.tres. Se pose à la main dans un
+## niveau ; le niveau lui fournit sa cible et ses projectiles par setup(). Sa présentation
+## (étincelles, disparition) est dans drone_view.gd.
+## Entrées : setup(). Dépend de : sa cible, fournie par le niveau.
 
 @export var stats: ActorStats
-## Effet joué à chaque coup reçu (3_entities/effects/).
-@export var hit_effect: PackedScene
+
+var _target: Node3D
 
 @onready var health: HealthComponent = $Health
 @onready var weapon: WeaponComponent = $Weapon
 @onready var state_machine: StateMachine = $StateMachine
+@onready var view: DroneView = $View
 
 
 func _ready() -> void:
-	health.max_health = stats.max_health
-	health.current_health = stats.max_health
-	health.died.connect(func() -> void: state_machine.transition_to(&"dead"))
-	health.damaged.connect(func(_amount: int, _current: int) -> void: _play_hit_effect())
-
-
-func _play_hit_effect() -> void:
-	if hit_effect == null or not is_inside_tree():
+	if stats == null:
+		push_error("Drone %s : stats n'est pas posé dans la scène" % name)
 		return
-	var effect := hit_effect.instantiate() as Node3D
-	get_parent().add_child(effect)
-	effect.global_position = global_position
+	for message in stats.validate():
+		push_error("Drone %s : %s" % [name, message])
+	health.setup(stats.max_health, stats.hit_invulnerability)
+	health.died.connect(_on_died)
 
 
-## Le joueur, ou null s'il n'y en a pas.
+## Le niveau fournit la cible, le projectile et où le poser, et où jouer les effets.
+func setup(target: Node3D, projectile: PackedScene, projectile_parent: Node, effects_parent: Node,
+		hit_effect: PackedScene) -> void:
+	if target == null:
+		push_error("Drone.setup %s : cible absente" % name)
+	_target = target
+	weapon.setup(projectile, projectile_parent)
+	view.setup(effects_parent, hit_effect)
+
+
+func _on_died() -> void:
+	state_machine.transition_to(&"dead")
+
+
+## La cible, ou null s'il n'y en a pas.
 func target() -> Node3D:
-	return get_tree().get_first_node_in_group(&"player") as Node3D
+	return _target if is_instance_valid(_target) else null
 
 
 func distance_to_target() -> float:

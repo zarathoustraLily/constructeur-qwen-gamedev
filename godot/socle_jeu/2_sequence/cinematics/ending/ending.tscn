@@ -1,9 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://2_sequence/cinematics/ending/ending.gd" id="1_step"]
+[ext_resource type="Resource" path="res://5_data/game/game_rules.tres" id="2_rules"]
 
 [node name="Ending" type="Node"]
 script = ExtResource("1_step")
+rules = ExtResource("2_rules")
 
 [node name="Ui" type="CanvasLayer" parent="."]
 

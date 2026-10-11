@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from usine import config as cfg
+from usine.regles.catalogue import texte as texte_regle
 from usine.retour.verification import Signatures
 from usine.structure.regles import DOSSIERS, FICHIERS_RACINE, dossier_de
 
@@ -33,66 +34,74 @@ MODELES: dict[str, dict[str, Any]] = {
         "titre": "un état d'un acteur",
         "fichiers": ["3_entities/<acteur>/states/<acteur>_<etat>.gd",
                      "un nœud dans la StateMachine de 3_entities/<acteur>/<acteur>.tscn",
-                     "7_tests/3_entities/test_<acteur>.gd"],
+                     "7_tests/3_entities/<acteur>/test_<acteur>.gd"],
         "dossiers": {"3_entities", "5_data", "1_core", "7_tests"},
         "chaine": ["res://3_entities/player/states/player_dash.gd", "res://3_entities/player/player.tscn",
-                   "res://7_tests/3_entities/test_player.gd"],
+                   "res://7_tests/3_entities/player/test_player.gd"],
         "besoins": ["etat"],
     },
     "ennemi": {
         "titre": "un ennemi",
         "fichiers": ["5_data/enemies/<type>.tres", "3_entities/enemies/<type>/<type>.tscn et <type>.gd",
-                     "3_entities/enemies/<type>/states/", "posé dans 2_sequence/levels/<niveau>/<niveau>.tscn",
-                     "7_tests/3_entities/test_<type>.gd"],
+                     "3_entities/enemies/<type>/<type>_view.gd (sprites, sons, effets)",
+                     "3_entities/enemies/<type>/states/",
+                     "posé dans 2_sequence/levels/<niveau>/<niveau>.tscn, qui lui donne ses dépendances par setup()",
+                     "7_tests/3_entities/enemies/<type>/test_<type>.gd"],
         "dossiers": {"5_data", "3_entities", "2_sequence", "6_assets", "7_tests"},
         "chaine": ["res://5_data/enemies/drone.tres", "res://3_entities/enemies/drone/drone.tscn",
-                   "res://3_entities/enemies/drone/drone.gd", "res://3_entities/enemies/drone/states/drone_chase.gd",
-                   "res://2_sequence/levels/level_01/level_01.tscn", "res://7_tests/3_entities/test_drone.gd"],
+                   "res://3_entities/enemies/drone/drone.gd", "res://3_entities/enemies/drone/drone_view.gd",
+                   "res://3_entities/enemies/drone/states/drone_chase.gd",
+                   "res://2_sequence/levels/level_base/level_base.gd",
+                   "res://7_tests/3_entities/enemies/drone/test_drone.gd"],
         "besoins": ["etat", "collision", "donnees"],
     },
     "arme": {
         "titre": "une arme",
         "fichiers": ["5_data/weapons/<arme>.tres (WeaponStats)", "3_entities/projectiles/<projectile>/",
-                     "un WeaponComponent dans la scène de l'acteur", "7_tests/1_core/test_weapon_component.gd"],
+                     "un WeaponComponent dans la scène de l'acteur", "7_tests/1_core/components/test_weapon_component.gd"],
         "dossiers": {"5_data", "3_entities", "6_assets", "7_tests"},
         "chaine": ["res://5_data/weapons/blaster.tres", "res://3_entities/projectiles/bullet/bullet_player.tscn",
-                   "res://3_entities/projectiles/bullet/bullet.gd", "res://1_core/components/weapon_component.gd"],
+                   "res://3_entities/projectiles/bullet/bullet.gd", "res://1_core/components/weapon_component.gd",
+                   "res://7_tests/1_core/components/test_weapon_component.gd"],
         "besoins": ["collision", "minuterie", "donnees"],
     },
     "reglage": {
         "titre": "un réglage",
-        "fichiers": ["une propriété @export dans la classe de 1_core/data/", "sa valeur dans le .tres de 5_data/"],
+        "fichiers": ["une propriété @export typée dans la classe de 1_core/data/ (et sa ligne dans validate())",
+                     "sa valeur dans le .tres de 5_data/", "7_tests/1_core/data/test_definitions.gd"],
         "dossiers": {"1_core", "5_data", "7_tests"},
-        "chaine": ["res://1_core/data/actor_stats.gd", "res://5_data/actors/player.tres"],
+        "chaine": ["res://1_core/data/actor_stats.gd", "res://5_data/actors/player.tres",
+                   "res://1_core/data/game_rules.gd", "res://5_data/game/game_rules.tres"],
         "besoins": ["donnees"],
     },
     "interface": {
         "titre": "un élément d'interface",
-        "fichiers": ["4_ui/hud/ ou 4_ui/overlays/<nom>/ (scène + script)", "un signal dans 0_autoload/event_bus.gd si besoin",
-                     "7_tests/4_ui/test_<nom>.gd"],
+        "fichiers": ["4_ui/hud/ ou 4_ui/overlays/<nom>/ (scène + script)",
+                     "l'interface écoute un signal d'un autoload (GameState) ou reçoit l'information du niveau",
+                     "7_tests/4_ui/<chemin>/test_<nom>.gd"],
         "dossiers": {"4_ui", "0_autoload", "6_assets", "7_tests"},
-        "chaine": ["res://4_ui/hud/hud.gd", "res://4_ui/hud/hud.tscn", "res://0_autoload/event_bus.gd",
-                   "res://7_tests/4_ui/test_hud.gd"],
+        "chaine": ["res://4_ui/hud/hud.gd", "res://4_ui/hud/hud.tscn", "res://0_autoload/game_state.gd",
+                   "res://7_tests/4_ui/hud/test_hud.gd"],
         "besoins": ["interface"],
     },
     "niveau": {
         "titre": "un niveau",
         "fichiers": ["2_sequence/levels/<niveau>/<niveau>.tscn (hérite de level_base.tscn)",
                      "5_data/levels/<niveau>_budget.tres", "une ligne dans 2_sequence/sequence.tres",
-                     "7_tests/2_sequence/test_<niveau>.gd"],
+                     "7_tests/2_sequence/levels/<niveau>/test_<niveau>.gd"],
         "dossiers": {"2_sequence", "5_data", "6_assets", "7_tests"},
         "chaine": ["res://2_sequence/levels/level_01/level_01.tscn", "res://2_sequence/levels/level_base/level_base.tscn",
                    "res://5_data/levels/level_01_budget.tres", "res://2_sequence/sequence.tres",
-                   "res://7_tests/2_sequence/test_level_01.gd"],
+                   "res://7_tests/2_sequence/levels/level_01/test_level_01.gd"],
         "besoins": [],
     },
     "effet_visuel": {
         "titre": "un effet visuel",
         "fichiers": ["3_entities/effects/<effet>/ (scène + script qui se détruit)",
-                     "un @export var <effet>: PackedScene sur l'acteur"],
+                     "un @export var <effet>: PackedScene sur le niveau, transmis au script _view de l'acteur"],
         "dossiers": {"3_entities", "6_assets", "7_tests"},
         "chaine": ["res://3_entities/effects/impact/impact.tscn", "res://3_entities/effects/impact/impact.gd",
-                   "res://3_entities/enemies/drone/drone.gd"],
+                   "res://3_entities/enemies/drone/drone_view.gd"],
         "besoins": ["effet_visuel"],
     },
 }
@@ -194,6 +203,9 @@ def rendre_fiche(fiche: dict[str, Any], signatures: Signatures, projet: Path | N
     if autres:
         sortie += [f"Voir aussi : {', '.join(autres)}"]
     sortie += ["", "Pièges :"] + [f"- {x}" for x in fiche["pieges"]]
+    if fiche.get("regles"):
+        sortie += ["", "Règles concernées (le juge vérifie celles qui sont mécaniques) :"]
+        sortie += [f"- {texte_regle(r)}" for r in fiche["regles"]]
     if fiche["voisins"]:
         sortie += ["", "Voisins (à cocher aussi si concerné) : " + ", ".join(fiche["voisins"])]
     return "\n".join(sortie)
@@ -219,12 +231,14 @@ def verifier_fichiers(fichiers: list[str], modele: dict[str, Any] | None, projet
             avis = "nom hors convention (snake_case attendu)"
         elif nom.endswith(".gd") and dossier in ("5_data", "6_assets"):
             avis = f"script dans {dossier} : ce dossier ne contient aucun code"
+        elif nom.endswith(".gd") and dossier == "7_tests" and not (Path(projet) / rel.removeprefix("7_tests/")).parent.is_dir():
+            avis = "test hors miroir : 7_tests/<chemin du code testé>/test_<nom>.gd (QA-01)"
         else:
             avis = f"dans le plan ({DOSSIERS[dossier]})"
         remarques.append(f"- {res} : {etat} ; {avis}")
     scripts = [f for f in fichiers if f.endswith(".gd") and "7_tests" not in f]
     if scripts and not any("7_tests" in f for f in fichiers):
-        remarques.append("- aucun test déclaré : un test par comportement, dans 7_tests/ au même chemin relatif")
+        remarques.append("- aucun test déclaré : un test par comportement, dans 7_tests/ au même chemin relatif (QA-01)")
     return remarques
 
 

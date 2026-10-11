@@ -1,22 +1,26 @@
 extends Node
-## Le chef d'orchestre : lit la séquence (2_sequence/sequence.tres) et charge l'étape suivante.
-## Il ne connaît aucune étape en particulier : chacune respecte le contrat Step.
-
-const SEQUENCE_PATH := "res://2_sequence/sequence.tres"
+## Le déroulement : garde la séquence reçue et charge l'étape suivante. Il ne connaît aucune
+## étape en particulier : chacune respecte le contrat Step (1_core).
+## Entrées : start(sequence, rules), appelé par 2_sequence/boot. Dépend de : Step, Sequence,
+## GameRules (1_core), GameState, Trace. Émet : step_started.
 
 signal step_started(index: int, step: Step)
 
 var sequence: Sequence
+var rules: GameRules
 var index: int = -1
 var current_step: Step
 
 
-func _ready() -> void:
-	sequence = load(SEQUENCE_PATH) as Sequence
-
-
-func start() -> void:
-	GameState.reset()
+func start(new_sequence: Sequence, new_rules: GameRules) -> void:
+	if new_sequence == null or new_sequence.steps.is_empty() or new_rules == null:
+		push_error("GameFlow.start : séquence vide ou règles absentes")
+		return
+	for message in new_rules.validate():
+		push_error("GameFlow.start : %s" % message)
+	sequence = new_sequence
+	rules = new_rules
+	GameState.reset(rules.start_lives)
 	goto(0)
 
 
@@ -44,6 +48,6 @@ func _on_step_finished(outcome: StringName) -> void:
 		&"retry":
 			goto(index)
 		&"restart":
-			start()
+			start(sequence, rules)
 		_:
 			next_step()

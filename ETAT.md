@@ -1102,6 +1102,51 @@ Suite complète, `python -m pytest -q` : `356 passed, 1 skipped in 821.74s` (sql
 - Dans le cloud, la capture passe par `xvfb-run` et `--rendering-method gl_compatibility` (llvmpipe).
 - Les drones attendent tant que le joueur est hors de leur portée : une capture sans touche montre une scène immobile, c'est normal.
 
+### Règles d'architecture de laurent — juge, socle propre, salissures, tri — 2026-10-11 (branche `claude/project-thread-12uh5s`)
+
+Source : le document de laurent du 2026-10-11 (51 règles, section 9 « Utiliser ces règles pour entraîner le LoRA »). Choix par défaut, ceux du document : audio global = musique et volume, durées dans 5_data, `.tres` typés, Godot 4.7.2, ni multijoueur ni replays, GdUnit4. Pas de fusion dans main avant que la campagne V2 soit jugée.
+
+**Fait**
+
+- `usine/regles/` : juge des règles sans modèle (règle 2). `catalogue.py` : 31 règles avec leur nature (confirmée, corrigée, choix) ; 15 jugées mécaniquement (ORG-01, DOSSIERS, ARC-03, ARC-04, ARC-06, DAT-01, DAT-02, SIM-01, SIM-02, SIM-08, SIM-09, COD-01, COD-02, COD-04, QA-01), 3 sur la session (QA-03, QA-07, QA-08), les autres seulement rappelées. Chaque écart est au format commun, `categorie` « regle » ou « structure », message « ID : … ». `python -m usine.regles verifier <projet>`. Un projet sans plan numéroté n'est pas jugé (`applicable: false`).
+- `usine/structure/regles.py` : le tableau des dépendances du document (2_sequence → tout sauf 7_tests, 4_ui → 0_autoload/1_core/6_assets, …), sans exception ; une entité ne dépend d'aucune autre entité ; identifiants de règle sur chaque écart.
+- Le socle avait 25 écarts (ARC-04 ×3, ARC-06, COD-02 ×6, DAT-01 ×6, DOSSIERS ×6, SIM-01 ×2, SIM-08) ; il en a 0. Changements : plus d'`EventBus` (le niveau écoute la vie des acteurs et appelle `GameState`) ; `AudioManager` ne fait que la musique et le volume (ARC-09) ; `GameRules` (vies, durées d'intro, de fin et de fin de niveau) dans `5_data/game/` ; `ProcessOrder` (1_core) pour les priorités ; `player_input.gd` seul lit `Input`, `drone_view.gd` porte les effets ; chaque entité reçoit ses dépendances du niveau par `setup()` ; décomptes dans `_physics_process` ; `UNTYPED_DECLARATION` en erreur ; `7_tests` en miroir exact, 31 tests.
+- `ORGANISATION.md` et `AGENTS.md` réécrits sur le document : le bloc permanent ne garde que les cinq principes et le tableau des dossiers (section 9) ; « après chaque action » ajoute `check_structure` et le compte rendu.
+- `check_structure` (MCP) rend le juge des règles ; `prepare_action` rappelle les règles de chaque besoin coché (champ `regles` des 15 fiches, table de la section 9). Fiches et chaînes des 7 modèles mises au nouveau socle.
+- `usine/generateurs/salissures.py` : tâches K4 « nettoyer » (section 9, usage 2). Neuf sortes de salissures sur le socle : syntaxe Godot 3, type retiré, valeur de 5_data en dur, `get_node("/root/…")`, `create_timer` sans `false`, priorité en nombre, `_physics_process` → `_process`, fonction en camelCase, script déplacé (hors plan ou dans 5_data). 124 candidates sur 10 règles, chacune validée : le projet sali viole la règle visée et elle seule. Tests cachés = `7_tests` du socle. Ajoutées à `python -m usine.generateurs produire` (compétence K4).
+- `juger_tache` : tout verdict d'un projet organisé porte `regles` (violations, structure_ok, par_regle) ; `juge.regles_cibles` fait échouer à l'étape « regles » tant qu'il reste un écart ; `reference_retire` retire les fichiers déplacés en composant la référence.
+- Tri : `verifier_session` relève QA-03 (fichier écrit non déclaré à `prepare_action`), QA-07 (tests annoncés verts sans `run_tests` réussi depuis la dernière écriture), QA-08 (compte rendu final absent ; compte, n'élimine pas). `essais.trier` additionne projet et session ; le registre gagne `violations`, `structure_ok`, `session_ok` ; `filtre.retenir` garde, par tâche, l'essai réussi, rangé et sain qui a le moins de violations, puis le plus court. Un registre ancien vaut 0 violation.
+- Trouvé en route : les scripts GDScript du juge (`charger_scene.gd`, `charger_script.gd`, `verifier_lot.gd`, `etat_scene.gd`, `mesurer_efficience.gd`) ne compilaient pas dans un projet qui met `UNTYPED_DECLARATION` en erreur : typés. Et `charger_scene.gd` attendait jusqu'au délai quand la scène se libère à sa première image : il termine et le note (`liberee_avant_description`). La balle du socle reste immobile tant qu'elle n'est pas lancée.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux.
+
+```
+$ python -m usine.regles verifier godot/socle_jeu
+0 violation(s) {}
+$ python -c "Outils(Path('godot/socle_jeu')).run_tests()"
+{"ok":true,"tests":{"total":31,"passes":31,"echecs":[]}}
+$ python -m pytest -q tests/test_regles.py
+29 passed
+$ verifier_modeles sur une salissure par règle (10 tâches, 4 travailleurs, 5 min 12 s)
+k4_nettoyer_arc_06_root_boot FAIL @regles 31/31        PASS 31/31  oui oui OUI
+k4_nettoyer_cod_02_var_health_component FAIL @check_script 0/0  PASS 31/31  oui oui OUI
+k4_nettoyer_sim_01_process_health_component FAIL @regles 31/31  PASS 31/31  oui oui OUI
+…
+10/10 tâches conformes
+```
+
+Suite complète, `python -m pytest -q` : `386 passed, 1 skipped in 1002.36s` (sqlite_vec absent).
+
+**Reste à faire** : étape 24 sur la machine, après la campagne V2 ; geler les K4 « nettoyer » avec le reste (le portillon les juge comme les autres) ; ARC-03, ARC-04, SIM-09 et DAT-02 sont jugées mais n'ont pas encore de salissure (aucune injection naturelle qui garde le comportement) ; DPO sur les 1 025 essais ratés de t1, en option (section 9, usage 3).
+
+**Pièges**
+
+- Les tests cachés d'une tâche « nettoyer » ne voient pas une salissure qui garde le comportement (SIM-01 passe 31/31) : c'est le juge des règles qui la fait échouer, d'où `regles_cibles`.
+- Une salissure ne touche jamais un commentaire : sinon la « violation » n'existe pas pour le juge et la tâche serait verte au départ.
+- Un projet qui met `UNTYPED_DECLARATION` en erreur s'applique aussi aux scripts lancés avec `-s` ; tout nouveau script GDScript de l'usine doit être entièrement typé (y compris les variables de `for` sur un tableau non typé et les paramètres des lambdas).
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1117,6 +1162,7 @@ Suite complète, `python -m pytest -q` : `356 passed, 1 skipped in 821.74s` (sql
 - [ ] Gel complet sous Godot 4.7.2 — `VERIFIER_EN_LOCAL.md` étape 21 (une nuit).
 - [ ] Béquille, point 1 — `VERIFIER_EN_LOCAL.md` étape 22 (retour des outils).
 - [ ] Béquille, points 2 à 9 — `VERIFIER_EN_LOCAL.md` étape 23 (socle, fiches, captures).
+- [ ] Règles d'architecture — `VERIFIER_EN_LOCAL.md` étape 24 (juge des règles, socle propre, tâches « nettoyer »), après la campagne V2.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 

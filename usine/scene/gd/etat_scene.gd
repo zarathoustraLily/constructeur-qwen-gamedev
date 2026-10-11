@@ -19,12 +19,12 @@ func _valeur(v: Variant) -> Variant:
 		return {"interne": r.get_class(), "proprietes": proprietes}
 	if v is Array:
 		var a := []
-		for e in v:
+		for e: Variant in v:
 			a.append(_valeur(e))
 		return a
 	if v is Dictionary:
 		var d := {}
-		for k in v:
+		for k: Variant in v:
 			d[var_to_str(k)] = _valeur(v[k])
 		return d
 	return var_to_str(v)

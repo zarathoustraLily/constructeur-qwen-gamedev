@@ -4,6 +4,9 @@
 
 [resource]
 script = ExtResource("1_script")
+id = &"drone"
+attack_leave_range = 9.6
+death_duration = 0.25
 max_health = 3
 speed = 3.5
 detection_range = 14.0

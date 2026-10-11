@@ -21,18 +21,18 @@ DOSSIERS = {
     "6_assets": "la matière",
     "7_tests": "les tests",
 }
-# Dossier source → dossiers qu'il peut référencer (le sien est toujours permis ; 7_tests voit tout).
+# Tableau des dossiers des règles d'architecture (« Peut dépendre de ») : dossier source → dossiers
+# qu'il peut référencer. Le sien est toujours permis ; 7_tests voit tout ; personne ne voit 7_tests.
 PERMIS: dict[str, set[str]] = {
-    "0_autoload": {"1_core", "5_data", "6_assets"},
+    "0_autoload": {"1_core"},
     "1_core": set(),
     "2_sequence": {"0_autoload", "1_core", "3_entities", "4_ui", "5_data", "6_assets"},
-    "3_entities": {"0_autoload", "1_core", "5_data", "6_assets"},
-    "4_ui": {"0_autoload", "1_core", "5_data", "6_assets"},
-    "5_data": {"1_core", "3_entities", "6_assets"},
+    "3_entities": {"1_core", "5_data", "6_assets"},
+    "4_ui": {"0_autoload", "1_core", "6_assets"},
+    "5_data": {"1_core", "6_assets"},
     "6_assets": set(),
 }
-# 0_autoload lit la séquence, et seulement elle : il ne connaît aucune étape en particulier.
-EXCEPTIONS = {("0_autoload", "res://2_sequence/sequence.tres")}
+EXCEPTIONS: set[tuple[str, str]] = set()
 SANS_CODE = {"5_data", "6_assets"}
 FICHIERS_RACINE = {"project.godot", "ORGANISATION.md", "plan.md", "icon.svg", "README.md", "AGENTS.md",
                    "opencode.json", "default_bus_layout.tres", "export_presets.cfg"}
@@ -51,8 +51,22 @@ def snake(nom: str) -> str:
     return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", nom).lower()
 
 
-def _erreur(fichier: str, message: str, ligne: int | None = None) -> dict[str, Any]:
-    return {"fichier": fichier, "ligne": ligne, "categorie": "structure", "message": message}
+def _erreur(fichier: str, regle: str, message: str, ligne: int | None = None) -> dict[str, Any]:
+    """Erreur au format commun ; `regle` est l'identifiant de la règle d'architecture violée."""
+    return {"fichier": fichier, "ligne": ligne, "categorie": "structure", "regle": regle,
+            "message": f"{regle} : {message}"}
+
+
+def entite_de(projet: Path, res: str) -> str | None:
+    """Dossier de l'entité d'un fichier de 3_entities : `player`, `enemies/drone`… (None hors 3_entities).
+    Une entité est le premier dossier qui contient une scène du même nom (player/player.tscn),
+    sinon les deux premiers niveaux (catégorie/entité)."""
+    parties = res.removeprefix("res://").split("/")
+    if parties[0] != "3_entities" or len(parties) < 3:
+        return None
+    if (Path(projet) / "3_entities" / parties[1] / f"{parties[1]}.tscn").is_file() or len(parties) < 4:
+        return parties[1]
+    return "/".join(parties[1:3])
 
 
 def est_organise(projet: Path) -> bool:
@@ -98,7 +112,7 @@ def verifier_projet(projet: Path) -> dict[str, Any]:
     verdict = nouveau_verdict("structure", ok=True)
     erreurs: list[dict[str, Any]] = verdict["erreurs"]
     if not est_organise(projet):
-        erreurs.append(_erreur("res://", "pas de plan numéroté (0_autoload … 7_tests) : la structure n'est pas jugée"))
+        erreurs.append(_erreur("res://", "ORG-01", "pas de plan numéroté (0_autoload … 7_tests) : la structure n'est pas jugée"))
     else:
         for f in sorted(projet.rglob("*")):
             rel = f.relative_to(projet)
@@ -109,26 +123,29 @@ def verifier_projet(projet: Path) -> dict[str, Any]:
             dossier = dossier_de(res)
             if len(rel.parts) == 1:
                 if rel.name not in FICHIERS_RACINE:
-                    erreurs.append(_erreur(res, "fichier à la racine : il doit aller dans un des dossiers du plan"))
+                    erreurs.append(_erreur(res, "ORG-01", "fichier à la racine : il doit aller dans un des dossiers du plan"))
                 continue
             if dossier is None:
-                erreurs.append(_erreur(res, f"dossier « {rel.parts[0]} » hors du plan d'organisation"))
+                erreurs.append(_erreur(res, "ORG-01", f"dossier « {rel.parts[0]} » hors du plan d'organisation"))
                 continue
             if f.suffix == ".gd" and dossier in SANS_CODE:
-                erreurs.append(_erreur(res, f"script dans {dossier} ({DOSSIERS[dossier]}) : ce dossier ne contient aucun code"))
+                erreurs.append(_erreur(res, "DOSSIERS", f"script dans {dossier} ({DOSSIERS[dossier]}) : ce dossier ne contient aucun code"))
             if f.suffix in (".gd", ".tscn", ".tres", ".gdshader") and not _SNAKE.match(f.stem):
-                erreurs.append(_erreur(res, f"nom de fichier hors convention : {f.name} (snake_case attendu)"))
+                erreurs.append(_erreur(res, "COD-01", f"nom de fichier hors convention : {f.name} (snake_case attendu)"))
             if f.suffix == ".gd":
                 texte = nettoyer(lire_texte(f))
                 m = _CLASS_NAME.search(texte)
                 if m and snake(m.group(1)) != f.stem:
-                    erreurs.append(_erreur(res, f"class_name {m.group(1)} dans {f.name} : le fichier doit s'appeler "
-                                                f"{snake(m.group(1))}.gd", texte.count("\n", 0, m.start()) + 1))
+                    erreurs.append(_erreur(res, "COD-01", f"class_name {m.group(1)} dans {f.name} : le fichier doit "
+                                                f"s'appeler {snake(m.group(1))}.gd", texte.count("\n", 0, m.start()) + 1))
                 a = _ANCIEN_EXPORT.search(texte)
                 if a:
-                    erreurs.append(_erreur(res, "« export var » : écrire « @export var »", texte.count("\n", 0, a.start()) + 1))
-            if dossier == "7_tests" and f.suffix == ".gd" and (len(rel.parts) < 3 or rel.parts[1] not in DOSSIERS):
-                erreurs.append(_erreur(res, "test hors miroir : 7_tests/<dossier du plan>/test_<sujet>.gd"))
+                    erreurs.append(_erreur(res, "COD-04", "« export var » : écrire « @export var »", texte.count("\n", 0, a.start()) + 1))
+            if dossier == "7_tests" and f.suffix == ".gd":
+                teste = Path(*rel.parts[1:-1]) if len(rel.parts) > 2 else None
+                if teste is None or teste.parts[0] not in DOSSIERS or not (projet / teste).is_dir():
+                    erreurs.append(_erreur(res, "QA-01", "test hors miroir : 7_tests/<chemin du dossier testé>/test_<sujet>.gd, "
+                                                         "le dossier testé doit exister"))
         for source, cibles in references(projet).items():
             dossier = dossier_de(source)
             if dossier is None or dossier == "7_tests":
@@ -137,12 +154,21 @@ def verifier_projet(projet: Path) -> dict[str, Any]:
             vues: set[str] = set()
             for cible, ligne in cibles:
                 d = dossier_de(cible)
-                if d is None or d == dossier or d in permis or (dossier, cible) in EXCEPTIONS or cible in vues:
+                if d is None or cible in vues or (dossier, cible) in EXCEPTIONS:
+                    continue
+                if d == dossier:
+                    a, b = entite_de(projet, source), entite_de(projet, cible)
+                    if a and b and a != b:
+                        vues.add(cible)
+                        erreurs.append(_erreur(source, "DOSSIERS", f"l'entité {a} ne doit pas dépendre d'une autre entité "
+                                                                   f"({b}) : le niveau lui fournit ce qu'il faut", ligne))
+                    continue
+                if d in permis:
                     continue
                 vues.add(cible)
-                erreurs.append(_erreur(source, f"{dossier} ({DOSSIERS[dossier]}) ne doit pas connaître {cible} "
-                                               f"({DOSSIERS[d]}) ; permis : {', '.join(sorted(permis)) or 'aucun autre dossier'}",
-                                       ligne))
+                erreurs.append(_erreur(source, "DOSSIERS", f"{dossier} ({DOSSIERS[dossier]}) ne doit pas connaître {cible} "
+                                                           f"({DOSSIERS[d]}) ; permis : "
+                                                           f"{', '.join(sorted(permis)) or 'aucun autre dossier'}", ligne))
     verdict["ok"] = not erreurs
     verdict["duree_s"] = round(time.monotonic() - debut, 3)
     return verdict

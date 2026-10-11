@@ -3,14 +3,15 @@
  "genre": "besoin",
  "titre": "Interface (HUD, surcouches)",
  "a_considerer": [
-  "l'interface écoute EventBus ; elle ne cherche pas les acteurs",
+  "4_ui ne connaît que 0_autoload, 1_core et 6_assets : jamais un acteur ni un niveau",
+  "ce qui traverse les scènes vient d'un signal d'autoload (GameState.score_changed) ; le reste, le niveau le pousse (hud.show_health)",
   "mise à jour sur signal, pas à chaque image",
   "surcouches (pause, inventaire) dans 4_ui/overlays/, process_mode toujours actif si elles doivent répondre pendant la pause",
   "ancres et conteneurs plutôt que des positions en pixels"
  ],
  "ou_travailler": [
   "4_ui/hud/ ou 4_ui/overlays/<nom>/ (scène + script)",
-  "7_tests/4_ui/"
+  "7_tests/4_ui/<même chemin>/"
  ],
  "api": [
   "Label.text",
@@ -35,5 +36,10 @@
  "voisins": [
   "donnees",
   "son"
+ ],
+ "regles": [
+  "SIM-06",
+  "ARC-02",
+  "DOSSIERS"
  ]
 }

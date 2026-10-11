@@ -1,7 +1,7 @@
 class_name State
 extends Node
 ## Un état d'une machine à états. Chaque comportement (attente, poursuite, dash…) est un nœud
-## enfant de la StateMachine, avec son propre script.
+## enfant de la StateMachine, avec son propre script. Les états décident et déplacent, au pas fixe.
 
 ## Demande un changement d'état (nom du nœud de l'état visé, en minuscules).
 signal transition_requested(to: StringName)
@@ -15,10 +15,6 @@ func enter() -> void:
 
 
 func exit() -> void:
-	pass
-
-
-func update(_delta: float) -> void:
 	pass
 
 

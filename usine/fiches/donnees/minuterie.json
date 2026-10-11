@@ -4,9 +4,8 @@
  "titre": "Minuterie, délai, cadence",
  "a_considerer": [
   "une durée réglable vit dans un .tres de 5_data, pas en dur",
-  "décompte dans _process/_physics_process pour ce qui se répète (cadence, invincibilité) : aucun nœud créé",
-  "SceneTree.create_timer pour un délai unique ; un nœud Timer quand l'éditeur doit le régler",
-  "que se passe-t-il pendant la pause (process_mode) ?"
+  "décompte dans _physics_process pour ce qui se répète (cadence, invincibilité) : aucun nœud créé, et il s'arrête en pause",
+  "délai unique : get_tree().create_timer(durée, false), le false l'arrête pendant la pause ; un nœud Timer quand l'éditeur doit le régler"
  ],
  "ou_travailler": [
   "le composant ou l'état qui attend : 1_core/components/ ou 3_entities/<acteur>/states/"
@@ -23,7 +22,7 @@
  "exemples": [
   {
    "fichier": "res://1_core/components/health_component.gd",
-   "fonction": "_process"
+   "fonction": "_physics_process"
   },
   {
    "fichier": "res://2_sequence/levels/level_base/level_base.gd",
@@ -33,10 +32,15 @@
  "pieges": [
   "créer un Timer ou un create_timer à chaque image : une allocation par image",
   "Timer.start() sans argument reprend wait_time ; start(-1) aussi",
-  "un timer de SceneTree continue pendant la pause sauf si process_always = false"
+  "create_timer(durée) sans false continue pendant la pause"
  ],
  "voisins": [
   "etat",
   "animation"
+ ],
+ "regles": [
+  "SIM-08",
+  "SIM-01",
+  "DAT-01"
  ]
 }

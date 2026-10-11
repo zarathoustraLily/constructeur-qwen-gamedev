@@ -5,6 +5,7 @@
  "a_considerer": [
   "les ennemis sont posés à la main dans la scène du niveau, sous World/Enemies",
   "le code lit ce qui est posé (groupe « enemies »), il ne crée pas d'ennemis en dur",
+  "le niveau donne à chaque ennemi ses dépendances (cible, projectiles, effets) par setup()",
   "une vague = un nœud conteneur activé au bon moment"
  ],
  "ou_travailler": [
@@ -22,7 +23,7 @@
   },
   {
    "fichier": "res://2_sequence/levels/level_base/level_base.gd",
-   "fonction": "enemies"
+   "fonction": "_ready"
   }
  ],
  "pieges": [
@@ -31,5 +32,9 @@
  "voisins": [
   "fin_de_niveau",
   "donnees"
+ ],
+ "regles": [
+  "ARC-06",
+  "ARC-07"
  ]
 }

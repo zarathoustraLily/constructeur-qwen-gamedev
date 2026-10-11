@@ -239,9 +239,17 @@ class Outils:
 
 
     def check_structure(self) -> str:
-        """Juge de structure : rangement et dépendances entre dossiers (ORGANISATION.md)."""
+        """Juge des règles : rangement, dépendances entre dossiers (ORGANISATION.md) et règles
+        mécaniques ; chaque écart nomme sa règle (« SIM-08 : … »). Sans plan numéroté, le dit."""
+        from usine.regles import par_regle, verifier_regles
         from usine.structure import verifier_projet
-        return _compact(_verdict_court(verifier_projet(self.projet)))
+        verdict = verifier_regles(self.projet)
+        if not verdict["applicable"]:
+            return _compact(_verdict_court(verifier_projet(self.projet)))
+        court = _verdict_court(verdict)
+        if verdict["erreurs"]:
+            court["par_regle"] = par_regle(verdict)
+        return _compact(court)
 
     def prepare_action(self, but: str, type_action: str, fichiers: list[str], besoins: list[str],
                        situations: list[str] | None = None) -> str:

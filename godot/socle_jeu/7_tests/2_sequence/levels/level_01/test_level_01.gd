@@ -1,21 +1,26 @@
 extends GdUnitTestSuite
-## Niveau 1 : ses ennemis sont posés dans la scène, le niveau finit quand ils sont tous détruits,
-## et il tient son budget (nœuds, fuites à la fermeture).
+## Niveau 1 : ses ennemis sont posés dans la scène, chaque ennemi détruit rapporte ses points, le
+## niveau finit quand ils sont tous détruits, et il tient son budget (nœuds, fuites à la fermeture).
 
 const LEVEL := "res://2_sequence/levels/level_01/level_01.tscn"
 
 
-func test_ennemis_poses_et_fin_du_niveau() -> void:
+func test_ennemis_poses_points_et_fin_du_niveau() -> void:
 	var level: LevelBase = auto_free(load(LEVEL).instantiate())
 	add_child(level)
+	GameState.reset(level.rules.start_lives)
 	var issues: Array[StringName] = []
 	level.finished.connect(func(o: StringName) -> void: issues.append(o))
-	var ennemis := level.enemies()
+	var ennemis := level.alive_enemies()
 	assert_int(ennemis.size()).is_greater(0)
+	var attendu := 0
 	for e in ennemis:
-		(e as Drone).health.take_damage(999)
-	assert_array(level.enemies()).is_empty()
-	await get_tree().create_timer(LevelBase.END_DELAY + 0.2).timeout
+		var drone := e as Drone
+		attendu += drone.stats.score_value
+		drone.health.take_damage(drone.stats.max_health)
+	assert_array(level.alive_enemies()).is_empty()
+	assert_int(GameState.score).is_equal(attendu)
+	await get_tree().create_timer(level.rules.level_end_delay + 0.2).timeout
 	assert_array(issues).contains_exactly([&"done"])
 
 
@@ -35,7 +40,6 @@ func test_budget_du_niveau() -> void:
 func test_les_drones_attaquent_le_joueur() -> void:
 	var runner := scene_runner(LEVEL)
 	var level := runner.scene() as LevelBase
-	level.player.read_input = false
 	level.player.global_position = Vector3(0, 0, 2)
 	Trace.clear()
 	await runner.simulate_frames(240)

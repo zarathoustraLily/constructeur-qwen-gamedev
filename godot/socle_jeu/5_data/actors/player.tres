@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_script")
+id = &"player"
 max_health = 5
 speed = 8.0
 hit_invulnerability = 0.8

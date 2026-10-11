@@ -1,6 +1,10 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://2_sequence/boot.gd" id="1_boot"]
+[ext_resource type="Resource" path="res://2_sequence/sequence.tres" id="2_sequence"]
+[ext_resource type="Resource" path="res://5_data/game/game_rules.tres" id="3_rules"]
 
 [node name="Boot" type="Node"]
 script = ExtResource("1_boot")
+sequence = ExtResource("2_sequence")
+rules = ExtResource("3_rules")

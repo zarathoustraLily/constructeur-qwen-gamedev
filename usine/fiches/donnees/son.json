@@ -3,13 +3,14 @@
  "genre": "besoin",
  "titre": "Son",
  "a_considerer": [
-  "les sons passent par AudioManager (0_autoload) : lecteurs réutilisés, aucun nœud créé par son",
-  "le fichier audio va dans 6_assets/audio/, sa référence dans un .tres ou un @export",
-  "AudioStreamPlayer3D quand la position compte"
+  "un bruitage reste dans la scène qui l'émet : un AudioStreamPlayer3D posé dans la scène de l'acteur, joué par son script _view",
+  "AudioManager (0_autoload) ne fait que la musique et le volume : play_music, stop_music, set_volume",
+  "le fichier audio va dans 6_assets/audio/, sa référence dans un @export"
  ],
  "ou_travailler": [
   "6_assets/audio/",
-  "0_autoload/audio_manager.gd (à appeler, pas à copier)"
+  "le script _view de l'acteur pour un bruitage",
+  "0_autoload/audio_manager.gd pour la musique (à appeler, pas à copier)"
  ],
  "api": [
   "AudioStreamPlayer.play",
@@ -20,15 +21,19 @@
  "exemples": [
   {
    "fichier": "res://0_autoload/audio_manager.gd",
-   "fonction": "play_sfx"
+   "fonction": "play_music"
   }
  ],
  "pieges": [
-  "créer un AudioStreamPlayer par son puis l'oublier : fuite de nœuds",
-  "un lecteur enfant d'un acteur qui meurt coupe le son avec lui"
+  "jouer un bruitage depuis la logique ou un état : la simulation dépend de la présentation (ARC-03)",
+  "un lecteur enfant d'un acteur qui meurt coupe le son avec lui : finir le son avant queue_free"
  ],
  "voisins": [
   "effet_visuel",
   "interface"
+ ],
+ "regles": [
+  "ARC-09",
+  "ARC-03"
  ]
 }

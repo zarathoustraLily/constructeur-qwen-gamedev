@@ -29,5 +29,9 @@
  ],
  "voisins": [
   "interface"
+ ],
+ "regles": [
+  "ARC-02",
+  "ARC-06"
  ]
 }

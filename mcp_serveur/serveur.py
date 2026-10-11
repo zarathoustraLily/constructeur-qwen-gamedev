@@ -82,8 +82,10 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def run_tests(filtre: str | None = None) -> str:
         return await executer(outils.run_tests, filtre)
 
-    @outil("Vérifie le rangement du projet selon ORGANISATION.md : chaque fichier dans son dossier, "
-           "et chaque dossier ne référence que ceux qu'il a le droit de connaître.")
+    @outil("Vérifie le projet selon ORGANISATION.md : chaque fichier dans son dossier, chaque dossier ne "
+           "référence que ceux qu'il a le droit de connaître, et les règles mécaniques (typage, syntaxe Godot 4, "
+           "nommage, valeurs dans 5_data, présentation dans _view, entrées dans _input, temps, hasard). "
+           "Chaque écart nomme sa règle par son identifiant.")
     async def check_structure() -> str:
         return await executer(outils.check_structure)
 

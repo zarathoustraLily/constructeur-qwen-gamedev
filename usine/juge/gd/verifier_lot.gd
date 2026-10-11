@@ -30,8 +30,8 @@ func _charger_classes_globales() -> void:
 		bases[c["class"]] = c["base"]
 		chemins[c["class"]] = c["path"]
 	var noms := chemins.keys()
-	noms.sort_custom(func(a, b): return [_profondeur(a, bases), str(a)] < [_profondeur(b, bases), str(b)])
-	for nom in noms:
+	noms.sort_custom(func(a: Variant, b: Variant) -> bool: return [_profondeur(a, bases), str(a)] < [_profondeur(b, bases), str(b)])
+	for nom: Variant in noms:
 		ResourceLoader.load(chemins[nom])
 
 

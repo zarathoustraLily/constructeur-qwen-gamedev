@@ -592,6 +592,41 @@ Attendu :
 - capture : une légende de 8 cases ; vers la case 3, `Drone3 : détruit, score +100` ; ensuite `Player : touché -1, vie 4`, puis 3, 2, 1. Ouvre la grille (`%TEMP%\capture_socle\capture_….png`) : le vaisseau bleu monte, tire, un drone rouge disparaît, les deux voisins descendent sur lui.
 - Pour l'essayer dans OpenCode : ouvre une copie de `godot\socle_jeu` comme dossier de travail, avec le serveur MCP de l'usine déclaré dans son `opencode.json` (étape 16).
 
+## 24. Règles d'architecture : juge, socle propre, tâches « nettoyer » (après ta campagne V2) — environ 15 minutes
+
+À lancer seulement quand ta campagne V2 est jugée : rien de ce qui suit ne doit tourner pendant qu'elle occupe la machine.
+
+Ce qui change pour Qwen :
+- `check_structure` juge maintenant tes règles mécaniques (rangement, tableau des dépendances, typage, syntaxe Godot 4, nommage, valeurs dans 5_data, présentation dans `_view`, entrées dans `_input`, `/root` et `../`, `create_timer` sans `false`, priorités nommées, `_process`, hasard) et nomme chaque écart par son identifiant (« SIM-08 : … ») ;
+- le socle passe ce juge à 100 % : plus d'`EventBus`, l'audio global ne fait que la musique et le volume, les durées et les règles de partie sont dans 5_data, chaque entité reçoit ses dépendances du niveau par `setup()` ;
+- `AGENTS.md` : le bloc permanent ne garde que les cinq principes et le tableau des dossiers ; `ORGANISATION.md` suit ton tableau ;
+- `prepare_action` rappelle les règles de chaque besoin coché ;
+- 124 tâches K4 « nettoyer » : le socle sali d'une règle à la fois ; elles ne passent que si les tests restent verts et que le juge ne signale plus rien ;
+- le tri d'entraînement garde, par tâche, la session réussie, bien rangée et saine qui a le moins de violations (QA-03 fichiers non déclarés, QA-07 tests annoncés sans preuve, QA-08 compte rendu absent comptent aussi).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+git pull
+py -3.12 -m pytest -q tests\test_regles.py tests\test_fiches.py tests\test_structure.py tests\test_rft.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+py -3.12 -m mcp_serveur.preuve
+```
+
+Attendu :
+- pytest : tout passe ;
+- `usine.regles` : `0 violation(s) {}` ;
+- preuve MCP : `check_structure` toujours `OK` (projet sans plan numéroté signalé).
+
+Puis, facultatif et long (chaque tâche est jugée quatre fois, environ 40 s par jugement ; compte plusieurs heures pour les 124) :
+
+```bat
+py -3.12 -m usine.generateurs produire --competences K4 --sortie %TEMP%\nettoyer
+py -3.12 -m usine.juge modeles --dossier %TEMP%\nettoyer --travailleurs 4
+```
+
+Attendu : `124 tâches candidates`, puis `124/124 tâches conformes` (chaque tâche `FAIL` au départ, `PASS` en référence).
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.

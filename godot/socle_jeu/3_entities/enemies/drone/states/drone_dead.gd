@@ -1,7 +1,8 @@
 extends State
-## Mort : quitte le groupe des ennemis, prévient le jeu, rétrécit puis disparaît.
+## Mort : quitte le groupe des ennemis, ne touche plus rien, puis disparaît après
+## stats.death_duration. Le niveau, qui écoute la vie du drone, compte les points.
 
-const SHRINK_TIME := 0.25
+var _time_left: float = 0.0
 
 
 func enter() -> void:
@@ -10,7 +11,10 @@ func enter() -> void:
 	drone.velocity = Vector3.ZERO
 	drone.get_node(^"Collision").set_deferred(&"disabled", true)
 	drone.get_node(^"Hurtbox").set_deferred(&"monitorable", false)
-	EventBus.enemy_killed.emit(drone, drone.stats.score_value)
-	var tween := drone.create_tween()
-	tween.tween_property(drone, ^"scale", Vector3.ONE * 0.01, SHRINK_TIME)
-	tween.tween_callback(drone.queue_free)
+	_time_left = drone.stats.death_duration
+
+
+func physics_update(delta: float) -> void:
+	_time_left -= delta
+	if _time_left <= 0.0:
+		actor.queue_free()

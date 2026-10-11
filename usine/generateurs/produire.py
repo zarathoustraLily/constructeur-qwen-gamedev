@@ -6,7 +6,8 @@
 Le dossier de sortie est vidé puis rempli : <sortie>/<compétence>/<id>/ au format commun.
 Chaque projet source de usine/generateurs/sources.py passe par les générateurs, avec ses plafonds ;
 les ids portent le nom de la source. La compétence E (optimisation stricte) ne lit aucune source :
-ses paires de jeux sont écrites par usine/generateurs/efficience.py. `competences` restreint la
+ses paires de jeux sont écrites par usine/generateurs/efficience.py. Les tâches K4 « nettoyer »
+salissent le socle de jeu (usine/generateurs/salissures.py). `competences` restreint la
 production à certaines compétences (les autres générateurs ne tournent pas). Un rapport `production.json` liste les tâches écrites et les
 cas écartés avec leur raison.
 """
@@ -19,7 +20,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from usine.generateurs import aller_retour, efficience, inverse, masquage, mutation
+from usine.generateurs import aller_retour, efficience, inverse, masquage, mutation, salissures
 from usine.generateurs.commun import Production
 from usine.generateurs.sources import Source, par_nom
 
@@ -67,6 +68,9 @@ def produire(sortie: Path, graine: int, nombre_f1: int = 40, travailleurs: int =
             afficher(f"-- source {src.nom}")
         for nom, etape in etapes:
             lancer(nom, etape)
+    if voulues is None or salissures.COMPETENCE in voulues:
+        afficher("-- socle de jeu (tâches « nettoyer »)")
+        lancer("salissures K4", lambda: salissures.generer(sortie, graine))
     if voulues is None or efficience.COMPETENCE in voulues:
         if len(choisies) > 1 or voulues:
             afficher("-- sans source (jeux écrits par le générateur)")
