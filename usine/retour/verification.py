@@ -46,6 +46,8 @@ _EXTENDS = re.compile(rf"^(?:class_name\s+{IDENT}\s+)?extends\s+(\"[^\"]+\"|'[^'
 # GdUnitTestSuite : GdUnit4 est injecté par le juge dans les copies qui ne l'ont pas.
 TOUJOURS_CONNUS = {"void", "Variant", "Self", "GdUnitTestSuite"}
 MAX_SIGNATURES = 15
+# Membres d'Object fournis par le langage, absents d'extension_api.json.
+MEMBRES_IMPLICITES = {"free"}
 
 
 def nettoyer(texte: str) -> str:
@@ -315,7 +317,7 @@ def verifier_script(texte: str, chemin: str, vocab, projet: IndexProjet | None =
     types = _types_variables(propre, texte, chemin)
     for m in _ACCES.finditer(propre):
         recepteur, membre, appel = m.group(1), m.group(2), m.group(3)
-        if recepteur in ("self", "super") or membre == "new":
+        if recepteur in ("self", "super") or membre == "new" or membre in MEMBRES_IMPLICITES:
             continue
         if recepteur in types:
             t = types[recepteur]

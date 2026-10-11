@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="LevelBudget" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/level_budget.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+max_nodes = 400
+max_frame_ms = 16.0
+max_orphans_after_free = 0

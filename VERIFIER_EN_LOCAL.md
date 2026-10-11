@@ -252,7 +252,7 @@ python -m usine.capture preuve
 python -m mcp_serveur.preuve
 ```
 
-Attendu : `CONFORME` pour la première ; `13/13 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; 12/12 avant la compétence E et son outil `measure_efficiency`).
+Attendu : `CONFORME` pour la première ; `14/14 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; 13/13 avant le juge de structure `check_structure`, 12/12 avant la compétence E).
 
 ## 15. Session 4 — brancher l'usine sur un projet
 
@@ -338,7 +338,7 @@ echo %ERRORLEVEL%
 
 Attendu :
 - pytest : `20 passed` (environ 7 min dans le cloud), puis `0` ;
-- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `13/13 contrôles conformes` et `0`.
+- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `14/14 contrôles conformes` et `0`.
 
 Un échec ici est un écart à signaler : copie la fin de la sortie dans le fil. Le cas le plus probable est un test de temps (`efficience_temps`), puisque le temps est la seule mesure qui dépend de la machine. Signale-le aussi, avec le rapport affiché.
 

@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/enemies/drone/drone.gd" id="1_drone"]
+[ext_resource type="Resource" path="res://5_data/enemies/drone.tres" id="2_stats"]
+[ext_resource type="Material" path="res://6_assets/materials/drone.tres" id="3_mat"]
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="4_health"]
+[ext_resource type="Script" path="res://1_core/components/hurtbox_component.gd" id="5_hurtbox"]
+[ext_resource type="Script" path="res://1_core/components/weapon_component.gd" id="6_weapon"]
+[ext_resource type="Resource" path="res://5_data/weapons/drone_gun.tres" id="7_gun"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="8_sm"]
+[ext_resource type="Script" path="res://3_entities/enemies/drone/states/drone_idle.gd" id="9_idle"]
+[ext_resource type="Script" path="res://3_entities/enemies/drone/states/drone_chase.gd" id="10_chase"]
+[ext_resource type="Script" path="res://3_entities/enemies/drone/states/drone_attack.gd" id="11_attack"]
+[ext_resource type="Script" path="res://3_entities/enemies/drone/states/drone_dead.gd" id="12_dead"]
+[ext_resource type="PackedScene" path="res://3_entities/effects/impact/impact.tscn" id="13_impact"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_body"]
+material = ExtResource("3_mat")
+top_radius = 0.7
+bottom_radius = 0.4
+height = 0.5
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_body"]
+radius = 0.7
+
+[node name="Drone" type="CharacterBody3D" groups=["debuggable", "enemies", "trace"]]
+collision_layer = 4
+collision_mask = 7
+motion_mode = 1
+script = ExtResource("1_drone")
+stats = ExtResource("2_stats")
+hit_effect = ExtResource("13_impact")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_body")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_body")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("4_health")
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("health")]
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+script = ExtResource("5_hurtbox")
+health = NodePath("../Health")
+
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+shape = SubResource("SphereShape3D_body")
+
+[node name="Weapon" type="Node3D" parent="."]
+script = ExtResource("6_weapon")
+stats = ExtResource("7_gun")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("8_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("9_idle")
+
+[node name="Chase" type="Node" parent="StateMachine"]
+script = ExtResource("10_chase")
+
+[node name="Attack" type="Node" parent="StateMachine"]
+script = ExtResource("11_attack")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("12_dead")

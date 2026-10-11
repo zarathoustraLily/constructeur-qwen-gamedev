@@ -1,4 +1,4 @@
-"""Les 10 outils exposés à OpenCode, en fonctions Python simples (testables sans MCP).
+"""Les outils exposés à OpenCode, en fonctions Python simples (testables sans MCP).
 
 Chaque outil travaille sur UN projet Godot, fixé au lancement du serveur (`--projet`, par
 défaut le dossier courant). Les chemins se donnent en `res://…` ou relatifs au projet ;
@@ -231,11 +231,17 @@ class Outils:
 
     def run_tests(self, filtre: str | None = None) -> str:
         from usine.juge import godot as juges
-        cible = self.res(filtre) if filtre else "res://tests"
+        cible = self.res(filtre) if filtre else ("res://7_tests" if (self.projet / "7_tests").is_dir()
+                                                 and not (self.projet / "tests").is_dir() else "res://tests")
         if not self.disque(cible).exists():
             raise ErreurOutil(f"tests absents : {cible}")
         return _compact(self._avec_fiches(self._sur_copie(lambda c: juges.run_tests(c, cible, self.godot))))
 
+
+    def check_structure(self) -> str:
+        """Juge de structure : rangement et dépendances entre dossiers (ORGANISATION.md)."""
+        from usine.structure import verifier_projet
+        return _compact(_verdict_court(verifier_projet(self.projet)))
 
     def measure_efficiency(self, scene: str | None = None) -> str:
         """Mesure d'efficience (compétence E) sur une copie : allocations d'objets après 60 images

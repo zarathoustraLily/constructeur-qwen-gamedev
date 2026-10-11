@@ -77,10 +77,15 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def load_scene(chemin: str) -> str:
         return await executer(outils.load_scene, chemin)
 
-    @outil("Lance les tests GdUnit4 (défaut res://tests ; ou un dossier, ou une suite) ; "
+    @outil("Lance les tests GdUnit4 (défaut res://tests, ou res://7_tests ; ou un dossier, ou une suite) ; "
            "en cas d'erreur, la fiche du membre en cause.")
     async def run_tests(filtre: str | None = None) -> str:
         return await executer(outils.run_tests, filtre)
+
+    @outil("Vérifie le rangement du projet selon ORGANISATION.md : chaque fichier dans son dossier, "
+           "et chaque dossier ne référence que ceux qu'il a le droit de connaître.")
+    async def check_structure() -> str:
+        return await executer(outils.check_structure)
 
     @outil("Mesure d'efficience (copie, headless) : allocations après échauffement, lots de dessin, "
            "empreinte du rendu aux images 180/240/300, temps indicatif. Défaut : scène principale.")

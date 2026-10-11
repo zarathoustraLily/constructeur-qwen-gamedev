@@ -1,0 +1,101 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://2_sequence/levels/level_base/level_base.tscn" id="1_base"]
+[ext_resource type="PackedScene" path="res://3_entities/enemies/drone/drone.tscn" id="2_drone"]
+[ext_resource type="Resource" path="res://5_data/levels/level_01_budget.tres" id="3_budget"]
+[ext_resource type="Material" path="res://6_assets/materials/wall.tres" id="4_wall"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_WallNorth"]
+material = ExtResource("4_wall")
+size = Vector3(40, 2, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_WallNorth"]
+size = Vector3(40, 2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_WallSouth"]
+material = ExtResource("4_wall")
+size = Vector3(40, 2, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_WallSouth"]
+size = Vector3(40, 2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_WallWest"]
+material = ExtResource("4_wall")
+size = Vector3(1, 2, 40)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_WallWest"]
+size = Vector3(1, 2, 40)
+
+[sub_resource type="BoxMesh" id="BoxMesh_WallEast"]
+material = ExtResource("4_wall")
+size = Vector3(1, 2, 40)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_WallEast"]
+size = Vector3(1, 2, 40)
+
+[sub_resource type="BoxMesh" id="BoxMesh_Pillar"]
+material = ExtResource("4_wall")
+size = Vector3(3, 2, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_Pillar"]
+size = Vector3(3, 2, 3)
+
+[node name="Level01" instance=ExtResource("1_base")]
+budget = ExtResource("3_budget")
+
+[node name="WallNorth" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WallNorth"]
+mesh = SubResource("BoxMesh_WallNorth")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WallNorth"]
+shape = SubResource("BoxShape3D_WallNorth")
+
+[node name="WallSouth" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WallSouth"]
+mesh = SubResource("BoxMesh_WallSouth")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WallSouth"]
+shape = SubResource("BoxShape3D_WallSouth")
+
+[node name="WallWest" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WallWest"]
+mesh = SubResource("BoxMesh_WallWest")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WallWest"]
+shape = SubResource("BoxShape3D_WallWest")
+
+[node name="WallEast" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/WallEast"]
+mesh = SubResource("BoxMesh_WallEast")
+
+[node name="Shape" type="CollisionShape3D" parent="World/WallEast"]
+shape = SubResource("BoxShape3D_WallEast")
+
+[node name="Pillar" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 2)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Pillar"]
+mesh = SubResource("BoxMesh_Pillar")
+
+[node name="Shape" type="CollisionShape3D" parent="World/Pillar"]
+shape = SubResource("BoxShape3D_Pillar")
+
+[node name="Drone1" parent="World/Enemies" instance=ExtResource("2_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -4)
+
+[node name="Drone2" parent="World/Enemies" instance=ExtResource("2_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -4)
+
+[node name="Drone3" parent="World/Enemies" instance=ExtResource("2_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+
+[node name="Drone4" parent="World/Enemies" instance=ExtResource("2_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -14)
