@@ -539,6 +539,31 @@ Attendu :
 
 Copie dans le fil le tableau de la chaîne et les lignes du script. Garde le dossier `donnees\geles` : c'est le jeu de test définitif tant que personne ne décide de le compléter (`--completer-gel`, avant tout entraînement).
 
+## 22. Retour des outils (béquille, point 1) — environ 5 minutes
+
+Ce qui change pour Qwen : `write_file` (agent maison et `harnais_maison.py` s'il passe par `usine.rft.agent`) répond « aucun changement » quand le contenu est déjà celui du fichier, avec le nombre d'écritures identiques d'affilée ; après l'écriture d'un script, il vérifie chaque classe et membre Godot utilisé et renvoie les signatures officielles. `check_script` (serveur MCP, donc aussi OpenCode) ajoute le même rapport, et `check_script`, `load_scene` et `run_tests` joignent la fiche du membre en cause quand Godot signale une erreur.
+
+Avant le `git pull`, regarde si ton dossier a des modifications locales (le travail du 8 au 10 octobre n'est pas sur GitHub) :
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+```
+
+Si `usine\rft\agent.py` ou `mcp_serveur\outils.py` apparaissent en `M`, ne lance pas `git pull` : copie la liste dans le fil. Sinon :
+
+```bat
+git pull
+py -3.12 -m pytest -q tests\test_retour.py tests\test_mcp_serveur.py tests\test_rft.py
+py -3.12 -m usine.retour verifier godot\survivor
+py -3.12 -m usine.retour verifier D:\GODOT\projet_starfox
+```
+
+Attendu :
+- pytest : tout passe, aucun `skipped` dans `test_retour.py` (les deux derniers tests utilisent ton vocabulaire Godot) ;
+- `survivor` : `68 scripts, 0 problème(s)` ;
+- `projet_starfox` : la liste des accès suspects des scripts écrits par Qwen, s'il y en a, puis le total. Chaque ligne `✗` doit être une vraie faute (membre inexistant dans Godot 4.7.2, ou mauvais nombre d'arguments). Si une ligne te paraît fausse, copie-la dans le fil : c'est le vérificateur qu'on corrige.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.

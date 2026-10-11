@@ -13,6 +13,11 @@
 - [ ] Gel complet sous Godot 4.7.2 (décision du 2026-10-06), avec E : `VERIFIER_EN_LOCAL.md` étape 21, une nuit sur la machine
 - [x] Session 5 — Boucle RFT (cloud : code et preuve ; vrai tour après le gel 4.8)
 - [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après le premier LoRA et le gel 4.8)
+- [x] Béquille, point 1 — retour des outils (2026-10-11) : `VERIFIER_EN_LOCAL.md` étape 22
+- [ ] Béquille, point 2 — socle propre, plan d'organisation, juge de structure
+- [ ] Béquille, point 3/4 — consulter le plan, déclarer l'action, graphe de fiches
+- [ ] Béquille — mesure : même campagne de deux heures, avec et sans chaque béquille
+- [ ] Béquille — entraînement sur la démarche (harnais identique à l'usage)
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1005,6 +1010,54 @@ laurent : « pour le moment on va utiliser Godot 4.7, on fera l'adaptation plus 
 - **Couverture du gel** : seules F1 et K3 atteignent 50 tâches gelées (dernier gel cloud : D1 6, K1 12, K2 37, S1 10, S2 7). C1, C2, S3, K4, D2 et F2 n'ont pas encore de générateur. Un gel se complète par `chaine --completer-gel`, sans rien retirer, mais **seulement avant le premier entraînement** (`usine/portillon/gel.py`, règle 4). Avant d'entraîner, il faut donc soit ajouter des sources et des générateurs puis compléter le gel, soit décider de figer le gel tel quel.
 - **Migration vers 4.8, plus tard** : le gel 4.7.2 ne pourra pas être retiré après un entraînement (règle 4). La migration devra rejuger les tâches gelées sous 4.8 et réparer leurs générateurs au besoin (règle 5). Ce n'est pas un nouveau tirage.
 
+### Hors dépôt, du 2026-10-06 au 2026-10-10 (d'après les conversations fournies par laurent le 2026-10-11)
+
+Rien de ceci n'est sur GitHub : le travail a été fait dans `D:\constructeur-qwen-gamedev` sur la machine.
+
+- Gel complet fait sous 4.7.2 (221 tâches gelées citées), tour t1 : 93 sessions retenues sur 575, toutes produites par l'agent maison (`"harnais": "agent"`).
+- Premier LoRA : QLoRA rang 16, LLaMA-Factory sur RunPod (H200), 2 époques, 24 pas, 2 h 04, perte 0,078. 12 sessions sur 93 dépassent 16 384 jetons et sont tronquées (le filtre « plus courte » ne compte pas les résultats d'outils). Converti en `LORA_coding_godot-f16.gguf` (233 Mo), chargé par llama-server.
+- Jugé « mauvais » dans OpenCode par laurent : il a appris `read_file`/`write_file`, absents d'OpenCode. Ajouts locaux : `outils/harnais_maison.py` (consigne libre, sans et avec LoRA), outil de capture d'écran, outils de campagne.
+- Trois campagnes de 2 h sur starfox (2026-10-09, `G:\QWEN-GODOt`) : 0 erreur moteur ; 57 % des écritures identiques à la précédente (séries jusqu'à 28) ; `search_docs` appelé 4 fois ; ≈ 70 éditions refusées par campagne outillée ; 381 captures, aucune commentée ; structure laissée à plat.
+- Mesure du cache de llama-server : bloc fixe de 13 507 jetons en tête, 7,6 s au premier envoi, 0,3 s ensuite.
+
+Nouveau cap (`donnees\bequille_qwen.html` sur la machine, « La béquille de Qwen ») : ne pas rendre Qwen plus savant, lui donner la bonne information au bon moment (en permanence, avant l'action, après l'action), puis entraîner la démarche. Ordre décidé par laurent : 1. retour des outils ; 2. socle propre et plan d'organisation ; 3. déclaration d'action et graphe ; 4. mesure par campagnes ; 5. entraînement.
+
+### Béquille, point 1 — retour des outils — 2026-10-11 (branche `claude/project-thread-12uh5s`)
+
+**Fait**
+
+- `usine/retour/` (déterministe, vocabulaire de `extension_api.json`) :
+  - `ecriture.Ecritures` : une écriture identique au contenu actuel n'écrit rien et répond « aucun changement », avec le compte d'écritures identiques d'affilée ;
+  - `verification.verifier_script` : types écrits inconnus ; accès `x.membre` quand le type de `x` est sûr (variable ou paramètre typé, `T.new()`, `as T`, classe nommée) ; arité des méthodes Godot ; signature officielle de chaque membre reconnu. Silence volontaire quand l'accès peut être dynamique (membre d'une classe dérivée, ou déclaré par un script du projet) ;
+  - `fiches.fiches_pour_erreurs` : lit les messages de Godot (`not found in base self`, `GDScriptNativeClass`, `Nonexistent function`, `Invalid access`…) ou, à défaut, la ligne en cause ; renvoie signature, membres proches et extrait de doc (index du RAG s'il existe).
+- Branchements : `write_file` de l'agent maison ; `check_script` du serveur MCP (champ `vocabulaire`, donc utilisable depuis OpenCode, dont l'outil d'écriture ne se modifie pas) ; `check_script`, `load_scene`, `run_tests` (champ `fiches`). Descriptions MCP mises à jour.
+- `python -m usine.retour verifier <projet>` pour voir le retour sur un projet.
+- Repris sur cette branche le commit 933949b (décision du gel sous 4.7.2, étape 21), resté hors de `main`.
+
+**Pourquoi le vérificateur est utile** : `godot --check-only` laisse passer `m.set_surface_overide_material()` ou `p.left_to_rightx = 0.5` sur une variable typée (appel non sûr, résolu à l'exécution). Il ne voit que les appels nus et les classes nommées.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux headless. `python -m pytest -q tests/` : `330 passed, 1 skipped` (sqlite_vec absent). Puis, sur l'état final :
+
+```
+$ python -m pytest -q tests/test_retour.py tests/test_mcp_serveur.py tests/test_rft.py
+24 passed in 230.21s (0:03:50)
+# Faux positifs : tous les scripts des 14 projets Godot du dépôt (référence, survivor, Kenney, tâches modèles)
+projets 14 fichiers 252 accès vérifiés 2776 problèmes 0
+# Rappel : pour chaque membre Godot reconnu, une faute de frappe injectée (« membre » → « membrex »)
+mutations 623 détectées 596
+$ python -m usine.retour verifier godot/survivor
+68 scripts, 0 problème(s)
+```
+
+**Reste à faire** : point 2 (socle propre). Le harnais maison local devra passer par `usine.rft.agent.Boite` pour bénéficier du retour.
+
+**Pièges**
+
+- Un membre absent d'une classe Godot n'est signalé que s'il n'existe dans aucune classe dérivée ni aucun script du projet : `var n: Node` puis `n.position` est un accès dynamique valide.
+- Le vérificateur ne suit pas les types à travers les appels (`get_node()`, retours de fonctions) : il se tait plutôt que de deviner.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1018,6 +1071,7 @@ laurent : « pour le moment on va utiliser Godot 4.7, on fera l'adaptation plus 
 - [x] Session 5 — `VERIFIER_EN_LOCAL.md` étapes 19 a et 19 b conformes le 2026-10-06, après trois correctifs Windows faits dans le cloud (détail plus bas). 19 c : pas d'OpenCode en ligne de commande sur la machine, le harnais reste l'agent maison. 19 d (entraînement) non lancée.
 - [x] Session 6 — `VERIFIER_EN_LOCAL.md` étapes 20 a et 20 b conformes le 2026-10-06 (20 c et 20 d facultatives, non lancées).
 - [ ] Gel complet sous Godot 4.7.2 — `VERIFIER_EN_LOCAL.md` étape 21 (une nuit).
+- [ ] Béquille, point 1 — `VERIFIER_EN_LOCAL.md` étape 22 (retour des outils).
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 

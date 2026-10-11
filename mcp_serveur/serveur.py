@@ -68,15 +68,17 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def apply_edits(edits: list[dict[str, Any]]) -> str:
         return await executer(outils.apply_edits, edits)
 
-    @outil("Analyse un script .gd (erreurs de parse et de type).")
+    @outil("Analyse un script .gd (erreurs de parse et de type) et vérifie chaque classe et membre Godot "
+           "qu'il utilise, avec leurs signatures officielles. À appeler après chaque écriture de script.")
     async def check_script(chemin: str) -> str:
         return await executer(outils.check_script, chemin)
 
-    @outil("Charge et instancie une scène en headless.")
+    @outil("Charge et instancie une scène en headless ; en cas d'erreur, la fiche du membre en cause.")
     async def load_scene(chemin: str) -> str:
         return await executer(outils.load_scene, chemin)
 
-    @outil("Lance les tests GdUnit4 (défaut res://tests ; ou un dossier, ou une suite).")
+    @outil("Lance les tests GdUnit4 (défaut res://tests ; ou un dossier, ou une suite) ; "
+           "en cas d'erreur, la fiche du membre en cause.")
     async def run_tests(filtre: str | None = None) -> str:
         return await executer(outils.run_tests, filtre)
 
