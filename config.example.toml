@@ -29,10 +29,17 @@ donnees = "donnees"
 projets_godot = 'D:\GODOT'
 docs_godot = 'A_RENSEIGNER'  # copie locale du dépôt godot-docs (branche 4.7)
 demos_godot = 'A_RENSEIGNER' # copie locale de godot-demo-projects (tag 4.7-6ad6167)
+# Base « bâtiments procéduraux » (python -m usine.cours.base) : copie du dépôt godot à l'étiquette 4.7.2-stable.
+# Suffisent doc/classes, modules/gdscript/doc_classes et editor/project_upgrade (référence des classes, renommages).
+source_godot = 'A_RENSEIGNER'
 
 [entrainement]
 base_hf = 'A_RENSEIGNER'     # dossier HF de Qwen3.8-27B, par ex. sous G:\llm_lora_trainer\
 convertisseur_lora = 'A_RENSEIGNER'  # convert_lora_to_gguf.py de llama.cpp
+# Vocabulaire de Qwen pour compter les jetons (règle 5.8) : models/ggml-vocab-qwen35.gguf de llama.cpp ;
+# vocab_qwen2 (models/ggml-vocab-qwen2.gguf) est facultatif : un second compte, avec le tokenizer de Qwen 1.5 à 3.
+vocab_qwen = 'A_RENSEIGNER'
+vocab_qwen2 = 'A_RENSEIGNER'
 
 [juge]
 delai_s = 300               # délai maximal d'un appel à Godot par le juge

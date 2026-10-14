@@ -3,7 +3,9 @@ extends Node
 ## Un état d'une machine à états. Chaque comportement (attente, poursuite, dash…) est un nœud
 ## enfant de la StateMachine, avec son propre script. Les états décident et déplacent, au pas fixe.
 
-## Demande un changement d'état (nom du nœud de l'état visé, en minuscules).
+## Demande un changement d'état (nom du nœud de l'état visé, en minuscules). Ce sont les états dérivés
+## qui l'émettent : l'avertissement « signal jamais employé dans la classe » ne vaut pas pour elle.
+@warning_ignore("unused_signal")
 signal transition_requested(to: StringName)
 
 ## Le nœud piloté (le parent de la StateMachine), posé par la machine.

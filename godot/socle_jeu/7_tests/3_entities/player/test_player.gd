@@ -5,6 +5,9 @@ extends GdUnitTestSuite
 const SCENE := "res://3_entities/player/player.tscn"
 
 
+# GdUnitSceneRunner déclare simulate_frames() abstraite, sans corps : l'analyse n'y voit pas d'await.
+# Son implémentation (GdUnitSceneRunnerImpl) attend les images : l'avertissement « await inutile » ne vaut
+# pas ici, et sans await les images ne seraient pas jouées.
 func test_marche_normalisee() -> void:
 	var player: Player = auto_free(load(SCENE).instantiate())
 	add_child(player)
@@ -15,9 +18,11 @@ func test_marche_puis_arret() -> void:
 	var runner := scene_runner(SCENE)
 	var player := runner.scene() as Player
 	runner.simulate_action_press(&"move_right")
+	@warning_ignore("redundant_await")
 	await runner.simulate_frames(3)
 	assert_str(player.state_machine.current_name()).is_equal("move")
 	runner.simulate_action_release(&"move_right")
+	@warning_ignore("redundant_await")
 	await runner.simulate_frames(3)
 	assert_str(player.state_machine.current_name()).is_equal("idle")
 
@@ -26,6 +31,7 @@ func test_dash_invincible_puis_recharge() -> void:
 	var runner := scene_runner(SCENE)
 	var player := runner.scene() as Player
 	runner.simulate_action_press(&"dash")
+	@warning_ignore("redundant_await")
 	await runner.simulate_frames(2)
 	runner.simulate_action_release(&"dash")
 	assert_str(player.state_machine.current_name()).is_equal("dash")

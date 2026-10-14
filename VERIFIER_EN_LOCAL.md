@@ -669,6 +669,32 @@ Attendu :
 
 Pour visiter une étape : ouvrir son dossier de `donnees\cours\batiments_proceduraux\projets\` dans l'éditeur Godot 4.7.2, puis F5. Sa note est son `README.md`.
 
+## 27. Générateur de la base et socle aux avertissements en erreurs (2026-10-14) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne, sur la même branche. Deux changements :
+- le générateur de la base « bâtiments procéduraux » est dans le dépôt (`usine\cours\base\`) ; les exemples de création sont maintenant en plusieurs tours : chaque sortie de Godot arrive dans le tour « user » suivant (règle 7.2). Chaque commande montrée est celle qui a tourné, arguments compris : le rendu enregistre son image dans `.godot/rendu.png`, puis quitte ;
+- le socle (`godot\socle_jeu`) traite tous les avertissements de GDScript en erreurs, comme le cours (règle 5.3) : cinq retouches (division entière explicite dans `capture.gd`, deux ternaires dont les deux branches sont maintenant des `String`, le paramètre `target` de `Drone.setup`, qui masquait la méthode `target()`, renommé `chased`, un `@warning_ignore` commenté sur le signal de `State` émis par les états dérivés et sur les `await runner.simulate_frames` des tests).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours.py tests\test_cours_base.py tests\test_regles.py tests\test_fiches.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+py -3.12 -m usine.juge run godot\socle_jeu --filtre res://7_tests
+```
+
+Attendu :
+- pytest : tout passe (`13 passed` pour les deux premiers fichiers dans le cloud) ;
+- `usine.regles` : `0 violation(s) {}` ;
+- `usine.juge run` : `"ok": true`, puis `"total": 31, "passes": 31`.
+
+Régénérer la base (facultatif, environ 45 minutes avec 4 travailleurs) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (`models\ggml-vocab-qwen35.gguf` de llama.cpp), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
+
+```bat
+py -3.12 -m usine.cours.base tout --travailleurs 4
+```
+
+Attendu : à la fin, `problèmes : 0` ; la base est dans `donnees\cours\batiments_proceduraux\base\livraison\` (format chat, sharegpt, `dataset_info.json`, `echantillon.md`, `controles.json`, `LISEZMOI.md`). Les sorties de Godot citées viennent alors de ta machine (Windows, ta carte graphique) : elles peuvent différer de celles du cloud, c'est attendu.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.

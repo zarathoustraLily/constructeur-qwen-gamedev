@@ -6,7 +6,8 @@ immeuble sur parcelle étroite (Tokyo), une tour de bureaux et son quartier (New
 niveaux, les balcons, les moulures, le toit, le rez-de-chaussée, la graine, la rue, les niveaux de
 détail. Chaque étape est un projet Godot complet, rangé selon le plan d'organisation du dépôt.
 
-Ce cours est la source de la base d'entraînement « bâtiments procéduraux ».
+Ce cours est la source de la base d'entraînement « bâtiments procéduraux » : `python -m usine.cours.base tout`
+(générateur dans `usine/cours/base/`, sorties dans `donnees/cours/batiments_proceduraux/base/livraison/`).
 
 ## Contenu
 

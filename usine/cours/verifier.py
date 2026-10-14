@@ -36,7 +36,7 @@ def nettoyer_sortie(texte: str, projet: Path) -> str:
     return "\n".join(lignes).replace(absolu + "/", "").replace(absolu, ".")
 
 
-def _ecran() -> tuple[list[str], dict[str, str]]:
+def prefixe_ecran() -> tuple[list[str], dict[str, str]]:
     """(préfixe de commande, variables d'environnement) pour un rendu : xvfb-run sous Linux sans écran."""
     if sys.platform.startswith("linux") and not os.environ.get("DISPLAY") and shutil.which("xvfb-run"):
         return ["xvfb-run", "-a", "-s", "-screen 0 960x540x24"], {"LIBGL_ALWAYS_SOFTWARE": "1"}
@@ -91,7 +91,7 @@ def verifier_projet(projet: Path, godot: Path | None = None, rendu: bool = True,
         r = executer([godot, "--headless", "--path", projet, "-s", res], delai_s=delai_s)
         bilan["tests"][res] = {"code": r.code, "sortie": nettoyer_sortie(r.sortie, projet)}
     if rendu:
-        prefixe, env = _ecran()
+        prefixe, env = prefixe_ecran()
         # Chemin absolu : avec --path, Godot travaille depuis le dossier du projet.
         png = (Path(image) if image else projet / ".godot" / "verification.png").resolve()
         png.parent.mkdir(parents=True, exist_ok=True)

@@ -57,7 +57,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 
 1. Toute sortie de Godot citée est réelle : Godot 4.7.2 lancé sur l'état exact du projet. On n'en retire que les lignes vides, les lignes d'information (version, pilote) et les avertissements propres à la machine (V-Sync, cache de shaders).
 2. Toute preuve est relue dans sa source : signatures dans `extension_api.json` du binaire 4.7.2, descriptions dans la référence des classes à l'étiquette `4.7.2-stable`, documentation dans `godot-docs` (branche stable), noms de Godot 3 dans `editor/project_upgrade/renames_map_3_to_4.cpp`.
-3. Les avertissements de GDScript sont des erreurs, typage compris : `untyped_declaration`, `narrowing_conversion`, `integer_division`, `unused_*`, `shadowed_*`… à 2 dans le bloc `[debug]` de `project.godot`.
+3. Les avertissements de GDScript sont des erreurs, typage compris : `untyped_declaration`, `narrowing_conversion`, `integer_division`, `unused_*`, `shadowed_*`… à 2 dans le bloc `[debug]` de `project.godot`. Cela vaut pour les projets qui suivent le plan (socle, cours). Les jeux sources des 221 tâches gelées gardent leurs réglages : les changer toucherait aux tâches gelées, dont le sort est ouvert (section 4).
 4. Un shader ne se compile qu'au rendu : après tout changement de shader, une image en Compatibilité (`--rendering-method gl_compatibility`).
 5. On lit chaque ligne de sortie : un test peut finir avec le code 0 et contenir des « SCRIPT ERROR ».
 6. Sur une erreur de shader, la ligne « at: » fait foi : quand le shader contient des `#include`, Godot 4.7.2 décale l'extrait affiché d'une ligne par `#include` placé au-dessus de l'erreur.
@@ -211,7 +211,8 @@ usine/            paquet Python
   mesure/         4 configurations, GameDevBench, rapport
   efficience/     compétence E : mesure headless (allocations, lots, rendu, temps), rendu intact, juge
   rag/            doc Godot 4.7 + démos officielles 4.7 qui compilent → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
-  cours/          cours en étapes : maîtres balisés → un projet Godot par étape ; juge et vérification Godot
+  cours/          cours en étapes : maîtres balisés → un projet Godot par étape ; juge et vérification Godot ;
+                  base/ : base d'entraînement tirée du cours (création et débogage, sorties réelles de Godot)
 cours/            sources des cours (maîtres, notes, manifeste) : batiments_proceduraux/ (3 villes × 13 étapes)
 mcp_serveur/      serveur MCP (stdio) qui expose les outils
 skills/           une fiche par compétence (SKILL.md)

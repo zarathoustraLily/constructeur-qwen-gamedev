@@ -73,3 +73,13 @@ def test_une_etape_par_ville_passe_godot(tmp_path):
         fabriquer(COURS, ville, etape, tmp_path)
         bilan = verifier_projet(tmp_path / nom_projet(ville, etape), rendu=False)
         assert bilan["ok"], (ville, etape, bilan.get("analyses"), bilan.get("tests"))
+
+
+def test_le_socle_traite_aussi_les_avertissements_en_erreurs():
+    """Règle 5.3 : le socle a le même bloc [debug] que les projets du cours."""
+    from usine import config as cfg
+    modele = (COURS / "commun" / "project.godot.tpl").read_text(encoding="utf-8")
+    bloc = modele[modele.index("[debug]\n"):modele.index("[display]")]
+    socle = (cfg.RACINE / "godot" / "socle_jeu" / "project.godot").read_text(encoding="utf-8")
+    manquants = [l for l in bloc.splitlines() if l.startswith("gdscript/") and l not in socle.splitlines()]
+    assert not manquants, manquants

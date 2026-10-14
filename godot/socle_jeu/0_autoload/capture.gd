@@ -87,7 +87,7 @@ func _ready() -> void:
 				img.resize(int(img.get_width() * scale), int(img.get_height() * scale), Image.INTERPOLATE_BILINEAR)
 			shots.append(img)
 		legend.append("case %d (ligne %d, colonne %d) : image %d, %.2f s de jeu"
-				% [i + 1, i / cols + 1, i % cols + 1, frames[i], float(frames[i]) / fps])
+				% [i + 1, floori(float(i) / cols) + 1, i % cols + 1, frames[i], float(frames[i]) / fps])
 		var lines := _journal(trace)
 		for line in lines.slice(seen):
 			legend.append("    " + line)
@@ -135,6 +135,6 @@ static func compose(shots: Array[Image], cols: int) -> Image:
 	var sheet := Image.create_empty(c * w + (c + 1) * GAP, r * h + (r + 1) * GAP, false, Image.FORMAT_RGBA8)
 	sheet.fill(BACKDROP)
 	for i in shots.size():
-		var at := Vector2i(GAP + (i % c) * (w + GAP), GAP + (i / c) * (h + GAP))
+		var at := Vector2i(GAP + (i % c) * (w + GAP), GAP + floori(float(i) / c) * (h + GAP))
 		sheet.blit_rect(shots[i], Rect2i(Vector2i.ZERO, Vector2i(w, h)), at)
 	return sheet

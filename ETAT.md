@@ -21,7 +21,7 @@
 - [ ] Béquille — entraînement sur la démarche (harnais identique à l'usage)
 - [x] Règles qui priment (mode d'emploi de laurent et passe « bâtiments procéduraux ») en tête de `CLAUDE.md` ; décors procéduraux admis par le juge des règles (2026-10-14) : étape 25
 - [x] Cours « bâtiments procéduraux » (3 villes × 13 étapes) dans le dépôt, conforme au juge des règles et vérifié par Godot (2026-10-14) : étape 26
-- [ ] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2)
+- [x] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2) ; socle aux avertissements en erreurs (règle 5.3) (2026-10-14) : étape 27
 - [ ] Base convertie au format d'OpenCode, harnais d'usage (décision 14)
 
 ## Bilan des 6 sessions (2026-10-05)
@@ -1231,6 +1231,50 @@ $ python -m pytest -q tests/test_cours.py
 - `--shot=<chemin relatif>` : avec `--path`, Godot compte le chemin depuis le dossier du projet.
 - `Dictionary` et `Dictionary[Variant, Variant]` sont le même type (référence de GDScript). Une boucle `for x: Dictionary[String, Variant] in …` sur les dictionnaires non typés de l'API ne contrôle rien (`is_typed()` faux), alors qu'une affectation directe échoue à l'exécution : ne pas s'y fier.
 
+### Générateur de la base « bâtiments procéduraux » et socle aux avertissements en erreurs — 2026-10-14 (branche `claude/regles-batiments-proceduraux`)
+
+Source : demandes de laurent du 2026-10-14 (« intègre ta solution […] dans le dépôt », puis « continue ») ; règles qui priment 5.1, 5.3, 7.2 et 7.5.
+
+**Fait**
+
+- `usine/cours/base/` : le générateur de la base, repris de la passe « bâtiments procéduraux » et branché sur le dépôt. Il part des 39 projets que fabrique `usine.cours`, lit ses chemins dans `config.toml` (`[chemins] docs_godot` et `source_godot`, `[entrainement] vocab_qwen` et, facultatif, `vocab_qwen2`) et lance Godot par `usine.processus.executer` (règle 8) : `python -m usine.cours.base generer|assembler|tout`. Sorties dans `donnees/cours/batiments_proceduraux/base/` (ignoré par git).
+- Règle 7.2 : les exemples de création sont en plusieurs tours. Une commande par tour (import, analyse de chaque script modifié, test de l'étape, image en Compatibilité quand un shader change) ; sa sortie réelle, avec son code de sortie, arrive dans le tour « user » suivant ; le dernier tour vérifie, corrige et rend compte. Avant, la réponse de création citait elle-même les sorties de Godot.
+- Règle 5.1 : chaque commande montrée est celle qui a tourné, arguments compris ; l'exécutable s'y appelle `godot` et le `xvfb-run` propre au cloud n'y figure pas. Le rendu montré jusqu'ici omettait `--shot` et `--quit-after` : lancé tel quel chez laurent, il aurait ouvert la visite sans jamais quitter. Il enregistre maintenant son image dans `.godot/rendu.png` et quitte ; sa ligne `capture: … erreur=0` reste dans la sortie et entre dans la vérification. L'import ne garde plus seulement ses lignes d'erreur, ce qui aurait ôté à une erreur sa ligne `at:` : seuls ses codes de couleur et sa progression sont retirés.
+- Contrôles de l'assemblage (`assembler.py`) : rôles alternés ; chaque commande demandée a sa sortie, et la bonne, dans le tour suivant ; aucune réponse n'écrit de sortie (7.2) ; consignes d'édition rejouées à la lettre (5.7) ; extraits de shader confrontés à leurs `#include` (5.6) ; aucun exemple au-delà de 32 768 jetons (7.5), comptés avec le tokenizer de Qwen 3.5 lu dans le GGUF de llama.cpp (5.8), bloc de réflexion vide hors des jetons de réponse (7.6).
+- Socle (`godot/socle_jeu`) aux avertissements en erreurs (5.3) : bloc `[debug]` complet, et cinq retouches. Division entière explicite (`capture.gd`) ; deux ternaires dont les deux branches sont maintenant des `String` (`trace.gd`, `debug_overlay.gd`) ; le paramètre `target` de `Drone.setup`, qui masquait la méthode `target()`, renommé `chased` ; des `@warning_ignore` commentés sur le signal de `State`, émis par les états dérivés, et sur les `await runner.simulate_frames` des tests (`GdUnitSceneRunner` déclare `simulate_frames` abstraite, sans corps ; `GdUnitSceneRunnerImpl` attend les images).
+- `CLAUDE.md` : règle 5.3 précisée (elle vaut pour le socle et le cours ; les jeux sources des 221 tâches gelées gardent leurs réglages, leur sort étant ouvert) ; arborescence (`usine/cours/base/`). `config.example.toml` : les trois chemins.
+- Tests : `tests/test_cours_base.py` (9 tests, sans Godot) et `test_le_socle_traite_aussi_les_avertissements_en_erreurs` dans `tests/test_cours.py` ; `VERIFIER_EN_LOCAL.md` étape 27.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Python 3.13.16.
+
+```
+$ python -m usine.regles verifier godot/socle_jeu
+0 violation(s) {}
+$ python -m usine.juge run godot/socle_jeu --filtre res://7_tests
+{"ok": true, "etape": "run_tests", "duree_s": 18.594, "erreurs": [], "tests": {"total": 31, "passes": 31, "echecs": []}}
+$ (témoin : copie du socle, `var x = 1` ajouté à 1_core/process_order.gd) python -m usine.juge run <copie> --filtre res://7_tests
+False check_script
+res://1_core/process_order.gd 18 parse_error Parse Error: Variable "x" has no static type. (Warning treated as error.)
+$ python -m usine.cours.base.jetons …/models/ggml-vocab-qwen35.gguf verifier
+qwen35 : 50/50 chaînes de test identiques à la sortie de référence
+$ python -m usine.cours.base.jetons …/models/ggml-vocab-qwen2.gguf verifier
+qwen2 : 46/46 chaînes de test identiques à la sortie de référence
+$ python -m pytest -q tests/test_cours_base.py
+9 passed in 1.50s
+```
+
+Base : une première génération complète (21 h 48 à 22 h 09, 2 travailleurs) a donné `problèmes : 0`, mais en la relisant, le rendu montré n'était pas la commande lancée (voir plus haut). Régénération complète en cours avec le générateur corrigé ; ses chiffres suivent.
+
+**Reste à faire** : convertir la base au format d'OpenCode (décision 14, règle 7.4) à partir d'une session réelle enregistrée par le proxy de capture (fichier demandé à laurent) ; étape 27 sur la machine, hors campagne ; laurent décide de l'emploi de la base.
+
+**Pièges**
+
+- Une commande montrée raccourcie n'est plus celle qui a tourné : sans `--shot` ni `--quit-after`, le rendu ne quitte pas.
+- `--check-only -s` lancé seul sur un script du socle échoue : « Identifier not found: GameState » (autoload) et « Could not find base class "GdUnitTestSuite" » (GdUnit4 n'est copié que par le juge). Analyser le socle par `python -m usine.juge run`.
+- Avec tous les avertissements à 2, `await runner.simulate_frames(...)` déclenche REDUNDANT_AWAIT (méthode abstraite dans `GdUnitSceneRunner`), mais l'`await` reste indispensable.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1249,6 +1293,7 @@ $ python -m pytest -q tests/test_cours.py
 - [ ] Règles d'architecture — `VERIFIER_EN_LOCAL.md` étape 24 (juge des règles, socle propre, tâches « nettoyer »), après la campagne V2.
 - [ ] Règles qui priment et décors procéduraux — `VERIFIER_EN_LOCAL.md` étape 25, hors campagne.
 - [ ] Cours « bâtiments procéduraux » — `VERIFIER_EN_LOCAL.md` étape 26, hors campagne.
+- [ ] Générateur de la base et socle aux avertissements en erreurs — `VERIFIER_EN_LOCAL.md` étape 27, hors campagne.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 

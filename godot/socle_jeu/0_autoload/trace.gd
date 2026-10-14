@@ -31,7 +31,7 @@ func _ready() -> void:
 
 func event(source: Node, text: String) -> void:
 	var game_time := float(Engine.get_physics_frames()) / Engine.physics_ticks_per_second
-	var line := "%.2f s %s : %s" % [game_time, source.name if source != null else "?", text]
+	var line := "%.2f s %s : %s" % [game_time, String(source.name) if source != null else "?", text]
 	lines.append(line)
 	if lines.size() > MAX_LINES:
 		lines = lines.slice(lines.size() - MAX_LINES)
