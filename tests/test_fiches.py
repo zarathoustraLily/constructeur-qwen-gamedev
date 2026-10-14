@@ -4,7 +4,7 @@ import pytest
 
 from usine import config as cfg
 from usine.fiches import MODELES, charger, extraire_exemple, ids, preparer_action, signature_api
-from usine.fiches import _disque
+from usine.fiches import _disque, verifier_fichiers
 from usine.regles.catalogue import REGLES
 from usine.retour.verification import Signatures
 from usine.vocab import ouvrir
@@ -72,3 +72,11 @@ def test_exemple_pris_dans_le_projet_d_abord(tmp_path, vocab):
     # Fichier absent du projet : on retombe sur le socle de l'usine.
     origine, _ = extraire_exemple({"fichier": "res://3_entities/player/states/player_dash.gd"}, tmp_path)
     assert "socle" in origine
+
+
+def test_decor_procedural_dans_le_plan(tmp_path):
+    """Un générateur de décor procédural a sa place dans 6_assets/Mesh/Procedural/ ; ailleurs, 6_assets reste sans code."""
+    remarques = verifier_fichiers(["res://6_assets/Mesh/Procedural/DECORS/Building/immeuble.gd",
+                                   "res://6_assets/materials/outil.gd"], None, tmp_path)
+    assert remarques[0].endswith("dans le plan (la matière)"), remarques
+    assert "ce dossier ne contient aucun code" in remarques[1], remarques

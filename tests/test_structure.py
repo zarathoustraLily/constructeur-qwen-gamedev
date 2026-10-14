@@ -53,6 +53,37 @@ def test_violations(tmp_path):
         assert any(m.startswith(a) for m in messages), (a, messages)
 
 
+
+def test_decors_proceduraux(tmp_path):
+    """Règles qui priment, section 5 : générateurs et scènes dans 6_assets/Mesh/Procedural/, données dans
+    5_data/DECORS/, outils communs dans 1_core/procedural/. Ailleurs, 5_data et 6_assets restent sans code."""
+    projet = _copie(tmp_path)
+    decor = projet / "6_assets" / "Mesh" / "Procedural" / "DECORS" / "Building"
+    donnees = projet / "5_data" / "DECORS" / "Building"
+    outils = projet / "1_core" / "procedural"
+    for d in (decor, donnees, outils):
+        d.mkdir(parents=True)
+    (donnees / "immeuble_palette.gd").write_text("extends RefCounted\nconst TEINTES: Array[Color] = [Color.WHITE]\n",
+                                                 encoding="utf-8")
+    (outils / "mesh_builder.gd").write_text("extends RefCounted\n", encoding="utf-8")
+    (decor / "immeuble.gd").write_text(
+        '@tool\nextends Node3D\nconst MeshBuilder := preload("res://1_core/procedural/mesh_builder.gd")\n'
+        'const Palette := preload("res://5_data/DECORS/Building/immeuble_palette.gd")\n', encoding="utf-8")
+    v = verifier_projet(projet)
+    assert v["ok"], v["erreurs"]
+    # Un script ailleurs dans 6_assets reste refusé ; un décor ne connaît pas l'interface.
+    (projet / "6_assets" / "materials" / "outil.gd").write_text("extends Node\n", encoding="utf-8")
+    (decor / "immeuble.gd").write_text((decor / "immeuble.gd").read_text(encoding="utf-8")
+                                       + 'const HUD := preload("res://4_ui/hud/hud.tscn")\n', encoding="utf-8")
+    messages = [e["message"] for e in verifier_projet(projet)["erreurs"]]
+    attendus = [
+        "DOSSIERS : script dans 6_assets (la matière) : ce dossier ne contient aucun code",
+        "DOSSIERS : 6_assets (la matière) ne doit pas connaître res://4_ui/hud/hud.tscn",
+    ]
+    for a in attendus:
+        assert any(m.startswith(a) for m in messages), (a, messages)
+    assert len(messages) == 2, messages
+
 def _ecrit(chemin, contenu="x"):
     return {"role": "assistant", "content": "", "tool_calls": [{"id": "1", "type": "function", "function": {
         "name": "write_file", "arguments": json.dumps({"chemin": chemin, "contenu": contenu})}}]}

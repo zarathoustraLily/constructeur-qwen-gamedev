@@ -19,6 +19,8 @@
 - [x] Béquille, point 8 — grille de captures horodatées et journal `Trace` (`capture_frames`) (2026-10-11) : étape 23
 - [ ] Béquille — mesure : même campagne de deux heures, avec et sans chaque béquille
 - [ ] Béquille — entraînement sur la démarche (harnais identique à l'usage)
+- [x] Règles qui priment (mode d'emploi de laurent et passe « bâtiments procéduraux ») en tête de `CLAUDE.md` ; décors procéduraux admis par le juge des règles (2026-10-14) : étape 25
+- [ ] Cours « bâtiments procéduraux » (3 villes × 13 étapes) et générateur de sa base dans le dépôt, comme sources de l'usine
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1147,6 +1149,44 @@ Suite complète, `python -m pytest -q` : `386 passed, 1 skipped in 1002.36s` (sq
 - Une salissure ne touche jamais un commentaire : sinon la « violation » n'existe pas pour le juge et la tâche serait verte au départ.
 - Un projet qui met `UNTYPED_DECLARATION` en erreur s'applique aussi aux scripts lancés avec `-s` ; tout nouveau script GDScript de l'usine doit être entièrement typé (y compris les variables de `for` sur un tableau non typé et les paramètres des lambdas).
 
+### Règles qui priment et décors procéduraux — 2026-10-14 (branche `claude/regles-batiments-proceduraux`)
+
+Source : demande de laurent du 2026-10-14, « modifie le dépôt pour que tes règles à toi avec celles du projet "poursuivre le projet de laurent" s'imposent au dépôt ». Son mode d'emploi n'est pas versé tel quel (dépôt public, détails personnels) : seules ses règles sont reprises.
+
+**Fait**
+
+- `CLAUDE.md` commence par « Règles qui priment », qui l'emportent sur le reste du fichier, le code et les documents : 1. travailler avec laurent ; 2. ses 13 décisions ; 3. pièges et interdits ; 4. points ouverts ; 5. vérification (8 règles de la passe « bâtiments procéduraux ») ; 6. rangement des décors procéduraux ; 7. données d'entraînement (7 règles). Chaque point dit s'il est décidé, proposé ou ouvert.
+- Le reste de `CLAUDE.md` est mis d'accord : règle 4 « Jeux gelés : on n'en crée plus » (décision 1), les 221 tâches gelées restant exclues tant que laurent n'a pas décidé ; le harnais d'usage est un point ouvert ; la mesure ne se lance que si laurent la demande ; la grille compétence × sujet, moitié création, moitié débogage, en jetons de réponse.
+- Juge des règles : table `DECORS` de `usine/structure/regles.py`. `6_assets/Mesh/Procedural/` peut contenir du code qui dépend de `1_core/` et `5_data/` ; `5_data/DECORS/` peut contenir des scripts de constantes, sans dépendance. Ailleurs, `5_data/` et `6_assets/` restent sans code. `verifier_fichiers` (fiches de `prepare_action`) et le texte de DOSSIERS (`usine/regles/catalogue.py`) suivent.
+- Socle : une ligne dans `AGENTS.md`, une puce dans `ORGANISATION.md`.
+- Tests : `test_decors_proceduraux` (un générateur qui charge `1_core/procedural/` et `5_data/DECORS/` passe ; un script dans `6_assets/materials/` et un décor qui charge `4_ui/` échouent) et `test_decor_procedural_dans_le_plan`.
+- `VERIFIER_EN_LOCAL.md` : étape 25.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Python 3.13.16, pytest 9.1.1.
+
+```
+$ python -m pytest -q tests/test_structure.py tests/test_fiches.py tests/test_regles.py
+56 passed in 1.91s
+$ python -m usine.regles verifier godot/socle_jeu
+0 violation(s) {}
+$ juge des règles sur les 39 étapes du cours « bâtiments procéduraux » (cumulé)
+Écarts dans les fichiers enseignés (39 étapes, cumulés) : {'COD-02': 142}
+Écarts dans l'outillage du cours : {'ARC-04': 546, 'SIM-01': 39, 'DAT-01': 3465, 'COD-02': 227, 'ORG-01': 39}
+```
+
+Avant la table `DECORS`, les fichiers enseignés comptaient aussi 188 écarts DOSSIERS ; il n'en reste aucun. Les 142 COD-02 (tableaux et dictionnaires non typés) sont une règle du projet qui reste : c'est le cours qui se corrige.
+
+Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 failed, 379 passed, 2 skipped in 585.45s`. Les 5 échecs (`test_mesure`, `test_retour`, 3 de `test_rft`) sont `ModuleNotFoundError: No module named 'mcp'` : le SDK MCP manque dans le cloud, le proxy refuse PyPI (403).
+
+**Reste à faire** : laurent relit et corrige « Règles qui priment » ; le cours et le générateur de sa base dans le dépôt, avec ses collections typées (COD-02) et son outillage de visite rangé ou laissé hors des sources ; étape 25 sur la machine, hors campagne.
+
+**Pièges**
+
+- Le juge ne distingue pas un générateur `@tool` d'un script de jeu : sans la table `DECORS`, tout script de `5_data/` ou `6_assets/` est un écart DOSSIERS.
+- `pkill -f` dans le cloud tue aussi le shell qui le lance : tuer par numéro de processus.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1163,6 +1203,7 @@ Suite complète, `python -m pytest -q` : `386 passed, 1 skipped in 1002.36s` (sq
 - [ ] Béquille, point 1 — `VERIFIER_EN_LOCAL.md` étape 22 (retour des outils).
 - [ ] Béquille, points 2 à 9 — `VERIFIER_EN_LOCAL.md` étape 23 (socle, fiches, captures).
 - [ ] Règles d'architecture — `VERIFIER_EN_LOCAL.md` étape 24 (juge des règles, socle propre, tâches « nettoyer »), après la campagne V2.
+- [ ] Règles qui priment et décors procéduraux — `VERIFIER_EN_LOCAL.md` étape 25, hors campagne.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 

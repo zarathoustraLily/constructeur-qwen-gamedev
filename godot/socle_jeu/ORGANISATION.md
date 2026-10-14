@@ -24,6 +24,7 @@
 | `7_tests/` | Tests GdUnit4, en miroir du chemin testé | tout | `7_tests/<chemin du code>/test_<nom>.gd` |
 
 - Aucun nouveau dossier à la racine de `res://` ; seule exception : `addons/`.
+- **Décors procéduraux** (règle du dépôt, `CLAUDE.md`, « Règles qui priment ») : les générateurs `@tool` et leurs scènes vivent dans `6_assets/Mesh/Procedural/<famille>/` et peuvent connaître `1_core/` et `5_data/` ; leurs shaders dans `6_assets/Shader/Procedural/<famille>/` ; leurs données (palettes, listes, cotes), en scripts de constantes, dans `5_data/DECORS/<famille>/` ; les outils communs (maillage, fonctions de shader partagées) dans `1_core/procedural/` et `6_assets/Shader/Procedural/`. Ailleurs, `5_data/` et `6_assets/` restent sans code.
 - Une entité ne dépend d'aucune autre entité : le drone ne connaît pas le joueur, il reçoit une cible. Le niveau assemble et fournit les dépendances par `setup()`.
 - L'interface ne connaît ni les acteurs ni les niveaux : elle écoute un autoload (`GameState.score_changed`) ou le niveau lui pousse l'information (`hud.show_health`).
 - La pause et la mise au point restent hors du déroulé : elles interrompent l'étape sans la faire avancer.

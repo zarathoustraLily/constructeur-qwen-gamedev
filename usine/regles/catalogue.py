@@ -11,7 +11,9 @@ from __future__ import annotations
 REGLES: dict[str, tuple[str, str]] = {
     "ORG-01": ("corrigée", "aucun nouveau dossier à la racine de res:// ; seule exception : addons/"),
     "DOSSIERS": ("confirmée", "chaque dossier ne dépend que de ceux de son tableau ; une entité ne dépend "
-                              "d'aucune autre entité ; 5_data et 6_assets ne contiennent aucun code"),
+                              "d'aucune autre entité ; 5_data et 6_assets ne contiennent aucun code, sauf les "
+                              "décors procéduraux (générateurs et scènes dans 6_assets/Mesh/Procedural/, qui "
+                              "peuvent connaître 1_core et 5_data ; données dans 5_data/DECORS/)"),
     "ARC-02": ("confirmée", "la simulation décide, la présentation lit l'état ou écoute des signaux"),
     "ARC-03": ("corrigée", "un script de simulation ne référence ni sprite, ni nœud audio, ni particules : "
                            "la présentation va dans un script <nom>_view.gd à côté"),

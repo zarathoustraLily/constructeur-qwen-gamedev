@@ -627,6 +627,28 @@ py -3.12 -m usine.juge modeles --dossier %TEMP%\nettoyer --travailleurs 4
 
 Attendu : `124 tâches candidates`, puis `124/124 tâches conformes` (chaque tâche `FAIL` au départ, `PASS` en référence).
 
+## 25. Règles qui priment et décors procéduraux (2026-10-14) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne. Le travail est sur la branche `claude/regles-batiments-proceduraux`, partie de la branche de travail : commite d'abord tes corrections V2 du PC, puis récupère cette branche ; rien n'est fusionné dans `main`.
+
+Ce qui change :
+- `CLAUDE.md` commence par « Règles qui priment » : tes règles (forme, feu vert, interdits, décisions validées, pièges, points ouverts) et celles de la passe « bâtiments procéduraux » (vérification, rangement des décors, données d'entraînement) l'emportent sur le reste du dépôt ;
+- le juge des règles admet les décors procéduraux : générateurs `@tool` et scènes dans `6_assets/Mesh/Procedural/` (ils peuvent connaître `1_core/` et `5_data/`), données en scripts de constantes dans `5_data/DECORS/` ; ailleurs, `5_data/` et `6_assets/` restent sans code ;
+- `prepare_action` et `AGENTS.md`, `ORGANISATION.md` du socle disent la même chose.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+git fetch origin claude/regles-batiments-proceduraux
+git switch claude/regles-batiments-proceduraux
+py -3.12 -m pytest -q tests\test_structure.py tests\test_regles.py tests\test_fiches.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+```
+
+Attendu :
+- pytest : tout passe (`56 passed` dans le cloud), dont `test_decors_proceduraux` et `test_decor_procedural_dans_le_plan` ;
+- `usine.regles` : `0 violation(s) {}` (le socle ne change pas).
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.
