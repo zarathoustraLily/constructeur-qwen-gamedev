@@ -20,7 +20,9 @@
 - [ ] Béquille — mesure : même campagne de deux heures, avec et sans chaque béquille
 - [ ] Béquille — entraînement sur la démarche (harnais identique à l'usage)
 - [x] Règles qui priment (mode d'emploi de laurent et passe « bâtiments procéduraux ») en tête de `CLAUDE.md` ; décors procéduraux admis par le juge des règles (2026-10-14) : étape 25
-- [ ] Cours « bâtiments procéduraux » (3 villes × 13 étapes) et générateur de sa base dans le dépôt, comme sources de l'usine
+- [x] Cours « bâtiments procéduraux » (3 villes × 13 étapes) dans le dépôt, conforme au juge des règles et vérifié par Godot (2026-10-14) : étape 26
+- [ ] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2)
+- [ ] Base convertie au format d'OpenCode, harnais d'usage (décision 14)
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1187,6 +1189,48 @@ Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 f
 - Le juge ne distingue pas un générateur `@tool` d'un script de jeu : sans la table `DECORS`, tout script de `5_data/` ou `6_assets/` est un écart DOSSIERS.
 - `pkill -f` dans le cloud tue aussi le shell qui le lance : tuer par numéro de processus.
 
+### Cours « bâtiments procéduraux » dans le dépôt — 2026-10-14 (branche `claude/regles-batiments-proceduraux`)
+
+Source : demande de laurent du 2026-10-14 (« intègre ta solution […] dans le dépôt », avec les règles qui priment).
+
+**Fait**
+
+- `cours/batiments_proceduraux/` : les maîtres balisés des trois villes, les fichiers communs, les notes d'étape, les carnets de recherche de Tokyo et de New York, le manifeste.
+- `usine/cours/` : `fabriquer.py` (un projet Godot par étape, dans `donnees/cours/batiments_proceduraux/projets/`), `verifier.py` (juge des règles, puis Godot : import, analyse de chaque script, tests de l'étape, une image en Compatibilité), et `python -m usine.cours fabriquer|juger|verifier`. Avant tout changement de contenu, `fabriquer.py` redonnait les 39 projets du cours à l'identique (808 fichiers, `diff -rq` vide).
+- Le cours suit les règles du dépôt. Écarts du juge cumulés sur les 39 étapes, avant : fichiers enseignés COD-02 142 ; outillage de visite ARC-04 546, SIM-01 39, DAT-01 3 465, COD-02 227, ORG-01 39. Après : 0.
+  - avertissements de GDScript à 2 dans le `project.godot` de chaque étape (règle 5.3) ;
+  - la note de l'étape devient le `README.md` du projet (ORG-01) ;
+  - tableaux et dictionnaires typés (COD-02) : empreinte des variables par l'`Array[Dictionary]` de l'API, `Dictionary[String, Variant]` pour les réglages d'un shader, lignes de palette converties à la lecture (`PackedStringArray(...)`, `PackedColorArray(...)`), cases de l'outil de maillage créées avec leur type complet, tableaux parallèles au lieu de paires ;
+  - caméra libre : `free_camera_input.gd` lit clavier et souris et donne des intentions, la caméra avance dans `_physics_process` (ARC-04, SIM-01) ;
+  - visite : tous ses chiffres dans `5_data/visit/visit_settings.tres` (classe `VisitSettings` dans `1_core/data/`, avec `id` et `validate()`), la mesure du rendu dans le bandeau de `4_ui` (DAT-01, DAT-02).
+- Comportement inchangé : les 146 lignes de sortie des tests des 39 étapes (triangles, gabarits, niveaux de détail) sont identiques avant et après ; les images de Paris 013, New York 012 et Tokyo 005 sont identiques au pixel près.
+- `tests/test_cours.py` (6 tests, dont un avec Godot) ; `CLAUDE.md` (arborescence) ; `VERIFIER_EN_LOCAL.md` étape 26.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux.
+
+```
+$ python -m usine.cours juger batiments_proceduraux
+…
+building_proceduraux_newyorkais_etape_013 : 0 écart(s) {}
+39 projets, 0 écart(s)
+$ python -m usine.cours verifier batiments_proceduraux --travailleurs 2
+…
+39/39 projets vérifiés sans erreur ; bilan : /home/claude/constructeur-qwen-gamedev/donnees/cours/batiments_proceduraux/verification.json
+$ python -m pytest -q tests/test_cours.py
+6 passed in 27.32s
+```
+
+**Reste à faire** : le générateur de la base dans le dépôt (règle 7.2 : création en plusieurs tours) ; conversion au format d'OpenCode (décision 14) ; étape 26 sur la machine.
+
+**Pièges**
+
+- Godot 4.7.2 : une constante `Array[PackedStringArray]` écrite en tableaux littéraux imbriqués (palette de New York) passe l'analyse mais plante le moteur au test de l'étape (signal 11) ; écrite avec `PackedStringArray([...])`, elle est refusée (« isn't a constant expression »). Un cas réduit à deux scripts ne plante pas. Garder `Array[Array]` et convertir à la lecture.
+- Un essai rapide qui ne lisait que la ligne de bilan d'un test a manqué des « SCRIPT ERROR » (règle 5.5) ; le vérificateur, lui, lit chaque ligne.
+- `--shot=<chemin relatif>` : avec `--path`, Godot compte le chemin depuis le dossier du projet.
+- `Dictionary` et `Dictionary[Variant, Variant]` sont le même type (référence de GDScript). Une boucle `for x: Dictionary[String, Variant] in …` sur les dictionnaires non typés de l'API ne contrôle rien (`is_typed()` faux), alors qu'une affectation directe échoue à l'exécution : ne pas s'y fier.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1204,6 +1248,7 @@ Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 f
 - [ ] Béquille, points 2 à 9 — `VERIFIER_EN_LOCAL.md` étape 23 (socle, fiches, captures).
 - [ ] Règles d'architecture — `VERIFIER_EN_LOCAL.md` étape 24 (juge des règles, socle propre, tâches « nettoyer »), après la campagne V2.
 - [ ] Règles qui priment et décors procéduraux — `VERIFIER_EN_LOCAL.md` étape 25, hors campagne.
+- [ ] Cours « bâtiments procéduraux » — `VERIFIER_EN_LOCAL.md` étape 26, hors campagne.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 

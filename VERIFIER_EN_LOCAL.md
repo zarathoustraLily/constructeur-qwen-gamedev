@@ -649,6 +649,26 @@ Attendu :
 - pytest : tout passe (`56 passed` dans le cloud), dont `test_decors_proceduraux` et `test_decor_procedural_dans_le_plan` ;
 - `usine.regles` : `0 violation(s) {}` (le socle ne change pas).
 
+## 26. Cours « bâtiments procéduraux » dans le dépôt (2026-10-14) — environ 15 minutes
+
+À lancer quand aucune campagne ne tourne, sur la même branche que l'étape 25. Le cours (3 villes × 13 étapes) est dans `cours\batiments_proceduraux\` ; `usine.cours` en fabrique un projet Godot par étape dans `donnees\cours\batiments_proceduraux\projets\`, puis les juge et les fait tourner par Godot. Rien ne touche à tes projets ni à llama-server.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours.py
+py -3.12 -m usine.cours fabriquer batiments_proceduraux
+py -3.12 -m usine.cours juger batiments_proceduraux
+py -3.12 -m usine.cours verifier batiments_proceduraux --travailleurs 4
+```
+
+Attendu :
+- pytest : `6 passed` ;
+- `fabriquer` : 39 lignes `building_proceduraux_<ville>_etape_<NNN> : … fichiers`, puis `Projets dans …` ;
+- `juger` : `39 projets, 0 écart(s)` ;
+- `verifier` : `39/39 projets vérifiés sans erreur`. Chaque projet ouvre une fenêtre le temps de rendre une image (rendu de compatibilité, ta carte graphique) ; `--sans-rendu` l'évite. Les images sont dans `donnees\cours\batiments_proceduraux\images\`.
+
+Pour visiter une étape : ouvrir son dossier de `donnees\cours\batiments_proceduraux\projets\` dans l'éditeur Godot 4.7.2, puis F5. Sa note est son `README.md`.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.

@@ -211,6 +211,8 @@ usine/            paquet Python
   mesure/         4 configurations, GameDevBench, rapport
   efficience/     compétence E : mesure headless (allocations, lots, rendu, temps), rendu intact, juge
   rag/            doc Godot 4.7 + démos officielles 4.7 qui compilent → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
+  cours/          cours en étapes : maîtres balisés → un projet Godot par étape ; juge et vérification Godot
+cours/            sources des cours (maîtres, notes, manifeste) : batiments_proceduraux/ (3 villes × 13 étapes)
 mcp_serveur/      serveur MCP (stdio) qui expose les outils
 skills/           une fiche par compétence (SKILL.md)
 godot/reference/  projet Godot de référence + GdUnit4
