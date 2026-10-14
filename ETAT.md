@@ -1261,11 +1261,27 @@ $ python -m usine.cours.base.jetons …/models/ggml-vocab-qwen35.gguf verifier
 qwen35 : 50/50 chaînes de test identiques à la sortie de référence
 $ python -m usine.cours.base.jetons …/models/ggml-vocab-qwen2.gguf verifier
 qwen2 : 46/46 chaînes de test identiques à la sortie de référence
-$ python -m pytest -q tests/test_cours_base.py
-9 passed in 1.50s
+$ python -m pytest -q tests/test_cours.py tests/test_cours_base.py tests/test_regles.py tests/test_fiches.py
+65 passed in 42.82s
+$ python -m pytest -q tests/test_cours.py tests/test_cours_base.py
+16 passed in 39.40s
+$ python -m usine.cours.base tout --refaire --travailleurs 2 --docs … --source-godot … --vocab …/ggml-vocab-qwen35.gguf --vocab-qwen2 …/ggml-vocab-qwen2.gguf
+parisien 001 : 1 création(s) (7404 jetons de réponse), 5 session(s) (6750), 20 s
+…
+newyorkais 013 : 1 création(s) (22081 jetons de réponse), 15 session(s) (21558), 122 s
+…
+problèmes : 0
 ```
 
-Base : une première génération complète (21 h 48 à 22 h 09, 2 travailleurs) a donné `problèmes : 0`, mais en la relisant, le rendu montré n'était pas la commande lancée (voir plus haut). Régénération complète en cours avec le générateur corrigé ; ses chiffres suivent.
+Une première génération complète (de 21 h 48 à 22 h 09) avait aussi donné `problèmes : 0`, mais à la relecture, le rendu montré n'était pas la commande lancée (voir plus haut). La base ci-dessous vient du générateur corrigé : 17 min 41 s avec 2 travailleurs, assemblage compris. Les chiffres viennent de `controles.json` :
+
+- 357 exemples : 39 de création (15,1 tours en moyenne, 24 au plus) et 318 sessions de débogage (934 erreurs corrigées, 9,2 tours en moyenne, 18 au plus) ;
+- jetons de réponse : 459 073 pour la création, 452 352 pour le débogage (50,4 % et 49,6 %). Selon l'étape, le débogage pèse de 0,82 fois la création (`tokyoiste-004`) à 1,21 fois (`parisien-004`), médiane 0,98 ;
+- 1 824 606 jetons de Qwen en tout. Le plus long exemple, `newyorkais-007-creation`, en compte 31 660 (1 108 sous 32 768) ; aucun ne dépasse 32 768. Les tokenizers qwen35 et qwen2 donnent le même total : leurs deux fichiers ont 151 936 jetons et 151 387 fusions ;
+- consignes rejouées : 39 étapes, aucune consigne ambiguë, aucun fichier différent ;
+- 65 sessions écartées pendant la génération : 36 pour une erreur imprévue, 27 dont des erreurs restaient invisibles pour Godot, 2 dont aucune commande ne voyait les erreurs.
+
+Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 failed, 395 passed, 2 skipped in 829.29s`. Ce sont les mêmes 5 échecs qu'à l'étape 25 : `ModuleNotFoundError: No module named 'mcp'`, le SDK MCP n'étant pas installable dans le cloud.
 
 **Reste à faire** : convertir la base au format d'OpenCode (décision 14, règle 7.4) à partir d'une session réelle enregistrée par le proxy de capture (fichier demandé à laurent) ; étape 27 sur la machine, hors campagne ; laurent décide de l'emploi de la base.
 

@@ -683,11 +683,11 @@ py -3.12 -m usine.juge run godot\socle_jeu --filtre res://7_tests
 ```
 
 Attendu :
-- pytest : tout passe (`13 passed` pour les deux premiers fichiers dans le cloud) ;
+- pytest : tout passe (`65 passed` dans le cloud, dont 16 pour les deux premiers fichiers) ;
 - `usine.regles` : `0 violation(s) {}` ;
 - `usine.juge run` : `"ok": true`, puis `"total": 31, "passes": 31`.
 
-Régénérer la base (facultatif, environ 45 minutes avec 4 travailleurs) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (`models\ggml-vocab-qwen35.gguf` de llama.cpp), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs, et chaque rendu ouvre une fenêtre le temps d'une image) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (`models\ggml-vocab-qwen35.gguf` de llama.cpp), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
 
 ```bat
 py -3.12 -m usine.cours.base tout --travailleurs 4
