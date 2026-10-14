@@ -34,6 +34,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 11. Optimisation et gameplay font partie des sujets.
 12. Godot 4.7.2 (2026-10-06). Ordre de la béquille (2026-10-09) : retour des outils, socle et plan, déclaration d'action, mesure par campagnes, entraînement.
 13. Position du 2026-10-08 : ne pas raccourcir les résultats d'outils ni découper les sessions longues sans en reparler avec lui ; le LoRA apprend un cheminement.
+14. Le harnais d'usage est OpenCode (2026-10-14, réponse à « Quel harnais retenez-vous pour l'usage ? » : « open code »). Les données d'entraînement prennent ses outils et son format (section 7, règle 4).
 
 ### 3. Pièges et interdits (décidé)
 
@@ -47,7 +48,6 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 
 ### 4. Points ouverts (ne pas trancher sans laurent)
 
-- Le harnais d'usage : OpenCode, l'agent maison ou un autre (« si [ce harnais] ne peut pas être utilisé dans OpenCode, n'utilise pas OpenCode », 2026-10-08).
 - Les 221 tâches déjà gelées : les verser à l'entraînement découle de la décision 1, mais reste à confirmer ; d'ici là elles restent exclues (règle 4).
 - La compétence longue « de bout en bout » ; un entraînement sur des requêtes courtes, puis longues.
 - Les huit points à trancher des règles d'architecture (2D et 3D, format des données…) et la place de `6_assets/` hors des décors procéduraux.
@@ -81,7 +81,7 @@ Les générateurs peuvent connaître `1_core/` et `5_data/`. Ailleurs, `5_data/`
 1. Le 50/50 de la décision 3 se compte en jetons de réponse, étape par étape.
 2. Une réponse n'écrit jamais la sortie d'une commande : la sortie réelle arrive dans le message suivant. Le débogage suit les vagues de Godot : une faute de syntaxe cache le reste de l'analyse, un shader s'arrête à sa première erreur, certaines fautes n'apparaissent qu'à l'exécution.
 3. Une faute n'apparaît dans une réponse que comme le texte à remplacer.
-4. Les outils des données sont ceux du harnais d'usage : avant l'entraînement, commandes et éditions sont converties en ses appels d'outils, texte gardé (t1 a appris `read_file` et `write_file`, absents d'OpenCode).
+4. Les outils des données sont ceux du harnais d'usage, OpenCode (décision 14) : avant l'entraînement, commandes et éditions sont converties en ses appels d'outils, texte gardé (t1 a appris `read_file` et `write_file`, absents d'OpenCode).
 5. Chaque exemple tient sous `cutoff_len` (32 768 jetons sur la B300) : aucun n'est tronqué.
 6. Données sans raisonnement : `enable_thinking: false`. Sinon, avec le gabarit `qwen3_8`, LLaMA-Factory entraîne un bloc de réflexion vide sous la consigne « Reasoning effort is set to xhigh », et le LoRA apprend à ne pas réfléchir.
 7. Une case de la grille n'écrase pas les autres : d'une base volumineuse, on ne garde qu'une part.
@@ -90,7 +90,7 @@ Les générateurs peuvent connaître `1_core/` et `5_data/`. Ailleurs, `5_data/`
 
 Construire une **usine** qui fabrique des données vérifiées pour entraîner un LoRA de **Qwen3.8-27B** sur **14 compétences étroites** de développement Godot, puis mesurer honnêtement le gain obtenu.
 
-Qwen travaille dans **OpenCode** (le harnais d'usage reste un point ouvert : « Règles qui priment », section 4). L'usine l'équipe d'outils et trie ses sessions. On commence par Godot ; Unreal 5.8 réutilisera la même usine plus tard.
+Qwen travaille dans **OpenCode**, le harnais d'usage (« Règles qui priment », décision 14). L'usine l'équipe d'outils et trie ses sessions. On commence par Godot ; Unreal 5.8 réutilisera la même usine plus tard.
 
 Le document de conception (lecture humaine) est ici : https://claude.ai/code/artifact/076d696f-40e9-4330-9182-ee98631fb470. Ce fichier en est le résumé exécutable. En cas de doute, **ce fichier fait foi**.
 
