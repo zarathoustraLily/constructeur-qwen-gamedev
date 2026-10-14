@@ -168,8 +168,8 @@ par défaut : la perte porte sur chaque tour de réponse, pas seulement le derni
 - **Les sessions** : des erreurs sont posées dans le code juste de l'étape (un script, et souvent un shader), puis
   Godot est lancé pour de vrai à chaque tour, sur le projet tel que la session l'a laissé. Une session n'est gardée que
   si Godot (ou la recherche finale) a montré chacune de ses erreurs, et si le projet revient exactement au code de
-  l'étape. Les sessions s'ajoutent, étape par étape, jusqu'à ce que leurs jetons de réponse égalent ceux des exemples
-  de création de l'étape.
+  l'étape. Les sessions s'ajoutent, étape par étape, tant que leurs jetons de réponse restent en dessous de ceux des
+  exemples de création de l'étape de plus d'une demi-session : une session de plus éloignerait alors de l'équilibre.
 - **Toutes les sorties citées sont réelles** : Godot 4.7.2 a été lancé pour chacune (import, analyse, test, rendu), et
   `grep` aussi. En sont retirés : les codes de couleur, les lignes vides, les lignes d'information (version de Godot,
   pilote graphique, progression de l'import) et deux avertissements dus à la machine qui a produit la base : V-Sync
