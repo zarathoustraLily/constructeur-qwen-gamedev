@@ -41,7 +41,8 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 - L'export garde le texte de chaque tour qui contient un appel d'outil (sans lui, le LoRA t1 n'écrit plus rien) ; le plan reste dans le prompt d'entraînement.
 - Le harnais vérifie après la dernière écriture : la campagne V2 a été cassée par sa dernière action.
 - Partir d'un projet qui suit déjà le plan : Starfox a son propre dossier `scripts/`.
-- Pas d'alias dans `apply_edits` ; pas de campagne sans LoRA.
+- Pas de campagne sans LoRA.
+- Pas d'alias dans `apply_edits` : décision de conception du dépôt, pas de laurent (accepter `nom` ou `function` changerait les notes des jeux gelés).
 - Ne pas fusionner la branche de travail sans l'accord de laurent ni la vérification locale ; ne pas écraser les corrections V2 non commitées de son PC.
 
 ### 4. Points ouverts (ne pas trancher sans laurent)
