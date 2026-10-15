@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/hud/hud.gd" id="1_hud"]
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Margin" type="MarginContainer" parent="."]
+offset_right = 320.0
+offset_bottom = 80.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+
+[node name="Box" type="VBoxContainer" parent="Margin"]
+
+[node name="Score" type="Label" parent="Margin/Box"]
+theme_override_font_sizes/font_size = 24
+text = "Score 0"
+
+[node name="Health" type="Label" parent="Margin/Box"]
+theme_override_font_sizes/font_size = 24
+text = "Vie"

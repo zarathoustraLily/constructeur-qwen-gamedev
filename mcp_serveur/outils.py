@@ -1,4 +1,4 @@
-"""Les 10 outils exposés à OpenCode, en fonctions Python simples (testables sans MCP).
+"""Les outils exposés à OpenCode, en fonctions Python simples (testables sans MCP).
 
 Chaque outil travaille sur UN projet Godot, fixé au lancement du serveur (`--projet`, par
 défaut le dossier courant). Les chemins se donnent en `res://…` ou relatifs au projet ;
@@ -13,6 +13,7 @@ comme la mesure d'efficience (measure_efficiency, compétence E).
 from __future__ import annotations
 
 import json
+import sqlite3
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -171,6 +172,41 @@ class Outils:
         from usine.projet.editions import apply_edits
         return _compact(_verdict_court(apply_edits(self.projet, list(edits), godot=self.godot)))
 
+    # --- retour des outils (usine.retour) : vocabulaire d'un script, fiches des erreurs
+    def verifier_vocabulaire(self, chemin: str) -> str:
+        """Membres Godot du script vérifiés dans extension_api.json, avec leurs signatures."""
+        from usine.projet.index import lire_texte
+        from usine.retour import IndexProjet, formater_rapport, verifier_script
+        from usine.vocab import ouvrir
+        res = self.res(chemin)
+        vocab = ouvrir()
+        rapport = verifier_script(lire_texte(self.disque(res)), res, vocab, IndexProjet.lire(self.projet))
+        return formater_rapport(rapport, res, vocab.version())
+
+    def _avec_fiches(self, verdict: dict[str, Any]) -> dict[str, Any]:
+        """Joint au verdict la fiche des membres Godot en cause dans ses erreurs."""
+        from usine.retour import fiches_pour_erreurs
+        from usine.vocab import ouvrir
+        court = _verdict_court(verdict)
+        if court.get("erreurs"):
+            fiches = fiches_pour_erreurs(court["erreurs"], self.projet, ouvrir(), doc=self._doc())
+            if fiches:
+                court["fiches"] = fiches
+        return court
+
+    def _doc(self):
+        """Extrait de la documentation (recherche exacte « Classe.membre »), ou None sans index."""
+        from usine.rag.index import IndexDocs
+        if not hasattr(self, "_index_fiches"):
+            try:
+                self._index_fiches = IndexDocs(self.index_docs)
+            except (FileNotFoundError, sqlite3.Error):
+                self._index_fiches = None
+        index = self._index_fiches
+        if index is None:
+            return None
+        return lambda requete: next((r["texte"] for r in index.exacts(requete)), None)
+
     # --- juges (sur une copie jetable)
     def _sur_copie(self, action) -> dict[str, Any]:
         from usine.juge.projet import preparer_copie
@@ -182,22 +218,54 @@ class Outils:
         res = self.res(chemin)
         if not self.disque(res).is_file():
             raise ErreurOutil(f"script absent : {res}")
-        return _compact(_verdict_court(self._sur_copie(lambda c: juges.check_script(res, c, self.godot))))
+        court = self._avec_fiches(self._sur_copie(lambda c: juges.check_script(res, c, self.godot)))
+        court["vocabulaire"] = self.verifier_vocabulaire(res)
+        return _compact(court)
 
     def load_scene(self, chemin: str) -> str:
         from usine.juge import godot as juges
         res = self.res(chemin)
         if not self.disque(res).is_file():
             raise ErreurOutil(f"scène absente : {res}")
-        return _compact(_verdict_court(self._sur_copie(lambda c: juges.load_scene(res, c, self.godot))))
+        return _compact(self._avec_fiches(self._sur_copie(lambda c: juges.load_scene(res, c, self.godot))))
 
     def run_tests(self, filtre: str | None = None) -> str:
         from usine.juge import godot as juges
-        cible = self.res(filtre) if filtre else "res://tests"
+        cible = self.res(filtre) if filtre else ("res://7_tests" if (self.projet / "7_tests").is_dir()
+                                                 and not (self.projet / "tests").is_dir() else "res://tests")
         if not self.disque(cible).exists():
             raise ErreurOutil(f"tests absents : {cible}")
-        return _compact(_verdict_court(self._sur_copie(lambda c: juges.run_tests(c, cible, self.godot))))
+        return _compact(self._avec_fiches(self._sur_copie(lambda c: juges.run_tests(c, cible, self.godot))))
 
+
+    def check_structure(self) -> str:
+        """Juge des règles : rangement, dépendances entre dossiers (ORGANISATION.md) et règles
+        mécaniques ; chaque écart nomme sa règle (« SIM-08 : … »). Sans plan numéroté, le dit."""
+        from usine.regles import par_regle, verifier_regles
+        from usine.structure import verifier_projet
+        verdict = verifier_regles(self.projet)
+        if not verdict["applicable"]:
+            return _compact(_verdict_court(verifier_projet(self.projet)))
+        court = _verdict_court(verdict)
+        if verdict["erreurs"]:
+            court["par_regle"] = par_regle(verdict)
+        return _compact(court)
+
+    def prepare_action(self, but: str, type_action: str, fichiers: list[str], besoins: list[str],
+                       situations: list[str] | None = None) -> str:
+        """Déclaration d'action : plan, chaîne à imiter, fichiers face au plan, fiches des besoins cochés."""
+        from usine.fiches import preparer_action
+        from usine.vocab import ouvrir
+        return preparer_action(self.projet, but, type_action, list(fichiers or []), list(besoins or []),
+                               list(situations or []), ouvrir())
+
+    def capture_frames(self, images: list[int], scene: str | None = None, touches: list[str] | None = None) -> str:
+        """Grille d'images horodatées du jeu (fenêtré, sur une copie) et journal Trace par case."""
+        from usine.retour.capture import capturer
+        r = capturer(self.projet, images, self.res(scene) if scene else None, touches or [], godot=self.godot)
+        if not r["ok"]:
+            return _compact({"ok": False, "erreur": r.get("erreur")})
+        return f"{r['legende']}\nimage : {r['grille'] or 'aucune (pas de rendu)'}"
 
     def measure_efficiency(self, scene: str | None = None) -> str:
         """Mesure d'efficience (compétence E) sur une copie : allocations d'objets après 60 images

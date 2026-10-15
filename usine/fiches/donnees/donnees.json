@@ -1,0 +1,46 @@
+{
+ "id": "donnees",
+ "genre": "besoin",
+ "titre": "Réglages en ressources",
+ "a_considerer": [
+  "toute valeur réglable (dégâts, vitesses, durées, portées) est une propriété @export typée d'une classe de 1_core/data/",
+  "sa valeur vit dans un .tres de 5_data/, référencé par la scène qui l'utilise",
+  "chaque définition a un id en snake_case et une fonction validate() appelée au _ready de qui la reçoit",
+  "aucun nombre d'équilibrage dans les scripts de 2_sequence et 3_entities (0 et 1 permis)"
+ ],
+ "ou_travailler": [
+  "1_core/data/<classe>.gd pour la propriété",
+  "5_data/<catégorie>/<nom>.tres pour la valeur"
+ ],
+ "api": [
+  "Resource.resource_path",
+  "ResourceLoader.load"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://1_core/data/actor_stats.gd"
+  },
+  {
+   "fichier": "res://5_data/enemies/drone.tres"
+  },
+  {
+   "fichier": "res://1_core/data/game_rules.gd"
+  }
+ ],
+ "pieges": [
+  "modifier le .tres partagé à l'exécution : tous les ennemis du type changent ; l'état courant vit dans le nœud, pas dans la définition",
+  "duplicate() laisse partagées les sous-ressources : duplicate_deep() pour les copier",
+  "une propriété ajoutée à la classe mais pas au .tres : la valeur par défaut (0) s'applique ; validate() doit le signaler"
+ ],
+ "voisins": [
+  "etat",
+  "collision"
+ ],
+ "regles": [
+  "DAT-01",
+  "DAT-02",
+  "DAT-04",
+  "DAT-05",
+  "DAT-06"
+ ]
+}

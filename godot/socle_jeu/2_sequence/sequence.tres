@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Sequence" format=3]
+
+[ext_resource type="Script" path="res://1_core/step/sequence.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://2_sequence/menus/title/title.tscn" id="2_title"]
+[ext_resource type="PackedScene" path="res://2_sequence/cinematics/intro/intro.tscn" id="3_intro"]
+[ext_resource type="PackedScene" path="res://2_sequence/levels/level_01/level_01.tscn" id="4_level_01"]
+[ext_resource type="PackedScene" path="res://2_sequence/cinematics/ending/ending.tscn" id="5_ending"]
+
+[resource]
+script = ExtResource("1_script")
+steps = Array[PackedScene]([ExtResource("2_title"), ExtResource("3_intro"), ExtResource("4_level_01"), ExtResource("5_ending")])

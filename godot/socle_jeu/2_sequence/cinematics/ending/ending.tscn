@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/cinematics/ending/ending.gd" id="1_step"]
+[ext_resource type="Resource" path="res://5_data/game/game_rules.tres" id="2_rules"]
+
+[node name="Ending" type="Node"]
+script = ExtResource("1_step")
+rules = ExtResource("2_rules")
+
+[node name="Ui" type="CanvasLayer" parent="."]
+
+[node name="Background" type="ColorRect" parent="Ui"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.06, 0.09, 1)
+
+[node name="Text" type="Label" parent="Ui"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_font_sizes/font_size = 36
+text = "Fin"
+horizontal_alignment = 1
+vertical_alignment = 1

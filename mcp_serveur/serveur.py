@@ -68,17 +68,41 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def apply_edits(edits: list[dict[str, Any]]) -> str:
         return await executer(outils.apply_edits, edits)
 
-    @outil("Analyse un script .gd (erreurs de parse et de type).")
+    @outil("Analyse un script .gd (erreurs de parse et de type) et vérifie chaque classe et membre Godot "
+           "qu'il utilise, avec leurs signatures officielles. À appeler après chaque écriture de script.")
     async def check_script(chemin: str) -> str:
         return await executer(outils.check_script, chemin)
 
-    @outil("Charge et instancie une scène en headless.")
+    @outil("Charge et instancie une scène en headless ; en cas d'erreur, la fiche du membre en cause.")
     async def load_scene(chemin: str) -> str:
         return await executer(outils.load_scene, chemin)
 
-    @outil("Lance les tests GdUnit4 (défaut res://tests ; ou un dossier, ou une suite).")
+    @outil("Lance les tests GdUnit4 (défaut res://tests, ou res://7_tests ; ou un dossier, ou une suite) ; "
+           "en cas d'erreur, la fiche du membre en cause.")
     async def run_tests(filtre: str | None = None) -> str:
         return await executer(outils.run_tests, filtre)
+
+    @outil("Vérifie le projet selon ORGANISATION.md : chaque fichier dans son dossier, chaque dossier ne "
+           "référence que ceux qu'il a le droit de connaître, et les règles mécaniques (typage, syntaxe Godot 4, "
+           "nommage, valeurs dans 5_data, présentation dans _view, entrées dans _input, temps, hasard). "
+           "Chaque écart nomme sa règle par son identifiant.")
+    async def check_structure() -> str:
+        return await executer(outils.check_structure)
+
+    @outil("Avant d'agir : déclare ton but, le type d'ajout (etat, ennemi, arme, reglage, interface, niveau, "
+           "effet_visuel, autre), les fichiers prévus et les besoins cochés dans la liste fermée (minuterie, etat, "
+           "collision, son, effet_visuel, animation, interface, donnees, camera, sauvegarde) ; situations "
+           "facultatives (ennemi_touche, mort_acteur, tir, apparition_ennemis, fin_de_niveau). Rend en une fois "
+           "où travailler, l'exemple à imiter et une fiche par besoin : à considérer, API, exemple, pièges, voisins.")
+    async def prepare_action(but: str, type_action: str, fichiers: list[str], besoins: list[str],
+                             situations: list[str] | None = None) -> str:
+        return await executer(outils.prepare_action, but, type_action, fichiers, besoins, situations)
+
+    @outil("Lance le jeu (copie, fenêtré, 60 images/s) et rend une grille d'images horodatées avec, pour "
+           "chaque case, ce que le journal a noté (états, coups, score). touches : « action:de-à » en images, "
+           "ex. move_up:10-70. Défaut : scène principale.")
+    async def capture_frames(images: list[int], scene: str | None = None, touches: list[str] | None = None) -> str:
+        return await executer(outils.capture_frames, images, scene, touches)
 
     @outil("Mesure d'efficience (copie, headless) : allocations après échauffement, lots de dessin, "
            "empreinte du rendu aux images 180/240/300, temps indicatif. Défaut : scène principale.")

@@ -1,0 +1,40 @@
+{
+ "id": "apparition_ennemis",
+ "genre": "situation",
+ "titre": "Placer des ennemis",
+ "a_considerer": [
+  "les ennemis sont posés à la main dans la scène du niveau, sous World/Enemies",
+  "le code lit ce qui est posé (groupe « enemies »), il ne crée pas d'ennemis en dur",
+  "le niveau donne à chaque ennemi ses dépendances (cible, projectiles, effets) par setup()",
+  "une vague = un nœud conteneur activé au bon moment"
+ ],
+ "ou_travailler": [
+  "2_sequence/levels/<niveau>/<niveau>.tscn"
+ ],
+ "api": [
+  "SceneTree.get_nodes_in_group",
+  "Node.add_to_group",
+  "Node.is_ancestor_of"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://2_sequence/levels/level_01/level_01.tscn",
+   "noeud": "Drone1"
+  },
+  {
+   "fichier": "res://2_sequence/levels/level_base/level_base.gd",
+   "fonction": "_ready"
+  }
+ ],
+ "pieges": [
+  "positions d'apparition écrites dans le code : le niveau n'est plus éditable"
+ ],
+ "voisins": [
+  "fin_de_niveau",
+  "donnees"
+ ],
+ "regles": [
+  "ARC-06",
+  "ARC-07"
+ ]
+}

@@ -6,7 +6,8 @@ OpenCode :
   - les outils du serveur MCP `usine-godot`, avec leurs définitions exactes (lues sur le serveur
     FastMCP) et leur implémentation (mcp_serveur.outils.Outils, sur la copie de travail) ;
   - trois outils de fichiers, l'équivalent des outils intégrés d'OpenCode : list_files,
-    read_file, write_file (chemins limités au projet).
+    read_file, write_file (chemins limités au projet). write_file dit quand une écriture ne
+    change rien et, pour un script, vérifie le vocabulaire Godot utilisé (usine.retour).
 La fiche de la compétence (skills/usine-*/SKILL.md) est donnée dans le message système.
 
 Boucle : un appel au modèle, puis chaque appel d'outil demandé ; la session finit quand le modèle
@@ -77,6 +78,8 @@ class Boite:
         self.projet = Path(projet).resolve()
         self.outils = Outils(self.projet)
         self.noms_mcp = {json.loads(d)["function"]["name"] for d in definitions_mcp()}
+        from usine.retour import Ecritures
+        self.ecritures = Ecritures()
 
     def list_files(self) -> str:
         fichiers = sorted((p.relative_to(self.projet).as_posix() for p in self.projet.rglob("*")
@@ -95,11 +98,10 @@ class Boite:
         res = self.outils.res(chemin)
         if res.startswith(("res://addons/", "res://.godot/")):
             return f"Erreur : chemin réservé : {res}"
-        disque = self.outils.disque(chemin)
-        disque.parent.mkdir(parents=True, exist_ok=True)
-        with disque.open("w", encoding="utf-8", newline="") as f:
-            f.write(contenu)
-        return f"écrit : {res} ({len(contenu)} caractères)"
+        change, message = self.ecritures.ecrire(self.outils.disque(chemin), res, contenu)
+        if change and res.endswith(".gd"):
+            message += "\n" + self.outils.verifier_vocabulaire(res)
+        return message
 
     def appeler(self, nom: str, arguments: dict[str, Any]) -> str:
         try:
