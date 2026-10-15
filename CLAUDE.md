@@ -62,7 +62,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 5. On lit chaque ligne de sortie : un test peut finir avec le code 0 et contenir des « SCRIPT ERROR ».
 6. Sur une erreur de shader, la ligne « at: » fait foi : quand le shader contient des `#include`, Godot 4.7.2 décale l'extrait affiché d'une ligne par `#include` placé au-dessus de l'erreur.
 7. Une consigne d'édition cite un passage unique dans le fichier au moment où on l'applique ; rejouées à la lettre, les consignes redonnent le code attendu.
-8. Les jetons se comptent avec le tokenizer de Qwen (vocabulaire GGUF de llama.cpp), gabarit de chat compris, jamais par une estimation en caractères.
+8. Les jetons se comptent avec le tokenizer de Qwen 3.8 et son gabarit de chat, lus dans son GGUF (le modèle de laurent ou son vocabulaire seul), jamais par une estimation en caractères. Le `ggml-vocab-qwen35.gguf` des tests de llama.cpp est un autre vocabulaire (151 936 jetons, contre 248 320).
 
 ### 6. Décors procéduraux : rangement
 
@@ -212,7 +212,8 @@ usine/            paquet Python
   efficience/     compétence E : mesure headless (allocations, lots, rendu, temps), rendu intact, juge
   rag/            doc Godot 4.7 + démos officielles 4.7 qui compilent → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
   cours/          cours en étapes : maîtres balisés → un projet Godot par étape ; juge et vérification Godot ;
-                  base/ : base d'entraînement tirée du cours (création et débogage, sorties réelles de Godot)
+                  base/ : base d'entraînement tirée du cours, au format d'OpenCode (création et débogage,
+                  sorties réelles de Godot)
 cours/            sources des cours (maîtres, notes, manifeste) : batiments_proceduraux/ (3 villes × 13 étapes)
 mcp_serveur/      serveur MCP (stdio) qui expose les outils
 skills/           une fiche par compétence (SKILL.md)

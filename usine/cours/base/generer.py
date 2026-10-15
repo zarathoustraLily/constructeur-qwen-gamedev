@@ -14,7 +14,7 @@ import traceback
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from usine.cours.base import chemins, creation, debogage, etat, jetons, notes, rattacher, sessions, textes
+from usine.cours.base import chemins, creation, debogage, etat, notes, rattacher, sessions, textes
 from usine.cours.fabriquer import fabriquer_tout, lire_manifeste
 
 MAX_SESSIONS = 90
@@ -52,7 +52,8 @@ def sessions_etape(ville: str, n: int, cible: int, journal=print) -> list[dict]:
     def garder(ex: dict, muts: list) -> None:
         nonlocal acquis
         ex.update({"id": f"{ville}-{n:03d}-debogage-{len(sortie) + 1}", "ville": ville, "etape": n, "type": "debogage"})
-        total, reponse = jetons.compter_messages(ex["messages"])
+        # Les jetons de l'exemple au format d'OpenCode, celui de l'entraînement (Qwen 3.8, gabarit compris).
+        total, reponse = ex["opencode"]["jetons"], ex["opencode"]["jetons_reponse"]
         ex["preuves"]["jetons"], ex["preuves"]["jetons_reponse"] = total, reponse
         acquis += reponse
         sortie.append(ex)

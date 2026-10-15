@@ -23,6 +23,10 @@ cli = "opencode"            # moteur en ligne de commande : opencode run --forma
 fournisseur = 'A_RENSEIGNER' # id du fournisseur llama-server dans ta config OpenCode globale
 modele = 'A_RENSEIGNER'      # « fournisseur/modèle » passé à --model
 delai_s = 1800              # délai d'un essai OpenCode (production de données)
+# Base « bâtiments procéduraux » au format d'OpenCode (python -m usine.cours.base) : une session capturée par le
+# proxy de l'usine (prompt système et outils d'OpenCode), et le dossier des projets du cours sur ta machine.
+session_reference = 'A_RENSEIGNER'   # par ex. donnees\sessions\20261004-190325_13780ad518f3.jsonl
+dossier_cours = 'D:\GODOT\projet_enseingement\001_Batiments proceduraux'
 
 [chemins]
 donnees = "donnees"
@@ -36,10 +40,11 @@ source_godot = 'A_RENSEIGNER'
 [entrainement]
 base_hf = 'A_RENSEIGNER'     # dossier HF de Qwen3.8-27B, par ex. sous G:\llm_lora_trainer\
 convertisseur_lora = 'A_RENSEIGNER'  # convert_lora_to_gguf.py de llama.cpp
-# Vocabulaire de Qwen pour compter les jetons (règle 5.8) : models/ggml-vocab-qwen35.gguf de llama.cpp ;
-# vocab_qwen2 (models/ggml-vocab-qwen2.gguf) est facultatif : un second compte, avec le tokenizer de Qwen 1.5 à 3.
+# Tokenizer et gabarit de chat de Qwen 3.8 pour compter les jetons (règle 5.8) : le GGUF du modèle (seul son en-tête
+# est lu), par ex. 'E:\llama_models\qwen3.8\Qwen3.8-27B-UD-Q4_K_XL--vraimodel.gguf', ou son vocabulaire seul,
+# 'E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf'. Pas models/ggml-vocab-qwen35.gguf de llama.cpp : un autre
+# vocabulaire (151 936 jetons au lieu de 248 320).
 vocab_qwen = 'A_RENSEIGNER'
-vocab_qwen2 = 'A_RENSEIGNER'
 
 [juge]
 delai_s = 300               # délai maximal d'un appel à Godot par le juge

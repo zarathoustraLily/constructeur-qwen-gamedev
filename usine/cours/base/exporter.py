@@ -1,8 +1,12 @@
-"""Écrit la base : JSONL au format chat (messages), version sharegpt pour LLaMA-Factory, et une version lisible."""
+"""Écrit la base au format d'OpenCode (règle 7.4) : JSONL au format chat (messages et outils, pour Unsloth ou tout
+entraîneur qui applique le gabarit de Qwen 3.8), version sharegpt pour LLaMA-Factory (appels d'outils écrits dans
+la réponse comme le gabarit les écrit), et une version lisible."""
 from __future__ import annotations
 
 import json
 import os
+
+from usine.cours.base import opencode
 
 
 def competence(e: dict) -> str:
@@ -15,15 +19,16 @@ def sujet(e: dict) -> str:
 
 
 def ligne_chat(e: dict) -> dict:
-    return {"messages": e["messages"], "tache_id": e["id"], "competence": competence(e), "sujet": sujet(e),
-            "type": e["type"], "ville": e["ville"], "etape": e["etape"]}
+    oc = e["opencode"]
+    return {"messages": oc["messages"], "tools": oc["tools"], "tache_id": e["id"], "competence": competence(e),
+            "sujet": sujet(e), "type": e["type"], "ville": e["ville"], "etape": e["etape"]}
 
 
 def ligne_sharegpt(e: dict) -> dict:
-    systeme = "\n\n".join(m["content"] for m in e["messages"] if m["role"] == "system")
-    tours = [{"from": "human" if m["role"] == "user" else "gpt", "value": m["content"]}
-             for m in e["messages"] if m["role"] in ("user", "assistant")]
-    return {"conversations": tours, "system": systeme, "tache_id": e["id"]}
+    oc = e["opencode"]
+    ligne = opencode.vers_sharegpt(oc["messages"], oc["tools"])
+    ligne["tache_id"] = e["id"]
+    return ligne
 
 
 def ecrire(exemples: list[dict], dossier: str, nom: str) -> dict[str, str]:
@@ -39,6 +44,8 @@ def ecrire(exemples: list[dict], dossier: str, nom: str) -> dict[str, str]:
     with open(chemins["sharegpt"], "w", encoding="utf-8", newline="\n") as f:
         for e in exemples:
             f.write(json.dumps(ligne_sharegpt(e), ensure_ascii=False) + "\n")
+    # Pas de colonne « tools » : les définitions d'outils sont déjà dans le message système, telles que le gabarit
+    # de Qwen 3.8 les écrit, et les appels dans les réponses.
     info = {nom: {"file_name": f"{nom}_sharegpt.jsonl", "formatting": "sharegpt",
                   "columns": {"messages": "conversations", "system": "system"},
                   "tags": {"role_tag": "from", "content_tag": "value", "user_tag": "human", "assistant_tag": "gpt"}}}
@@ -47,24 +54,31 @@ def ecrire(exemples: list[dict], dossier: str, nom: str) -> dict[str, str]:
     return chemins
 
 
-def lisible(exemples: list[dict], chemin: str, titre: str) -> str:
-    morceaux = [f"# {titre}", "", f"{len(exemples)} exemples. Le message système est le même pour tous ; il est donné une fois.", "",
-                "## Message système", "", "````text", exemples[0]["messages"][0]["content"], "````", ""]
+def lisible(exemples: list[dict], chemin: str, titre: str, lignes_prompt: int = 40) -> str:
+    """Les exemples tels que le modèle les voit : chaque réponse avec ses appels d'outils écrits comme le gabarit
+    les écrit, chaque retour d'outil. Le prompt système d'OpenCode, commun à tous, n'est montré qu'en tête."""
+    systeme = exemples[0]["opencode"]["messages"][0]["content"].split("\n")
+    outils = [o["function"]["name"] for o in exemples[0]["opencode"]["tools"]]
+    morceaux = [f"# {titre}", "", f"{len(exemples)} exemples, au format d'OpenCode.", "",
+                f"## Prompt système d'OpenCode ({len(systeme)} lignes ; les {lignes_prompt} premières)", "",
+                "Seules changent, d'un exemple à l'autre, les lignes d'environnement (dossier de travail, identifiant "
+                "de session).", "", "````text", "\n".join(systeme[:lignes_prompt]), "````", "",
+                "## Outils d'OpenCode", "", ", ".join(f"`{o}`" for o in outils) + ".", ""]
     for e in exemples:
-        tours = e["messages"][1:]
+        ms = e["opencode"]["messages"][1:]
         if e["type"] == "creation":
-            titre_ex = f"création, {len(tours)} tours" if len(tours) > 2 else "création"
+            titre_ex = f"création, {len(ms)} messages"
         else:
             nb = e.get("nb_erreurs", 1)
-            titre_ex = f"session de débogage, {nb} erreur{'s' if nb > 1 else ''}, {len(tours)} tours"
+            titre_ex = f"session de débogage, {nb} erreur{'s' if nb > 1 else ''}, {len(ms)} messages"
         morceaux += [f"## {e['id']} ({titre_ex})", ""]
-        if len(tours) == 2:
-            morceaux += ["### Prompt (user)", "", tours[0]["content"], "", "### Réponse (assistant)", "",
-                         tours[1]["content"], ""]
-        else:
-            for k, m in enumerate(tours, 1):
-                qui = "user : sortie ou demande" if m["role"] == "user" else "assistant"
-                morceaux += [f"### Tour {k} ({qui})", "", m["content"], ""]
+        for k, m in enumerate(ms, 1):
+            if m["role"] == "user":
+                morceaux += [f"### {k}. user", "", m["content"], ""]
+            elif m["role"] == "assistant":
+                morceaux += [f"### {k}. assistant", "", "````text", opencode.reponse_rendue(m), "````", ""]
+            else:
+                morceaux += [f"### {k}. retour d'outil", "", "````text", m["content"], "````", ""]
         morceaux += ["---", ""]
     with open(chemin, "w", encoding="utf-8", newline="\n") as h:
         h.write("\n".join(morceaux))

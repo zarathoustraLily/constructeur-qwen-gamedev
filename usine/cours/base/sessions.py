@@ -12,7 +12,7 @@ import re
 import shutil
 from collections import OrderedDict
 
-from usine.cours.base import composer, creation, debogage, etat, godot, jetons, mutations, textes
+from usine.cours.base import composer, creation, debogage, etat, godot, jetons, mutations, opencode, textes
 from usine.cours.base.chemins import actuels
 from usine.cours.base.etat import CODE
 from usine.processus import executer
@@ -47,6 +47,7 @@ class Projet:
     def __init__(self, ville: str, n: int, apres: dict[str, str]):
         self.ville, self.n, self.apres = ville, n, apres
         self.chemin = godot.materialiser(dict(apres), f"sess_{ville}_{n:03d}")
+        godot.oublier(self.chemin)      # les sessions modifient le projet : aucune sortie gardée
         godot.importer(self.chemin)
         self.code = {k: v for k, v in apres.items() if k.endswith(CODE)}
         self.png = actuels().rendus / f"sess_{ville}_{n:03d}.png"
@@ -189,6 +190,28 @@ def _corriger(liees: list[mutations.Mutation]) -> list[str]:
 
 def tour_correction(projet: Projet, phase: str, s: godot.Sortie, vus: dict, liees: list[mutations.Mutation],
                     commande: str) -> str:
+    lire, chercher, corriger = parties_correction(projet, phase, s, vus, liees)
+    r = lire + [""] + chercher + [""] + corriger
+    r += ["", "**Tester.** Je relance la même commande :", f"```\n$ {commande}\n```"]
+    return "\n".join(r)
+
+
+def corriger_opencode(liees: list[mutations.Mutation]) -> str:
+    """« Corriger » au format d'OpenCode : les lignes à changer, nommées ; les changements sont les appels `edit`."""
+    tries = sorted(liees, key=lambda m: (m.fichier, m.ligne))
+    if len(tries) == 1:
+        return f"**Corriger.** Une seule ligne change : la ligne {tries[0].ligne} de `res://{tries[0].fichier}`."
+    par_fichier: "OrderedDict[str, list[int]]" = OrderedDict()
+    for m in tries:
+        par_fichier.setdefault(m.fichier, []).append(m.ligne)
+    morceaux = [f"`res://{f}` ligne{'s' if len(ls) > 1 else ''} " + ", ".join(str(x) for x in ls)
+                for f, ls in par_fichier.items()]
+    return f"**Corriger.** {len(tries)} lignes changent : " + " ; ".join(morceaux) + "."
+
+
+def parties_correction(projet: Projet, phase: str, s: godot.Sortie, vus: dict,
+                       liees: list[mutations.Mutation]) -> tuple[list[str], list[str], list[str]]:
+    """(« Lire », « Chercher », « Corriger ») d'un tour de correction, au format neutre."""
     r = []
     if len(liees) == 1:
         m = liees[0]
@@ -218,9 +241,7 @@ def tour_correction(projet: Projet, phase: str, s: godot.Sortie, vus: dict, liee
             r[0] += " " + " ".join(notes)
         else:
             r += [""] + notes
-    r += [""] + _chercher(liees) + [""] + _corriger(liees)
-    r += ["", "**Tester.** Je relance la même commande :", f"```\n$ {commande}\n```"]
-    return "\n".join(r)
+    return r, _chercher(liees), _corriger(liees)
 
 
 # --------------------------------------------------------------------------------------------- une session
@@ -240,11 +261,72 @@ def motifs_utiles(projet: Projet, muts: list[mutations.Mutation]) -> list[tuple[
     return sortie
 
 
+def intro_initiale(phase: str, cible: str | None) -> str:
+    """La première commande d'une session au format d'OpenCode, que Qwen lance lui-même."""
+    return {"analyse": f"Je lance l'analyse de `res://{cible}`, avertissements traités en erreurs (typage compris) :",
+            "rendu": "Un shader a changé, et un shader ne se compile qu'au rendu : je lance une image en Compatibilité :",
+            "test": "Je lance le test de l'étape, pour vérifier que tout se construit :"}[phase]
+
+
+def transition(precedente: str, suivante: str, cible: str | None, initial: bool) -> str:
+    """La commande d'après, quand la précédente passe (`initial` : elle passait déjà, rien n'a été corrigé)."""
+    if suivante == "analyse":
+        return f"Ce script passe l'analyse. Je lance celle de `res://{cible}` :"
+    if suivante == "rendu":
+        return ("L'analyse du script passe. " if precedente == "analyse" else "") + (
+            "Un shader a changé lui aussi, et un shader ne se compile qu'au rendu : je lance une image en "
+            "Compatibilité :")
+    rendu = "Le rendu ne signale aucune erreur." if initial else "Le rendu ne signale plus d'erreur."
+    return ({"analyse": "L'analyse du script passe.", "rendu": rendu}[precedente]
+            + " Je lance le test de l'étape, pour vérifier que tout se construit :")
+
+
+def corriger_oc(oc: opencode.Conversation, projet: Projet, phase: str, s: godot.Sortie, vus: dict,
+                liees: list[mutations.Mutation]) -> None:
+    """Un tour de correction au format d'OpenCode, avant que les corrections soient posées : lire les erreurs,
+    lire le code autour (`read`, les mêmes plages que les passages du format neutre, élargies au besoin), chercher,
+    corriger ligne par ligne (`edit`, sur le code tel qu'il est)."""
+    lire, chercher, _ = parties_correction(projet, phase, s, vus, liees)
+    textes_fichiers = {m.fichier: projet.code[m.fichier] for m in liees}
+    editions: list[tuple[str, opencode.Edition]] = []
+    plages: "OrderedDict[str, list[tuple[int, int]]]" = OrderedDict()
+    for m in sorted(liees, key=lambda m: (m.fichier, m.ligne)):
+        lignes = textes_fichiers[m.fichier].split("\n")
+        if lignes[m.ligne - 1] != m.apres:
+            raise SessionInvalide(f"{m.fichier}:{m.ligne} n'est pas la ligne fautive attendue", [])
+        lignes[m.ligne - 1] = m.avant
+        eds = opencode.editions_fichier(textes_fichiers[m.fichier], "\n".join(lignes))
+        if len(eds) != 1:
+            raise SessionInvalide(f"{m.fichier}:{m.ligne} : {len(eds)} éditions pour une ligne", [])
+        editions.append((m.fichier, eds[0]))
+        plages.setdefault(m.fichier, []).extend([(m.ligne - 6, m.ligne + 6), eds[0].lignes])
+        textes_fichiers[m.fichier] = "\n".join(lignes)
+    lectures = []
+    for rel, pl in plages.items():
+        contenu = projet.code[rel]
+        lectures += [(rel, contenu, a, b) for a, b in
+                     opencode.plages_lecture(pl, len(opencode.lignes_fichier(contenu)), marge=0)]
+    oc.lire("\n".join(lire) + "\n\nJe lis le code autour " + ("de cette ligne :" if len(liees) == 1 else "de ces lignes :"),
+            lectures)
+    texte = "\n".join(chercher) + "\n\n" + corriger_opencode(liees)
+    for k, (rel, e) in enumerate(editions):
+        oc.editer(texte if k == 0 else "", rel, e.ancien, e.nouveau)
+
+
 def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str) -> dict:
-    """Pose les erreurs, puis déroule la session : lancer, lire, corriger, relancer. Rend l'exemple."""
+    """Pose les erreurs, puis déroule la session : lancer, lire, corriger, relancer. Rend l'exemple, au format neutre
+    et au format d'OpenCode. Une sortie qu'OpenCode ne rendrait qu'en aperçu écarte la session."""
+    try:
+        return _jouer(projet, muts, desc, titre)
+    except opencode.FormatInconnu as exc:
+        raise SessionInvalide(f"format d'OpenCode : {exc}", []) from exc
+
+
+def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str) -> dict:
     projet.remettre()
     for m in muts:
         projet.poser(m, True)
+    depart = {m.fichier: projet.code[m.fichier] for m in muts}
     restantes = list(muts)
     gd = sorted({m.fichier for m in muts if m.fichier.endswith(".gd")})
     shaders = sorted({m.fichier for m in muts if not m.fichier.endswith(".gd")})
@@ -272,12 +354,14 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
     i = 0
     s = lancer(0)
     passees = []
+    initiales = [(phases[0], s)]
     while propre(phases[i][0], s):
         passees.append(phases[i][0])
         i += 1
         if i == len(phases):
             raise SessionInvalide("aucune commande ne voit les erreurs", list(restantes))
         s = lancer(i)
+        initiales.append((phases[i], s))
     vus, liees = lier(phases[i][0], s)
     fichiers = [f"`res://{f}`" for f in gd + shaders]
     intro = {"analyse": "L'analyse du script (avertissements traités en erreurs) donne :",
@@ -290,6 +374,16 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
                + deja + intro + "\n" + tour_sortie(projet, phases[i][0], s, liees) + "\n\n"
                "Corrige jusqu'à ce que tout passe : l'analyse du script, le rendu si un shader a changé, et le test de l'étape.")
     messages = [{"role": "system", "content": textes.SYSTEME}, {"role": "user", "content": premier}]
+    # Au format d'OpenCode : Qwen lance lui-même les commandes, lit le code par plages, corrige par `edit`.
+    graine = f"{projet.ville}-{projet.n:03d}-" + "-".join(f"{m.fichier}:{m.ligne}:{m.genre}" for m in muts)
+    oc = opencode.Conversation(actuels().harnais(), etat.nom(projet.ville, projet.n), graine)
+    oc.utilisateur(f"Projet Godot 4.7.2 : {desc}. Je travaille à l'étape {projet.n:03d} ({titre}). J'ai modifié "
+                   + (" et ".join(fichiers) if len(fichiers) <= 2 else ", ".join(fichiers[:-1]) + " et " + fichiers[-1])
+                   + ".\n\nVérifie que tout passe : l'analyse des scripts modifiés, le rendu si un shader a changé, et "
+                     "le test de l'étape. Corrige ce qui ne va pas.")
+    for k, ((ph, cible), sk) in enumerate(initiales):
+        texte = intro_initiale(ph, cible) if k == 0 else transition(initiales[k - 1][0][0], ph, cible, initial=True)
+        oc.shell(texte, sk.commande, sk.brut, sk.code, projet.chemin)
     premier_test_en_echec: godot.Sortie | None = s if phases[i][0] == "test" else None
     corriges: list[mutations.Mutation] = []
     lancees = {"analyse": 0, "rendu": 0, "test": 0, "grep": 0}
@@ -302,6 +396,7 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
         if not propre(phase, s):
             vues += [phase] * len(liees)
             messages.append({"role": "assistant", "content": tour_correction(projet, phase, s, vus, liees, s.commande)})
+            corriger_oc(oc, projet, phase, s, vus, liees)
             for m in liees:
                 projet.poser(m, False)
                 restantes.remove(m)
@@ -310,19 +405,12 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
             lancees[phase] += 1
             vus, liees = lier(phase, s)
             messages.append({"role": "user", "content": tour_sortie(projet, phase, s, liees)})
+            oc.shell("**Tester.** Je relance la même commande :", s.commande, s.brut, s.code, projet.chemin)
             continue
         # La commande passe : on va à la suivante.
         if i + 1 < len(phases):
             suivante = phases[i + 1][0]
-            if suivante == "analyse":
-                texte = f"Ce script passe l'analyse. Je lance celle de `res://{phases[i + 1][1]}` :"
-            elif suivante == "rendu":
-                texte = ("L'analyse du script passe. " if phase == "analyse" else "") + (
-                    "Un shader a changé lui aussi, et un shader ne se compile qu'au rendu : je lance une image en "
-                    "Compatibilité :")
-            else:
-                texte = ({"analyse": "L'analyse du script passe.", "rendu": "Le rendu ne signale plus d'erreur."}[phase]
-                         + " Je lance le test de l'étape, pour vérifier que tout se construit :")
+            texte = transition(phase, suivante, phases[i + 1][1], initial=False)
             i += 1
             s = lancer(i)
             lancees[suivante] += 1
@@ -331,6 +419,7 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
                 premier_test_en_echec = s
             messages.append({"role": "assistant", "content": texte + f"\n```\n$ {s.commande}\n```"})
             messages.append({"role": "user", "content": tour_sortie(projet, suivante, s, liees)})
+            oc.shell(texte, s.commande, s.brut, s.code, projet.chemin)
             continue
         break
     test_final = s
@@ -354,6 +443,10 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
         lancees["grep"] += 1
         messages.append({"role": "assistant", "content": intro_grep + f"\n```\n$ {g.commande}\n```"})
         messages.append({"role": "user", "content": bloc_sortie(g, "grep")})
+        try:
+            oc.chercher(intro_grep, motif, globs, g.texte)
+        except opencode.FormatInconnu as exc:
+            raise SessionInvalide(str(exc), []) from exc
         if g.texte.strip():
             trouvees = []
             for l in g.texte.splitlines():
@@ -424,7 +517,16 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
         f"{NOMS_PHASE[p]} ({k} fois)" if k > 1 else NOMS_PHASE[p] for p, k in lancees.items() if k) + ".")
     r.append("- Problèmes non résolus : aucun.")
     messages.append({"role": "assistant", "content": "\n".join(r)})
-    return {"messages": messages, "genres": [m.genre for m in muts], "nb_erreurs": len(muts),
+    oc.repondre("\n".join(r))
+    ex_oc = oc.exemple()
+    # Rejouées comme OpenCode les applique, les corrections redonnent le code juste de l'étape, exactement.
+    appels = [(tc["function"]["name"], tc["function"]["arguments"]) for m in ex_oc["messages"]
+              for tc in m.get("tool_calls") or []]
+    obtenu = opencode.appliquer(depart, appels, oc.dossier)
+    if any(obtenu[rel] != projet.apres[rel] for rel in depart):
+        raise SessionInvalide("les éditions d'OpenCode ne redonnent pas le code de l'étape", [])
+    ex_oc["jetons"], ex_oc["jetons_reponse"] = opencode.compter(jetons.tokenizer(), ex_oc["messages"], ex_oc["tools"])
+    return {"messages": messages, "opencode": ex_oc, "genres": [m.genre for m in muts], "nb_erreurs": len(muts),
             "preuves": {"ok": True, "commandes": traces, "vues": vues,
                         "mutations": [{"fichier": m.fichier, "ligne": m.ligne, "genre": m.genre, "avant": m.avant,
                                        "apres": m.apres} for m in muts]}}
@@ -496,7 +598,3 @@ def tirer(hasard: random.Random, dispo: list, lignes_prises: set, exclus_fichier
                 choisis.append(c)
                 vus_l.add(c.ligne)
     return choisis
-
-
-def tokens_reponse(messages: list[dict]) -> int:
-    return jetons.compter_messages(messages)[1]

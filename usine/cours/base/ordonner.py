@@ -8,11 +8,15 @@ import sys
 
 from usine.cours.base.etat import CODE, Morceau
 
-DECL = re.compile(r"^(?:@\w+(?:\((?:[^()\"]|\"[^\"]*\")*\))?\s+)*(?:static\s+)?(?:var|const|func|class|enum|signal)\s+(\w+)"
-                  r"|^(?:uniform|varying|const)\s+(?:\w+\s+)*?\w+\s+(\w+)\s*[;=:\[]"
+# La forme des shaders d'abord : « const int ROOM_OFFICE = 0; » prise pour le `const NOM` de GDScript donnait le nom
+# « int » (newyorkais 010 : une constante nouvelle du fichier inclus, employée avant d'exister).
+DECL = re.compile(r"^(?:uniform|varying|const)\s+(?:\w+\s+)*?\w+\s+(\w+)\s*[;=:\[]"
+                  r"|^(?:@\w+(?:\((?:[^()\"]|\"[^\"]*\")*\))?\s+)*(?:static\s+)?(?:var|const|func|class|enum|signal)\s+(\w+)"
                   r"|^(?:float|int|vec2|vec3|vec4|bool|mat3|mat4|void)\s+(\w+)\s*\(")
 MOT = re.compile(r"[A-Za-z_]\w*")
-LOCALE = re.compile(r"^\s+(?:var|const)\s+(\w+)|^\s*for\s+(\w+)|^\s+(?:float|int|uint|vec2|vec3|vec4|ivec2|ivec3|bool|mat3|mat4)\s+(\w+)\s*[=;]")
+INCLUDE = re.compile(r'^\s*#include\s+"res://([^"]+)"')
+LOCALE = re.compile(r"^\s+(?:const\s+)?(?:float|int|uint|vec2|vec3|vec4|ivec2|ivec3|bool|mat3|mat4)\s+(\w+)\s*[=;]"
+                    r"|^\s+(?:var|const)\s+(\w+)|^\s*for\s+(\w+)")
 FONCTION = re.compile(r"^(?:static\s+)?func\s+(\w+)|^(?:float|int|vec2|vec3|vec4|bool|mat3|mat4|void)\s+(\w+)\s*\(")
 
 
@@ -36,6 +40,33 @@ def fonctions_par_ligne(texte: str) -> list[str]:
         elif l and not l[0].isspace() and not l.startswith(("#", "//", "}", "@", "##")):
             courante = ""
         sortie.append(courante)
+    return sortie
+
+
+AVERTI = re.compile(r"^(?:@\w+(?:\((?:[^()\"]|\"[^\"]*\")*\))?\s+)*(?:(?:static\s+)?var\s+(_\w+)|signal\s+(\w+))")
+
+
+def _variable_ou_signal(ligne: str) -> str | None:
+    """Le nom d'une variable membre privée (« var _x ») ou d'un signal déclaré sur cette ligne."""
+    m = AVERTI.match(ligne)
+    return (m.group(1) or m.group(2)) if m else None
+
+
+def signatures(texte: str) -> dict[str, tuple[int, int, str]]:
+    """Chaque déclaration de premier niveau : (sa première ligne, la ligne qui suit sa signature, la signature).
+    Une signature continue sur les lignes suivantes tant que ses parenthèses ne sont pas refermées."""
+    lignes = texte.split("\n")
+    sortie: dict[str, tuple[int, int, str]] = {}
+    for i, l in enumerate(lignes):
+        m = DECL.match(l)
+        if not m:
+            continue
+        j, sig, ouvertes = i, l.strip(), l.count("(") - l.count(")")
+        while ouvertes > 0 and j + 1 < len(lignes):
+            j += 1
+            sig += " " + lignes[j].strip()
+            ouvertes += lignes[j].count("(") - lignes[j].count(")")
+        sortie[next(g for g in m.groups() if g)] = (i, j + 1, sig)
     return sortie
 
 
@@ -121,18 +152,33 @@ def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], ra
             return nouveaux[b.id] & pointes[a.id]
         return set()
     locs = {m.id: locales(m.nouvelles) for m in tous}
+    # Ce qui avertit quand rien ne s'en sert (avertissement traité en erreur) : une variable membre privée
+    # (UNUSED_PRIVATE_CLASS_VARIABLE) et un signal jamais émis (UNUSED_SIGNAL). Une fonction privée, non.
+    avertis = {m.id: {x for l in m.nouvelles for x in [_variable_ou_signal(l)] if x} for m in tous}
     fonction: dict[int, str] = {}
     for m in tous:
         if apres and m.fichier in apres:
             par_ligne = fonctions_par_ligne(apres[m.fichier])
-            fonction[m.id] = par_ligne[min(m.n1, len(par_ligne) - 1)] if par_ligne else ""
+            # La première ligne de code du morceau : un commentaire de tête documente la fonction qui suit, il
+            # n'appartient pas à celle qui précède.
+            k = next((i for i, l in enumerate(m.nouvelles)
+                      if l.strip() and not l.lstrip().startswith(("#", "//", "/*", "*"))), 0)
+            fonction[m.id] = par_ligne[min(m.n1 + k, len(par_ligne) - 1)] if par_ligne else ""
         else:
             fonction[m.id] = ""
     dep: dict[int, set[int]] = {m.id: set() for m in tous}
+    # Les variables locales qu'un morceau retire (déclarées dans ses anciennes lignes, plus dans les nouvelles).
+    retirees = {m.id: locales(m.anciennes) - locs[m.id] for m in tous}
     for a in tous:
         for b in tous:
-            if a.id != b.id and a.fichier == b.fichier and fonction[a.id] and fonction[a.id] == fonction[b.id] \
-                    and locs[b.id] & employes[a.id]:
+            meme_fonction = a.id != b.id and a.fichier == b.fichier and fonction[a.id] and fonction[a.id] == fonction[b.id]
+            if meme_fonction and locs[b.id] & employes[a.id]:
+                dep[a.id].add(b.id)
+                dep[b.id].add(a.id)
+            # Une locale retirée ici (newyorkais 007 : la boucle `for side` et son `var street` refaites plus bas) :
+            # le morceau qui la redéclare, et ceux dont les anciennes lignes l'emploient encore, vont avec, sinon
+            # l'état intermédiaire emploie une variable qui n'existe plus.
+            if meme_fonction and retirees[a.id] & (locs[b.id] | emplois(b.anciennes)):
                 dep[a.id].add(b.id)
                 dep[b.id].add(a.id)
             # Une déclaration déplacée dans le fichier (retirée ici, ajoutée là) : les deux morceaux vont ensemble,
@@ -144,9 +190,9 @@ def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], ra
             communs = atteint(a, b)
             if a.id != b.id and communs:
                 dep[a.id].add(b.id)
-                # Une variable privée déclarée sans emploi fait un avertissement (traité en erreur) :
+                # Une variable privée ou un signal déclarés sans emploi font un avertissement (traité en erreur) :
                 # la déclaration et son premier emploi vont ensemble.
-                if any(nom.startswith("_") for nom in communs) and a.fichier == b.fichier:
+                if communs & avertis[b.id] and a.fichier == b.fichier:
                     dep[b.id].add(a.id)
     # Les morceaux d'un même fichier gardent leur ordre quand ils s'insèrent au même endroit.
     par_place: dict[tuple[str, int], list[Morceau]] = {}
@@ -156,31 +202,52 @@ def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], ra
         liste.sort(key=lambda m: m.n1)
         for x, y in zip(liste, liste[1:]):
             dep[y.id].add(x.id)
-    # Signature changée : la définition et tous ses appels vont ensemble.
-    def lignes_decl(lignes: list[str]) -> dict[str, str]:
-        d = {}
-        for l in lignes:
-            m = DECL.match(l)
-            if m:
-                d[next(g for g in m.groups() if g)] = l.strip()
-        return d
-    # Les signatures vraiment changées : la ligne de déclaration diffère entre l'ancien et le nouveau fichier.
+    # Signature changée : la définition et tous ses appels vont ensemble. Les signatures vraiment changées : leur
+    # texte, lignes de suite comprises, diffère entre l'ancien et le nouveau fichier.
+    sig_avant = {rel: signatures(t) for rel, t in avant.items() if rel.endswith(CODE)}
+    sig_apres = {rel: signatures(t) for rel, t in (apres or {}).items() if rel.endswith(CODE)}
     signatures_changees: dict[str, set[str]] = {}
     for rel in {m.fichier for m in tous}:
-        vieux = lignes_decl(avant.get(rel, "").split("\n")) if rel in avant else {}
-        neuf = lignes_decl((apres or {}).get(rel, "").split("\n")) if apres and rel in apres else {}
-        signatures_changees[rel] = {x for x in vieux if x not in neuf or vieux[x] != neuf[x]}
+        vieux, neuf = sig_avant.get(rel, {}), sig_apres.get(rel, {})
+        signatures_changees[rel] = {x for x in vieux if x not in neuf or vieux[x][2] != neuf[x][2]}
+
+    def touche(debut: int, fin: int, plage: tuple[int, int, str]) -> bool:
+        """Les lignes [debut, fin) du morceau (ou son point d'insertion) tombent dans la signature."""
+        return debut < plage[1] and plage[0] < fin if debut < fin else plage[0] < debut < plage[1]
+
     for b in tous:
-        anc, nou = lignes_decl(b.anciennes), lignes_decl(b.nouvelles)
-        changees = (set(anc) | set(nou)) & signatures_changees.get(b.fichier, set())
+        # Un morceau change une signature s'il touche ses lignes : la première, ou une ligne de suite (newyorkais
+        # 010 : `room_view` gagne deux paramètres sur la deuxième ligne de sa signature).
+        vieux, neuf = sig_avant.get(b.fichier, {}), sig_apres.get(b.fichier, {})
+        changees = {x for x in signatures_changees.get(b.fichier, set())
+                    if (x in vieux and touche(b.a1, b.a2, vieux[x])) or (x in neuf and touche(b.n1, b.n2, neuf[x]))}
         if not changees:
             continue
         for a in tous:
-            vus = (employes[a.id] | emplois(a.anciennes)) if a.fichier == b.fichier else \
-                (pointes[a.id] | emplois_pointes(a.anciennes))
+            # Même portée que `atteint` : un `x.rect` de GDScript n'appelle pas la fonction `rect` d'un shader.
+            if a.fichier == b.fichier or (shader(a.fichier) and b.fichier.endswith(".gdshaderinc")):
+                vus = employes[a.id] | emplois(a.anciennes)
+            elif not shader(a.fichier) and not shader(b.fichier):
+                vus = pointes[a.id] | emplois_pointes(a.anciennes)
+            else:
+                continue
             if a.id != b.id and changees & vus:
                 dep[a.id].add(b.id)
                 dep[b.id].add(a.id)
+    # Un `#include` ajouté à un shader y amène les déclarations du fichier inclus : celles que le shader déclarait
+    # lui-même en partent dans la même partie, sinon elles existent deux fois (newyorkais 007 : la pièce derrière la
+    # vitre passe du shader des fenêtres à un fichier partagé avec le mur-rideau).
+    for i in tous:
+        if not shader(i.fichier):
+            continue
+        inclus = {m.group(1) for l in i.nouvelles if (m := INCLUDE.match(l))} - \
+            {m.group(1) for l in i.anciennes if (m := INCLUDE.match(l))}
+        for rel in inclus:
+            amenees = declarations((apres or {}).get(rel, "").split("\n"))
+            for r in tous:
+                if r.id != i.id and r.fichier == i.fichier and declarations(r.anciennes) & amenees:
+                    dep[i.id].add(r.id)
+                    dep[r.id].add(i.id)
     # Un fichier nouveau doit exister avant qu'on le charge (preload, load, chemin dans une chaîne).
     nouveaux_fichiers: dict[str, list[int]] = {}
     for m in tous:
@@ -261,6 +328,9 @@ def empaqueter(groupes: list[list[int]], tous: list[Morceau], affect: dict[int, 
     # Une dernière partie minuscule rejoint la précédente.
     def taille_de(p: list[int]) -> int:
         return sum(sum(len(l) + 1 for l in par_id[v].nouvelles + par_id[v].anciennes) for v in p)
+    # Pas `parties[-2] += parties.pop()` : la cible est lue avant le pop, puis réécrite un rang trop haut (l'avant-
+    # dernière partie était perdue, la dernière en double).
     while len(parties) > 1 and taille_de(parties[-1]) < 2500:
-        parties[-2] += parties.pop()
+        derniere = parties.pop()
+        parties[-1] += derniere
     return parties

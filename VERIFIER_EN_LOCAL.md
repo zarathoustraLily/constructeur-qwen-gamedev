@@ -687,7 +687,7 @@ Attendu :
 - `usine.regles` : `0 violation(s) {}` ;
 - `usine.juge run` : `"ok": true`, puis `"total": 31, "passes": 31`.
 
-Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs, et chaque rendu ouvre une fenêtre le temps d'une image) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (`models\ggml-vocab-qwen35.gguf` de llama.cpp), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs, et chaque rendu ouvre une fenêtre le temps d'une image) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (depuis l'étape 28 : le GGUF de Qwen 3.8, voir plus bas), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
 
 ```bat
 py -3.12 -m usine.cours.base tout --travailleurs 4
@@ -695,8 +695,44 @@ py -3.12 -m usine.cours.base tout --travailleurs 4
 
 Attendu : à la fin, `problèmes : 0` ; la base est dans `donnees\cours\batiments_proceduraux\base\livraison\` (format chat, sharegpt, `dataset_info.json`, `echantillon.md`, `controles.json`, `LISEZMOI.md`). Les sorties de Godot citées viennent alors de ta machine (Windows, ta carte graphique) : elles peuvent différer de celles du cloud, c'est attendu.
 
+Depuis l'étape 28, la régénération demande aussi les réglages de l'étape 28 ci-dessous.
+
+## 28. Base au format d'OpenCode (2026-10-15) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne, sur la même branche. Ce qui change :
+- la base « bâtiments procéduraux » est au format d'OpenCode (décision 14, règle 7.4) : le prompt système d'OpenCode entier, tel que ta session capturée le montre (seules changent les lignes du dossier de travail), et ses 12 outils. Les réponses lisent le code par plages (`read`), le changent (`edit`, `write`), lancent Godot par son chemin complet (`shell`, comme le dit `D:\GODOT\AGENTS.md`) et cherchent (`grep`). Les retours d'outils ont les formes relevées dans tes sessions d'OpenCode 2.0.6 ;
+- les jetons se comptent avec le tokenizer et le gabarit de chat de ton GGUF de Qwen 3.8 (règle 5.8). Le `ggml-vocab-qwen35.gguf` de llama.cpp, employé jusqu'ici, est un autre vocabulaire : 151 936 jetons, contre 248 320 ;
+- une étape trop longue pour 32 768 jetons est découpée en parties qui se compilent chacune.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours_base.py tests\test_cours_opencode.py
+```
+
+Attendu : `25 passed`. Si `jinja2` n'est pas installé dans ce Python, le test qui compare le rendu au gabarit de ton GGUF est sauté (`24 passed, 1 skipped`). `jinja2` est déjà là dans un Python où LLaMA-Factory ou transformers sont installés.
+
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs) demande, en plus des chemins de l'étape 27, trois réglages dans `config.toml` (modèle : `config.example.toml`) :
+- `[entrainement] vocab_qwen` : `E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf` (le vocabulaire seul, extrait le 2026-10-15 de ton modèle, avec ton accord), ou le GGUF du modèle lui-même : seul son en-tête est lu ;
+- `[opencode] session_reference` : la session capturée qui sert de modèle, `donnees\sessions\20261004-190325_13780ad518f3.jsonl` ;
+- `[opencode] dossier_cours` : `D:\GODOT\projet_enseingement\001_Batiments proceduraux`, le dossier où les exemples situent les projets du cours.
+
+```bat
+py -3.12 -m usine.cours.base tout --travailleurs 4
+```
+
+Attendu : `problèmes : 0`.
+
+Facultatif, et sans rien charger sur la carte graphique : croiser les jetons de l'usine avec ceux de ton llama.cpp. `llama-tokenize.exe` est dans le dossier de `llama-server.exe` ; il ne lit que le vocabulaire. Il faut la base de la régénération ci-dessus.
+
+```bat
+py -3.12 -m usine.cours.base.jetons E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf croiser <dossier de llama-server>\llama-tokenize.exe donnees\cours\batiments_proceduraux\base\livraison\base_batiments_proceduraux.jsonl
+```
+
+Attendu : `374/374 exemples identiques jeton pour jeton à llama-tokenize` (dans le cloud, avec llama.cpp `fd55cb9`). Le nombre d'exemples peut changer si ta régénération écarte d'autres sessions.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
+- Base au format d'OpenCode (étape 28) : que PowerShell passe bien `++ --shot=…` à Godot (le rendu des exemples met les arguments de la visite après `++`, l'autre séparateur que donne la référence de `OS.get_cmdline_user_args`, parce que le traitement de `--` par PowerShell n'a pas été vérifié) ; et la forme des sorties de Godot dans OpenCode chez toi : lignes en CRLF et progression de l'import en français, que les exemples, produits sous Linux, n'ont pas.
 - Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.

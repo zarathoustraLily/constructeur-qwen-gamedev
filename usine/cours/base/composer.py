@@ -184,7 +184,8 @@ def _remplacement(rel: str, cur: list[str] | None, m: Morceau, nouvelles: list[s
 
 
 def consigne(note: Note, ville: str, avant: dict[str, str], morceaux: list[Morceau], points: list[int],
-             partie: tuple[int, int] = (1, 1)) -> str:
+             partie: tuple[int, int] = (1, 1), extraits: bool = True) -> str:
+    """La demande de l'étape. Sans `extraits` (format d'OpenCode), le code actuel n'est pas cité : la réponse le lit."""
     projet, _ = textes.VILLES[ville]
     n = note.etape
     titre = note.titre.split("·")[-1].strip()
@@ -204,9 +205,9 @@ def consigne(note: Note, ville: str, avant: dict[str, str], morceaux: list[Morce
             lignes += ["", "À la fin, on doit pouvoir :"] + [f"- {e}" for e in essais]
     fichiers = sorted(k for k in avant if k.endswith(CODE))
     lignes += ["", "Fichiers de code du projet :"] + [f"- `res://{f}`" for f in fichiers]
-    extraits = extraits_actuels(avant, morceaux)
-    if extraits:
-        lignes += ["", "Le code actuel, là où l'étape intervient :", "", extraits]
+    cites = extraits_actuels(avant, morceaux) if extraits else ""
+    if cites:
+        lignes += ["", "Le code actuel, là où l'étape intervient :", "", cites]
     return "\n".join(lignes)
 
 

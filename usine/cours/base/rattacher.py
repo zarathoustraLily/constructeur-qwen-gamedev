@@ -8,6 +8,18 @@ from usine.cours.base.etat import Morceau
 from usine.cours.base.notes import IDENT, Note
 
 TETE = re.compile(r"^(static func |func |class |# ---|## ---|// ---|/\*\* ---)")
+# Un fichier de code nommé dans une note : « `procedural_commun.gdshaderinc` », « `…_porte.gd` », « `_materiaux.gd` ».
+MENTION = re.compile(r"[\w./…-]*[\w…-]\.(?:gdshaderinc|gdshader|gd)\b")
+
+
+def mentions(texte: str) -> set[str]:
+    """Les fins de nom de fichier que cite un texte (sans le chemin ni les points de suspension)."""
+    return {m.rsplit("/", 1)[-1].lstrip("…") for m in MENTION.findall(texte)}
+
+
+def nomme(noms: set[str], rel: str) -> bool:
+    base = rel.rsplit("/", 1)[-1]
+    return any(base.endswith(x) for x in noms if x)
 
 
 def _norm(ligne: str) -> str:
@@ -59,15 +71,24 @@ def rattacher(note: Note, morceaux: list[Morceau], fichiers: dict[str, str]) -> 
         for n in s:
             freq[n] = freq.get(n, 0) + 1
     poids = lambda n: math.log(1 + len(points) / freq.get(n, 1))  # noqa: E731
+    # Un point dont le titre nomme un fichier en parle d'abord (« Le fichier commun `procedural_commun.gdshaderinc` »,
+    # parisien 002 : sans extrait, ce point ne recevait aucun morceau de son fichier) ; nommé dans le texte, un peu.
+    par_titre = {p.numero: mentions(p.titre) for p in points}
+    par_texte = {p.numero: mentions(p.texte) for p in points}
     affect: dict[int, int] = {}
     for m in morceaux:
         nouvelles = {_norm(l) for l in m.nouvelles if len(_norm(l)) > 6}
         noms = {n for l in m.nouvelles + m.anciennes for n in IDENT.findall(l) if len(n) > 3 and ("_" in n or n[0].isupper())}
-        candidats = [p for p in points if m.fichier in affinite[p.numero]] or points
+        candidats = [p for p in points if m.fichier in affinite[p.numero] or nomme(par_titre[p.numero], m.fichier)] \
+            or points
         meilleur, score = None, 0.0
         for p in candidats:
             lignes = {_norm(l) for _, code in p.extraits for l in code.split("\n") if len(_norm(l)) > 6}
             s = 10.0 * len(nouvelles & lignes) + sum(poids(n) for n in noms & ids[p.numero])
+            if nomme(par_titre[p.numero], m.fichier):
+                s += 10.0
+            elif nomme(par_texte[p.numero], m.fichier):
+                s += 2.0
             if "test" in m.fichier.split("/")[-1] and "test" in p.titre.lower():
                 s += 5.0
             if s > score:

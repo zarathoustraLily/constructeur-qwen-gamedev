@@ -22,7 +22,7 @@
 - [x] Règles qui priment (mode d'emploi de laurent et passe « bâtiments procéduraux ») en tête de `CLAUDE.md` ; décors procéduraux admis par le juge des règles (2026-10-14) : étape 25
 - [x] Cours « bâtiments procéduraux » (3 villes × 13 étapes) dans le dépôt, conforme au juge des règles et vérifié par Godot (2026-10-14) : étape 26
 - [x] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2) ; socle aux avertissements en erreurs (règle 5.3) (2026-10-14) : étape 27
-- [ ] Base convertie au format d'OpenCode, harnais d'usage (décision 14)
+- [x] Base convertie au format d'OpenCode, harnais d'usage (décision 14), jetons comptés avec le tokenizer de Qwen 3.8 (2026-10-15) : étape 28
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1291,6 +1291,90 @@ Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 f
 - `--check-only -s` lancé seul sur un script du socle échoue : « Identifier not found: GameState » (autoload) et « Could not find base class "GdUnitTestSuite" » (GdUnit4 n'est copié que par le juge). Analyser le socle par `python -m usine.juge run`.
 - Avec tous les avertissements à 2, `await runner.simulate_frames(...)` déclenche REDUNDANT_AWAIT (méthode abstraite dans `GdUnitSceneRunner`), mais l'`await` reste indispensable.
 
+### Base au format d'OpenCode — 2026-10-15 (branche `claude/regles-batiments-proceduraux`)
+
+Source : décision 14 de laurent (le harnais d'usage est OpenCode) et règle 7.4. Ses réponses du 2026-10-15 : prompt système « OpenCode en entier » ; chemin de Godot « Je ne sais pas » (il vient donc de `D:\GODOT\AGENTS.md`) ; forme des retours d'édition : « Tes sessions OpenCode passées » ; vocabulaire de Qwen 3.8 : « Oui, dans qwen3.8 ».
+
+**Relevé sur la machine de laurent** (lecture seule, dossiers ouverts avec son accord ; une seule écriture, le vocabulaire ci-dessous) :
+- la session `donnees\sessions\20261004-190325_13780ad518f3.jsonl`, capturée par le proxy de l'usine : prompt système d'OpenCode 2.0.6 et ses 12 outils (`edit`, `execute`, `glob`, `grep`, `question`, `read`, `shell`, `skill`, `subagent`, `webfetch`, `websearch`, `write`) ; les outils de l'usine y passent par `execute` (Code Mode) ;
+- la base `opencode.db` de ses sessions : forme exacte des retours de `shell`, `read`, `edit`, `write` et `grep`. Qwen y lance Godot par PowerShell : lignes en CRLF, progression de l'import en français ;
+- `D:\GODOT\AGENTS.md` : chemin complet de la console Godot, lecture par plages, `plan.md` à cocher. Ce fichier n'était pas dans le prompt de la session capturée : les exemples n'ont pas de `plan.md` ;
+- `E:\llama_models\qwen3.8\Qwen3.8-27B-UD-Q4_K_XL--vraimodel.gguf` (Unsloth) : tokenizer (pré-découpage qwen35, 248 320 jetons, 247 587 fusions) et gabarit de chat. Le vocabulaire seul en est extrait dans `E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf`.
+
+**Constat** : le `models/ggml-vocab-qwen35.gguf` de llama.cpp, employé jusqu'ici pour compter (règle 5.8), n'est pas le vocabulaire de Qwen 3.8 : 151 936 jetons. Les comptes de l'étape 27 venaient donc d'un autre vocabulaire. La règle 5.8 de `CLAUDE.md` le précise désormais : tokenizer et gabarit lus dans le GGUF de Qwen 3.8.
+
+**Fait**
+- `usine/cours/base/opencode.py` : le format d'OpenCode.
+  - Prompt système de la session de référence ; seules changent ses lignes d'environnement : dossier de travail (le projet de l'étape chez laurent) et identifiant de session, propre à chaque exemple.
+  - Les 12 outils, définitions comprises. Les réponses lisent par plages (`read`), remplacent un passage unique (`edit`), créent un fichier (`write`), lancent Godot par son chemin complet (`shell`) et cherchent (`grep`).
+  - Retours aux formes relevées, sans rien inventer : une forme non relevée (un `grep` qui trouve, une sortie de plus de 50 ko qu'OpenCode tronquerait) écarte l'exemple. Sorties de Godot entières (décision 13), sauf couleurs, progression de l'import et lignes propres à la machine (règle 5.1).
+  - Rendu par le gabarit de Qwen 3.8 : portage du Jinja du GGUF, identique au caractère près (test). Jetons comptés sur ce texte, jetons spéciaux compris.
+- Création et débogage convertis (`creation.py`, `sessions.py`) : le texte de chaque réponse reste devant ses appels (section 3) ; la demande de création ne cite plus le code, la réponse le lit ; chaque `edit` cite un passage que la réponse a lu.
+- Découpe des étapes trop longues. Le prompt d'OpenCode et ses outils prennent 13 375 jetons par exemple : 17 étapes ne tiennent plus en un exemple.
+  - Chaque découpe est d'abord estimée sans Godot, avec les sorties de l'état final de l'étape ; Godot ne tourne que sur une découpe dont l'estimation tient. La découpe aux jetons estimés (le moins de parties possible) passe avant les budgets de caractères.
+  - Défauts de la découpe, trouvés sur newyorkais 007 et 010 et corrigés. Ils étaient sans effet sur la base de l'étape 27, où aucune étape n'était découpée.
+    - Rangement des changements (`ordonner.py`) : une locale retirée puis refaite plus bas reste avec sa redéclaration et ses emplois ; un `x.rect` de GDScript n'est plus lié à la fonction `rect` d'un shader ; une fonction privée peut précéder son premier appel (seules une variable privée et un signal avertissent) ; un `#include` ajouté reste avec le retrait des déclarations qu'il remplace ; `const int ROOM_OFFICE = 0;` d'un shader n'est plus lu comme la constante « int » de GDScript ; une signature changée sur sa deuxième ligne est vue (`room_view`).
+    - `empaqueter` perdait une partie et en doublait une autre : `parties[-2] += parties.pop()` lit sa cible avant le `pop`, puis l'écrit un rang trop haut.
+    - Les consignes et les extraits d'une partie viennent des changements entre ses deux états : les places de l'étape entière sont fausses dans un état intermédiaire.
+  - Une partie annonce les points de la note qu'elle fait : un point dont le titre nomme un fichier reçoit ses changements (« Le fichier commun `procedural_commun.gdshaderinc` »), et un morceau du test rattaché par défaut au dernier point ne l'annonce plus.
+- Sorties de Godot gardées par empreinte d'état (`godot.py`) : un même état ne repasse pas par Godot ; la sortie gardée porte une marque à la place du chemin du projet, remise au chemin du dossier où l'état revient.
+- Export (`exporter.py`) : `base_batiments_proceduraux.jsonl` (format chat d'OpenAI, comme OpenCode l'envoie ; arguments en objets, le gabarit de Qwen 3.8 refuse une chaîne), version sharegpt pour LLaMA-Factory (appels écrits dans la réponse `gpt`, retours dans le tour `human` qui suit : un tour `function_call` perdrait le texte de la réponse), `dataset_info.json` sans colonne `tools`.
+- Contrôles de l'assemblage (`assembler.py`), en plus de ceux de l'étape 27 : prompt d'OpenCode adapté au projet ; chaque appel a son retour ; outils et arguments conformes aux définitions d'OpenCode ; Godot par son chemin complet ; retours aux formes relevées ; aucune réponse n'écrit de sortie (7.2) ; aucun passage cité par `edit` sans avoir été lu ; jetons recomptés ; 32 768 au plus (7.5) ; aller-retour sharegpt identique au texte du gabarit ; appels `edit` et `write` rejoués comme OpenCode les applique.
+- `config.example.toml` : `[opencode] session_reference` et `dossier_cours` ; `[entrainement] vocab_qwen` désigne le GGUF de Qwen 3.8. `jetons.py` lit un GGUF de modèle en continu (seul l'en-tête est lu) ; ses anciens comptes au format neutre sont retirés ; `croiser` compare ses jetons, exemple par exemple, à ceux de `llama-tokenize`.
+- Tests : `tests/test_cours_opencode.py` (8 tests, dont le rendu comparé au gabarit du GGUF, `tests/donnees/qwen38_gabarit_chat.jinja`) ; `tests/test_cours_base.py` passe de 9 à 17 tests. `CLAUDE.md` (règle 5.8, arborescence) ; `VERIFIER_EN_LOCAL.md` étape 28.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Python 3.13.
+
+```
+$ python -m pytest -q tests/test_cours_base.py tests/test_cours_opencode.py tests/test_regles.py tests/test_fiches.py
+74 passed in 8.63s
+$ python -m usine.cours.base tout --refaire --travailleurs 2 --docs … --source-godot … --vocab …/ggml-vocab-qwen38.gguf --opencode-session …/20261004-190325_13780ad518f3.jsonl --opencode-godot 'D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe' --opencode-dossier 'D:\GODOT\projet_enseingement\001_Batiments proceduraux'
+parisien 001 : 1 création(s) (7657 jetons de réponse), 4 session(s) (8430), 20 s
+  parisien 002 : 1 partie(s), 40571 jetons estimés au plus : trop long, découpe suivante
+parisien 002 : 2 création(s) (23042 jetons de réponse), 12 session(s) (23749), 61 s
+…
+  newyorkais 013 : 1 partie(s), 71069 jetons estimés au plus : trop long, découpe suivante
+newyorkais 013 : 5 création(s) (44560 jetons de réponse), 20 session(s) (44425), 190 s
+…
+problèmes : 0
+```
+
+Jetons croisés avec llama.cpp (`llama-tokenize` construit dans le cloud au commit `fd55cb9`, sur le vocabulaire extrait du GGUF de laurent) :
+
+```
+$ python -m usine.cours.base.jetons …/ggml-vocab-qwen38.gguf croiser …/llama-tokenize …/base_batiments_proceduraux.jsonl
+pré-découpage : qwen35 | jetons : 248320 | fusions : 247587
+374/374 exemples identiques jeton pour jeton à llama-tokenize
+```
+
+Les 7 385 242 jetons de la base sont ceux de llama.cpp, un à un.
+
+Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 failed, 411 passed, 2 skipped in 741.78s`. Ce sont les mêmes 5 échecs qu'aux étapes 25 et 27 : `ModuleNotFoundError: No module named 'mcp'`, le SDK MCP n'étant pas installable dans le cloud. `python -m pytest -q tests/test_cours.py` : `7 passed`.
+
+Chiffres de `controles.json` (20 min 48 s avec 2 travailleurs, assemblage compris ; aucune partie refusée par Godot) :
+- 374 exemples : 70 de création (17 étapes découpées ; 51,3 messages en moyenne, 86 au plus) et 304 sessions de débogage (891 erreurs corrigées ; 21,1 messages en moyenne, 40 au plus) ;
+- jetons de réponse : 681 466 pour la création, 680 999 pour le débogage (50,0 % chacun). Selon l'étape, le débogage pèse de 0,86 fois la création (`parisien-004`) à 1,12 fois (`tokyoiste-001`), médiane 1,00 ;
+- 7 385 242 jetons de Qwen 3.8 en tout, dont 13 375 par exemple pour le prompt d'OpenCode et ses outils. Le plus long exemple, `newyorkais-005-creation`, en compte 31 715 (1 053 sous 32 768) ; aucun ne dépasse 32 768 ;
+- appels d'outils : `edit` 1 909, `shell` 1 492, `read` 1 256, `grep` 291, `write` 47 ;
+- rejoués : les consignes neutres des 39 étapes (aucune ambiguë, aucun fichier différent) ; les appels `edit` et `write` des 39 étapes et des 304 sessions, comme OpenCode les applique (aucune différence) ;
+- 70 sessions écartées pendant la génération : 35 pour une erreur imprévue, 27 dont des erreurs restaient invisibles pour Godot, 6 dont une sortie de Godot dépassait 50 ko (OpenCode n'en aurait rendu qu'un aperçu), 2 dont aucune commande ne voyait les erreurs.
+
+**Reste à faire**
+- `VERIFIER_EN_LOCAL.md` étape 28 sur la machine, hors campagne ; laurent décide de l'emploi de la base (grille de la décision 3 ; règle 7.7 : une case n'écrase pas les autres).
+- `usine/rft/export.py` contredit la section 3 et les règles 7.4 et 7.6 : un tour `function_call` de LLaMA-Factory perd le texte de la réponse, les arguments restent des chaînes (le gabarit de Qwen 3.8 les refuse), le gabarit est `qwen3` sans `enable_thinking: false`, et les outils de l'agent maison ne sont pas convertis en ceux d'OpenCode. À corriger avant tout entraînement sur des sessions capturées ; `usine/cours/base/opencode.py` en donne le format.
+
+**Pièges**
+- `parties[-2] += parties.pop()` : Python lit la cible avant le `pop`, puis l'écrit un rang trop haut. Écrire le `pop` d'abord.
+- Dans une expression régulière à alternatives, la forme `const NOM` de GDScript attrape le `const int NOM` des shaders : tester la forme des shaders d'abord.
+- Une signature peut tenir sur deux lignes : comparer la signature entière, parenthèses refermées.
+- `models/ggml-vocab-qwen35.gguf` de llama.cpp n'est pas le vocabulaire de Qwen 3.8 (151 936 jetons contre 248 320) : compter avec le GGUF du modèle.
+- Le gabarit de Qwen 3.8 refuse des arguments d'appel en chaîne JSON (forme d'OpenAI) : les convertir en objets avant de l'appliquer. Son `tojson` est celui de transformers : `json.dumps(…, ensure_ascii=False)`, accents gardés.
+- Un tour `function_call` de LLaMA-Factory perd le texte qui précède l'appel : écrire les appels dans le tour `gpt`, comme le gabarit les écrit.
+- Une sortie de Godot gardée contient le chemin du dossier où elle a tourné : la garder avec une marque à sa place.
+- OpenCode n'avait pas chargé `D:\GODOT\AGENTS.md` dans la session capturée.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1310,6 +1394,7 @@ Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 f
 - [ ] Règles qui priment et décors procéduraux — `VERIFIER_EN_LOCAL.md` étape 25, hors campagne.
 - [ ] Cours « bâtiments procéduraux » — `VERIFIER_EN_LOCAL.md` étape 26, hors campagne.
 - [ ] Générateur de la base et socle aux avertissements en erreurs — `VERIFIER_EN_LOCAL.md` étape 27, hors campagne.
+- [ ] Base au format d'OpenCode — `VERIFIER_EN_LOCAL.md` étape 28, hors campagne.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
@@ -1506,5 +1591,7 @@ Les modifications locales non commitées de ces trois fichiers et d'`ETAT.md` so
 - **Mesurer dans `_initialize`** (script `extends SceneTree`) : les nœuds ajoutés n'ont pas encore leur `_ready` ni d'espace physique. Les scripts de mesure travaillent dans le premier `_process`.
 - **`move_and_slide` hors image physique** utilise le delta de rendu : mesure non reproductible. F1 utilise `move_and_collide(velocity * dt)`.
 - **`queue_free` attend la fin de l'image** : un héros mesuré puis « libéré » restait dans l'espace et bloquait le suivant. `free()` et couches de collision à 0.
+- **Vocabulaire de Qwen 3.8** : `models/ggml-vocab-qwen35.gguf` de llama.cpp est un autre vocabulaire (151 936 jetons, contre 248 320). Les jetons se comptent avec le GGUF du modèle, ou son vocabulaire seul (`E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf`).
+- **Gabarit de Qwen 3.8** : il refuse des arguments d'appel en chaîne JSON (forme d'OpenAI, celle des sessions capturées) ; les convertir en objets avant de l'appliquer. Dans LLaMA-Factory, un tour `function_call` perd le texte qui précède l'appel : la base écrit les appels dans le tour `gpt`.
 - **Import Godot sous Windows** : le 2026-10-05, l'import de `godot\kenney_racing` a planté une fois (code `3221225477`, soit `0xC0000005`, violation d'accès), puis est passé au second essai sans changement. Non reproduit sous Linux. À surveiller dans une chaîne locale : un import qui plante donne un verdict faux pour cette copie, et le cache des verdicts le garde (un mutant « tué » par un plantage gonfle le score de mutation). Si cela se reproduit, le juge devra relancer un import qui plante avant de juger.
 - **Coût du portillon** : environ 14 jugements par candidate (3 + 3 + jusqu'à 8 mutants), environ 20 s chacun sur 4 cœurs. 1re chaîne complète : 1 h 40. Le cache (`donnees/cache_juge`, clé = contenu jugé) rend les relances rapides.

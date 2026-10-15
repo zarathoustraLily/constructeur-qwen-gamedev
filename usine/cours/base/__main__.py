@@ -5,7 +5,9 @@
     python -m usine.cours.base tout [--travailleurs 2]
 
 Chemins (sinon lus dans config.toml) : --docs (godot-docs), --source-godot (godot à l'étiquette 4.7.2-stable),
---vocab (models/ggml-vocab-qwen35.gguf de llama.cpp), --vocab-qwen2 (models/ggml-vocab-qwen2.gguf, facultatif).
+--vocab (GGUF de Qwen 3.8 : le modèle ou son vocabulaire seul), --opencode-session (session OpenCode capturée par
+le proxy), --opencode-godot (Godot console chez laurent, chemin Windows), --opencode-dossier (dossier Windows des
+projets du cours chez laurent).
 """
 
 from __future__ import annotations
@@ -25,7 +27,9 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--docs")
         p.add_argument("--source-godot")
         p.add_argument("--vocab")
-        p.add_argument("--vocab-qwen2")
+        p.add_argument("--opencode-session")
+        p.add_argument("--opencode-godot")
+        p.add_argument("--opencode-dossier")
         if nom != "assembler":
             p.add_argument("--villes", nargs="*")
             p.add_argument("--etapes", nargs="*", type=int)
@@ -33,7 +37,8 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--refaire", action="store_true", help="refaire les étapes déjà générées")
     args = parser.parse_args(argv)
     reglages = {"docs": args.docs, "source_godot": args.source_godot, "vocab": args.vocab,
-                "vocab_qwen2": args.vocab_qwen2}
+                "session_opencode": args.opencode_session,
+                "godot_windows": args.opencode_godot, "dossier_windows": args.opencode_dossier}
 
     from usine.cours.base import chemins
     chemins.configurer(**reglages)

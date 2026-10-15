@@ -1,10 +1,18 @@
-"""Jetons de Qwen, relus dans un fichier de vocabulaire GGUF de llama.cpp (règle 5.8 : jamais une estimation).
+"""Jetons de Qwen, relus dans un fichier GGUF de llama.cpp (règle 5.8 : jamais une estimation).
+
+Le fichier est soit le GGUF du modèle lui-même (seul son en-tête est lu), soit un GGUF « vocabulaire seul » qui en
+est extrait, comme les models/ggml-vocab-*.gguf de llama.cpp. Le tokenizer de Qwen 3.8 (248 320 jetons, 247 587
+fusions, pré-découpage qwen35) n'est pas celui du vocabulaire de test models/ggml-vocab-qwen35.gguf de llama.cpp
+(151 936 jetons) : seul le premier compte juste pour Qwen 3.8.
 
 Le pré-découpage et les fusions BPE sont ceux de llama.cpp (src/llama-vocab.cpp) ; sur les chaînes de test de
 llama.cpp (models/ggml-vocab-qwen35.gguf.inp et .out), ce tokenizer redonne exactement les jetons de référence.
+Les jetons spéciaux (types CONTROL et USER_DEFINED : <|im_start|>, <think>, <tool_call>…) sont reconnus dans le
+texte, comme le fait llama.cpp quand il analyse les jetons spéciaux et comme le fait le tokenizer de transformers.
 
     python -m usine.cours.base.jetons <vocab.gguf> verifier
     python -m usine.cours.base.jetons <vocab.gguf> compter <fichier.jsonl> [sortie.json]
+    python -m usine.cours.base.jetons <vocab.gguf> croiser <llama-tokenize> <fichier.jsonl>
 """
 import json
 import re
@@ -17,42 +25,35 @@ _SCAL = {0: "<B", 1: "<b", 2: "<H", 3: "<h", 4: "<I", 5: "<i", 6: "<f", 7: "<?",
 
 
 def lire_gguf(chemin):
+    """Les métadonnées d'un GGUF, lues en continu : les tenseurs qui suivent ne sont pas lus (un GGUF de modèle de
+    17 Go se lit comme un fichier de vocabulaire)."""
     with open(chemin, "rb") as f:
-        donnees = f.read()
-    pos = 0
+        def lire(fmt):
+            return struct.unpack(fmt, f.read(struct.calcsize(fmt)))[0]
 
-    def lire(fmt):
-        nonlocal pos
-        v = struct.unpack_from(fmt, donnees, pos)[0]
-        pos += struct.calcsize(fmt)
-        return v
+        def chaine():
+            return f.read(lire("<Q")).decode("utf-8", errors="replace")
 
-    def chaine():
-        nonlocal pos
-        n = lire("<Q")
-        s = donnees[pos:pos + n].decode("utf-8", errors="replace")
-        pos += n
-        return s
+        def valeur(t):
+            if t == 8:
+                return chaine()
+            if t == 9:
+                sous, n = lire("<I"), lire("<Q")
+                if sous in _SCAL:       # tableau de scalaires : lu d'un bloc
+                    taille = struct.calcsize(_SCAL[sous])
+                    return list(struct.unpack("<" + str(n) + _SCAL[sous][1:], f.read(n * taille)))
+                return [valeur(sous) for _ in range(n)]
+            return lire(_SCAL[t])
 
-    def valeur(t):
-        if t == 8:
-            return chaine()
-        if t == 9:
-            sous = lire("<I")
-            n = lire("<Q")
-            return [valeur(sous) for _ in range(n)]
-        return lire(_SCAL[t])
-
-    assert donnees[:4] == b"GGUF", "pas un fichier GGUF"
-    pos = 4
-    lire("<I")  # version
-    lire("<Q")  # nombre de tenseurs
-    n_kv = lire("<Q")
-    meta = {}
-    for _ in range(n_kv):
-        cle = chaine()
-        meta[cle] = valeur(lire("<I"))
-    return meta
+        assert f.read(4) == b"GGUF", "pas un fichier GGUF"
+        lire("<I")  # version
+        lire("<Q")  # nombre de tenseurs
+        n_kv = lire("<Q")
+        meta = {}
+        for _ in range(n_kv):
+            cle = chaine()
+            meta[cle] = valeur(lire("<I"))
+        return meta
 
 
 # ---------------------------------------------------------------- pré-découpage
@@ -117,12 +118,17 @@ class Tokenizer:
         for r, m in enumerate(meta["tokenizer.ggml.merges"]):
             a, b = m.split(" ", 1)
             self.rangs[(a, b)] = r
+        if self.pre not in MOTIFS:
+            raise ValueError(f"pré-découpage « {self.pre} » inconnu : seuls {sorted(MOTIFS)} (llama.cpp)")
         self.motif = motif(self.pre)
         self.o2u = _octets_vers_unicode()
         self.cache = {}
+        self.gabarit = meta.get("tokenizer.chat_template")
         # jetons spéciaux (type 3 = CONTROL, 4 = USER_DEFINED) : un seul jeton chacun
         self.speciaux = {t: i for i, t in enumerate(self.jetons)
                          if i < len(self.types) and self.types[i] in (3, 4) and t.startswith("<")}
+        self._coupe = re.compile("(" + "|".join(re.escape(s) for s in sorted(self.speciaux, key=len, reverse=True))
+                                 + ")") if self.speciaux else None
 
     def _bpe(self, mot):
         if mot in self.cache:
@@ -142,10 +148,24 @@ class Tokenizer:
         return ids
 
     def encoder(self, texte):
+        """Le texte seul, sans reconnaître les jetons spéciaux (comme les chaînes de test de llama.cpp)."""
         sortie = []
         for m in self.motif.finditer(texte):
             mot = "".join(self.o2u[b] for b in m.group(0).encode("utf-8"))
             sortie.extend(self._bpe(mot))
+        return sortie
+
+    def encoder_special(self, texte):
+        """Le texte d'une conversation mise en forme : chaque jeton spécial écrit en clair (<|im_start|>, <think>,
+        <tool_call>…) compte pour un seul jeton, le reste est découpé normalement."""
+        if self._coupe is None:
+            return self.encoder(texte)
+        sortie = []
+        for k, morceau in enumerate(self._coupe.split(texte)):
+            if k % 2:
+                sortie.append(self.speciaux[morceau])
+            elif morceau:
+                sortie.extend(self.encoder(morceau))
         return sortie
 
 
@@ -165,28 +185,11 @@ def verifier(tok, base):
     return bons == len(textes)
 
 
-def jetons_messages(tok, messages):
-    """(total, réponse) : les jetons d'une conversation telle que le gabarit de chat de Qwen la présente,
-    <|im_start|>rôle\\ncontenu<|im_end|>\\n pour chaque message, plus un bloc de réflexion vide
-    (<think>\\n\\n</think>\\n\\n) devant chaque réponse. Avec enable_thinking: false (règle 7.6), ce bloc est
-    dans le prompt : il compte dans le total, pas dans les jetons de réponse (ceux qui portent la perte)."""
-    assert "<|im_start|>" in tok.speciaux and "<|im_end|>" in tok.speciaux
-    reflexion = 2 + 2 * len(tok.encoder("\n\n"))
-    total, reponse = 0, 0
-    for msg in messages:
-        n = 1 + len(tok.encoder(msg["role"] + "\n" + msg["content"])) + 1 + len(tok.encoder("\n"))
-        if msg["role"] == "assistant":
-            reponse += n
-            n += reflexion
-        total += n
-    return total, reponse
-
-
 _TOKENIZER = None
 
 
 def tokenizer():
-    """Le tokenizer de Qwen 3.5 lu dans `[entrainement].vocab_qwen` (chargé une fois)."""
+    """Le tokenizer de Qwen 3.8 lu dans `[entrainement].vocab_qwen` (chargé une fois)."""
     global _TOKENIZER
     if _TOKENIZER is None:
         from usine.cours.base import chemins
@@ -194,21 +197,17 @@ def tokenizer():
     return _TOKENIZER
 
 
-def compter_messages(messages):
-    """(total, réponse) d'une conversation, avec le tokenizer de `[entrainement].vocab_qwen`."""
-    return jetons_messages(tokenizer(), messages)
-
-
 def compter(tok, chemin, sortie=None):
-    """Compte chaque exemple tel que le gabarit de chat de Qwen le présente."""
+    """Compte chaque ligne d'une base au format chat (`messages` et `tools`, comme base_batiments_proceduraux.jsonl)
+    telle que le gabarit de chat de Qwen 3.8 la présente (`opencode.compter`)."""
+    from usine.cours.base import opencode
     lignes = []
     with open(chemin, encoding="utf-8") as f:
         for brut in f:
             ex = json.loads(brut)
-            total, reponse = jetons_messages(tok, ex["messages"])
-            car = sum(len(m["content"]) for m in ex["messages"])
-            lignes.append({"tache_id": ex.get("tache_id"), "type": ex.get("type"), "caracteres": car,
-                           "jetons": total, "jetons_reponse": reponse, "car_par_jeton": round(car / total, 3)})
+            total, reponse = opencode.compter(tok, ex["messages"], ex.get("tools") or [])
+            lignes.append({"tache_id": ex.get("tache_id"), "type": ex.get("type"), "jetons": total,
+                           "jetons_reponse": reponse})
     tot = sum(x["jetons"] for x in lignes)
     res = {
         "tokenizer": tok.pre,
@@ -217,7 +216,6 @@ def compter(tok, chemin, sortie=None):
         "jetons_max": max(x["jetons"] for x in lignes),
         "jetons_moyenne": round(tot / len(lignes)),
         "jetons_reponses": sum(x["jetons_reponse"] for x in lignes),
-        "car_par_jeton": round(sum(x["caracteres"] for x in lignes) / tot, 3),
         "plus_long": max(lignes, key=lambda x: x["jetons"]),
         "au_dessus_de_32768": [x["tache_id"] for x in lignes if x["jetons"] > 32768],
         "detail": lignes,
@@ -229,10 +227,40 @@ def compter(tok, chemin, sortie=None):
     return res
 
 
+def croiser(tok, vocab, outil, chemin):
+    """Les jetons de chaque exemple d'une base au format chat, découpé par ce tokenizer puis par `llama-tokenize` de
+    llama.cpp sur le même GGUF (jetons spéciaux reconnus, sans BOS ni traitement des échappements) : les suites de
+    jetons doivent être identiques, pas seulement leurs longueurs."""
+    import subprocess
+
+    from usine.cours.base import opencode
+    identiques, total, ecarts = 0, 0, []
+    with open(chemin, encoding="utf-8") as f:
+        for brut in f:
+            ex = json.loads(brut)
+            texte = opencode.rendre(ex["messages"], ex.get("tools") or [])
+            # Par l'entrée standard, lue telle quelle (un ancien `-f` retirait le dernier retour à la ligne).
+            res = subprocess.run([outil, "-m", vocab, "--stdin", "--ids", "--no-bos", "--no-escape", "--log-disable"],
+                                 input=texte.encode("utf-8"), capture_output=True)
+            attendu = json.loads(res.stdout.decode("utf-8").strip().splitlines()[-1])
+            obtenu = tok.encoder_special(texte)
+            total += 1
+            if obtenu == attendu:
+                identiques += 1
+            else:
+                ecarts.append((ex.get("tache_id"), len(attendu), len(obtenu)))
+    print(f"{identiques}/{total} exemples identiques jeton pour jeton à llama-tokenize")
+    for tache, a, o in ecarts[:10]:
+        print(f"  ÉCART {tache} : llama.cpp {a} jetons, ce tokenizer {o}")
+    return identiques == total
+
+
 if __name__ == "__main__":
     tok = Tokenizer(sys.argv[1])
     print("pré-découpage :", tok.pre, "| jetons :", len(tok.jetons), "| fusions :", len(tok.rangs))
     if sys.argv[2] == "verifier":
         verifier(tok, sys.argv[1])
+    elif sys.argv[2] == "croiser":
+        sys.exit(0 if croiser(tok, sys.argv[1], sys.argv[3], sys.argv[4]) else 1)
     else:
         compter(tok, sys.argv[3], sys.argv[4] if len(sys.argv) > 4 else None)

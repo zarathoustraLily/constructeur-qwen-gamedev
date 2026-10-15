@@ -1,6 +1,7 @@
 """Rassemble la base : contrôles, statistiques, fichiers d'entraînement et version lisible.
 
-Entrée : un fichier JSON par étape (exemples de création et sessions de débogage). Sortie, dans
+Entrée : un fichier JSON par étape (exemples de création et sessions de débogage, chacun au format neutre et au
+format d'OpenCode). La base livrée est celle au format d'OpenCode (décision 14, règle 7.4). Sortie, dans
 donnees/cours/batiments_proceduraux/base/livraison/ : la base au format chat et au format sharegpt, sa déclaration
 pour LLaMA-Factory, un échantillon lisible, les contrôles (controles.json) et le LISEZMOI.
 """
@@ -11,7 +12,7 @@ import collections
 import json
 import re
 
-from usine.cours.base import chemins, creation, etat, exporter, jetons, lisezmoi, rejouer
+from usine.cours.base import chemins, creation, etat, exporter, jetons, lisezmoi, opencode, rejouer
 
 LONGUEUR = 32768
 NOM = "base_batiments_proceduraux"
@@ -33,6 +34,12 @@ def charger() -> list[dict]:
         exemples += json.loads(f.read_text(encoding="utf-8"))
     exemples.sort(key=lambda e: (ORDRE_VILLES[e["ville"]], e["etape"], 0 if e["type"] == "creation" else 1,
                                  e.get("partie", [0])[0], _numero(e)))
+    for e in exemples:
+        if "opencode" not in e:
+            raise RuntimeError(f"{e['id']} : pas de version au format d'OpenCode (étape générée avant ce format : "
+                               "relancer « generer --refaire »)")
+        # Les jetons qui comptent : ceux de l'exemple au format d'OpenCode, celui de l'entraînement.
+        e["jetons"], e["jetons_reponse"] = e["opencode"]["jetons"], e["opencode"]["jetons_reponse"]
     return exemples
 
 
@@ -91,6 +98,132 @@ def controler(exemples: list[dict]) -> list[str]:
     return problemes
 
 
+RETOURS = re.compile(r"(?s)^(Read file .+, lines \d+-\d+\n.*|Edited \S.* \(1 replacement\)|Created file successfully: \S.*"
+                     r"|Wrote file successfully: \S.*|No matches found|.*\nCommand exited with code -?\d+\.)$")
+
+
+def controler_opencode(exemples: list[dict], h: opencode.Harnais, tok) -> list[str]:
+    """Le format d'OpenCode : chaque appel a son retour, dans l'ordre ; outils et arguments conformes aux définitions
+    d'OpenCode ; Godot lancé par son chemin complet ; retours aux formes relevées chez laurent ; aucune réponse n'écrit
+    de sortie (règle 7.2) ; jetons recomptés ; le format sharegpt redonne le texte du gabarit, jeton pour jeton."""
+    problemes = []
+    schemas = {o["function"]["name"]: o["function"]["parameters"] for o in h.outils}
+    for e in exemples:
+        oc = e["opencode"]
+        ms = oc["messages"]
+        nom = e["id"]
+        if ms[0]["role"] != "system" or ms[0]["content"] == h.systeme or "running in OpenCode" not in ms[0]["content"]:
+            problemes.append(f"{nom} : prompt système d'OpenCode absent ou non adapté au projet")
+        attente: list[str] = []
+        for k, m in enumerate(ms[1:], 1):
+            if m["role"] == "tool":
+                if not attente or m["tool_call_id"] != attente[0]:
+                    problemes.append(f"{nom} : retour d'outil {k} sans appel en attente")
+                else:
+                    attente.pop(0)
+                if not RETOURS.match(m["content"]):
+                    problemes.append(f"{nom} : retour d'outil {k} d'une forme non relevée : {m['content'][:60]!r}")
+                continue
+            if attente:
+                problemes.append(f"{nom} : message {k} avant le retour de tous les appels")
+                attente = []
+            if m["role"] == "assistant":
+                fautif = sortie_ecrite(m["content"])
+                if fautif:
+                    problemes.append(f"{nom} : la réponse {k} écrit une sortie de commande ({fautif})")
+                for tc in m.get("tool_calls") or []:
+                    outil, args = tc["function"]["name"], tc["function"]["arguments"]
+                    schema = schemas.get(outil)
+                    if schema is None:
+                        problemes.append(f"{nom} : outil inconnu d'OpenCode : {outil}")
+                        continue
+                    if set(schema.get("required", [])) - set(args) or set(args) - set(schema["properties"]):
+                        problemes.append(f"{nom} : arguments de {outil} hors de sa définition : {sorted(args)}")
+                    if outil == "shell" and not args["command"].startswith(h.godot + " "):
+                        problemes.append(f"{nom} : commande sans le chemin complet de Godot : {args['command'][:60]}")
+                    attente.append(tc["id"])
+            elif m["role"] != "user":
+                problemes.append(f"{nom} : rôle inattendu {m['role']}")
+        if attente or ms[-1]["role"] != "assistant" or ms[-1].get("tool_calls"):
+            problemes.append(f"{nom} : la conversation ne finit pas sur une réponse sans appel")
+        non_lus = passages_non_lus(e)
+        if non_lus:
+            problemes.append(f"{nom} : {len(non_lus)} ligne(s) citée(s) par edit sans avoir été lues : {non_lus[0][:60]!r}")
+        if opencode.compter(tok, ms, oc["tools"]) != (oc["jetons"], oc["jetons_reponse"]):
+            problemes.append(f"{nom} : jetons recomptés différents")
+        if oc["jetons"] > LONGUEUR:
+            problemes.append(f"{nom} : trop long ({oc['jetons']} jetons de Qwen 3.8, plus que {LONGUEUR})")
+        if opencode.rendre_sharegpt(opencode.vers_sharegpt(ms, oc["tools"])) != opencode.rendre(ms, oc["tools"]):
+            problemes.append(f"{nom} : le format sharegpt ne redonne pas le texte du gabarit")
+    return problemes
+
+
+LIGNE_LUE = re.compile(r"^\d+: (.*)$")
+
+
+def passages_non_lus(e: dict) -> list[str]:
+    """Les lignes d'un `oldString` que la réponse n'a pas vues avant de les citer : ni lues (`read`), ni écrites par
+    elle (`edit`, `write`), ni données dans la demande."""
+    vues: set[str] = set()
+    manque = []
+    for m in e["opencode"]["messages"][1:]:
+        if m["role"] == "user":
+            vues.update(m["content"].split("\n"))
+        elif m["role"] == "tool" and m["content"].startswith("Read file "):
+            vues.update(mm.group(1) for l in m["content"].split("\n")[1:] if (mm := LIGNE_LUE.match(l)))
+        for tc in m.get("tool_calls") or []:
+            args = tc["function"]["arguments"]
+            if tc["function"]["name"] == "edit":
+                manque += [l for l in args["oldString"].split("\n") if l.strip() and l not in vues]
+                vues.update(args["newString"].split("\n"))
+            elif tc["function"]["name"] == "write":
+                vues.update(args["content"].split("\n"))
+    return manque
+
+
+def _appels(e: dict) -> list[tuple[str, dict]]:
+    return [(tc["function"]["name"], tc["function"]["arguments"]) for m in e["opencode"]["messages"]
+            for tc in m.get("tool_calls") or []]
+
+
+def rejouer_opencode(exemples: list[dict], h: opencode.Harnais) -> dict:
+    """Les appels `edit` et `write`, rejoués comme OpenCode (passage unique exigé) : les parties de création d'une
+    étape, l'une après l'autre depuis son départ, redonnent son code ; chaque session redonne le code juste depuis
+    le code fautif. Exactement, lignes vides comprises."""
+    bilan = {"etapes": 0, "sessions": 0, "differences": 0, "details": []}
+    par_etape: dict = {}
+    for e in exemples:
+        par_etape.setdefault((e["ville"], e["etape"]), []).append(e)
+    for (ville, n), liste in sorted(par_etape.items()):
+        avant, apres = creation.etats(ville, n)
+        dossier = h.dossier(etat.nom(ville, n))
+        fichiers = {k: v for k, v in avant.items() if k.endswith(etat.CODE)}
+        try:
+            for e in sorted((x for x in liste if x["type"] == "creation"), key=lambda x: x["partie"][0]):
+                fichiers = opencode.appliquer(fichiers, _appels(e), dossier)
+            ecarts = [rel for rel, t in apres.items() if rel.endswith(etat.CODE) and fichiers.get(rel) != t]
+        except ValueError as exc:
+            ecarts = [str(exc)]
+        bilan["etapes"] += 1
+        bilan["differences"] += len(ecarts)
+        bilan["details"] += [f"{ville} {n:03d} (création) : {x}" for x in ecarts]
+        for e in (x for x in liste if x["type"] == "debogage"):
+            depart: dict[str, str] = {}
+            for m in e["preuves"]["mutations"]:
+                lignes = depart.get(m["fichier"], apres[m["fichier"]]).split("\n")
+                lignes[m["ligne"] - 1] = m["apres"]
+                depart[m["fichier"]] = "\n".join(lignes)
+            try:
+                obtenu = opencode.appliquer(depart, _appels(e), dossier)
+                ecarts = [rel for rel in depart if obtenu[rel] != apres[rel]]
+            except ValueError as exc:
+                ecarts = [str(exc)]
+            bilan["sessions"] += 1
+            bilan["differences"] += len(ecarts)
+            bilan["details"] += [f"{e['id']} : {x}" for x in ecarts]
+    return bilan
+
+
 DECALAGE = re.compile(r"la ligne fautive (?:y porte le numéro (\d+), pas (\d+)|apparaît juste en dessous, sous le "
                       r"numéro (\d+)\. Le numéro sûr est celui de la ligne « at: » : ligne (\d+))")
 
@@ -130,23 +263,26 @@ def statistiques(exemples: list[dict]) -> dict:
         "nombre": len(crea),
         "etapes_en_plusieurs_parties": len({(e["ville"], e["etape"]) for e in crea if e["partie"][1] > 1}),
         "rien_a_corriger": sum(1 for e in crea if e["preuves"].get("ok")),
-        "tours_moyens": round(sum(len(e["messages"]) - 1 for e in crea) / max(1, len(crea)), 1),
-        "tours_max": max((len(e["messages"]) - 1 for e in crea), default=0),
+        "tours_moyens": round(sum(len(e["opencode"]["messages"]) - 1 for e in crea) / max(1, len(crea)), 1),
+        "tours_max": max((len(e["opencode"]["messages"]) - 1 for e in crea), default=0),
     }
     st["sessions"] = {
         "nombre": len(deb),
         "erreurs": sum(e["nb_erreurs"] for e in deb),
         "par_nombre_d_erreurs": dict(sorted(collections.Counter(e["nb_erreurs"] for e in deb).items())),
-        "tours_moyens": round(sum(len(e["messages"]) - 1 for e in deb) / max(1, len(deb)), 1),
-        "tours_max": max((len(e["messages"]) - 1 for e in deb), default=0),
+        "tours_moyens": round(sum(len(e["opencode"]["messages"]) - 1 for e in deb) / max(1, len(deb)), 1),
+        "tours_max": max((len(e["opencode"]["messages"]) - 1 for e in deb), default=0),
         "genres": dict(collections.Counter(g for e in deb for g in e["genres"]).most_common()),
         "vues": dict(collections.Counter(v for e in deb for v in e["preuves"]["vues"]).most_common()),
         "trouvees_par_la_recherche": sum(1 for e in deb for v in e["preuves"]["vues"] if v == "recherche"),
         "sessions_avec_erreur_d_execution": sum(1 for e in deb if "test" in e["preuves"]["vues"]),
         "sessions_avec_vague_de_syntaxe": sum(1 for e in deb if "godot3_annotation" in e["genres"] and e["nb_erreurs"] > 1),
     }
-    tailles = [sum(len(m["content"]) for m in e["messages"]) for e in exemples]
+    tailles = [len(opencode.rendre(e["opencode"]["messages"], e["opencode"]["tools"])) for e in exemples]
     st["caracteres"] = {"total": sum(tailles), "max": max(tailles), "moyenne": round(sum(tailles) / len(tailles))}
+    st["appels_d_outils"] = dict(collections.Counter(
+        tc["function"]["name"] for e in exemples for m in e["opencode"]["messages"]
+        for tc in m.get("tool_calls") or []).most_common())
     j = [e["jetons"] for e in exemples]
     plus_long = max(exemples, key=lambda e: e["jetons"])
 
@@ -156,10 +292,15 @@ def statistiques(exemples: list[dict]) -> dict:
         return {"nombre": len(v), "total": sum(v), "reponses": sum(r), "moyenne": round(sum(v) / len(v)),
                 "reponse_moyenne": round(sum(r) / len(r)), "min": min(v), "max": max(v)}
 
+    tok = jetons.tokenizer()
     st["jetons"] = {
-        "tokenizer": "qwen35 (vocabulaire GGUF de llama.cpp, models/ggml-vocab-qwen35.gguf)",
-        "gabarit": "<|im_start|>rôle\\ncontenu<|im_end|>\\n par message ; un bloc <think> vide devant chaque réponse, "
-                   "compté dans le total mais pas dans la réponse (enable_thinking: false)",
+        "tokenizer": f"pré-découpage {tok.pre}, {lisezmoi.nb(len(tok.jetons))} jetons, "
+                     f"{lisezmoi.nb(len(tok.rangs))} fusions ; fichier {chemins.actuels().vocab_qwen.name}",
+        "gabarit": "celui du GGUF de Qwen 3.8 : outils dans le message système, appels <tool_call><function=…>, "
+                   "retours <tool_response> dans un tour user ; un bloc <think> vide devant chaque réponse, compté "
+                   "dans le total mais pas dans la réponse (enable_thinking: false)",
+        "prompt_et_outils": len(tok.encoder_special(opencode.rendre(exemples[0]["opencode"]["messages"][:1],
+                                                                    exemples[0]["opencode"]["tools"]))),
         "total": sum(j), "max": max(j), "moyenne": round(sum(j) / len(j)), "plus_long": plus_long["id"],
         "reponses": sum(e["jetons_reponse"] for e in exemples),
         "caracteres_par_jeton": round(sum(tailles) / sum(j), 2),
@@ -183,19 +324,6 @@ def statistiques(exemples: list[dict]) -> dict:
     st["equilibre_par_etape"] = {"plus_bas": rapports[:3], "plus_haut": rapports[-3:],
                                  "median": rapports[len(rapports) // 2][0] if rapports else None}
     return st
-
-
-def compter_jetons(exemples: list[dict]) -> dict:
-    """Jetons de chaque exemple avec le tokenizer de Qwen 3.5 ; le total aussi avec celui de Qwen 1.5 à 3."""
-    totaux = {}
-    for e in exemples:
-        e["jetons"], e["jetons_reponse"] = jetons.compter_messages(e["messages"])
-    totaux["qwen35"] = sum(e["jetons"] for e in exemples)
-    autre = chemins.actuels().vocab_qwen2
-    if autre is not None and autre.is_file():
-        tok = jetons.Tokenizer(str(autre))
-        totaux["qwen2"] = sum(jetons.jetons_messages(tok, e["messages"])[0] for e in exemples)
-    return totaux
 
 
 def choisir_echantillon(exemples: list[dict]) -> list[dict]:
@@ -226,15 +354,18 @@ def assembler(journal=print) -> dict:
     exemples = charger()
     if not exemples:
         raise RuntimeError(f"aucune étape générée dans {ch.etapes} : lancer d'abord « generer »")
-    totaux = compter_jetons(exemples)
+    h = ch.harnais()
     problemes = controler(exemples)
+    problemes += controler_opencode(exemples, h, jetons.tokenizer())
     st = statistiques(exemples)
-    if "qwen2" in totaux:
-        st["jetons"]["total_autre_tokenizer_qwen2"] = totaux["qwen2"]
-    # Les consignes d'édition de chaque exemple de création, rejouées à la lettre depuis l'état de départ (règle 5.7).
+    # Les consignes d'édition du format neutre, rejouées à la lettre depuis l'état de départ (règle 5.7)…
     bilan = rejouer.rejouer_exemples(exemples, creation.etats, etat.CODE)
     st["consignes_rejouees"] = {k: v for k, v in bilan.items() if k != "details"}
     problemes += bilan["details"]
+    # … et les appels edit et write du format d'OpenCode, rejoués comme OpenCode les applique.
+    bilan_oc = rejouer_opencode(exemples, h)
+    st["editions_opencode_rejouees"] = {k: v for k, v in bilan_oc.items() if k != "details"}
+    problemes += bilan_oc["details"]
     # L'extrait décalé des shaders : chaque relevé dans une réponse est confronté au nombre de #include.
     bons, autres = verifier_decalages(exemples)
     st["sessions"]["decalages_shader_verifies"] = bons
@@ -245,7 +376,7 @@ def assembler(journal=print) -> dict:
     ch.livraison.mkdir(parents=True, exist_ok=True)
     fichiers = exporter.ecrire(exemples, ch.livraison, NOM)
     echantillon = choisir_echantillon(exemples)
-    exporter.lisible(echantillon, ch.livraison / "echantillon.md", "Base d'entraînement : échantillon lisible")
+    exporter.lisible(echantillon, ch.livraison / "echantillon.md", "Base d'entraînement : échantillon lisible (format d'OpenCode)")
     st["echantillon"] = [e["id"] for e in echantillon]
     controles = {"statistiques": st, "problemes": problemes}
     (ch.livraison / "controles.json").write_text(json.dumps(controles, ensure_ascii=False, indent=2), encoding="utf-8")

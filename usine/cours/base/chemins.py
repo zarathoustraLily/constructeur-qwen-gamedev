@@ -3,8 +3,11 @@
 - `[chemins].docs_godot` : copie du dépôt godot-docs (citations de la documentation, relues mot pour mot) ;
 - `[chemins].source_godot` : copie du dépôt godot à l'étiquette 4.7.2-stable (référence des classes, table des
   renommages de Godot 3 à Godot 4) ;
-- `[entrainement].vocab_qwen` : models/ggml-vocab-qwen35.gguf de llama.cpp (compte des jetons de Qwen) ;
-  `[entrainement].vocab_qwen2` (facultatif) : models/ggml-vocab-qwen2.gguf, pour un second compte ;
+- `[entrainement].vocab_qwen` : le GGUF de Qwen 3.8 (le modèle lui-même, dont seul l'en-tête est lu, ou le
+  vocabulaire seul qui en est extrait) : tokenizer et gabarit de chat exacts (règle 5.8) ;
+- `[opencode].session_reference` : une session OpenCode capturée par le proxy de l'usine (prompt système et
+  définitions des outils d'OpenCode) ; `[opencode].dossier_cours` : le dossier Windows des projets du cours chez
+  laurent ; Godot y est lancé par `[godot].console` (chaînes Windows, jamais ouvertes ici) ;
 - l'API de Godot vient de donnees/vocab (extraite du binaire par `python -m usine.vocab construire`).
 """
 
@@ -32,8 +35,10 @@ class Chemins:
     docs: Path | None
     source_godot: Path | None
     vocab: Path | None
-    vocab_qwen2: Path | None
     api: Path
+    session_opencode: Path | None = None
+    godot_windows: str | None = None
+    dossier_windows: str | None = None
 
     def _exige(self, chemin: Path | None, cle: str) -> Path:
         if chemin is None or not chemin.exists():
@@ -62,6 +67,18 @@ class Chemins:
     def vocab_qwen(self) -> Path:
         return self._exige(self.vocab, "[entrainement].vocab_qwen")
 
+    def harnais(self):
+        """Le harnais OpenCode des exemples (prompt, outils, Godot et dossier des projets chez laurent)."""
+        from usine.cours.base import opencode
+        global _HARNAIS
+        if _HARNAIS is None:
+            session = self._exige(self.session_opencode, "[opencode].session_reference")
+            if not self.godot_windows or not self.dossier_windows:
+                raise CheminManquant("[godot].console et [opencode].dossier_cours : chemins Windows de Godot et des "
+                                     "projets du cours, à renseigner dans config.toml ou en ligne de commande")
+            _HARNAIS = opencode.Harnais.charger(session, self.godot_windows, self.dossier_windows)
+        return _HARNAIS
+
     @property
     def etapes(self) -> Path:
         """Un fichier JSON par étape : ses exemples de création et ses sessions de débogage (reprise possible)."""
@@ -89,13 +106,19 @@ def _chemin(valeur: Any) -> Path | None:
 
 
 _ACTUELS: Chemins | None = None
+_HARNAIS = None
+
+
+def _texte(valeur: Any) -> str | None:
+    return None if not valeur or valeur == cfg.A_RENSEIGNER else str(valeur)
 
 
 def configurer(docs: Path | str | None = None, source_godot: Path | str | None = None,
-               vocab: Path | str | None = None, vocab_qwen2: Path | str | None = None,
-               config: dict[str, Any] | None = None) -> Chemins:
+               vocab: Path | str | None = None,
+               session_opencode: Path | str | None = None, godot_windows: str | None = None,
+               dossier_windows: str | None = None, config: dict[str, Any] | None = None) -> Chemins:
     """Fixe les chemins : ceux passés ici, sinon ceux de config.toml."""
-    global _ACTUELS
+    global _ACTUELS, _HARNAIS
     from usine.vocab.construire import chemin_json
     config = cfg.charger_config() if config is None else config
     chem = config.get("chemins", {})
@@ -108,9 +131,12 @@ def configurer(docs: Path | str | None = None, source_godot: Path | str | None =
         docs=_chemin(docs) or _chemin(chem.get("docs_godot")),
         source_godot=_chemin(source_godot) or _chemin(chem.get("source_godot")),
         vocab=_chemin(vocab) or _chemin(entr.get("vocab_qwen")),
-        vocab_qwen2=_chemin(vocab_qwen2) or _chemin(entr.get("vocab_qwen2")),
         api=chemin_json(config),
+        session_opencode=_chemin(session_opencode) or _chemin(config.get("opencode", {}).get("session_reference")),
+        godot_windows=godot_windows or _texte(config.get("godot", {}).get("console")),
+        dossier_windows=dossier_windows or _texte(config.get("opencode", {}).get("dossier_cours")),
     )
+    _HARNAIS = None
     return _ACTUELS
 
 
