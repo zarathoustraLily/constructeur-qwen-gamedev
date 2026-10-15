@@ -629,7 +629,7 @@ Attendu : `124 tâches candidates`, puis `124/124 tâches conformes` (chaque tâ
 
 ## 25. Règles qui priment et décors procéduraux (2026-10-14) — environ 5 minutes
 
-À lancer quand aucune campagne ne tourne. Le travail est sur la branche `claude/regles-batiments-proceduraux`, partie de la branche de travail : commite d'abord tes corrections V2 du PC, puis récupère cette branche ; rien n'est fusionné dans `main`.
+À lancer quand aucune campagne ne tourne. Le travail est dans `main` depuis le 2026-10-15 : la branche de travail et la passe « bâtiments procéduraux » y ont été fusionnées à ta demande, avant ces vérifications. Commite d'abord tes corrections V2 du PC, puis récupère `main`.
 
 Ce qui change :
 - `CLAUDE.md` commence par « Règles qui priment » : tes règles (forme, feu vert, interdits, décisions validées, pièges, points ouverts) et celles de la passe « bâtiments procéduraux » (vérification, rangement des décors, données d'entraînement) l'emportent sur le reste du dépôt ;
@@ -639,8 +639,8 @@ Ce qui change :
 ```bat
 cd /d D:\constructeur-qwen-gamedev
 git status --short
-git fetch origin claude/regles-batiments-proceduraux
-git switch claude/regles-batiments-proceduraux
+git switch main
+git pull
 py -3.12 -m pytest -q tests\test_structure.py tests\test_regles.py tests\test_fiches.py
 py -3.12 -m usine.regles verifier godot\socle_jeu
 ```
@@ -651,7 +651,7 @@ Attendu :
 
 ## 26. Cours « bâtiments procéduraux » dans le dépôt (2026-10-14) — environ 15 minutes
 
-À lancer quand aucune campagne ne tourne, sur la même branche que l'étape 25. Le cours (3 villes × 13 étapes) est dans `cours\batiments_proceduraux\` ; `usine.cours` en fabrique un projet Godot par étape dans `donnees\cours\batiments_proceduraux\projets\`, puis les juge et les fait tourner par Godot. Rien ne touche à tes projets ni à llama-server.
+À lancer quand aucune campagne ne tourne, sur `main`, comme l'étape 25. Le cours (3 villes × 13 étapes) est dans `cours\batiments_proceduraux\` ; `usine.cours` en fabrique un projet Godot par étape dans `donnees\cours\batiments_proceduraux\projets\`, puis les juge et les fait tourner par Godot. Rien ne touche à tes projets ni à llama-server.
 
 ```bat
 cd /d D:\constructeur-qwen-gamedev
@@ -671,7 +671,7 @@ Pour visiter une étape : ouvrir son dossier de `donnees\cours\batiments_procedu
 
 ## 27. Générateur de la base et socle aux avertissements en erreurs (2026-10-14) — environ 5 minutes
 
-À lancer quand aucune campagne ne tourne, sur la même branche. Deux changements :
+À lancer quand aucune campagne ne tourne, sur `main`. Deux changements :
 - le générateur de la base « bâtiments procéduraux » est dans le dépôt (`usine\cours\base\`) ; les exemples de création sont maintenant en plusieurs tours : chaque sortie de Godot arrive dans le tour « user » suivant (règle 7.2). Chaque commande montrée est celle qui a tourné, arguments compris : le rendu enregistre son image dans `.godot/rendu.png`, puis quitte ;
 - le socle (`godot\socle_jeu`) traite tous les avertissements de GDScript en erreurs, comme le cours (règle 5.3) : cinq retouches (division entière explicite dans `capture.gd`, deux ternaires dont les deux branches sont maintenant des `String`, le paramètre `target` de `Drone.setup`, qui masquait la méthode `target()`, renommé `chased`, un `@warning_ignore` commenté sur le signal de `State` émis par les états dérivés et sur les `await runner.simulate_frames` des tests).
 
@@ -699,7 +699,7 @@ Depuis l'étape 28, la régénération demande aussi les réglages de l'étape 2
 
 ## 28. Base au format d'OpenCode (2026-10-15) — environ 5 minutes
 
-À lancer quand aucune campagne ne tourne, sur la même branche. Ce qui change :
+À lancer quand aucune campagne ne tourne, sur `main`. Ce qui change :
 - la base « bâtiments procéduraux » est au format d'OpenCode (décision 14, règle 7.4) : le prompt système d'OpenCode entier, tel que ta session capturée le montre (seules changent les lignes du dossier de travail), et ses 12 outils. Les réponses lisent le code par plages (`read`), le changent (`edit`, `write`), lancent Godot par son chemin complet (`shell`, comme le dit `D:\GODOT\AGENTS.md`) et cherchent (`grep`). Les retours d'outils ont les formes relevées dans tes sessions d'OpenCode 2.0.6 ;
 - les jetons se comptent avec le tokenizer et le gabarit de chat de ton GGUF de Qwen 3.8 (règle 5.8). Le `ggml-vocab-qwen35.gguf` de llama.cpp, employé jusqu'ici, est un autre vocabulaire : 151 936 jetons, contre 248 320 ;
 - une étape trop longue pour 32 768 jetons est découpée en parties qui se compilent chacune.

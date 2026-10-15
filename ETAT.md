@@ -1375,6 +1375,14 @@ Chiffres de `controles.json` (20 min 48 s avec 2 travailleurs, assemblage compri
 - Une sortie de Godot gardée contient le chemin du dossier où elle a tourné : la garder avec une marque à sa place.
 - OpenCode n'avait pas chargé `D:\GODOT\AGENTS.md` dans la session capturée.
 
+### Fusion dans `main` — 2026-10-15
+
+Source : demande de laurent du 2026-10-15 (« ok passe la en main »), après l'ouverture de la PR #9.
+
+- La branche de travail (PR #8, « Béquille, point 1 : retour des outils ») et la passe « bâtiments procéduraux » (PR #9, empilée sur #8) sont fusionnées dans `main`, par des commits de fusion comme les PR précédentes.
+- La fusion vient avant les vérifications locales des étapes 22 à 28 : laurent l'a demandée ainsi. Ces étapes restent à faire sur sa machine, hors campagne, en partant de `main` (`VERIFIER_EN_LOCAL.md`, étape 25 mise à jour).
+- Avant le `git pull` de `main`, laurent commite ses corrections V2 non commitées (section 3 des règles qui priment).
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
