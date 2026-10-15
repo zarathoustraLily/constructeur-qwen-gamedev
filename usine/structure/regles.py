@@ -34,6 +34,35 @@ PERMIS: dict[str, set[str]] = {
 }
 EXCEPTIONS: set[tuple[str, str]] = set()
 SANS_CODE = {"5_data", "6_assets"}
+# Décors procéduraux (CLAUDE.md, « Règles qui priment », section 5 ; demande de laurent du 2026-10-14) :
+# les générateurs @tool et leurs scènes vivent dans 6_assets/Mesh/Procedural/, leurs données (palettes,
+# listes, cotes : des scripts de constantes) dans 5_data/DECORS/. Ces zones admettent du code ; la valeur
+# donne les dossiers qu'elles peuvent connaître en plus de ceux de leur dossier dans PERMIS.
+DECORS: dict[str, set[str]] = {
+    "6_assets/Mesh/Procedural/": {"1_core", "5_data"},
+    "5_data/DECORS/": set(),
+}
+
+
+def zone_decor(res: str) -> str | None:
+    """La zone de décor procédural d'un fichier (« 6_assets/Mesh/Procedural/ »…), ou None."""
+    rel = res.removeprefix("res://")
+    return next((zone for zone in DECORS if rel.startswith(zone)), None)
+
+
+def code_permis(res: str) -> bool:
+    """Un script peut-il vivre à cet endroit ? Partout dans le plan, sauf 5_data et 6_assets hors des décors."""
+    return dossier_de(res) not in SANS_CODE or zone_decor(res) is not None
+
+
+def dossiers_permis(res: str) -> set[str]:
+    """Les dossiers qu'un fichier peut connaître, en plus du sien : son dossier, et sa zone de décor s'il en a une."""
+    dossier = dossier_de(res)
+    permis = set(PERMIS.get(dossier, set())) if dossier else set()
+    zone = zone_decor(res)
+    if zone is not None:
+        permis |= DECORS[zone]
+    return permis
 FICHIERS_RACINE = {"project.godot", "ORGANISATION.md", "plan.md", "icon.svg", "README.md", "AGENTS.md",
                    "opencode.json", "default_bus_layout.tres", "export_presets.cfg"}
 _RES = re.compile(r"res://[^\"'\s)\]]+")
@@ -128,8 +157,9 @@ def verifier_projet(projet: Path) -> dict[str, Any]:
             if dossier is None:
                 erreurs.append(_erreur(res, "ORG-01", f"dossier « {rel.parts[0]} » hors du plan d'organisation"))
                 continue
-            if f.suffix == ".gd" and dossier in SANS_CODE:
-                erreurs.append(_erreur(res, "DOSSIERS", f"script dans {dossier} ({DOSSIERS[dossier]}) : ce dossier ne contient aucun code"))
+            if f.suffix == ".gd" and not code_permis(res):
+                erreurs.append(_erreur(res, "DOSSIERS", f"script dans {dossier} ({DOSSIERS[dossier]}) : ce dossier ne contient aucun code"
+                                                        " (hors des décors procéduraux : 6_assets/Mesh/Procedural/, 5_data/DECORS/)"))
             if f.suffix in (".gd", ".tscn", ".tres", ".gdshader") and not _SNAKE.match(f.stem):
                 erreurs.append(_erreur(res, "COD-01", f"nom de fichier hors convention : {f.name} (snake_case attendu)"))
             if f.suffix == ".gd":
@@ -150,7 +180,7 @@ def verifier_projet(projet: Path) -> dict[str, Any]:
             dossier = dossier_de(source)
             if dossier is None or dossier == "7_tests":
                 continue
-            permis = PERMIS.get(dossier, set())
+            permis = dossiers_permis(source)
             vues: set[str] = set()
             for cible, ligne in cibles:
                 d = dossier_de(cible)

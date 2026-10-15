@@ -27,11 +27,11 @@ func _ready() -> void:
 
 
 ## Le niveau fournit la cible, le projectile et où le poser, et où jouer les effets.
-func setup(target: Node3D, projectile: PackedScene, projectile_parent: Node, effects_parent: Node,
+func setup(chased: Node3D, projectile: PackedScene, projectile_parent: Node, effects_parent: Node,
 		hit_effect: PackedScene) -> void:
-	if target == null:
+	if chased == null:
 		push_error("Drone.setup %s : cible absente" % name)
-	_target = target
+	_target = chased
 	weapon.setup(projectile, projectile_parent)
 	view.setup(effects_parent, hit_effect)
 

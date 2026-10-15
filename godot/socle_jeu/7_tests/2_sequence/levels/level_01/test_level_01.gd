@@ -5,6 +5,9 @@ extends GdUnitTestSuite
 const LEVEL := "res://2_sequence/levels/level_01/level_01.tscn"
 
 
+# GdUnitSceneRunner déclare simulate_frames() abstraite, sans corps : l'analyse n'y voit pas d'await.
+# Son implémentation (GdUnitSceneRunnerImpl) attend les images : l'avertissement « await inutile » ne vaut
+# pas ici, et sans await les images ne seraient pas jouées.
 func test_ennemis_poses_points_et_fin_du_niveau() -> void:
 	var level: LevelBase = auto_free(load(LEVEL).instantiate())
 	add_child(level)
@@ -42,6 +45,7 @@ func test_les_drones_attaquent_le_joueur() -> void:
 	var level := runner.scene() as LevelBase
 	level.player.global_position = Vector3(0, 0, 2)
 	Trace.clear()
+	@warning_ignore("redundant_await")
 	await runner.simulate_frames(240)
 	var texte := "\n".join(Trace.lines)
 	assert_str(texte).contains("chase → attack")

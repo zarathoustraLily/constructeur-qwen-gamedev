@@ -42,9 +42,13 @@ def _tuer_arbre(proc: subprocess.Popen) -> None:
             pass
 
 
-def executer(commande: list[str | Path], cwd: Path | None = None, delai_s: float = 300) -> Resultat:
-    """Exécute une commande, fusionne stdout et stderr, et coupe au-delà du délai."""
+def executer(commande: list[str | Path], cwd: Path | None = None, delai_s: float = 300,
+             env: dict[str, str] | None = None) -> Resultat:
+    """Exécute une commande, fusionne stdout et stderr, et coupe au-delà du délai.
+    `env` : variables d'environnement ajoutées à celles du processus courant."""
     options: dict = {}
+    if env:
+        options["env"] = {**os.environ, **env}
     if sys.platform == "win32":
         options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:

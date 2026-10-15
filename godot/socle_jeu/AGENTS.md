@@ -17,6 +17,7 @@ Rangement (détail et exemples à imiter : ORGANISATION.md) :
 | 6_assets/ | modèles, textures, audio, shaders, polices, aucun code | rien |
 | 7_tests/ | tests GdUnit4, en miroir du chemin testé | tout |
 Une entité ne dépend d'aucune autre entité : le niveau lui fournit ce qu'il faut par setup().
+Décors procéduraux : générateurs @tool et leurs scènes dans 6_assets/Mesh/Procedural/ (ils peuvent connaître 1_core et 5_data), données en scripts de constantes dans 5_data/DECORS/, outils communs dans 1_core/procedural/.
 
 # AVANT CHAQUE ÉTAPE (obligatoire)
 1. Ouvre plan.md. Si l'étape d'où vient la demande a un sous-plan, prends la première sous-étape non cochée. Sinon, écris ce sous-plan en étapes courtes (une entité, un état, un écran), puis prends la première.

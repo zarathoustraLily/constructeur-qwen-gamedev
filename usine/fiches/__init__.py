@@ -22,7 +22,7 @@ from typing import Any
 from usine import config as cfg
 from usine.regles.catalogue import texte as texte_regle
 from usine.retour.verification import Signatures
-from usine.structure.regles import DOSSIERS, FICHIERS_RACINE, dossier_de
+from usine.structure.regles import DOSSIERS, FICHIERS_RACINE, code_permis, dossier_de
 
 DONNEES = Path(__file__).resolve().parent / "donnees"
 SOCLE = cfg.RACINE / "godot" / "socle_jeu"
@@ -229,8 +229,9 @@ def verifier_fichiers(fichiers: list[str], modele: dict[str, Any] | None, projet
             avis = f"dans {dossier} ({DOSSIERS[dossier]}) : inhabituel pour {modele['titre']}"
         elif nom.endswith((".gd", ".tscn", ".tres")) and not re.fullmatch(r"[a-z0-9_]+", nom.rsplit(".", 1)[0]):
             avis = "nom hors convention (snake_case attendu)"
-        elif nom.endswith(".gd") and dossier in ("5_data", "6_assets"):
-            avis = f"script dans {dossier} : ce dossier ne contient aucun code"
+        elif nom.endswith(".gd") and not code_permis(res):
+            avis = (f"script dans {dossier} : ce dossier ne contient aucun code (sauf les décors procéduraux : "
+                    "6_assets/Mesh/Procedural/, 5_data/DECORS/)")
         elif nom.endswith(".gd") and dossier == "7_tests" and not (Path(projet) / rel.removeprefix("7_tests/")).parent.is_dir():
             avis = "test hors miroir : 7_tests/<chemin du code testé>/test_<nom>.gd (QA-01)"
         else:

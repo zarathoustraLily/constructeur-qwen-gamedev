@@ -627,8 +627,112 @@ py -3.12 -m usine.juge modeles --dossier %TEMP%\nettoyer --travailleurs 4
 
 Attendu : `124 tâches candidates`, puis `124/124 tâches conformes` (chaque tâche `FAIL` au départ, `PASS` en référence).
 
+## 25. Règles qui priment et décors procéduraux (2026-10-14) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne. Le travail est dans `main` depuis le 2026-10-15 : la branche de travail et la passe « bâtiments procéduraux » y ont été fusionnées à ta demande, avant ces vérifications. Commite d'abord tes corrections V2 du PC, puis récupère `main`.
+
+Ce qui change :
+- `CLAUDE.md` commence par « Règles qui priment » : tes règles (forme, feu vert, interdits, décisions validées, pièges, points ouverts) et celles de la passe « bâtiments procéduraux » (vérification, rangement des décors, données d'entraînement) l'emportent sur le reste du dépôt ;
+- le juge des règles admet les décors procéduraux : générateurs `@tool` et scènes dans `6_assets/Mesh/Procedural/` (ils peuvent connaître `1_core/` et `5_data/`), données en scripts de constantes dans `5_data/DECORS/` ; ailleurs, `5_data/` et `6_assets/` restent sans code ;
+- `prepare_action` et `AGENTS.md`, `ORGANISATION.md` du socle disent la même chose.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+git switch main
+git pull
+py -3.12 -m pytest -q tests\test_structure.py tests\test_regles.py tests\test_fiches.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+```
+
+Attendu :
+- pytest : tout passe (`56 passed` dans le cloud), dont `test_decors_proceduraux` et `test_decor_procedural_dans_le_plan` ;
+- `usine.regles` : `0 violation(s) {}` (le socle ne change pas).
+
+## 26. Cours « bâtiments procéduraux » dans le dépôt (2026-10-14) — environ 15 minutes
+
+À lancer quand aucune campagne ne tourne, sur `main`, comme l'étape 25. Le cours (3 villes × 13 étapes) est dans `cours\batiments_proceduraux\` ; `usine.cours` en fabrique un projet Godot par étape dans `donnees\cours\batiments_proceduraux\projets\`, puis les juge et les fait tourner par Godot. Rien ne touche à tes projets ni à llama-server.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours.py
+py -3.12 -m usine.cours fabriquer batiments_proceduraux
+py -3.12 -m usine.cours juger batiments_proceduraux
+py -3.12 -m usine.cours verifier batiments_proceduraux --travailleurs 4
+```
+
+Attendu :
+- pytest : `6 passed` ;
+- `fabriquer` : 39 lignes `building_proceduraux_<ville>_etape_<NNN> : … fichiers`, puis `Projets dans …` ;
+- `juger` : `39 projets, 0 écart(s)` ;
+- `verifier` : `39/39 projets vérifiés sans erreur`. Chaque projet ouvre une fenêtre le temps de rendre une image (rendu de compatibilité, ta carte graphique) ; `--sans-rendu` l'évite. Les images sont dans `donnees\cours\batiments_proceduraux\images\`.
+
+Pour visiter une étape : ouvrir son dossier de `donnees\cours\batiments_proceduraux\projets\` dans l'éditeur Godot 4.7.2, puis F5. Sa note est son `README.md`.
+
+## 27. Générateur de la base et socle aux avertissements en erreurs (2026-10-14) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne, sur `main`. Deux changements :
+- le générateur de la base « bâtiments procéduraux » est dans le dépôt (`usine\cours\base\`) ; les exemples de création sont maintenant en plusieurs tours : chaque sortie de Godot arrive dans le tour « user » suivant (règle 7.2). Chaque commande montrée est celle qui a tourné, arguments compris : le rendu enregistre son image dans `.godot/rendu.png`, puis quitte ;
+- le socle (`godot\socle_jeu`) traite tous les avertissements de GDScript en erreurs, comme le cours (règle 5.3) : cinq retouches (division entière explicite dans `capture.gd`, deux ternaires dont les deux branches sont maintenant des `String`, le paramètre `target` de `Drone.setup`, qui masquait la méthode `target()`, renommé `chased`, un `@warning_ignore` commenté sur le signal de `State` émis par les états dérivés et sur les `await runner.simulate_frames` des tests).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours.py tests\test_cours_base.py tests\test_regles.py tests\test_fiches.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+py -3.12 -m usine.juge run godot\socle_jeu --filtre res://7_tests
+```
+
+Attendu :
+- pytest : tout passe (`65 passed` dans le cloud, dont 16 pour les deux premiers fichiers) ;
+- `usine.regles` : `0 violation(s) {}` ;
+- `usine.juge run` : `"ok": true`, puis `"total": 31, "passes": 31`.
+
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs, et chaque rendu ouvre une fenêtre le temps d'une image) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (depuis l'étape 28 : le GGUF de Qwen 3.8, voir plus bas), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
+
+```bat
+py -3.12 -m usine.cours.base tout --travailleurs 4
+```
+
+Attendu : à la fin, `problèmes : 0` ; la base est dans `donnees\cours\batiments_proceduraux\base\livraison\` (format chat, sharegpt, `dataset_info.json`, `echantillon.md`, `controles.json`, `LISEZMOI.md`). Les sorties de Godot citées viennent alors de ta machine (Windows, ta carte graphique) : elles peuvent différer de celles du cloud, c'est attendu.
+
+Depuis l'étape 28, la régénération demande aussi les réglages de l'étape 28 ci-dessous.
+
+## 28. Base au format d'OpenCode (2026-10-15) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne, sur `main`. Ce qui change :
+- la base « bâtiments procéduraux » est au format d'OpenCode (décision 14, règle 7.4) : le prompt système d'OpenCode entier, tel que ta session capturée le montre (seules changent les lignes du dossier de travail), et ses 12 outils. Les réponses lisent le code par plages (`read`), le changent (`edit`, `write`), lancent Godot par son chemin complet (`shell`, comme le dit `D:\GODOT\AGENTS.md`) et cherchent (`grep`). Les retours d'outils ont les formes relevées dans tes sessions d'OpenCode 2.0.6 ;
+- les jetons se comptent avec le tokenizer et le gabarit de chat de ton GGUF de Qwen 3.8 (règle 5.8). Le `ggml-vocab-qwen35.gguf` de llama.cpp, employé jusqu'ici, est un autre vocabulaire : 151 936 jetons, contre 248 320 ;
+- une étape trop longue pour 32 768 jetons est découpée en parties qui se compilent chacune.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours_base.py tests\test_cours_opencode.py
+```
+
+Attendu : `25 passed`. Si `jinja2` n'est pas installé dans ce Python, le test qui compare le rendu au gabarit de ton GGUF est sauté (`24 passed, 1 skipped`). `jinja2` est déjà là dans un Python où LLaMA-Factory ou transformers sont installés.
+
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs) demande, en plus des chemins de l'étape 27, trois réglages dans `config.toml` (modèle : `config.example.toml`) :
+- `[entrainement] vocab_qwen` : `E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf` (le vocabulaire seul, extrait le 2026-10-15 de ton modèle, avec ton accord), ou le GGUF du modèle lui-même : seul son en-tête est lu ;
+- `[opencode] session_reference` : la session capturée qui sert de modèle, `donnees\sessions\20261004-190325_13780ad518f3.jsonl` ;
+- `[opencode] dossier_cours` : `D:\GODOT\projet_enseingement\001_Batiments proceduraux`, le dossier où les exemples situent les projets du cours.
+
+```bat
+py -3.12 -m usine.cours.base tout --travailleurs 4
+```
+
+Attendu : `problèmes : 0`.
+
+Facultatif, et sans rien charger sur la carte graphique : croiser les jetons de l'usine avec ceux de ton llama.cpp. `llama-tokenize.exe` est dans le dossier de `llama-server.exe` ; il ne lit que le vocabulaire. Il faut la base de la régénération ci-dessus.
+
+```bat
+py -3.12 -m usine.cours.base.jetons E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf croiser <dossier de llama-server>\llama-tokenize.exe donnees\cours\batiments_proceduraux\base\livraison\base_batiments_proceduraux.jsonl
+```
+
+Attendu : `374/374 exemples identiques jeton pour jeton à llama-tokenize` (dans le cloud, avec llama.cpp `fd55cb9`). Le nombre d'exemples peut changer si ta régénération écarte d'autres sessions.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
+- Base au format d'OpenCode (étape 28) : que PowerShell passe bien `++ --shot=…` à Godot (le rendu des exemples met les arguments de la visite après `++`, l'autre séparateur que donne la référence de `OS.get_cmdline_user_args`, parce que le traitement de `--` par PowerShell n'a pas été vérifié) ; et la forme des sorties de Godot dans OpenCode chez toi : lignes en CRLF et progression de l'import en français, que les exemples, produits sous Linux, n'ont pas.
 - Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.

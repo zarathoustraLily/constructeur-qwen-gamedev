@@ -19,6 +19,10 @@
 - [x] Béquille, point 8 — grille de captures horodatées et journal `Trace` (`capture_frames`) (2026-10-11) : étape 23
 - [ ] Béquille — mesure : même campagne de deux heures, avec et sans chaque béquille
 - [ ] Béquille — entraînement sur la démarche (harnais identique à l'usage)
+- [x] Règles qui priment (mode d'emploi de laurent et passe « bâtiments procéduraux ») en tête de `CLAUDE.md` ; décors procéduraux admis par le juge des règles (2026-10-14) : étape 25
+- [x] Cours « bâtiments procéduraux » (3 villes × 13 étapes) dans le dépôt, conforme au juge des règles et vérifié par Godot (2026-10-14) : étape 26
+- [x] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2) ; socle aux avertissements en erreurs (règle 5.3) (2026-10-14) : étape 27
+- [x] Base convertie au format d'OpenCode, harnais d'usage (décision 14), jetons comptés avec le tokenizer de Qwen 3.8 (2026-10-15) : étape 28
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1147,6 +1151,238 @@ Suite complète, `python -m pytest -q` : `386 passed, 1 skipped in 1002.36s` (sq
 - Une salissure ne touche jamais un commentaire : sinon la « violation » n'existe pas pour le juge et la tâche serait verte au départ.
 - Un projet qui met `UNTYPED_DECLARATION` en erreur s'applique aussi aux scripts lancés avec `-s` ; tout nouveau script GDScript de l'usine doit être entièrement typé (y compris les variables de `for` sur un tableau non typé et les paramètres des lambdas).
 
+### Règles qui priment et décors procéduraux — 2026-10-14 (branche `claude/regles-batiments-proceduraux`)
+
+Source : demande de laurent du 2026-10-14, « modifie le dépôt pour que tes règles à toi avec celles du projet "poursuivre le projet de laurent" s'imposent au dépôt ». Son mode d'emploi n'est pas versé tel quel (dépôt public, détails personnels) : seules ses règles sont reprises.
+
+**Fait**
+
+- `CLAUDE.md` commence par « Règles qui priment », qui l'emportent sur le reste du fichier, le code et les documents : 1. travailler avec laurent ; 2. ses 13 décisions ; 3. pièges et interdits ; 4. points ouverts ; 5. vérification (8 règles de la passe « bâtiments procéduraux ») ; 6. rangement des décors procéduraux ; 7. données d'entraînement (7 règles). Chaque point dit s'il est décidé, proposé ou ouvert.
+- Le reste de `CLAUDE.md` est mis d'accord : règle 4 « Jeux gelés : on n'en crée plus » (décision 1), les 221 tâches gelées restant exclues tant que laurent n'a pas décidé ; le harnais d'usage est un point ouvert ; la mesure ne se lance que si laurent la demande ; la grille compétence × sujet, moitié création, moitié débogage, en jetons de réponse.
+- Juge des règles : table `DECORS` de `usine/structure/regles.py`. `6_assets/Mesh/Procedural/` peut contenir du code qui dépend de `1_core/` et `5_data/` ; `5_data/DECORS/` peut contenir des scripts de constantes, sans dépendance. Ailleurs, `5_data/` et `6_assets/` restent sans code. `verifier_fichiers` (fiches de `prepare_action`) et le texte de DOSSIERS (`usine/regles/catalogue.py`) suivent.
+- Socle : une ligne dans `AGENTS.md`, une puce dans `ORGANISATION.md`.
+- Tests : `test_decors_proceduraux` (un générateur qui charge `1_core/procedural/` et `5_data/DECORS/` passe ; un script dans `6_assets/materials/` et un décor qui charge `4_ui/` échouent) et `test_decor_procedural_dans_le_plan`.
+- `VERIFIER_EN_LOCAL.md` : étape 25.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Python 3.13.16, pytest 9.1.1.
+
+```
+$ python -m pytest -q tests/test_structure.py tests/test_fiches.py tests/test_regles.py
+56 passed in 1.91s
+$ python -m usine.regles verifier godot/socle_jeu
+0 violation(s) {}
+$ juge des règles sur les 39 étapes du cours « bâtiments procéduraux » (cumulé)
+Écarts dans les fichiers enseignés (39 étapes, cumulés) : {'COD-02': 142}
+Écarts dans l'outillage du cours : {'ARC-04': 546, 'SIM-01': 39, 'DAT-01': 3465, 'COD-02': 227, 'ORG-01': 39}
+```
+
+Avant la table `DECORS`, les fichiers enseignés comptaient aussi 188 écarts DOSSIERS ; il n'en reste aucun. Les 142 COD-02 (tableaux et dictionnaires non typés) sont une règle du projet qui reste : c'est le cours qui se corrige.
+
+Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 failed, 379 passed, 2 skipped in 585.45s`. Les 5 échecs (`test_mesure`, `test_retour`, 3 de `test_rft`) sont `ModuleNotFoundError: No module named 'mcp'` : le SDK MCP manque dans le cloud, le proxy refuse PyPI (403).
+
+**Reste à faire** : laurent relit et corrige « Règles qui priment » ; le cours et le générateur de sa base dans le dépôt, avec ses collections typées (COD-02) et son outillage de visite rangé ou laissé hors des sources ; étape 25 sur la machine, hors campagne.
+
+**Pièges**
+
+- Le juge ne distingue pas un générateur `@tool` d'un script de jeu : sans la table `DECORS`, tout script de `5_data/` ou `6_assets/` est un écart DOSSIERS.
+- `pkill -f` dans le cloud tue aussi le shell qui le lance : tuer par numéro de processus.
+
+### Cours « bâtiments procéduraux » dans le dépôt — 2026-10-14 (branche `claude/regles-batiments-proceduraux`)
+
+Source : demande de laurent du 2026-10-14 (« intègre ta solution […] dans le dépôt », avec les règles qui priment).
+
+**Fait**
+
+- `cours/batiments_proceduraux/` : les maîtres balisés des trois villes, les fichiers communs, les notes d'étape, les carnets de recherche de Tokyo et de New York, le manifeste.
+- `usine/cours/` : `fabriquer.py` (un projet Godot par étape, dans `donnees/cours/batiments_proceduraux/projets/`), `verifier.py` (juge des règles, puis Godot : import, analyse de chaque script, tests de l'étape, une image en Compatibilité), et `python -m usine.cours fabriquer|juger|verifier`. Avant tout changement de contenu, `fabriquer.py` redonnait les 39 projets du cours à l'identique (808 fichiers, `diff -rq` vide).
+- Le cours suit les règles du dépôt. Écarts du juge cumulés sur les 39 étapes, avant : fichiers enseignés COD-02 142 ; outillage de visite ARC-04 546, SIM-01 39, DAT-01 3 465, COD-02 227, ORG-01 39. Après : 0.
+  - avertissements de GDScript à 2 dans le `project.godot` de chaque étape (règle 5.3) ;
+  - la note de l'étape devient le `README.md` du projet (ORG-01) ;
+  - tableaux et dictionnaires typés (COD-02) : empreinte des variables par l'`Array[Dictionary]` de l'API, `Dictionary[String, Variant]` pour les réglages d'un shader, lignes de palette converties à la lecture (`PackedStringArray(...)`, `PackedColorArray(...)`), cases de l'outil de maillage créées avec leur type complet, tableaux parallèles au lieu de paires ;
+  - caméra libre : `free_camera_input.gd` lit clavier et souris et donne des intentions, la caméra avance dans `_physics_process` (ARC-04, SIM-01) ;
+  - visite : tous ses chiffres dans `5_data/visit/visit_settings.tres` (classe `VisitSettings` dans `1_core/data/`, avec `id` et `validate()`), la mesure du rendu dans le bandeau de `4_ui` (DAT-01, DAT-02).
+- Comportement inchangé : les 146 lignes de sortie des tests des 39 étapes (triangles, gabarits, niveaux de détail) sont identiques avant et après ; les images de Paris 013, New York 012 et Tokyo 005 sont identiques au pixel près.
+- `tests/test_cours.py` (6 tests, dont un avec Godot) ; `CLAUDE.md` (arborescence) ; `VERIFIER_EN_LOCAL.md` étape 26.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux.
+
+```
+$ python -m usine.cours juger batiments_proceduraux
+…
+building_proceduraux_newyorkais_etape_013 : 0 écart(s) {}
+39 projets, 0 écart(s)
+$ python -m usine.cours verifier batiments_proceduraux --travailleurs 2
+…
+39/39 projets vérifiés sans erreur ; bilan : /home/claude/constructeur-qwen-gamedev/donnees/cours/batiments_proceduraux/verification.json
+$ python -m pytest -q tests/test_cours.py
+6 passed in 27.32s
+```
+
+**Reste à faire** : le générateur de la base dans le dépôt (règle 7.2 : création en plusieurs tours) ; conversion au format d'OpenCode (décision 14) ; étape 26 sur la machine.
+
+**Pièges**
+
+- Godot 4.7.2 : une constante `Array[PackedStringArray]` écrite en tableaux littéraux imbriqués (palette de New York) passe l'analyse mais plante le moteur au test de l'étape (signal 11) ; écrite avec `PackedStringArray([...])`, elle est refusée (« isn't a constant expression »). Un cas réduit à deux scripts ne plante pas. Garder `Array[Array]` et convertir à la lecture.
+- Un essai rapide qui ne lisait que la ligne de bilan d'un test a manqué des « SCRIPT ERROR » (règle 5.5) ; le vérificateur, lui, lit chaque ligne.
+- `--shot=<chemin relatif>` : avec `--path`, Godot compte le chemin depuis le dossier du projet.
+- `Dictionary` et `Dictionary[Variant, Variant]` sont le même type (référence de GDScript). Une boucle `for x: Dictionary[String, Variant] in …` sur les dictionnaires non typés de l'API ne contrôle rien (`is_typed()` faux), alors qu'une affectation directe échoue à l'exécution : ne pas s'y fier.
+
+### Générateur de la base « bâtiments procéduraux » et socle aux avertissements en erreurs — 2026-10-14 (branche `claude/regles-batiments-proceduraux`)
+
+Source : demandes de laurent du 2026-10-14 (« intègre ta solution […] dans le dépôt », puis « continue ») ; règles qui priment 5.1, 5.3, 7.2 et 7.5.
+
+**Fait**
+
+- `usine/cours/base/` : le générateur de la base, repris de la passe « bâtiments procéduraux » et branché sur le dépôt. Il part des 39 projets que fabrique `usine.cours`, lit ses chemins dans `config.toml` (`[chemins] docs_godot` et `source_godot`, `[entrainement] vocab_qwen` et, facultatif, `vocab_qwen2`) et lance Godot par `usine.processus.executer` (règle 8) : `python -m usine.cours.base generer|assembler|tout`. Sorties dans `donnees/cours/batiments_proceduraux/base/` (ignoré par git).
+- Règle 7.2 : les exemples de création sont en plusieurs tours. Une commande par tour (import, analyse de chaque script modifié, test de l'étape, image en Compatibilité quand un shader change) ; sa sortie réelle, avec son code de sortie, arrive dans le tour « user » suivant ; le dernier tour vérifie, corrige et rend compte. Avant, la réponse de création citait elle-même les sorties de Godot.
+- Règle 5.1 : chaque commande montrée est celle qui a tourné, arguments compris ; l'exécutable s'y appelle `godot` et le `xvfb-run` propre au cloud n'y figure pas. Le rendu montré jusqu'ici omettait `--shot` et `--quit-after` : lancé tel quel chez laurent, il aurait ouvert la visite sans jamais quitter. Il enregistre maintenant son image dans `.godot/rendu.png` et quitte ; sa ligne `capture: … erreur=0` reste dans la sortie et entre dans la vérification. L'import ne garde plus seulement ses lignes d'erreur, ce qui aurait ôté à une erreur sa ligne `at:` : seuls ses codes de couleur et sa progression sont retirés.
+- Contrôles de l'assemblage (`assembler.py`) : rôles alternés ; chaque commande demandée a sa sortie, et la bonne, dans le tour suivant ; aucune réponse n'écrit de sortie (7.2) ; consignes d'édition rejouées à la lettre (5.7) ; extraits de shader confrontés à leurs `#include` (5.6) ; aucun exemple au-delà de 32 768 jetons (7.5), comptés avec le tokenizer de Qwen 3.5 lu dans le GGUF de llama.cpp (5.8), bloc de réflexion vide hors des jetons de réponse (7.6).
+- Socle (`godot/socle_jeu`) aux avertissements en erreurs (5.3) : bloc `[debug]` complet, et cinq retouches. Division entière explicite (`capture.gd`) ; deux ternaires dont les deux branches sont maintenant des `String` (`trace.gd`, `debug_overlay.gd`) ; le paramètre `target` de `Drone.setup`, qui masquait la méthode `target()`, renommé `chased` ; des `@warning_ignore` commentés sur le signal de `State`, émis par les états dérivés, et sur les `await runner.simulate_frames` des tests (`GdUnitSceneRunner` déclare `simulate_frames` abstraite, sans corps ; `GdUnitSceneRunnerImpl` attend les images).
+- `CLAUDE.md` : règle 5.3 précisée (elle vaut pour le socle et le cours ; les jeux sources des 221 tâches gelées gardent leurs réglages, leur sort étant ouvert) ; arborescence (`usine/cours/base/`). `config.example.toml` : les trois chemins.
+- Tests : `tests/test_cours_base.py` (9 tests, sans Godot) et `test_le_socle_traite_aussi_les_avertissements_en_erreurs` dans `tests/test_cours.py` ; `VERIFIER_EN_LOCAL.md` étape 27.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Python 3.13.16.
+
+```
+$ python -m usine.regles verifier godot/socle_jeu
+0 violation(s) {}
+$ python -m usine.juge run godot/socle_jeu --filtre res://7_tests
+{"ok": true, "etape": "run_tests", "duree_s": 18.594, "erreurs": [], "tests": {"total": 31, "passes": 31, "echecs": []}}
+$ (témoin : copie du socle, `var x = 1` ajouté à 1_core/process_order.gd) python -m usine.juge run <copie> --filtre res://7_tests
+False check_script
+res://1_core/process_order.gd 18 parse_error Parse Error: Variable "x" has no static type. (Warning treated as error.)
+$ python -m usine.cours.base.jetons …/models/ggml-vocab-qwen35.gguf verifier
+qwen35 : 50/50 chaînes de test identiques à la sortie de référence
+$ python -m usine.cours.base.jetons …/models/ggml-vocab-qwen2.gguf verifier
+qwen2 : 46/46 chaînes de test identiques à la sortie de référence
+$ python -m pytest -q tests/test_cours.py tests/test_cours_base.py tests/test_regles.py tests/test_fiches.py
+65 passed in 42.82s
+$ python -m pytest -q tests/test_cours.py tests/test_cours_base.py
+16 passed in 39.40s
+$ python -m usine.cours.base tout --refaire --travailleurs 2 --docs … --source-godot … --vocab …/ggml-vocab-qwen35.gguf --vocab-qwen2 …/ggml-vocab-qwen2.gguf
+parisien 001 : 1 création(s) (7404 jetons de réponse), 5 session(s) (6750), 20 s
+…
+newyorkais 013 : 1 création(s) (22081 jetons de réponse), 15 session(s) (21558), 122 s
+…
+problèmes : 0
+```
+
+Une première génération complète (de 21 h 48 à 22 h 09) avait aussi donné `problèmes : 0`, mais à la relecture, le rendu montré n'était pas la commande lancée (voir plus haut). La base ci-dessous vient du générateur corrigé : 17 min 41 s avec 2 travailleurs, assemblage compris. Les chiffres viennent de `controles.json` :
+
+- 357 exemples : 39 de création (15,1 tours en moyenne, 24 au plus) et 318 sessions de débogage (934 erreurs corrigées, 9,2 tours en moyenne, 18 au plus) ;
+- jetons de réponse : 459 073 pour la création, 452 352 pour le débogage (50,4 % et 49,6 %). Selon l'étape, le débogage pèse de 0,82 fois la création (`tokyoiste-004`) à 1,21 fois (`parisien-004`), médiane 0,98 ;
+- 1 824 606 jetons de Qwen en tout. Le plus long exemple, `newyorkais-007-creation`, en compte 31 660 (1 108 sous 32 768) ; aucun ne dépasse 32 768. Les tokenizers qwen35 et qwen2 donnent le même total : leurs deux fichiers ont 151 936 jetons et 151 387 fusions ;
+- consignes rejouées : 39 étapes, aucune consigne ambiguë, aucun fichier différent ;
+- 65 sessions écartées pendant la génération : 36 pour une erreur imprévue, 27 dont des erreurs restaient invisibles pour Godot, 2 dont aucune commande ne voyait les erreurs.
+
+Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 failed, 395 passed, 2 skipped in 829.29s`. Ce sont les mêmes 5 échecs qu'à l'étape 25 : `ModuleNotFoundError: No module named 'mcp'`, le SDK MCP n'étant pas installable dans le cloud.
+
+**Reste à faire** : convertir la base au format d'OpenCode (décision 14, règle 7.4) à partir d'une session réelle enregistrée par le proxy de capture (fichier demandé à laurent) ; étape 27 sur la machine, hors campagne ; laurent décide de l'emploi de la base.
+
+**Pièges**
+
+- Une commande montrée raccourcie n'est plus celle qui a tourné : sans `--shot` ni `--quit-after`, le rendu ne quitte pas.
+- `--check-only -s` lancé seul sur un script du socle échoue : « Identifier not found: GameState » (autoload) et « Could not find base class "GdUnitTestSuite" » (GdUnit4 n'est copié que par le juge). Analyser le socle par `python -m usine.juge run`.
+- Avec tous les avertissements à 2, `await runner.simulate_frames(...)` déclenche REDUNDANT_AWAIT (méthode abstraite dans `GdUnitSceneRunner`), mais l'`await` reste indispensable.
+
+### Base au format d'OpenCode — 2026-10-15 (branche `claude/regles-batiments-proceduraux`)
+
+Source : décision 14 de laurent (le harnais d'usage est OpenCode) et règle 7.4. Ses réponses du 2026-10-15 : prompt système « OpenCode en entier » ; chemin de Godot « Je ne sais pas » (il vient donc de `D:\GODOT\AGENTS.md`) ; forme des retours d'édition : « Tes sessions OpenCode passées » ; vocabulaire de Qwen 3.8 : « Oui, dans qwen3.8 ».
+
+**Relevé sur la machine de laurent** (lecture seule, dossiers ouverts avec son accord ; une seule écriture, le vocabulaire ci-dessous) :
+- la session `donnees\sessions\20261004-190325_13780ad518f3.jsonl`, capturée par le proxy de l'usine : prompt système d'OpenCode 2.0.6 et ses 12 outils (`edit`, `execute`, `glob`, `grep`, `question`, `read`, `shell`, `skill`, `subagent`, `webfetch`, `websearch`, `write`) ; les outils de l'usine y passent par `execute` (Code Mode) ;
+- la base `opencode.db` de ses sessions : forme exacte des retours de `shell`, `read`, `edit`, `write` et `grep`. Qwen y lance Godot par PowerShell : lignes en CRLF, progression de l'import en français ;
+- `D:\GODOT\AGENTS.md` : chemin complet de la console Godot, lecture par plages, `plan.md` à cocher. Ce fichier n'était pas dans le prompt de la session capturée : les exemples n'ont pas de `plan.md` ;
+- `E:\llama_models\qwen3.8\Qwen3.8-27B-UD-Q4_K_XL--vraimodel.gguf` (Unsloth) : tokenizer (pré-découpage qwen35, 248 320 jetons, 247 587 fusions) et gabarit de chat. Le vocabulaire seul en est extrait dans `E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf`.
+
+**Constat** : le `models/ggml-vocab-qwen35.gguf` de llama.cpp, employé jusqu'ici pour compter (règle 5.8), n'est pas le vocabulaire de Qwen 3.8 : 151 936 jetons. Les comptes de l'étape 27 venaient donc d'un autre vocabulaire. La règle 5.8 de `CLAUDE.md` le précise désormais : tokenizer et gabarit lus dans le GGUF de Qwen 3.8.
+
+**Fait**
+- `usine/cours/base/opencode.py` : le format d'OpenCode.
+  - Prompt système de la session de référence ; seules changent ses lignes d'environnement : dossier de travail (le projet de l'étape chez laurent) et identifiant de session, propre à chaque exemple.
+  - Les 12 outils, définitions comprises. Les réponses lisent par plages (`read`), remplacent un passage unique (`edit`), créent un fichier (`write`), lancent Godot par son chemin complet (`shell`) et cherchent (`grep`).
+  - Retours aux formes relevées, sans rien inventer : une forme non relevée (un `grep` qui trouve, une sortie de plus de 50 ko qu'OpenCode tronquerait) écarte l'exemple. Sorties de Godot entières (décision 13), sauf couleurs, progression de l'import et lignes propres à la machine (règle 5.1).
+  - Rendu par le gabarit de Qwen 3.8 : portage du Jinja du GGUF, identique au caractère près (test). Jetons comptés sur ce texte, jetons spéciaux compris.
+- Création et débogage convertis (`creation.py`, `sessions.py`) : le texte de chaque réponse reste devant ses appels (section 3) ; la demande de création ne cite plus le code, la réponse le lit ; chaque `edit` cite un passage que la réponse a lu.
+- Découpe des étapes trop longues. Le prompt d'OpenCode et ses outils prennent 13 375 jetons par exemple : 17 étapes ne tiennent plus en un exemple.
+  - Chaque découpe est d'abord estimée sans Godot, avec les sorties de l'état final de l'étape ; Godot ne tourne que sur une découpe dont l'estimation tient. La découpe aux jetons estimés (le moins de parties possible) passe avant les budgets de caractères.
+  - Défauts de la découpe, trouvés sur newyorkais 007 et 010 et corrigés. Ils étaient sans effet sur la base de l'étape 27, où aucune étape n'était découpée.
+    - Rangement des changements (`ordonner.py`) : une locale retirée puis refaite plus bas reste avec sa redéclaration et ses emplois ; un `x.rect` de GDScript n'est plus lié à la fonction `rect` d'un shader ; une fonction privée peut précéder son premier appel (seules une variable privée et un signal avertissent) ; un `#include` ajouté reste avec le retrait des déclarations qu'il remplace ; `const int ROOM_OFFICE = 0;` d'un shader n'est plus lu comme la constante « int » de GDScript ; une signature changée sur sa deuxième ligne est vue (`room_view`).
+    - `empaqueter` perdait une partie et en doublait une autre : `parties[-2] += parties.pop()` lit sa cible avant le `pop`, puis l'écrit un rang trop haut.
+    - Les consignes et les extraits d'une partie viennent des changements entre ses deux états : les places de l'étape entière sont fausses dans un état intermédiaire.
+  - Une partie annonce les points de la note qu'elle fait : un point dont le titre nomme un fichier reçoit ses changements (« Le fichier commun `procedural_commun.gdshaderinc` »), et un morceau du test rattaché par défaut au dernier point ne l'annonce plus.
+- Sorties de Godot gardées par empreinte d'état (`godot.py`) : un même état ne repasse pas par Godot ; la sortie gardée porte une marque à la place du chemin du projet, remise au chemin du dossier où l'état revient.
+- Export (`exporter.py`) : `base_batiments_proceduraux.jsonl` (format chat d'OpenAI, comme OpenCode l'envoie ; arguments en objets, le gabarit de Qwen 3.8 refuse une chaîne), version sharegpt pour LLaMA-Factory (appels écrits dans la réponse `gpt`, retours dans le tour `human` qui suit : un tour `function_call` perdrait le texte de la réponse), `dataset_info.json` sans colonne `tools`.
+- Contrôles de l'assemblage (`assembler.py`), en plus de ceux de l'étape 27 : prompt d'OpenCode adapté au projet ; chaque appel a son retour ; outils et arguments conformes aux définitions d'OpenCode ; Godot par son chemin complet ; retours aux formes relevées ; aucune réponse n'écrit de sortie (7.2) ; aucun passage cité par `edit` sans avoir été lu ; jetons recomptés ; 32 768 au plus (7.5) ; aller-retour sharegpt identique au texte du gabarit ; appels `edit` et `write` rejoués comme OpenCode les applique.
+- `config.example.toml` : `[opencode] session_reference` et `dossier_cours` ; `[entrainement] vocab_qwen` désigne le GGUF de Qwen 3.8. `jetons.py` lit un GGUF de modèle en continu (seul l'en-tête est lu) ; ses anciens comptes au format neutre sont retirés ; `croiser` compare ses jetons, exemple par exemple, à ceux de `llama-tokenize`.
+- Tests : `tests/test_cours_opencode.py` (8 tests, dont le rendu comparé au gabarit du GGUF, `tests/donnees/qwen38_gabarit_chat.jinja`) ; `tests/test_cours_base.py` passe de 9 à 17 tests. `CLAUDE.md` (règle 5.8, arborescence) ; `VERIFIER_EN_LOCAL.md` étape 28.
+
+**Preuve**
+
+Cloud, Godot 4.7.2 Linux, Python 3.13.
+
+```
+$ python -m pytest -q tests/test_cours_base.py tests/test_cours_opencode.py tests/test_regles.py tests/test_fiches.py
+74 passed in 8.63s
+$ python -m usine.cours.base tout --refaire --travailleurs 2 --docs … --source-godot … --vocab …/ggml-vocab-qwen38.gguf --opencode-session …/20261004-190325_13780ad518f3.jsonl --opencode-godot 'D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe' --opencode-dossier 'D:\GODOT\projet_enseingement\001_Batiments proceduraux'
+parisien 001 : 1 création(s) (7657 jetons de réponse), 4 session(s) (8430), 20 s
+  parisien 002 : 1 partie(s), 40571 jetons estimés au plus : trop long, découpe suivante
+parisien 002 : 2 création(s) (23042 jetons de réponse), 12 session(s) (23749), 61 s
+…
+  newyorkais 013 : 1 partie(s), 71069 jetons estimés au plus : trop long, découpe suivante
+newyorkais 013 : 5 création(s) (44560 jetons de réponse), 20 session(s) (44425), 190 s
+…
+problèmes : 0
+```
+
+Jetons croisés avec llama.cpp (`llama-tokenize` construit dans le cloud au commit `fd55cb9`, sur le vocabulaire extrait du GGUF de laurent) :
+
+```
+$ python -m usine.cours.base.jetons …/ggml-vocab-qwen38.gguf croiser …/llama-tokenize …/base_batiments_proceduraux.jsonl
+pré-découpage : qwen35 | jetons : 248320 | fusions : 247587
+374/374 exemples identiques jeton pour jeton à llama-tokenize
+```
+
+Les 7 385 242 jetons de la base sont ceux de llama.cpp, un à un.
+
+Suite complète, `python -m pytest -q --ignore=tests/test_mcp_serveur.py` : `5 failed, 411 passed, 2 skipped in 741.78s`. Ce sont les mêmes 5 échecs qu'aux étapes 25 et 27 : `ModuleNotFoundError: No module named 'mcp'`, le SDK MCP n'étant pas installable dans le cloud. `python -m pytest -q tests/test_cours.py` : `7 passed`.
+
+Chiffres de `controles.json` (20 min 48 s avec 2 travailleurs, assemblage compris ; aucune partie refusée par Godot) :
+- 374 exemples : 70 de création (17 étapes découpées ; 51,3 messages en moyenne, 86 au plus) et 304 sessions de débogage (891 erreurs corrigées ; 21,1 messages en moyenne, 40 au plus) ;
+- jetons de réponse : 681 466 pour la création, 680 999 pour le débogage (50,0 % chacun). Selon l'étape, le débogage pèse de 0,86 fois la création (`parisien-004`) à 1,12 fois (`tokyoiste-001`), médiane 1,00 ;
+- 7 385 242 jetons de Qwen 3.8 en tout, dont 13 375 par exemple pour le prompt d'OpenCode et ses outils. Le plus long exemple, `newyorkais-005-creation`, en compte 31 715 (1 053 sous 32 768) ; aucun ne dépasse 32 768 ;
+- appels d'outils : `edit` 1 909, `shell` 1 492, `read` 1 256, `grep` 291, `write` 47 ;
+- rejoués : les consignes neutres des 39 étapes (aucune ambiguë, aucun fichier différent) ; les appels `edit` et `write` des 39 étapes et des 304 sessions, comme OpenCode les applique (aucune différence) ;
+- 70 sessions écartées pendant la génération : 35 pour une erreur imprévue, 27 dont des erreurs restaient invisibles pour Godot, 6 dont une sortie de Godot dépassait 50 ko (OpenCode n'en aurait rendu qu'un aperçu), 2 dont aucune commande ne voyait les erreurs.
+
+**Reste à faire**
+- `VERIFIER_EN_LOCAL.md` étape 28 sur la machine, hors campagne ; laurent décide de l'emploi de la base (grille de la décision 3 ; règle 7.7 : une case n'écrase pas les autres).
+- `usine/rft/export.py` contredit la section 3 et les règles 7.4 et 7.6 : un tour `function_call` de LLaMA-Factory perd le texte de la réponse, les arguments restent des chaînes (le gabarit de Qwen 3.8 les refuse), le gabarit est `qwen3` sans `enable_thinking: false`, et les outils de l'agent maison ne sont pas convertis en ceux d'OpenCode. À corriger avant tout entraînement sur des sessions capturées ; `usine/cours/base/opencode.py` en donne le format.
+
+**Pièges**
+- `parties[-2] += parties.pop()` : Python lit la cible avant le `pop`, puis l'écrit un rang trop haut. Écrire le `pop` d'abord.
+- Dans une expression régulière à alternatives, la forme `const NOM` de GDScript attrape le `const int NOM` des shaders : tester la forme des shaders d'abord.
+- Une signature peut tenir sur deux lignes : comparer la signature entière, parenthèses refermées.
+- `models/ggml-vocab-qwen35.gguf` de llama.cpp n'est pas le vocabulaire de Qwen 3.8 (151 936 jetons contre 248 320) : compter avec le GGUF du modèle.
+- Le gabarit de Qwen 3.8 refuse des arguments d'appel en chaîne JSON (forme d'OpenAI) : les convertir en objets avant de l'appliquer. Son `tojson` est celui de transformers : `json.dumps(…, ensure_ascii=False)`, accents gardés.
+- Un tour `function_call` de LLaMA-Factory perd le texte qui précède l'appel : écrire les appels dans le tour `gpt`, comme le gabarit les écrit.
+- Une sortie de Godot gardée contient le chemin du dossier où elle a tourné : la garder avec une marque à sa place.
+- OpenCode n'avait pas chargé `D:\GODOT\AGENTS.md` dans la session capturée.
+
+### Fusion dans `main` — 2026-10-15
+
+Source : demande de laurent du 2026-10-15 (« ok passe la en main »), après l'ouverture de la PR #9.
+
+- La branche de travail (PR #8, « Béquille, point 1 : retour des outils ») et la passe « bâtiments procéduraux » (PR #9, empilée sur #8) sont fusionnées dans `main`, par des commits de fusion comme les PR précédentes.
+- La fusion vient avant les vérifications locales des étapes 22 à 28 : laurent l'a demandée ainsi. Ces étapes restent à faire sur sa machine, hors campagne, en partant de `main` (`VERIFIER_EN_LOCAL.md`, étape 25 mise à jour).
+- Avant le `git pull` de `main`, laurent commite ses corrections V2 non commitées (section 3 des règles qui priment).
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
@@ -1163,6 +1399,10 @@ Suite complète, `python -m pytest -q` : `386 passed, 1 skipped in 1002.36s` (sq
 - [ ] Béquille, point 1 — `VERIFIER_EN_LOCAL.md` étape 22 (retour des outils).
 - [ ] Béquille, points 2 à 9 — `VERIFIER_EN_LOCAL.md` étape 23 (socle, fiches, captures).
 - [ ] Règles d'architecture — `VERIFIER_EN_LOCAL.md` étape 24 (juge des règles, socle propre, tâches « nettoyer »), après la campagne V2.
+- [ ] Règles qui priment et décors procéduraux — `VERIFIER_EN_LOCAL.md` étape 25, hors campagne.
+- [ ] Cours « bâtiments procéduraux » — `VERIFIER_EN_LOCAL.md` étape 26, hors campagne.
+- [ ] Générateur de la base et socle aux avertissements en erreurs — `VERIFIER_EN_LOCAL.md` étape 27, hors campagne.
+- [ ] Base au format d'OpenCode — `VERIFIER_EN_LOCAL.md` étape 28, hors campagne.
 - Facultatives, jamais lancées : 13 b (compilation des démos), 17 b (gel à 4 sources sous Windows), 18 b (chaîne E sur 10 tâches).
 - [x] Session 2 — étapes 7 à 9 conformes (étape 7 refaite sur `c4085bd` : 20/20) ; étape 6 conforme sur `ead2f55` (`174 passed`) après correction d'un test (voir ci-dessous).
 
@@ -1359,5 +1599,7 @@ Les modifications locales non commitées de ces trois fichiers et d'`ETAT.md` so
 - **Mesurer dans `_initialize`** (script `extends SceneTree`) : les nœuds ajoutés n'ont pas encore leur `_ready` ni d'espace physique. Les scripts de mesure travaillent dans le premier `_process`.
 - **`move_and_slide` hors image physique** utilise le delta de rendu : mesure non reproductible. F1 utilise `move_and_collide(velocity * dt)`.
 - **`queue_free` attend la fin de l'image** : un héros mesuré puis « libéré » restait dans l'espace et bloquait le suivant. `free()` et couches de collision à 0.
+- **Vocabulaire de Qwen 3.8** : `models/ggml-vocab-qwen35.gguf` de llama.cpp est un autre vocabulaire (151 936 jetons, contre 248 320). Les jetons se comptent avec le GGUF du modèle, ou son vocabulaire seul (`E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf`).
+- **Gabarit de Qwen 3.8** : il refuse des arguments d'appel en chaîne JSON (forme d'OpenAI, celle des sessions capturées) ; les convertir en objets avant de l'appliquer. Dans LLaMA-Factory, un tour `function_call` perd le texte qui précède l'appel : la base écrit les appels dans le tour `gpt`.
 - **Import Godot sous Windows** : le 2026-10-05, l'import de `godot\kenney_racing` a planté une fois (code `3221225477`, soit `0xC0000005`, violation d'accès), puis est passé au second essai sans changement. Non reproduit sous Linux. À surveiller dans une chaîne locale : un import qui plante donne un verdict faux pour cette copie, et le cache des verdicts le garde (un mutant « tué » par un plantage gonfle le score de mutation). Si cela se reproduit, le juge devra relancer un import qui plante avant de juger.
 - **Coût du portillon** : environ 14 jugements par candidate (3 + 3 + jusqu'à 8 mutants), environ 20 s chacun sur 4 cœurs. 1re chaîne complète : 1 h 40. Le cache (`donnees/cache_juge`, clé = contenu jugé) rend les relances rapides.

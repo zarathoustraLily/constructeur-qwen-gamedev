@@ -24,6 +24,6 @@ func describe() -> String:
 	for node in get_tree().get_nodes_in_group(&"debuggable"):
 		var machine := node.get_node_or_null(^"StateMachine") as StateMachine
 		var health := node.get_node_or_null(^"Health") as HealthComponent
-		lines.append("%s  %s  vie %s" % [node.name, machine.current_name() if machine else "-",
+		lines.append("%s  %s  vie %s" % [node.name, String(machine.current_name()) if machine else "-",
 			str(health.current_health) if health else "-"])
 	return "\n".join(lines)
