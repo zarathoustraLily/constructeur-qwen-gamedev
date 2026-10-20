@@ -24,6 +24,8 @@
 - [x] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2) ; socle aux avertissements en erreurs (règle 5.3) (2026-10-14) : étape 27
 - [x] Base convertie au format d'OpenCode, harnais d'usage (décision 14), jetons comptés avec le tokenizer de Qwen 3.8 (2026-10-15) : étape 28
 - [x] Compétence O1 « corriger en observant » (2026-10-20, sur la machine : juge, générateur, outil play_sequence ; 10 tâches kart produites, portillon et premier essai de Qwen à lancer : étape 29)
+- [ ] Cours « kart » en 14 étapes de création, aux règles d'architecture (découpage accepté par laurent le 2026-10-20) : étapes 1 à 8 faites et vérifiées, 9 à 14 à faire
+- [ ] Cours « roguelike » en étapes, même démarche (après le kart)
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1511,11 +1513,72 @@ production, 39 étapes, --par-projet 4 --essais 30 (8 h 43 → 9 h 43) : TOTAL :
 **Reste à faire**
 - Relever la forme des images dans OpenCode (`VERIFIER_EN_LOCAL.md` 30 d, avec laurent) : aucune session capturée n'en contient. Ensuite : sessions de débogage visuel dans la base du cours (regarder, lire le code, corriger, regarder de nouveau).
 - Portillon sur les 146 tâches (environ 2 min par tâche).
-- Kart puis roguelike en cours par étapes, avec leur observation (découpage du kart proposé à laurent, en attente de son accord).
+- Kart puis roguelike en cours par étapes, avec leur observation : découpage du kart accepté par laurent (« oui vas y ») ; suite dans l'entrée suivante.
 
 **Pièges**
 - Les identifiants des tâches qui mutent le générateur principal répètent le nom de l'étape (`o1v_newyorkais_002_building_proceduraux_newyorkais_etape_002_133_…`) : sans effet sur le juge.
 - Un défaut visuel peut ne se voir que dans une vue (de nuit, sous un soleil rasant) : les trois vues sont rendues pour chaque candidat.
+
+### Cours « kart » par étapes — 2026-10-20 (branche `claude/observation-visuelle`)
+
+Demande de laurent : « pour qwen tu restructures le projet de kart en étapes de création, pour qu'il apprenne à coder le contrôle des manettes du kart, l'herbe, des VFX et des shaders, et tu fais exactement la même chose avec le jeu rogue like ». Ses choix : le cours suit ses règles d'architecture comme les bâtiments (« Oui, comme les bâtiments ») ; découpage en 14 étapes accepté (« oui vas y »).
+
+**Fait**
+- `usine/cours/jeu.py` : fabricant des cours « de jeu ». Les maîtres ont la forme du projet, balisés `#@`, `//@` ou `;@` selon le fichier. Les ressources viennent du jeu source rangé (`[sources]` de config.toml), de proche en proche (res://, uid://, .mtl, .gltf). Une étape qui désigne un maître absent est refusée. `tests/test_cours_jeu.py` (6 tests).
+- `cours/kart/` : manifeste (14 étapes, `PRETES` = 1 à 8), maîtres, notes `etape_001.md` à `etape_008.md` (README de chaque projet). Étapes :
+  1. contrôles clavier et manette (adaptateur `KartInput`, vibration) ;
+  2. le kart (réglages en taux par seconde dans `5_data`) ;
+  3. la caméra qui suit ;
+  4. l'île (terrain, piste, shaders triplanaire et stylisé) ;
+  5. le décor stylisé et le vent global ;
+  6. l'herbe (semis en blocs MultiMesh, `GameState`) ;
+  7. flotter (mer calme, capteurs, corps flottants, kart sur l'eau) ;
+  8. la mer FFT, avec repli en mer calme sans RenderingDevice.
+- Corrections du kart d'origine, toutes vues ou mesurées :
+  - lecture d'image hors de l'image (`ImageSampling`) ;
+  - capteur d'eau qui croyait le kart dans l'eau sur tout sol à hauteur 0 ;
+  - masque de l'île lu en noir au-delà de 480 m (la physique disait « eau plate », le shader montrait la houle) ;
+  - rampe orientée à l'envers, caméra de travers au départ ;
+  - paramètres de matériau sans uniform (traces, pluie) dans les étapes où leur shader ne les a pas encore.
+- `usine/cours/verifier.py` :
+  - contrôle `parametres_orphelins` (paramètre de matériau sans uniform dans son shader : 0 sur les 39 projets des bâtiments) ;
+  - pour les cours de jeu, une seconde image en Compatibilité (règle 5.4), par `capturer(..., compatibilite=True)`.
+
+**Preuve** (machine de laurent, Windows 11, Godot 4.7.2 ; `python -m usine.cours verifier kart --etapes …`, deux passes : 1 à 5, puis 6 à 8)
+
+```
+kart_etape_001 : ok   18 test cases | 0 errors | 0 failures   rendu Forward+ et Compatibilité sans erreur
+kart_etape_002 : ok   44 test cases | 0 errors | 0 failures   idem
+kart_etape_003 : ok   59 test cases | 0 errors | 0 failures   idem
+kart_etape_004 : ok   64 test cases | 0 errors | 0 failures   idem
+kart_etape_005 : ok   69 test cases | 0 errors | 0 failures   idem
+kart_etape_006 : ok   85 test cases | 0 errors | 0 failures   idem
+kart_etape_007 : ok  115 test cases | 0 errors | 0 failures   idem
+kart_etape_008 : ok  121 test cases | 0 errors | 0 failures   idem
+juge des règles : 0 écart à chaque étape ; matériaux : 0 paramètre orphelin
+python -m pytest -q tests/test_cours_jeu.py tests/test_cours.py : 13 passed
+```
+
+**Reste à faire**
+- Étapes 9 à 14 du kart :
+  - 9 : vagues d'impact et écume ;
+  - 10 : traînées, marques de pneus, gerbes, fantôme, dérapage et turbo ;
+  - 11 : pluie et éclair ;
+  - 12 : poissons ;
+  - 13 : objets ;
+  - 14 : pause et remappage.
+- Ensuite, le roguelike, même démarche.
+- O1 par l'image pour les étapes du kart. Défauts vus pendant la fabrication, candidats au générateur :
+  - herbe sans `player_position` : l'herbe traverse le kart ;
+  - normale de la mer calme sans `VIEW_MATRIX` : plus de reflet, mer uniforme.
+- Base d'entraînement du cours du kart (création et débogage), au format d'OpenCode.
+
+**Pièges**
+- Sans fenêtre, le moteur ne garde ni les paramètres globaux de shader (`global_shader_parameter_get` rend Nil) ni les transformations d'un MultiMesh : on teste ce qu'on lui envoie (GameState, `chunk_transforms`).
+- `RenderingServer.get_rendering_device()` vaut null en Compatibilité et sans fenêtre : tout ce qui calcule sur la carte graphique doit prévoir un repli.
+- En Compatibilité, 341 instances à paramètres d'instance dépassent la réserve du moteur de rendu (« Maximum items supported by this hardware is: 4096 »).
+- Un `metadata/_custom_type_script = "uid://…"` dans un .tres ou un .tscn fait recopier le script d'origine par le fabricant : après un renommage, l'écrire en chemin res://.
+- Le chemin de sortie de `capturer` doit être absolu : Godot travaille depuis le dossier du projet.
 
 ## Vérifications locales en attente
 
