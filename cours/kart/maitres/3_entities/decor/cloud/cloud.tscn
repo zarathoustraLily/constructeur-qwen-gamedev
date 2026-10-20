@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://da5oqnb43tfg6"]
+[gd_scene format=3 uid="uid://da5oqnb43tfg6"]
 
 [ext_resource type="Material" uid="uid://cbrllkvbe30u3" path="res://6_assets/materials/environment/clouds_material.tres" id="1_oyymu"]
 

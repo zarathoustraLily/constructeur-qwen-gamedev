@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4]
+PRETES = [1, 2, 3, 4, 5]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -69,6 +69,7 @@ FICHIERS = {
     "7_tests/1_core/camera/test_camera_input.gd": "3+",
     "2_sequence/levels/island/island.tscn": "4+",
     "7_tests/2_sequence/levels/island/test_island.gd": "4+",
+    "7_tests/3_entities/decor/test_decor.gd": "5+",
     "0_autoload/game_flow.gd": "14+",
     "0_autoload/game_state.gd": "14+",
     "1_core/step/sequence.gd": "14+",
@@ -92,15 +93,13 @@ FICHIERS = {
     "3_entities/decor/cloud/cloud.tscn": "5+",
     "3_entities/decor/palm/small_palm.tscn": "5+",
     "3_entities/decor/rock/rock.tscn": "5+",
-    "6_assets/shaders/common/billboard.gdshaderinc": "5+",
-    "6_assets/shaders/common/dither.gdshaderinc": "5+",
+    "6_assets/shaders/common/billboard.gdshaderinc": "10+",
+    "6_assets/shaders/common/dither.gdshaderinc": "6+",
     "6_assets/shaders/common/stylized_shader.gdshader": "4+",
-    "6_assets/shaders/common/stylized_shader_wind_affected.gdshader": "5+",
     "6_assets/shaders/common/utils.gdshaderinc": "4+",
     "6_assets/shaders/common/wind_displacement.gdshaderinc": "5+",
     "6_assets/shaders/environment/clouds.gdshader": "5+",
     "6_assets/shaders/environment/palm.gdshader": "5+",
-    "6_assets/shaders/environment/tree.gdshader": "5+",
     "1_core/tools/detail_populator.gd": "6+",
     "6_assets/shaders/environment/grass.gdshader": "6+",
     "1_core/water/buoyancy/buoyant_body3d.gd": "7+",
@@ -123,7 +122,6 @@ FICHIERS = {
     "3_entities/ocean/ocean.tscn": "8+",
     "5_data/water/ocean_settings.tres": "8+",
     "6_assets/shaders/common/screen_space_reflections.gdshaderinc": "8+",
-    "6_assets/shaders/common/ssr_test.gdshader": "8+",
     "6_assets/shaders/water/ocean_common.gdshaderinc": "8+",
     "6_assets/shaders/water/water_surface.gdshader": "8+",
     "6_assets/shaders/water/water_textures.gdshaderinc": "8+",

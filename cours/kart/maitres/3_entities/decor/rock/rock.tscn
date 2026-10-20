@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://d4j464aalb2ae"]
+[gd_scene format=3 uid="uid://d4j464aalb2ae"]
 
 [ext_resource type="Material" uid="uid://rrpgrddfynom" path="res://6_assets/models/rock/rock_material.tres" id="1_7iovt"]
 [ext_resource type="ArrayMesh" uid="uid://b4f4ko4yb8uyw" path="res://6_assets/models/rock/rock_lod0.obj" id="3_o3tfc"]
@@ -13,6 +13,8 @@ material_override = ExtResource("1_7iovt")
 mesh = ExtResource("3_o3tfc")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+collision_layer = 8
+collision_mask = 15
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_7iovt")
