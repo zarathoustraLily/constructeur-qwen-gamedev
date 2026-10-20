@@ -33,10 +33,11 @@ Vitesse de pointe, accélération, angles de braquage, saut, gravité : tout est
 `5_data/kart/kart_settings.tres`, de type `KartSettings` (`1_core/vehicles/kart_settings.gd`). Le script ne
 contient aucun chiffre de réglage (règle DAT-01). Les seuls nombres permis dans la logique sont 0 et 1.
 
-Les amortissements le montrent. Le kart d'origine écrivait `pow(0.5, 0.4 * delta)` : la vitesse est divisée
-par deux toutes les 2,5 s. Ici, on écrit `exp(-rolling_decay * delta)`, avec `rolling_decay = 0,277` dans la
-ressource. C'est la même chose, car 0,277 vaut 0,4 × ln 2. Le test
-`test_en_roue_libre_la_vitesse_est_divisee_par_deux_en_deux_secondes_et_demie` le vérifie.
+Les amortissements le montrent. Le kart d'origine écrivait `pow(0.5, 0.6 * delta)` (résistance au roulement
+de 0,6, réglée sur le joueur) : la vitesse est divisée par deux toutes les 1,67 s. Ici, on écrit
+`exp(-rolling_decay * delta)`, avec `rolling_decay = 0,416` dans la ressource. C'est la même chose, car 0,416
+vaut 0,6 × ln 2. Le test `test_en_roue_libre_la_vitesse_est_divisee_par_deux_en_ln2_sur_l_amortissement` le
+vérifie.
 
 ### 3. Le moteur, au sol
 
@@ -54,7 +55,7 @@ ressource. C'est la même chose, car 0,277 vaut 0,4 × ln 2. Le test
 le kart tourne comme une voiture : vitesse de rotation = vitesse × tan(angle) / empattement. Il en découle :
 
 - à l'arrêt, il ne tourne pas ;
-- l'angle maximal diminue avec la vitesse (16° à l'arrêt, 8° à la vitesse de pointe), donc le virage est
+- l'angle maximal diminue avec la vitesse (16° à l'arrêt, 6° à la vitesse de pointe), donc le virage est
   plus serré à basse vitesse ;
 - frein tenu presque à l'arrêt : il tourne sur place (`handbrake_steering_velocity`) ;
 - en l'air, il tourne à vitesse fixe (`air_steering_velocity`).
@@ -65,8 +66,9 @@ Au sol, un saut ajoute `jump_velocity` vers le haut et émet le signal `jumped`.
 ajoute la gravité, et la vitesse reste sur l'axe du kart. Au sol, `move_and_slide()` et l'accrochage au sol
 de `CharacterBody3D` gardent le kart collé à la pente : pas besoin de gravité.
 
-Le kart ne heurte que les couches de son masque de collision (`collision_mask = 89` : Karts, Terrain,
-Circuit, Interactables, d'après `[layer_names]`) : le sol et la rampe sont sur la couche Terrain.
+Le kart ne heurte que les couches de son masque de collision (`collision_mask = 63` : les couches 1 à 6,
+Karts, Items, ItemBoxes, Terrain, Circuit, BoostPanels, comme dans le jeu d'origine) : le sol et la rampe sont
+sur la couche Terrain. `floor_max_angle` (60°) dit jusqu'à quelle pente le sol compte comme un sol.
 
 ### 6. La présentation, à part
 

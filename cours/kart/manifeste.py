@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2]
+PRETES = [1, 2, 3]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -60,6 +60,13 @@ FICHIERS = {
     "3_entities/kart/steering_wheel_view.gd": "2+",
     "7_tests/3_entities/kart/test_kart_view.gd": "2+",
     "6_assets/models/kart_basic/kart_material.tres": "2+",
+    "1_core/camera/follow_camera_settings.gd": "3+",
+    "1_core/camera/camera_input.gd": "3+",
+    "1_core/camera/follow_camera_view.gd": "3+",
+    "1_core/camera/follow_camera.tscn": "3+",
+    "5_data/camera/follow_camera.tres": "3+",
+    "7_tests/1_core/camera/test_follow_camera_view.gd": "3+",
+    "7_tests/1_core/camera/test_camera_input.gd": "3+",
     "0_autoload/game_flow.gd": "14+",
     "0_autoload/game_state.gd": "14+",
     "1_core/step/sequence.gd": "14+",
@@ -76,10 +83,6 @@ FICHIERS = {
     "3_entities/kart/kart.tscn": "2+",
     "3_entities/kart/wheel.tscn": "2+",
     "7_tests/3_entities/kart/test_kart.gd": "2+",
-    "3_entities/player/camera_controller.gd": "3+",
-    "3_entities/player/player.gd": "3+",
-    "3_entities/player/player.tscn": "3+",
-    "7_tests/3_entities/player/test_player.gd": "3+",
     "2_sequence/levels/island/environment_settings.tres": "4+",
     "3_entities/decor/ramp/ramp.tscn": "4+",
     "6_assets/shaders/common/triplanar_sampling.gdshaderinc": "4+",

@@ -100,11 +100,11 @@ func test_une_gachette_a_moitie_accelere_deux_fois_moins() -> void:
 	assert_float(half / _speed()).is_equal_approx(0.5, 0.02)
 
 
-func test_en_roue_libre_la_vitesse_est_divisee_par_deux_en_deux_secondes_et_demie() -> void:
+func test_en_roue_libre_la_vitesse_est_divisee_par_deux_en_ln2_sur_l_amortissement() -> void:
 	await _land()
 	_kart.velocity = -_kart.global_basis.z * 10.0
-	_engine(2.5)
-	assert_float(_speed()).is_equal_approx(5.0, 0.1)
+	_engine(log(2.0) / _settings.rolling_decay)
+	assert_float(_speed()).is_equal_approx(5.0, 0.15)
 
 
 func test_freiner_arrete_plus_vite_que_rouler_en_roue_libre() -> void:

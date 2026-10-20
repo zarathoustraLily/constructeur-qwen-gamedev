@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FollowCameraSettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/camera/follow_camera_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+mouse_sensitivity = 0.000625
+stick_speed = 2.5
+max_pitch = 1.256637
+height = 1.0
+reset_delay = 1.25
+reset_rate = 2.407946
+reset_min_speed = 1.0

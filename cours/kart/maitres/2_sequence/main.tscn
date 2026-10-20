@@ -6,6 +6,9 @@
 [ext_resource type="Script" path="res://3_entities/kart/kart_input.gd" id="3_input"]
 ;@ 2+
 [ext_resource type="PackedScene" path="res://3_entities/kart/kart.tscn" id="3_kart"]
+;@ 3+
+[ext_resource type="PackedScene" path="res://1_core/camera/follow_camera.tscn" id="5_camera"]
+[ext_resource type="Resource" path="res://5_data/camera/follow_camera.tres" id="6_camera_settings"]
 ;@ all
 [ext_resource type="PackedScene" path="res://4_ui/hud/input_display/input_display.tscn" id="4_display"]
 
@@ -94,9 +97,16 @@ shape = SubResource("BoxShape3D_rampe")
 [node name="Kart" parent="." instance=ExtResource("3_kart")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 
+;@ 2
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 12, 18)
 fov = 60.0
+
+;@ 3+
+[node name="FollowCamera" parent="." node_paths=PackedStringArray("target", "anchor") instance=ExtResource("5_camera")]
+settings = ExtResource("6_camera_settings")
+target = NodePath("../Kart")
+anchor = NodePath("../Kart/Visual")
 
 ;@ all
 [node name="InputDisplay" parent="." instance=ExtResource("4_display")]

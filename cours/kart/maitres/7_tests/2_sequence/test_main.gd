@@ -2,9 +2,13 @@ extends GdUnitTestSuite
 #@ 1
 ## Règles de la scène principale : elle montre à chaque image les commandes que l'adaptateur a lues, et la
 ## vibration du saut est réglée.
-#@ 2+
+#@ 2
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, et le kart se pose sur le sol.
+#@ 3+
+## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
+## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur le sol et décolle de
+## la rampe, et la caméra le suit.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -65,4 +69,20 @@ func test_en_foncant_sur_la_rampe_le_kart_decolle() -> void:
 		airborne = airborne or (kart.global_position.z < -18.0 and not kart.is_on_ground())
 	assert_bool(airborne).override_failure_message("le kart n'a pas quitté le sol après la rampe").is_true()
 	assert_float(highest).is_greater(1.0)
+#@ 3+
+
+
+func test_la_camera_suit_le_kart() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	var camera := main.get_node("FollowCamera/SpringArm/Camera3D") as Camera3D
+	kart.input = null
+	kart.commands.throttle = 1.0
+	for _frame: int in 120:
+		await get_tree().physics_frame
+	await get_tree().process_frame
+	assert_bool(camera.current).is_true()
+	assert_float(camera.global_position.distance_to(kart.global_position)).is_less(6.0)
+	assert_float(kart.forward_speed()).is_greater(5.0)
 #@ all

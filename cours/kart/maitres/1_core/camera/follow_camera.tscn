@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://1_core/camera/follow_camera_view.gd" id="1_view"]
+[ext_resource type="Script" path="res://1_core/camera/camera_input.gd" id="2_input"]
+
+[node name="FollowCamera" type="Node3D" node_paths=PackedStringArray("input")]
+script = ExtResource("1_view")
+input = NodePath("CameraInput")
+
+[node name="CameraInput" type="Node" parent="."]
+script = ExtResource("2_input")
+
+[node name="SpringArm" type="SpringArm3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866026, 0.5, 0, -0.5, 0.866026, 0, 0, 0)
+collision_mask = 30
+spring_length = 4.0
+
+[node name="Camera3D" type="Camera3D" parent="SpringArm"]
+current = true
+fov = 85.0

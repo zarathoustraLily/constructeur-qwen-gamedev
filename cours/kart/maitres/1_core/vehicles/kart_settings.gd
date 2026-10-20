@@ -3,7 +3,7 @@ class_name KartSettings extends Resource
 ## 5_data (5_data/kart/kart_settings.tres), jamais dans le script du kart (règle DAT-01).
 ##
 ## Les amortissements sont des taux par seconde : chaque image, une vitesse v devient v × exp(−taux × dt).
-## Un taux de 0,277 divise la vitesse par deux en 2,5 s (ln 2 / 0,277) ; plus le taux est grand, plus
+## Un taux de 0,416 divise la vitesse par deux en 1,67 s (ln 2 / 0,416) ; plus le taux est grand, plus
 ## l'arrêt est rapide.
 
 @export_group("Moteur")
