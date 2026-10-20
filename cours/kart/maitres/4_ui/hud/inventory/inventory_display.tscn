@@ -1,0 +1,62 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/hud/inventory/inventory_display.gd" id="1_display"]
+[ext_resource type="Texture2D" path="res://6_assets/textures/ui/inventory_slot.png" id="2_slot"]
+
+[node name="InventoryDisplay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_display")
+
+[node name="Slots" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 32.0
+offset_right = -32.0
+offset_bottom = 228.0
+grow_horizontal = 0
+alignment = 2
+mouse_filter = 2
+
+[node name="LaterSlot" type="TextureRect" parent="Slots"]
+custom_minimum_size = Vector2(98, 98)
+layout_mode = 2
+size_flags_vertical = 0
+texture = ExtResource("2_slot")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="Slots/LaterSlot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="NextSlot" type="TextureRect" parent="Slots"]
+custom_minimum_size = Vector2(196, 196)
+layout_mode = 2
+texture = ExtResource("2_slot")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="Slots/NextSlot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1

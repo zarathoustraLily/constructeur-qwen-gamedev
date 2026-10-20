@@ -1,7 +1,7 @@
 [gd_scene load_steps=23 format=3 uid="uid://chs3jrpw5elvr"]
 
 [ext_resource type="Material" uid="uid://drn30rpggb5rd" path="res://6_assets/materials/effects/explosion_dissolve_material.tres" id="1_8oe34"]
-[ext_resource type="Script" uid="uid://c37q25qedgsch" path="res://1_core/components/particle_manager3d.gd" id="1_56t3u"]
+[ext_resource type="Script" path="res://1_core/components/particle_burst_view.gd" id="1_56t3u"]
 [ext_resource type="Material" uid="uid://dlh002ivfchkx" path="res://6_assets/materials/effects/explosion_trail_material.tres" id="2_8biay"]
 [ext_resource type="Material" uid="uid://cpbmmxmk4ont7" path="res://6_assets/materials/effects/explosion_smoke_material.tres" id="2_ayqe3"]
 [ext_resource type="ArrayMesh" uid="uid://qh1jvhindr6l" path="res://6_assets/models/explosion/cloud.obj" id="2_kv7dp"]

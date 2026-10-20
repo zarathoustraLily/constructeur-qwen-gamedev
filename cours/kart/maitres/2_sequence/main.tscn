@@ -19,6 +19,16 @@
 [ext_resource type="PackedScene" path="res://3_entities/effects/rain/rain.tscn" id="10_rain"]
 ;@ 12+
 [ext_resource type="PackedScene" path="res://3_entities/decor/fish/fish_school.tscn" id="11_fish"]
+;@ 13+
+[ext_resource type="Resource" path="res://5_data/items/item_pool.tres" id="12_pool"]
+[ext_resource type="Resource" path="res://5_data/items/bomb.tres" id="14_bomb"]
+[ext_resource type="PackedScene" path="res://3_entities/items/bomb/bomb.tscn" id="15_bomb_scene"]
+[ext_resource type="Script" path="res://1_core/items/item_type.gd" id="16_item_type"]
+;@ 14+
+[ext_resource type="Script" path="res://4_ui/overlays/pause_handler.gd" id="17_pause"]
+[ext_resource type="PackedScene" path="res://4_ui/overlays/input_remap/input_remap_menu.tscn" id="18_remap"]
+;@ all
+[ext_resource type="PackedScene" path="res://4_ui/hud/inventory/inventory_display.tscn" id="13_inventory"]
 
 ;@ 1-3
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_main"]
@@ -63,6 +73,12 @@ jump_rumble = ExtResource("2_rumble")
 ;@ 11+
 weather_settings = ExtResource("8_storm")
 lightning_scene = ExtResource("9_lightning")
+;@ 13+
+item_pool = ExtResource("12_pool")
+item_scenes = Dictionary[ExtResource("16_item_type"), PackedScene]({
+ExtResource("14_bomb"): ExtResource("15_bomb_scene")
+})
+inventory_capacity = 2
 ;@ all
 
 ;@ 1
@@ -140,4 +156,13 @@ environment = NodePath("../Island/Environment2")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.5, 0, 18)
 spawn_radius = 30.0
 threat = NodePath("../Kart")
+;@ 13+
+
+[node name="InventoryDisplay" parent="." instance=ExtResource("13_inventory")]
+;@ 14+
+
+[node name="UI" type="Node" parent="."]
+script = ExtResource("17_pause")
+
+[node name="InputRemapMenu" parent="UI" instance=ExtResource("18_remap")]
 ;@ all

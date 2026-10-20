@@ -1,12 +1,14 @@
-extends Node3D
-## Plaque d'accélération : un kart qui passe dessus reçoit 2 s de boost (sans raccourcir un boost
-## plus long) et lance sa traînée fantôme (GhostTrail).
+class_name BoostPanel extends Node3D
+## Plaque de turbo : un corps qui passe dessus la fait signaler `crossed`, avec la durée du turbo qu'elle donne.
+## La scène qui l'écoute donne le turbo au kart ; la plaque ne connaît pas le kart.
+
+## Émis quand `body` passe sur la plaque.
+signal crossed(body: Node3D, boost_time: float)
+
+## Durée (s) du turbo donné (donnée par la scène de la plaque).
+@export var boost_time: float = 0.0
 
 
-func _on_area_3d_body_entered(body: Node3D) -> void:
-	if body is Kart:
-		body.set_boost(2.0)
-		# Traînée d'images fantômes : 1 s à pleine intensité, puis 1 s de disparition (réglable sur GhostTrail)
-		var ghost_trail := body.get_node_or_null("GhostTrail") as GhostTrail
-		if ghost_trail:
-			ghost_trail.start()
+## Ce qui arrive quand `body` entre sur la plaque (signal body_entered de son Area3D).
+func on_body_entered(body: Node3D) -> void:
+	crossed.emit(body, boost_time)

@@ -1,56 +1,65 @@
 extends Node
-## Chef d'orchestre (singleton GameFlow) : enchaîne les étapes de 2_sequence/sequence.tres,
-## dans l'ordre (menus, cinématiques, niveaux). Après la dernière étape, on revient à la première.
-## Aucune étape ne change de scène elle-même : elle respecte le contrat Step (1_core/step/step.gd)
-## et émet « terminee » ou « a_rejouer », que GameFlow écoute. L'interface superposée (pause)
-## peut appeler quitter().
+## Le chef d'orchestre (singleton GameFlow) : c'est lui, et lui seul, qui charge les scènes du jeu. Il garde la
+## séquence reçue (start(), appelé par la scène de démarrage 2_sequence/boot.tscn) et charge ses étapes dans
+## l'ordre ; après la dernière, il revient à la première. Il ne connaît aucune étape en particulier : chacune
+## respecte le contrat Step (1_core/step/step.gd) et émet « finished », qu'il écoute. L'interface posée par-
+## dessus le jeu (la pause) appelle quit().
 
-## La séquence jouée ; les tests la remplacent par une séquence de leur choix.
-var sequence: Sequence = preload("res://2_sequence/sequence.tres")
+## Émis quand une étape vient d'être chargée.
+signal step_started(index: int, step: Step)
+
+## La séquence jouée.
+var sequence: Sequence
+## Rang de l'étape en cours, ou -1 avant le départ.
+var index: int = -1
+## L'étape en cours.
+var current_step: Step
 
 
-func _ready() -> void:
-	get_tree().scene_changed.connect(_ecouter_etape)
-	# La première scène est ajoutée après les singletons : on l'écoute à la fin de l'image.
-	_ecouter_etape.call_deferred()
-
-
-## Branche GameFlow sur les signaux de l'étape en cours, si la scène courante est une étape.
-func _ecouter_etape() -> void:
-	var etape := get_tree().current_scene as Step
-	if etape == null or etape.terminee.is_connected(etape_suivante):
+## Reçoit la séquence du jeu et charge sa première étape.
+func start(new_sequence: Sequence) -> void:
+	if new_sequence == null or new_sequence.steps.is_empty():
+		push_error("GameFlow.start : séquence vide")
 		return
-	etape.terminee.connect(etape_suivante)
-	etape.a_rejouer.connect(recommencer)
+	sequence = new_sequence
+	goto(0)
 
 
-## Rang de l'étape en cours dans la séquence, ou -1 si la scène lancée n'en fait pas partie
-## (une scène ouverte seule depuis l'éditeur, par exemple).
-func etape_courante() -> int:
-	var scene := get_tree().current_scene
-	return sequence.etapes.find(scene.scene_file_path) if scene else -1
+## Charge l'étape suivante ; après la dernière, la première.
+func next_step() -> void:
+	goto(index + 1 if index + 1 < sequence.steps.size() else 0)
 
 
-## Chemin de l'étape qui suit `chemin` ; après la dernière, la première.
-## Une scène hors séquence est suivie de la première étape.
-func etape_apres(chemin: String) -> String:
-	var rang := sequence.etapes.find(chemin)
-	return sequence.etapes[(rang + 1) % sequence.etapes.size()]
-
-
-## Passe à l'étape suivante ; après la dernière, revient à la première.
-func etape_suivante() -> void:
-	if sequence.etapes.is_empty():
+## Charge l'étape de rang `new_index` : elle remplace la scène courante.
+func goto(new_index: int) -> void:
+	index = new_index
+	var step := sequence.steps[index].instantiate() as Step
+	if step == null:
+		push_error("GameFlow.goto : l'étape %d ne respecte pas le contrat Step" % index)
 		return
-	var scene := get_tree().current_scene
-	get_tree().change_scene_to_file(etape_apres(scene.scene_file_path if scene else ""))
-
-
-## Relance l'étape en cours depuis le début.
-func recommencer() -> void:
-	get_tree().reload_current_scene()
+	var tree := get_tree()
+	var previous := tree.current_scene
+	if previous != null:
+		# Retirée de l'arbre d'abord : une étape rejouée garde son nom, au lieu d'être renommée à côté de l'ancienne.
+		previous.get_parent().remove_child(previous)
+		previous.queue_free()
+	tree.root.add_child(step)
+	tree.current_scene = step
+	current_step = step
+	step.finished.connect(_on_step_finished, CONNECT_ONE_SHOT)
+	step_started.emit(index, step)
 
 
 ## Quitte le jeu.
-func quitter() -> void:
+func quit() -> void:
 	get_tree().quit()
+
+
+func _on_step_finished(outcome: StringName) -> void:
+	match outcome:
+		&"retry":
+			goto(index)
+		&"restart":
+			goto(0)
+		_:
+			next_step()

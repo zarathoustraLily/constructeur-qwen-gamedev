@@ -12,7 +12,11 @@ config_version=5
 
 config/name="Kart · étape {STEP}"
 config/description="{TITLE}"
+;@ 1-13
 run/main_scene="res://2_sequence/main.tscn"
+;@ 14+
+run/main_scene="res://2_sequence/boot.tscn"
+;@ all
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 

@@ -499,3 +499,18 @@ transform = Transform3D(0.483771, -0.00132199, 0.875194, 0.0129822, 0.9999, -0.0
 
 [node name="Ramp3" parent="Ramps" instance=ExtResource("21_3l4hx")]
 transform = Transform3D(0.0884208, 0.0980173, 0.991249, -0.0425426, 0.99461, -0.0945548, -0.995174, -0.0338097, 0.0921141, -17.7816, 42.4403, -78.8515)
+
+;@ 13+
+
+[node name="BoostPanel" parent="Ramps/Ramp" instance=ExtResource("12_7mm15")]
+transform = Transform3D(0.23, 0, 0, 0, 0.904473, 0.117585, 0, -0.188954, 0.562849, 0, 2.08116, 2.83231)
+
+[node name="BoostPanel" parent="Ramps/Ramp2" instance=ExtResource("12_7mm15")]
+transform = Transform3D(0.23, 0, 0, 0, 0.904473, 0.117585, 0, -0.188954, 0.562849, 0, 2.08116, 2.83231)
+
+[node name="BoostPanel" parent="Ramps/Ramp4" instance=ExtResource("12_7mm15")]
+transform = Transform3D(0.23, 0, 0, 0, 0.904473, 0.117585, 0, -0.188954, 0.562849, 0, 2.08116, 2.83231)
+
+[node name="BoostPanel" parent="Ramps/Ramp3" instance=ExtResource("12_7mm15")]
+transform = Transform3D(0.23, 0, 0, 0, 0.904473, 0.117585, 0, -0.188954, 0.562849, 0, 2.08116, 2.83231)
+;@ all

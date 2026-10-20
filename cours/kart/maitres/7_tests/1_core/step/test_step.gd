@@ -1,23 +1,22 @@
 extends GdUnitTestSuite
-## Règles du contrat d'étape : une étape signale sa fin, ou demande à être rejouée, par un signal.
+## Règles du contrat d'étape : finir l'étape le signale, avec « done » par défaut, ou la suite demandée.
+
+var _step: Step
+var _outcomes: Array[StringName] = []
 
 
-func _signaux_recus(etape: Step) -> Array[String]:
-	var recus: Array[String] = []
-	etape.terminee.connect(func() -> void: recus.append("terminee"))
-	etape.a_rejouer.connect(func() -> void: recus.append("a_rejouer"))
-	return recus
+func before_test() -> void:
+	_step = auto_free(Step.new())
+	_outcomes.clear()
+	_step.finished.connect(func(outcome: StringName) -> void: _outcomes.append(outcome))
 
 
-func test_terminer_emet_terminee() -> void:
-	var etape: Step = auto_free(Step.new())
-	var recus := _signaux_recus(etape)
-	etape.terminer()
-	assert_array(recus).is_equal(["terminee"])
+func test_finir_signale_done_par_defaut() -> void:
+	_step.finish()
+	assert_array(_outcomes).is_equal([&"done"])
 
 
-func test_rejouer_emet_a_rejouer() -> void:
-	var etape: Step = auto_free(Step.new())
-	var recus := _signaux_recus(etape)
-	etape.rejouer()
-	assert_array(recus).is_equal(["a_rejouer"])
+func test_finir_signale_la_suite_demandee() -> void:
+	_step.finish(&"retry")
+	_step.finish(&"restart")
+	assert_array(_outcomes).is_equal([&"retry", &"restart"])

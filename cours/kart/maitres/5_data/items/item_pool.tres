@@ -1,11 +1,10 @@
-[gd_resource type="Resource" script_class="ItemPool" load_steps=4 format=3 uid="uid://bwougoewwwthu"]
+[gd_resource type="Resource" script_class="ItemPool" format=3 uid="uid://bwougoewwwthu"]
 
-[ext_resource type="Script" uid="uid://cim828ug0dftd" path="res://3_entities/items/item_type.gd" id="1_haucl"]
-[ext_resource type="Resource" uid="uid://bteev30f14le1" path="res://5_data/items/bomb.tres" id="2_8g76r"]
-[ext_resource type="Script" uid="uid://drqp0bigysg4x" path="res://3_entities/items/item_pool.gd" id="2_tfup8"]
+[ext_resource type="Script" path="res://1_core/items/item_pool.gd" id="1_pool"]
+[ext_resource type="Script" path="res://1_core/items/item_type.gd" id="2_item"]
+[ext_resource type="Resource" path="res://5_data/items/bomb.tres" id="3_bomb"]
 
 [resource]
-script = ExtResource("2_tfup8")
-items = Array[ExtResource("1_haucl")]([ExtResource("2_8g76r")])
-weights = Array[float]([])
-metadata/_custom_type_script = "uid://drqp0bigysg4x"
+script = ExtResource("1_pool")
+items = Array[ExtResource("2_item")]([ExtResource("3_bomb")])
+weights = Array[float]([1.0])

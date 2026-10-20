@@ -15,7 +15,7 @@ const AXIS_CAPTURE_THRESHOLD := 0.6
 const AXIS_RELEASE_THRESHOLD := 0.3
 
 ## Actions proposées dans le menu, avec leur libellé.
-const ACTION_LABELS := {
+const ACTION_LABELS: Dictionary[String, String] = {
 	"move_forward": "Avancer",
 	"move_backward": "Reculer",
 	"move_left": "Gauche",
@@ -26,7 +26,7 @@ const ACTION_LABELS := {
 }
 
 ## Numérotation Godot 4 (standard SDL), libellés d'une manette Xbox.
-const BUTTON_NAMES := {
+const BUTTON_NAMES: Dictionary[int, String] = {
 	JOY_BUTTON_A: "A",
 	JOY_BUTTON_B: "B",
 	JOY_BUTTON_X: "X",
@@ -46,7 +46,7 @@ const BUTTON_NAMES := {
 }
 
 ## Noms affichés en français pour certaines touches.
-const KEY_NAMES_FR := {
+const KEY_NAMES_FR: Dictionary[int, String] = {
 	KEY_SPACE: "Espace",
 	KEY_ENTER: "Entrée",
 	KEY_KP_ENTER: "Entrée (pavé num.)",
@@ -66,13 +66,21 @@ const KEY_NAMES_FR := {
 	KEY_CAPSLOCK: "Verr. Maj",
 }
 
-var _rows: Array[Dictionary] = []
+## Une ligne du menu : son action, ses deux libellés et son bouton d'assignation.
+class Row:
+	var action: String
+	var key_label: Label
+	var pad_label: Label
+	var button: Button
+
+
+var _rows: Array[Row] = []
 var _status_label: Label
 var _open: bool = false
 var _pending_action: String = ""
 var _background: ColorRect = null
 var _buttons: Array[Button] = []
-var _swallowed_axes: Dictionary = {}
+var _swallowed_axes: Dictionary[int, bool] = {}
 var _dirty: bool = false
 var _was_paused: bool = false
 var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_VISIBLE
@@ -237,7 +245,7 @@ func open() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	# Focus sur la première ligne pour pouvoir naviguer à la manette / au clavier
-	(_rows[0].btn as Button).grab_focus()
+	_rows[0].button.grab_focus()
 
 ## Ferme le menu, enregistre les changements et remet le jeu dans l'état d'avant (en pause ou non).
 func close() -> void:
@@ -302,20 +310,20 @@ func _build_row(action: String, label_text: String) -> Control:
 	row.add_child(pad_label)
 	row.add_child(bind_btn)
 
-	_rows.append({
-		"action": action,
-		"key_label": key_label,
-		"pad_label": pad_label,
-		"btn": bind_btn,
-	})
+	var entry := Row.new()
+	entry.action = action
+	entry.key_label = key_label
+	entry.pad_label = pad_label
+	entry.button = bind_btn
+	_rows.append(entry)
 	_buttons.append(bind_btn)
 	return row
 
-func _get_row(action: String) -> Dictionary:
-	for row in _rows:
+func _get_row(action: String) -> Row:
+	for row: Row in _rows:
 		if row.action == action:
 			return row
-	return {}
+	return null
 
 # ---------------------------------------------------------------------------
 # Logique de binding
@@ -323,14 +331,14 @@ func _get_row(action: String) -> Dictionary:
 
 func _start_binding(action: String) -> void:
 	if _pending_action != "":
-		_cancel_binding()
+		cancel_binding()
 	_pending_action = action
 	var row := _get_row(action)
-	(row.key_label as Label).text = "En attente… appuyez sur une touche"
-	(row.key_label as Label).modulate = Color(1, 0.85, 0.4)
-	(row.pad_label as Label).text = "…ou sur un bouton / un axe manette"
-	(row.pad_label as Label).modulate = Color(1, 0.85, 0.4)
-	(row.btn as Button).disabled = true
+	row.key_label.text = "En attente… appuyez sur une touche"
+	row.key_label.modulate = Color(1, 0.85, 0.4)
+	row.pad_label.text = "…ou sur un bouton / un axe manette"
+	row.pad_label.modulate = Color(1, 0.85, 0.4)
+	row.button.disabled = true
 	_status_label.text = "Capture en cours pour « %s »… (Échap ou Start = annuler)" % ACTION_LABELS[action]
 
 func _input(event: InputEvent) -> void:
@@ -415,7 +423,7 @@ func _apply_event(action: String, new_event: InputEvent) -> void:
 	_dirty = true
 
 	var row := _get_row(action)
-	var btn := row.btn as Button
+	var btn := row.button
 	btn.disabled = false
 	btn.grab_focus()
 
@@ -430,19 +438,20 @@ func _apply_event(action: String, new_event: InputEvent) -> void:
 	else:
 		_status_label.text = "✔ %s — assigné. Attention : aussi utilisé par %s" % [ACTION_LABELS[action], ", ".join(others)]
 
-func _cancel_binding() -> void:
+## Annule la capture en cours : l'action garde ses touches.
+func cancel_binding() -> void:
 	var row := _get_row(_pending_action)
 	_pending_action = ""
 	_refresh_labels()
-	if not row.is_empty():
-		var btn := row.btn as Button
+	if row != null:
+		var btn := row.button
 		btn.disabled = false
 		btn.grab_focus()
 	_status_label.text = "Annulé — choisissez « Assigner » pour essayer à nouveau."
 
 func _reset_to_defaults() -> void:
 	if _pending_action != "":
-		_cancel_binding()
+		cancel_binding()
 	# Recharge le mappage défini dans project.godot et supprime la sauvegarde
 	InputMap.load_from_project_settings()
 	_ensure_gamepad_can_click()
@@ -457,7 +466,7 @@ func _reset_to_defaults() -> void:
 # ---------------------------------------------------------------------------
 
 func _refresh_labels() -> void:
-	for row in _rows:
+	for row: Row in _rows:
 		var key_strs: Array[String] = []
 		var pad_strs: Array[String] = []
 		for e in InputMap.action_get_events(row.action):
@@ -470,10 +479,10 @@ func _refresh_labels() -> void:
 				pad_strs.append(BUTTON_NAMES.get(bi, "Bouton %d" % bi))
 			elif e is InputEventJoypadMotion:
 				pad_strs.append(_describe_axis(e))
-		(row.key_label as Label).text = ", ".join(key_strs) if key_strs.size() > 0 else "Aucun"
-		(row.pad_label as Label).text = ("🎮 " + ", ".join(pad_strs)) if pad_strs.size() > 0 else "Aucun"
-		(row.key_label as Label).modulate = Color.WHITE
-		(row.pad_label as Label).modulate = Color.WHITE
+		row.key_label.text = ", ".join(key_strs) if key_strs.size() > 0 else "Aucun"
+		row.pad_label.text = ("🎮 " + ", ".join(pad_strs)) if pad_strs.size() > 0 else "Aucun"
+		row.key_label.modulate = Color.WHITE
+		row.pad_label.modulate = Color.WHITE
 
 # ---------------------------------------------------------------------------
 # Sauvegarde / Chargement (uniquement les actions du jeu, jamais les ui_*)
@@ -483,9 +492,9 @@ func _save_bindings() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("meta", "version", SAVE_VERSION)
 	for action: String in ACTION_LABELS:
-		var arr: Array = []
-		for e in InputMap.action_get_events(action):
-			var d: Dictionary = _event_to_dict(e)
+		var arr: Array[Dictionary] = []
+		for e: InputEvent in InputMap.action_get_events(action):
+			var d: Dictionary[String, Variant] = _event_to_dict(e)
 			if not d.is_empty():
 				arr.append(d)
 		cfg.set_value("bindings", action, arr)
@@ -515,7 +524,7 @@ func _load_bindings() -> void:
 			for e in events:
 				InputMap.action_add_event(action, e)
 
-func _event_to_dict(e: InputEvent) -> Dictionary:
+func _event_to_dict(e: InputEvent) -> Dictionary[String, Variant]:
 	if e is InputEventKey:
 		var k := e as InputEventKey
 		return {"type": "key", "physical": k.physical_keycode, "keycode": k.keycode}
@@ -532,7 +541,8 @@ func _event_to_dict(e: InputEvent) -> Dictionary:
 
 func _dict_to_event(d: Variant) -> InputEvent:
 	if d is Dictionary:
-		var dict: Dictionary = d
+		var dict: Dictionary[String, Variant] = {}
+		dict.assign(d as Dictionary)
 		match dict.get("type", ""):
 			"key":
 				var k := InputEventKey.new()

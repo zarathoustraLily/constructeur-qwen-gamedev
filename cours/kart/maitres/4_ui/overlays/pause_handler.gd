@@ -38,15 +38,15 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo \
 			and (event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE):
 		if _remap_menu.is_capturing():
-			_remap_menu._cancel_binding()
+			_remap_menu.cancel_binding()
 		elif _remap_menu.is_open():
 			_remap_menu.close()
 		else:
-			GameFlow.quitter()
+			GameFlow.quit()
 		get_viewport().set_input_as_handled()
 
 func _toggle_or_cancel() -> void:
 	if _remap_menu.is_capturing():
-		_remap_menu._cancel_binding()
+		_remap_menu.cancel_binding()
 	else:
 		_remap_menu.toggle()

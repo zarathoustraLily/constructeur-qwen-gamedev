@@ -17,11 +17,17 @@ extends GdUnitTestSuite
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, sa
 ## position est recopiée dans GameState pour les shaders, et la caméra le suit.
-#@ 11+
+#@ 11-12
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, sa
 ## position est recopiée dans GameState pour les shaders, et la caméra le suit. La météo donne sa pluie et son
 ## mouillage aux shaders et aux roues, et l'orage lance des éclairs sur le kart.
+#@ 13+
+## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
+## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, sa
+## position est recopiée dans GameState pour les shaders, et la caméra le suit. La météo donne sa pluie et son
+## mouillage aux shaders et aux roues, et l'orage lance des éclairs sur le kart. Une boîte traversée donne un
+## objet (et un éclair) ; « use_item » lance le plus ancien vers l'arrière ; une plaque donne un turbo.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -163,4 +169,54 @@ func test_la_camera_suit_le_kart() -> void:
 	assert_bool(camera.current).is_true()
 	assert_float(camera.global_position.distance_to(kart.global_position)).is_less(6.0)
 	assert_float(kart.forward_speed()).is_greater(5.0)
+#@ 13+
+
+
+func _main_with_kart() -> Node3D:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	(main.get_node("Kart") as Kart).input = null
+	return main
+
+
+func test_une_boite_traversee_donne_un_objet_et_un_eclair() -> void:
+	var main := _main_with_kart()
+	await get_tree().physics_frame
+	var kart := main.get_node("Kart") as Kart
+	var box := main.find_children("*", "ItemBox", true, false)[0] as ItemBox
+	kart.global_position = box.global_position
+	for _frame: int in 3:
+		await get_tree().physics_frame
+	var inventory: Inventory = main.get("inventory")
+	assert_int(inventory.items.size()).is_equal(1)
+	assert_int(main.find_children("*", "LightningStrike", false, false).size()).is_equal(1)
+
+
+func test_utiliser_un_objet_le_lance_vers_l_arriere() -> void:
+	var main := _main_with_kart()
+	await get_tree().physics_frame
+	var kart := main.get_node("Kart") as Kart
+	var inventory: Inventory = main.get("inventory")
+	var pool: ItemPool = main.get("item_pool")
+	inventory.add(pool.items[0])
+	kart.commands.use_item = true
+	await get_tree().physics_frame
+	kart.commands.use_item = false
+	assert_int(inventory.items.size()).is_equal(0)
+	var bombs := main.find_children("*", "Bomb", false, false)
+	assert_int(bombs.size()).is_equal(1)
+	var thrown := (bombs[0] as Node3D).global_position - kart.global_position
+	assert_float(thrown.dot(kart.global_basis.z)).is_greater(0.0)
+
+
+func test_une_plaque_donne_un_turbo_au_kart() -> void:
+	var main := _main_with_kart()
+	await get_tree().physics_frame
+	var kart := main.get_node("Kart") as Kart
+	var panel := main.find_children("*", "BoostPanel", true, false)[0] as BoostPanel
+	kart.global_position = panel.global_position + Vector3.UP
+	for _frame: int in 3:
+		await get_tree().physics_frame
+	assert_bool(kart.is_boosting()).is_true()
 #@ all
+

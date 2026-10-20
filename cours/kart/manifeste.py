@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -77,8 +77,10 @@ FICHIERS = {
     "1_core/step/step.gd": "14+",
     "2_sequence/main.tscn": "1+",
     "2_sequence/sequence.tres": "14+",
-    "7_tests/0_autoload/etape_a.tscn": "14+",
-    "7_tests/0_autoload/etape_b.tscn": "14+",
+    "2_sequence/boot.gd": "14+",
+    "2_sequence/boot.tscn": "14+",
+    "7_tests/0_autoload/step_a.tscn": "14+",
+    "7_tests/0_autoload/step_b.tscn": "14+",
     "7_tests/0_autoload/test_game_flow.gd": "14+",
     "7_tests/0_autoload/test_game_state.gd": "6+",
     "7_tests/1_core/step/test_step.gd": "14+",
@@ -146,7 +148,7 @@ FICHIERS = {
     "5_data/kart/kart_wake.tres": "9+",
     "7_tests/1_core/water/waves/test_water_waves.gd": "9+",
     "7_tests/3_entities/kart/test_kart_wake.gd": "9+",
-    "1_core/components/particle_manager3d.gd": "13+",
+    "1_core/components/particle_burst_view.gd": "13+",
     "7_tests/3_entities/kart/test_kart_drift.gd": "10+",
     "1_core/effects/tire_marks/tire_marks_manager.gd": "10+",
     "1_core/effects/tire_marks/tire_marks_shader.glsl": "10+",
@@ -191,13 +193,19 @@ FICHIERS = {
     "3_entities/interactables/boost_panel/boost_panel.gd": "13+",
     "3_entities/interactables/boost_panel/boost_panel.tscn": "13+",
     "3_entities/interactables/item_box/item_box.gd": "13+",
+    "3_entities/interactables/item_box/item_box_view.gd": "13+",
+    "1_core/items/item_type.gd": "13+",
+    "1_core/items/item_pool.gd": "13+",
+    "1_core/items/inventory.gd": "13+",
+    "4_ui/hud/inventory/inventory_display.gd": "13+",
+    "4_ui/hud/inventory/inventory_display.tscn": "13+",
+    "7_tests/1_core/items/test_item_pool.gd": "13+",
+    "7_tests/1_core/items/test_inventory.gd": "13+",
+    "7_tests/4_ui/hud/inventory/test_inventory_display.gd": "13+",
     "3_entities/interactables/item_box/item_box.tscn": "13+",
     "3_entities/items/bomb/bomb.gd": "13+",
     "3_entities/items/bomb/bomb.tscn": "13+",
     "3_entities/items/bomb/explosion/explosion.tscn": "13+",
-    "3_entities/items/item_pool.gd": "13+",
-    "3_entities/items/item_type.gd": "13+",
-    "3_entities/player/inventory.gd": "13+",
     "5_data/items/bomb.tres": "13+",
     "5_data/items/item_pool.tres": "13+",
     "6_assets/shaders/effects/dissolve.gdshader": "13+",
@@ -208,12 +216,8 @@ FICHIERS = {
     "7_tests/3_entities/interactables/test_boost_panel.gd": "13+",
     "7_tests/3_entities/interactables/test_item_box.gd": "13+",
     "7_tests/3_entities/items/bomb/test_bomb.gd": "13+",
-    "7_tests/3_entities/items/test_item_pool.gd": "13+",
-    "7_tests/3_entities/player/test_inventory.gd": "13+",
     "4_ui/overlays/input_remap/input_remap_menu.gd": "14+",
     "4_ui/overlays/input_remap/input_remap_menu.tscn": "14+",
     "4_ui/overlays/pause_handler.gd": "14+",
-    "7_tests/2_sequence/conduite_attendue.json": "14+",
-    "7_tests/2_sequence/test_conduite.gd": "14+",
     "7_tests/4_ui/overlays/test_pause_handler.gd": "14+",
 }

@@ -15,3 +15,7 @@ var jump: bool = false
 var jump_held: bool = false
 ## Touche de saut relâchée à cette image.
 var jump_released: bool = false
+#@ 13+
+## Utilisation d'un objet demandée à cette image : la touche vient d'être enfoncée.
+var use_item: bool = false
+#@ all

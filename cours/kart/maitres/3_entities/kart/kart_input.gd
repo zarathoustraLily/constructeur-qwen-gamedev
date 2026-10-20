@@ -21,6 +21,9 @@ func read() -> DriveCommands:
 	commands.jump = Input.is_action_just_pressed("move_jump")
 	commands.jump_held = Input.is_action_pressed("move_jump")
 	commands.jump_released = Input.is_action_just_released("move_jump")
+#@ 13+
+	commands.use_item = Input.is_action_just_pressed("use_item")
+#@ all
 	return commands
 
 

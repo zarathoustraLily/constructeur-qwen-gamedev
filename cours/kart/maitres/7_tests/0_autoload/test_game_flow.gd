@@ -1,176 +1,100 @@
 extends GdUnitTestSuite
-## Règles du chef d'orchestre : l'ordre des étapes, le retour au début, les scènes hors séquence,
-## et la séquence du jeu elle-même.
+## Règles du chef d'orchestre, qui seul charge les scènes : il charge la première étape de la séquence reçue,
+## puis la suivante quand l'étape finit ; après la dernière, il revient à la première ; « retry » recharge
+## l'étape en cours, « restart » la première ; une séquence vide ne charge rien. La séquence du jeu commence par
+## la scène principale, et la scène de démarrage la lui remet.
 
-const TITRE := "res://2_sequence/menus/titre.tscn"
-const INTRO := "res://2_sequence/cinematics/intro.tscn"
-const NIVEAU := "res://2_sequence/levels/island/island.tscn"
-const ETAPE_A := "res://7_tests/0_autoload/etape_a.tscn"
-const ETAPE_B := "res://7_tests/0_autoload/etape_b.tscn"
+const STEP_A := preload("res://7_tests/0_autoload/step_a.tscn")
+const STEP_B := preload("res://7_tests/0_autoload/step_b.tscn")
+const GAME_SEQUENCE := preload("res://2_sequence/sequence.tres")
+const BOOT := preload("res://2_sequence/boot.tscn")
 
-var _sequence_du_jeu: Sequence
-var _scene_du_test: Node
-var _scene_d_avant: Node
+var _saved_sequence: Sequence
+var _saved_index: int
+var _saved_scene: Node
+var _placeholder: Node
 
 
 func before_test() -> void:
-	_sequence_du_jeu = GameFlow.sequence
-	_scene_d_avant = get_tree().current_scene
-	var sequence := Sequence.new()
-	sequence.etapes = [TITRE, INTRO, NIVEAU]
-	GameFlow.sequence = sequence
+	_saved_sequence = GameFlow.sequence
+	_saved_index = GameFlow.index
+	_saved_scene = get_tree().current_scene
+	# Une scène courante jetable : GameFlow la libère en chargeant la première étape.
+	_placeholder = Node.new()
+	get_tree().root.add_child(_placeholder)
+	get_tree().current_scene = _placeholder
 
 
 func after_test() -> void:
-	GameFlow.sequence = _sequence_du_jeu
-	var courante := get_tree().current_scene
-	if courante and courante != _scene_d_avant:
-		courante.free()
-	get_tree().current_scene = _scene_d_avant
-	if is_instance_valid(_scene_du_test):
-		_scene_du_test.free()
+	var current := get_tree().current_scene
+	if is_instance_valid(current) and current != _saved_scene:
+		current.free()
+	if is_instance_valid(_placeholder):
+		_placeholder.free()
+	get_tree().current_scene = _saved_scene
+	GameFlow.sequence = _saved_sequence
+	GameFlow.index = _saved_index
 
 
-## Deux vraies scènes d'étape, minuscules, pour les changements de scène.
-func _sequence_reelle() -> void:
+func _sequence() -> Sequence:
 	var sequence := Sequence.new()
-	sequence.etapes = [ETAPE_A, ETAPE_B]
-	GameFlow.sequence = sequence
+	sequence.steps = [STEP_A, STEP_B]
+	return sequence
 
 
-## Un changement de scène se termine à la fin de l'image en cours.
-func _attendre_le_changement() -> void:
+## Le nom de la scène courante, une fois les nœuds libérés en fin d'image.
+func _current_name() -> String:
 	await get_tree().process_frame
-	await get_tree().process_frame
+	return str(get_tree().current_scene.name)
 
 
-## Fait comme si la scène `chemin` était l'étape en cours, sans la charger.
-func _jouer(chemin: String) -> void:
-	_scene_du_test = Node.new()
-	_scene_du_test.scene_file_path = chemin
-	get_tree().root.add_child(_scene_du_test)
-	get_tree().current_scene = _scene_du_test
+func test_il_charge_la_premiere_etape_de_la_sequence() -> void:
+	GameFlow.start(_sequence())
+	assert_str(await _current_name()).is_equal("StepA")
+	assert_int(GameFlow.index).is_equal(0)
 
 
-func test_les_etapes_s_enchainent_dans_l_ordre() -> void:
-	assert_str(GameFlow.etape_apres(TITRE)).is_equal(INTRO)
-	assert_str(GameFlow.etape_apres(INTRO)).is_equal(NIVEAU)
+func test_quand_l_etape_finit_il_charge_la_suivante() -> void:
+	GameFlow.start(_sequence())
+	GameFlow.current_step.finish()
+	assert_str(await _current_name()).is_equal("StepB")
 
 
-func test_apres_la_derniere_etape_on_revient_a_la_premiere() -> void:
-	assert_str(GameFlow.etape_apres(NIVEAU)).is_equal(TITRE)
+func test_apres_la_derniere_il_revient_a_la_premiere() -> void:
+	GameFlow.start(_sequence())
+	GameFlow.current_step.finish()
+	GameFlow.current_step.finish()
+	assert_str(await _current_name()).is_equal("StepA")
+	assert_int(GameFlow.index).is_equal(0)
 
 
-func test_une_scene_hors_sequence_mene_a_la_premiere_etape() -> void:
-	assert_str(GameFlow.etape_apres("res://ailleurs.tscn")).is_equal(TITRE)
+func test_retry_recharge_l_etape_en_cours() -> void:
+	GameFlow.start(_sequence())
+	GameFlow.current_step.finish()
+	var previous_step := GameFlow.current_step
+	GameFlow.current_step.finish(&"retry")
+	assert_str(await _current_name()).is_equal("StepB")
+	assert_object(GameFlow.current_step).is_not_same(previous_step)
 
 
-func test_l_etape_courante_est_le_rang_de_la_scene_jouee() -> void:
-	_jouer(INTRO)
-	assert_int(GameFlow.etape_courante()).is_equal(1)
+func test_restart_revient_a_la_premiere() -> void:
+	GameFlow.start(_sequence())
+	GameFlow.current_step.finish()
+	GameFlow.current_step.finish(&"restart")
+	assert_str(await _current_name()).is_equal("StepA")
 
 
-func test_une_scene_hors_sequence_n_a_pas_de_rang() -> void:
-	_jouer("res://ailleurs.tscn")
-	assert_int(GameFlow.etape_courante()).is_equal(-1)
+func test_une_sequence_vide_ne_charge_rien() -> void:
+	assert_error(func() -> void: GameFlow.start(Sequence.new())).is_push_error("GameFlow.start : séquence vide")
+	assert_object(get_tree().current_scene).is_same(_placeholder)
 
 
-func test_sans_scene_courante_il_n_y_a_pas_de_rang() -> void:
-	get_tree().current_scene = null
-	assert_int(GameFlow.etape_courante()).is_equal(-1)
+func test_la_sequence_du_jeu_commence_par_la_scene_principale() -> void:
+	assert_array(GAME_SEQUENCE.steps).is_not_empty()
+	assert_str(GAME_SEQUENCE.steps[0].resource_path).is_equal("res://2_sequence/main.tscn")
 
 
-func test_etape_suivante_charge_la_scene_de_l_etape_d_apres() -> void:
-	_sequence_reelle()
-	_jouer(ETAPE_A)
-	GameFlow.etape_suivante()
-	await _attendre_le_changement()
-	assert_str(get_tree().current_scene.scene_file_path).is_equal(ETAPE_B)
-
-
-func test_apres_la_derniere_etape_le_jeu_recharge_la_premiere() -> void:
-	_sequence_reelle()
-	_jouer(ETAPE_B)
-	GameFlow.etape_suivante()
-	await _attendre_le_changement()
-	assert_str(get_tree().current_scene.scene_file_path).is_equal(ETAPE_A)
-
-
-func test_une_sequence_vide_ne_change_pas_de_scene() -> void:
-	GameFlow.sequence = Sequence.new()
-	_jouer(ETAPE_A)
-	GameFlow.etape_suivante()
-	await _attendre_le_changement()
-	assert_object(get_tree().current_scene).is_same(_scene_du_test)
-
-
-func test_recommencer_relance_l_etape_en_cours() -> void:
-	_sequence_reelle()
-	_jouer(ETAPE_A)
-	var avant := get_tree().current_scene.get_instance_id()
-	GameFlow.recommencer()
-	await _attendre_le_changement()
-	assert_int(get_tree().current_scene.get_instance_id()).is_not_equal(avant)
-	assert_str(get_tree().current_scene.scene_file_path).is_equal(ETAPE_A)
-
-
-func test_chaque_etape_du_jeu_existe() -> void:
-	assert_array(_sequence_du_jeu.etapes).is_not_empty()
-	for chemin in _sequence_du_jeu.etapes:
-		assert_bool(ResourceLoader.exists(chemin)).override_failure_message("étape absente : " + chemin).is_true()
-
-
-func test_le_jeu_demarre_sur_la_premiere_etape() -> void:
-	var depart: String = ProjectSettings.get_setting("application/run/main_scene")
-	if depart.begins_with("uid://"):
-		depart = ResourceUID.get_id_path(ResourceUID.text_to_id(depart))
-	assert_str(depart).is_equal(_sequence_du_jeu.etapes[0])
-
-
-## Joue pour de vrai la scène d'étape `chemin`, comme si le jeu venait de la charger.
-func _jouer_l_etape(chemin: String) -> Step:
-	var etape: Step = load(chemin).instantiate()
-	get_tree().root.add_child(etape)
-	get_tree().current_scene = etape
-	GameFlow._ecouter_etape()
-	return etape
-
-
-func test_une_etape_terminee_mene_a_la_suivante() -> void:
-	_sequence_reelle()
-	_jouer_l_etape(ETAPE_A).terminer()
-	await _attendre_le_changement()
-	assert_str(get_tree().current_scene.scene_file_path).is_equal(ETAPE_B)
-
-
-func test_l_etape_chargee_ensuite_est_ecoutee_a_son_tour() -> void:
-	_sequence_reelle()
-	_jouer_l_etape(ETAPE_A).terminer()
-	await _attendre_le_changement()
-	(get_tree().current_scene as Step).terminer()
-	await _attendre_le_changement()
-	assert_str(get_tree().current_scene.scene_file_path).is_equal(ETAPE_A)
-
-
-func test_une_etape_qui_demande_a_rejouer_est_relancee() -> void:
-	_sequence_reelle()
-	var etape := _jouer_l_etape(ETAPE_A)
-	var avant := etape.get_instance_id()
-	etape.rejouer()
-	await _attendre_le_changement()
-	assert_int(get_tree().current_scene.get_instance_id()).is_not_equal(avant)
-	assert_str(get_tree().current_scene.scene_file_path).is_equal(ETAPE_A)
-
-
-func test_une_etape_n_est_ecoutee_qu_une_fois() -> void:
-	var etape := _jouer_l_etape(ETAPE_A)
-	GameFlow._ecouter_etape()
-	assert_int(etape.terminee.get_connections().size()).is_equal(1)
-	assert_int(etape.a_rejouer.get_connections().size()).is_equal(1)
-
-
-func test_chaque_etape_du_jeu_respecte_le_contrat_step() -> void:
-	for chemin in _sequence_du_jeu.etapes:
-		var racine: Node = load(chemin).instantiate()
-		assert_bool(racine is Step).override_failure_message(chemin + " : la racine n'est pas une Step").is_true()
-		racine.free()
+func test_la_scene_de_demarrage_remet_la_sequence_du_jeu() -> void:
+	var boot := BOOT.instantiate()
+	assert_object(boot.get("sequence")).is_same(GAME_SEQUENCE)
+	boot.free()

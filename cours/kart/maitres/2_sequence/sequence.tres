@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Sequence" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="Sequence" format=3]
 
-[ext_resource type="Script" path="res://1_core/step/sequence.gd" id="1_seq"]
+[ext_resource type="Script" path="res://1_core/step/sequence.gd" id="1_sequence"]
+[ext_resource type="PackedScene" path="res://2_sequence/main.tscn" id="2_main"]
 
 [resource]
-script = ExtResource("1_seq")
-etapes = Array[String](["res://2_sequence/main.tscn"])
+script = ExtResource("1_sequence")
+steps = Array[PackedScene]([ExtResource("2_main")])
