@@ -1,8 +1,11 @@
 class_name KartSettings extends Resource
 #@ 2-6
 ## Réglages de conduite d'un kart : moteur, direction, saut et gravité. Les valeurs vivent dans un .tres de
-#@ 7+
+#@ 7-9
 ## Réglages de conduite d'un kart : moteur, direction, saut et gravité, eau. Les valeurs vivent dans un .tres de
+#@ 10+
+## Réglages de conduite d'un kart : moteur, direction, saut et gravité, eau, dérapage, turbo et figures. Les
+## valeurs vivent dans un .tres de
 #@ all
 ## 5_data (5_data/kart/kart_settings.tres), jamais dans le script du kart (règle DAT-01).
 ##
@@ -66,4 +69,28 @@ class_name KartSettings extends Resource
 @export_custom(PROPERTY_HINT_NONE, "suffix:/s²") var water_spring_down: float = 0.0
 ## Raideur du rappel quand le kart remonte.
 @export_custom(PROPERTY_HINT_NONE, "suffix:/s²") var water_spring_up: float = 0.0
+#@ all
+#@ 10+
+
+@export_group("Dérapage, turbo et figures")
+## Élargissement du braquage pendant un dérapage.
+@export var drift_steering_multiplier: float = 0.0
+## Part du sens du dérapage dans le braquage (le reste vient du stick).
+@export_range(0.0, 1.0) var drift_direction_weight: float = 0.0
+## Durée de dérapage au sol avant les étincelles.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var drift_sparks_time: float = 0.0
+## Durée de dérapage au sol avant les étincelles chaudes.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var drift_hot_sparks_time: float = 0.0
+## Turbo donné en relâchant aux étincelles.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var drift_boost_short: float = 0.0
+## Turbo donné en relâchant aux étincelles chaudes.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var drift_boost_long: float = 0.0
+## Vitesse maximale pendant un turbo.
+@export_custom(PROPERTY_HINT_NONE, "suffix:m/s") var boost_speed: float = 0.0
+## Accélération pendant un turbo.
+@export_custom(PROPERTY_HINT_NONE, "suffix:m/s²") var boost_acceleration: float = 0.0
+## Délai entre deux figures, et après un saut depuis le sol.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var trick_cooldown: float = 0.0
+## Turbo donné à l'atterrissage après une figure.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var trick_boost: float = 0.0
 #@ all

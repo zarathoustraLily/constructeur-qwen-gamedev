@@ -13,10 +13,15 @@ extends GdUnitTestSuite
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, et la
 ## caméra le suit.
-#@ 6+
+#@ 6-10
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, sa
 ## position est recopiée dans GameState pour les shaders, et la caméra le suit.
+#@ 11+
+## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
+## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, sa
+## position est recopiée dans GameState pour les shaders, et la caméra le suit. La météo donne sa pluie et son
+## mouillage aux shaders et aux roues, et l'orage lance des éclairs sur le kart.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -111,6 +116,37 @@ func test_l_ocean_suit_le_kart() -> void:
 		await get_tree().physics_frame
 	var ocean := main.get_node("Island/Ocean") as Ocean
 	assert_float(ocean.water_waves.texture_offset.distance_to(kart.global_position)).is_less(0.5)
+#@ 11+
+
+
+func test_la_meteo_mouille_les_shaders_et_les_roues() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	for _frame: int in 3:
+		await get_tree().physics_frame
+	var weather: Weather = main.get("weather")
+	assert_float(GameState.rain_intensity).is_equal(weather.intensity)
+	assert_float(GameState.rain_wetness).is_equal_approx(weather.wetness, 0.0001)
+	assert_float((main.get_node("Kart/WheelEffects") as WheelSplashEffects).road_wetness).is_equal_approx(
+		weather.wetness, 0.0001)
+	assert_float((main.get_node("Rain") as RainView).intensity).is_equal(weather.intensity)
+
+
+func test_l_orage_lance_des_eclairs_sur_le_kart() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	var stormy := (main.get("weather_settings") as WeatherSettings).duplicate() as WeatherSettings
+	stormy.lightning_interval_min = 0.1
+	stormy.lightning_interval_max = 0.2
+	main.set("weather_settings", stormy)
+	add_child(main)
+	var struck := false
+	for _frame: int in 30:
+		await get_tree().physics_frame
+		for child: Node in main.get_children():
+			var strike := child as LightningStrike
+			if strike != null and strike.target == main.get_node("Kart"):
+				struck = true
+	assert_bool(struck).is_true()
 #@ 3+
 
 

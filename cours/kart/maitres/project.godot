@@ -185,4 +185,13 @@ player_position={
 "type": "vec3",
 "value": Vector3(4.8399, 4.47262, -5.20099)
 }
+;@ 11+
+rain_intensity={
+"type": "float",
+"value": 0.0
+}
+rain_wetness={
+"type": "float",
+"value": 0.0
+}
 ;@ all

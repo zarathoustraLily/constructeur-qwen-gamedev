@@ -1,166 +1,159 @@
 class_name WheelSplashEffects extends Node3D
+## Gerbes et traînées des roues : très fortes sur la mer, légères sur la route mouillée. Les enfants SeaDroplets,
+## SeaSpray, RoadDroplets, SeaTrail et RoadTrail servent de modèles, dupliqués pour chaque roue au démarrage :
+## gouttelettes autour de chaque roue, embruns et traînée derrière les roues arrière. C'est une présentation :
+## ondulations, vagues et écume, qui changent l'eau, viennent du sillage du kart (KartWake).
 
-## Éclaboussures et traînées des roues : très fortes sur la mer, légères sur la route mouillée.
-## Les enfants SeaDroplets / SeaSpray / RoadDroplets / SeaTrail / RoadTrail servent de modèles,
-## dupliqués pour chaque roue au démarrage.
+
+## Les effets d'une roue.
+class WheelFx:
+	## La roue.
+	var wheel: WheelView
+	## Vrai pour une roue arrière : elle a des embruns et des traînées.
+	var rear: bool
+	## Gouttelettes sur la mer.
+	var sea_droplets: GPUParticles3D
+	## Gouttelettes sur la route mouillée.
+	var road_droplets: GPUParticles3D
+	## Embruns sur la mer (roues arrière).
+	var sea_spray: GPUParticles3D
+	## Traînée sur la mer (roues arrière).
+	var sea_trail: WheelTrail
+	## Traînée sur la route mouillée (roues arrière).
+	var road_trail: WheelTrail
+
+
+## Le kart dont les roues éclaboussent.
+@export var kart: Kart
+## Ses roues.
+@export var wheels: Array[WheelView] = []
 
 @export_group("Mer")
-## Multiplicateur global des effets sur l'eau
-@export_range(0.0, 2.0) var sea_strength : float = 1.0
-## Ondulations autour de chaque roue (simulation WaterRipples, 32 px/m)
-@export var sea_ripple_height : float = 0.15
-## Rayon de ces ondulations (pixels de la simulation).
-@export var sea_ripple_radius_px : float = 4.0
-## Sillage dans la simulation de vagues (WaterWaves, 8 px/m)
-@export var sea_wake_height : float = 0.03
-## Rayon de ce sillage (pixels de la simulation).
-@export var sea_wake_radius_px : float = 3.0
-## Écume persistante laissée par les roues arrière (WaterFoam)
-@export_range(0.0, 1.0) var sea_foam_amount : float = 0.5
-## Rayon de cette écume (m).
-@export var sea_foam_radius : float = 0.4
+## Multiplicateur des effets sur l'eau.
+@export_range(0.0, 2.0) var sea_strength: float = 1.0
+## Une roue est « dans l'eau » si elle est à moins de cette hauteur au-dessus de la surface (m).
+@export var sea_contact_margin: float = 0.15
 
 @export_group("Route")
-## Multiplicateur des effets sur la route, lui-même multiplié par le mouillage de la pluie
-@export_range(0.0, 2.0) var road_strength : float = 1.0
-## Mouillage minimum de la route quand il ne pleut pas (0 = aucun effet sur route sèche)
-@export_range(0.0, 1.0) var road_min_wetness : float = 0.0
+## Multiplicateur des effets sur la route, lui-même multiplié par le mouillage.
+@export_range(0.0, 2.0) var road_strength: float = 1.0
+## Mouillage de la route, de 0 (sèche : aucun effet) à 1.
+@export_range(0.0, 1.0) var road_wetness: float = 0.0
 
 @export_group("Vitesse")
-## Vitesse (m/s) à partir de laquelle les effets apparaissent
-@export var min_speed : float = 1.5
-## Vitesse (m/s) à laquelle les effets atteignent leur maximum
-@export var full_speed : float = 15.0
+## Vitesse (m/s) à partir de laquelle les effets apparaissent.
+@export var min_speed: float = 1.5
+## Vitesse (m/s) à laquelle les effets atteignent leur maximum.
+@export var full_speed: float = 15.0
 
-var _kart : Kart
-var _ocean : Ocean
-var _rain : RainController
-var _fx : Array[Dictionary] = []
-## Repère horizontal du kart pour l'image en cours (x = droite, z = arrière)
-var _emit_basis : Basis
+var _fx: Array[WheelFx] = []
+## Repère horizontal du kart pour l'image en cours (x à droite, z vers l'arrière).
+var _emit_basis: Basis
+
+@onready var _sea_droplets: GPUParticles3D = $SeaDroplets
+@onready var _sea_spray: GPUParticles3D = $SeaSpray
+@onready var _road_droplets: GPUParticles3D = $RoadDroplets
+@onready var _sea_trail: WheelTrail = $SeaTrail
+@onready var _road_trail: WheelTrail = $RoadTrail
+
 
 func _ready() -> void:
-	_kart = get_parent() as Kart
-	var templates : Array[Node] = [$SeaDroplets, $SeaSpray, $RoadDroplets, $SeaTrail, $RoadTrail]
-	for t in templates:
-		if t is GPUParticles3D:
-			(t as GPUParticles3D).emitting = false
-		(t as Node3D).visible = false
+	for template: GPUParticles3D in [_sea_droplets, _sea_spray, _road_droplets]:
+		template.emitting = false
+		template.visible = false
+	_sea_trail.visible = false
+	_road_trail.visible = false
 	# Scène ouverte seule, hors d'un kart : aucun effet à produire.
-	if _kart == null:
+	if kart == null:
 		set_process(false)
 		return
+	for wheel: WheelView in wheels:
+		var fx := WheelFx.new()
+		fx.wheel = wheel
+		fx.rear = not wheel.steering_enabled
+		fx.sea_droplets = _make_emitter(_sea_droplets)
+		fx.road_droplets = _make_emitter(_road_droplets)
+		if fx.rear:
+			fx.sea_spray = _make_emitter(_sea_spray)
+			fx.sea_trail = _make_trail(_sea_trail)
+			fx.road_trail = _make_trail(_road_trail)
+		_fx.append(fx)
 
-	for child in _kart.get_node("Visual/Kart").get_children():
-		if child is Wheel:
-			var wheel := child as Wheel
-			var rear := not wheel.steering_enabled
-			_fx.append({
-				"wheel": wheel,
-				"rear": rear,
-				"sea_droplets": _make_emitter($SeaDroplets),
-				"road_droplets": _make_emitter($RoadDroplets),
-				"sea_spray": _make_emitter($SeaSpray) if rear else null,
-				"sea_trail": _make_trail($SeaTrail) if rear else null,
-				"road_trail": _make_trail($RoadTrail) if rear else null,
-			})
 
 func _make_emitter(template: GPUParticles3D) -> GPUParticles3D:
-	var e := template.duplicate() as GPUParticles3D
-	var pm := (template.process_material as ParticleProcessMaterial).duplicate() as ParticleProcessMaterial
-	e.process_material = pm
-	e.set_meta("base_direction", pm.direction)
-	e.set_meta("base_velocity", Vector2(pm.initial_velocity_min, pm.initial_velocity_max))
-	e.top_level = true
-	e.visible = true
-	e.emitting = false
-	add_child(e)
-	return e
+	var emitter := template.duplicate() as GPUParticles3D
+	var process := (template.process_material as ParticleProcessMaterial).duplicate() as ParticleProcessMaterial
+	emitter.process_material = process
+	emitter.set_meta("base_direction", process.direction)
+	emitter.set_meta("base_velocity", Vector2(process.initial_velocity_min, process.initial_velocity_max))
+	emitter.top_level = true
+	emitter.visible = true
+	emitter.emitting = false
+	add_child(emitter)
+	return emitter
+
 
 func _make_trail(template: WheelTrail) -> WheelTrail:
-	var t := template.duplicate() as WheelTrail
-	t.visible = true
-	add_child(t)
-	return t
+	var trail := template.duplicate() as WheelTrail
+	trail.visible = true
+	add_child(trail)
+	return trail
+
 
 func _process(_delta: float) -> void:
-	if not _ocean:
-		_ocean = get_tree().get_first_node_in_group("ocean") as Ocean
-	if not _rain:
-		_rain = get_tree().get_first_node_in_group("rain") as RainController
-
-	var speed := _kart.get_horizontal_velocity().length()
+	var speed := kart.get_horizontal_velocity().length()
 	var moving := speed > min_speed
 	var speed_factor := clampf(inverse_lerp(min_speed, full_speed, speed), 0.0, 1.0)
-	var wetness := maxf(road_min_wetness, _rain.wetness if _rain else 0.0)
-	var water_height := _kart.water_buoyancy_sensor.get_water_height()
-	var kart_basis := _kart.global_basis
+	var water_height := kart.water_sensor.get_water_height()
+	var kart_basis := kart.global_basis
 	var right := Vector3(kart_basis.x.x, 0.0, kart_basis.x.z).normalized()
 	var forward := Vector3(-kart_basis.z.x, 0.0, -kart_basis.z.z).normalized()
 	_emit_basis = Basis(right, Vector3.UP, -forward)
-
-	var sea_f := (0.25 + 0.75 * speed_factor) * sea_strength
-	var road_f := (0.2 + 0.8 * speed_factor) * road_strength * wetness
-	var rear_in_water := false
-	var rear_center := Vector3.ZERO
-	var rear_count := 0
-
-	for fx in _fx:
-		var wheel : Wheel = fx.wheel
-		var contact := wheel.get_wheel_position()
-		var side_sign := 1.0 if (contact - _kart.global_position).dot(right) >= 0.0 else -1.0
-		var in_water := _ocean != null and contact.y <= water_height + 0.15 \
-			and _ocean.get_island_mask(contact) > 0.05
-		var on_road := not in_water and wheel.is_grounded()
+	var sea_factor := (0.25 + 0.75 * speed_factor) * sea_strength
+	var road_factor := (0.2 + 0.8 * speed_factor) * road_strength * road_wetness
+	for fx: WheelFx in _fx:
+		var contact := fx.wheel.get_wheel_position()
+		var side_sign := 1.0 if (contact - kart.global_position).dot(right) >= 0.0 else -1.0
+		var in_water := kart.is_in_water() and contact.y <= water_height + sea_contact_margin
+		var on_road := not in_water and fx.wheel.is_grounded()
 		var water_point := Vector3(contact.x, water_height, contact.z)
-
-		# --- Mer : gerbe de gouttelettes autour de chaque roue + ondulations ---
+		# Mer : gouttelettes autour de chaque roue, embruns derrière les roues arrière.
 		var sea_on := in_water and moving and sea_strength > 0.0
-		_drive_emitter(fx.sea_droplets, sea_on, sea_f, water_point, side_sign, 0.5 + speed_factor)
-		if fx.sea_spray:
-			_drive_emitter(fx.sea_spray, sea_on, sea_f, water_point + Vector3.UP * 0.12, side_sign, 0.4 + speed_factor)
-		if sea_on and _ocean:
-			_ocean.add_ripple(water_point, sea_ripple_height * sea_f, sea_ripple_radius_px)
-			if fx.rear:
-				_ocean.add_foam(water_point, sea_foam_amount * minf(sea_f, 1.0), sea_foam_radius)
-
-		# --- Route mouillée : petites gouttelettes ---
-		var road_on := on_road and moving and road_f > 0.02
-		var road_point := wheel.raycast.get_collision_point() if on_road else contact
-		_drive_emitter(fx.road_droplets, road_on, road_f, road_point, side_sign, 0.5 + speed_factor)
-
-		# --- Traînées (roues arrière) ---
+		_drive_emitter(fx.sea_droplets, sea_on, sea_factor, water_point, side_sign, 0.5 + speed_factor)
+		if fx.sea_spray != null:
+			_drive_emitter(fx.sea_spray, sea_on, sea_factor, water_point + Vector3.UP * 0.12, side_sign,
+				0.4 + speed_factor)
+		# Route mouillée : petites gouttelettes.
+		var road_on := on_road and moving and road_factor > 0.02
+		var road_point := fx.wheel.get_contact_point() if on_road else contact
+		_drive_emitter(fx.road_droplets, road_on, road_factor, road_point, side_sign, 0.5 + speed_factor)
+		# Traînées, roues arrière.
 		if fx.rear:
-			var sea_trail : WheelTrail = fx.sea_trail
-			var road_trail : WheelTrail = fx.road_trail
 			if sea_on:
-				sea_trail.add_point(water_point, right, Vector3.UP, minf(sea_f, 1.0))
-				rear_in_water = true
-				rear_center += water_point
-				rear_count += 1
+				fx.sea_trail.add_point(water_point, right, Vector3.UP, minf(sea_factor, 1.0))
 			else:
-				sea_trail.stop()
+				fx.sea_trail.stop()
 			if road_on:
-				var normal := wheel.raycast.get_collision_normal()
-				var side := normal.cross(forward).normalized() * -1.0
-				road_trail.add_point(road_point, side, normal, minf(road_f, 1.0))
+				var normal := fx.wheel.get_contact_normal()
+				var across := normal.cross(forward).normalized() * -1.0
+				fx.road_trail.add_point(road_point, across, normal, minf(road_factor, 1.0))
 			else:
-				road_trail.stop()
+				fx.road_trail.stop()
 
-	# Sillage en V dans la simulation de vagues, derrière le kart
-	if rear_in_water and _ocean:
-		_ocean.add_wave(rear_center / rear_count, sea_wake_height * sea_f, sea_wake_radius_px)
 
-## direction du modèle : x = vers l'extérieur du kart, y = vers le haut, z = vers l'arrière
-func _drive_emitter(e: GPUParticles3D, on: bool, amount: float, pos: Vector3, side_sign: float, velocity_scale: float) -> void:
+## Allume ou éteint `emitter` ; allumé, il est placé en `pos`, orienté vers l'extérieur du kart (`side_sign`),
+## avec `amount` de ses particules et une vitesse multipliée par `velocity_scale`. Dans le modèle, x pointe vers
+## l'extérieur du kart, y vers le haut, z vers l'arrière.
+func _drive_emitter(emitter: GPUParticles3D, on: bool, amount: float, pos: Vector3, side_sign: float,
+		velocity_scale: float) -> void:
 	if on:
-		e.global_transform = Transform3D(_emit_basis, pos)
-		var pm := e.process_material as ParticleProcessMaterial
-		var base_dir : Vector3 = e.get_meta("base_direction")
-		var base_vel : Vector2 = e.get_meta("base_velocity")
-		pm.direction = Vector3(base_dir.x * side_sign, base_dir.y, base_dir.z)
-		pm.initial_velocity_min = base_vel.x * velocity_scale
-		pm.initial_velocity_max = base_vel.y * velocity_scale
-		e.amount_ratio = clampf(amount, 0.05, 1.0)
-	if e.emitting != on:
-		e.emitting = on
+		emitter.global_transform = Transform3D(_emit_basis, pos)
+		var process := emitter.process_material as ParticleProcessMaterial
+		var base_direction: Vector3 = emitter.get_meta("base_direction")
+		var base_velocity: Vector2 = emitter.get_meta("base_velocity")
+		process.direction = Vector3(base_direction.x * side_sign, base_direction.y, base_direction.z)
+		process.initial_velocity_min = base_velocity.x * velocity_scale
+		process.initial_velocity_max = base_velocity.y * velocity_scale
+		emitter.amount_ratio = clampf(amount, 0.05, 1.0)
+	if emitter.emitting != on:
+		emitter.emitting = on

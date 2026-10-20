@@ -3,6 +3,10 @@ extends Node3D
 ## cabre selon la vitesse verticale), les roues tournent avec la vitesse et braquent, le volant suit le
 ## braquage et la caisse penche dans les virages. Elle lit l'état du kart sans jamais le changer (règle
 ## ARC-02) ; ses chiffres sont des choix d'affichage, pas des réglages de conduite.
+#@ 10+
+## Quand le kart fait une figure, le modèle joue l'animation « trick » (un tour complet) ; pendant ce temps, il
+## ne s'aligne plus sur le sol.
+#@ all
 
 ## Lissage de l'alignement au sol : part de l'écart qui reste après une demi-seconde.
 const GROUND_SMOOTHING := 0.025
@@ -33,10 +37,20 @@ const BODY_ROLL_SCALE := 0.5
 @export var steering_wheel: Node3D
 ## Les roues.
 @export var wheels: Array[WheelView] = []
+#@ 10+
+## Lecteur d'animations du modèle (animation « trick »).
+@export var animation_player: AnimationPlayer
+#@ all
 
 var _model_up: Vector3 = Vector3.UP
 #@ 7+
 var _water_normal: Vector3 = Vector3.UP
+#@ 10+
+
+
+func _ready() -> void:
+	if kart != null and animation_player != null:
+		kart.tricked.connect(_on_kart_tricked)
 #@ all
 
 
@@ -60,7 +74,12 @@ func _process(delta: float) -> void:
 		var lean := clampf(kart.velocity.y * AIR_LEAN_STRENGTH, -AIR_LEAN_MAX, AIR_LEAN_MAX)
 		target = Vector3.UP.rotated(side.normalized(), lean)
 	_model_up = _model_up.lerp(target, 1.0 - pow(smoothing, 2.0 * delta))
+#@ 2-9
 	align(_model_up)
+#@ 10+
+	if animation_player == null or not animation_player.is_playing():
+		align(_model_up)
+#@ all
 	var angle := deg_to_rad(kart.settings.max_steering_angle_fast)
 	for wheel: WheelView in wheels:
 		wheel.set_steering(-kart.steering * WHEEL_STEERING_SCALE * angle)
@@ -75,3 +94,9 @@ func align(up: Vector3) -> void:
 	var forward := -kart.global_basis.z
 	forward = (forward - normal * forward.dot(normal)).normalized()
 	global_basis = Basis(normal.cross(forward).normalized(), normal, forward)
+#@ 10+
+
+
+func _on_kart_tricked() -> void:
+	animation_player.play(&"trick")
+#@ all

@@ -16,12 +16,185 @@
 ;@ 9+
 [ext_resource type="Script" path="res://3_entities/kart/kart_wake.gd" id="13_wake"]
 [ext_resource type="Resource" path="res://5_data/kart/kart_wake.tres" id="14_wake_settings"]
+;@ 10+
+[ext_resource type="Script" path="res://3_entities/kart/effects/kart_particles_view.gd" id="15_particles"]
+[ext_resource type="Script" path="res://3_entities/kart/effects/kart_tire_marks_view.gd" id="16_tire_marks"]
+[ext_resource type="PackedScene" path="res://3_entities/kart/effects/wheel_effects.tscn" id="17_wheel_fx"]
+[ext_resource type="PackedScene" path="res://3_entities/kart/effects/ghost_trail/ghost_trail.tscn" id="18_ghost"]
+[ext_resource type="Material" path="res://6_assets/materials/effects/drifting_sparks_material.tres" id="9_ekr4a"]
+[ext_resource type="Material" path="res://6_assets/materials/effects/drifing_sliding_material.tres" id="11_4e78f"]
+[ext_resource type="Shader" path="res://6_assets/shaders/effects/boost_particle.gdshader" id="11_8r62d"]
+[ext_resource type="Texture2D" path="res://6_assets/textures/common/cloud.png" id="11_i3c53"]
+[ext_resource type="Texture2D" path="res://6_assets/textures/common/spark.png" id="14_usafr"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kart"]
 radius = 0.6
 height = 2.3
 
+;@ 10+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f5n8r"]
+transparency = 2
+alpha_scissor_threshold = 0.425
+alpha_antialiasing_mode = 0
+albedo_color = Color(0, 0, 0, 1)
+albedo_texture = ExtResource("14_usafr")
+emission_enabled = true
+emission = Color(0.97, 0.79928, 0.5432, 1)
+emission_energy_multiplier = 8.0
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+proximity_fade_distance = 203.95
+
+[sub_resource type="Curve" id="Curve_8r62d"]
+_limits = [0.0, 75.7081, 0.0, 1.0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 75.7081), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_rli1m"]
+curve = SubResource("Curve_8r62d")
+
+[sub_resource type="Curve" id="Curve_usafr"]
+_data = [Vector2(0, 0), 0.0, 6.46742, 0, 0, Vector2(0.261161, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.53086, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_f5n8r"]
+curve = SubResource("Curve_usafr")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_qosft"]
+particle_flag_align_y = true
+angle_min = 1.07288e-05
+angle_max = 360.0
+angle_curve = SubResource("CurveTexture_rli1m")
+direction = Vector3(0, 1, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 10.0
+scale_min = 1.5
+scale_max = 5.0
+scale_curve = SubResource("CurveTexture_f5n8r")
+turbulence_enabled = true
+turbulence_influence_min = 0.01
+turbulence_influence_max = 0.05
+
+[sub_resource type="QuadMesh" id="QuadMesh_usafr"]
+size = Vector2(0.1, 0.1)
+
+[sub_resource type="Animation" id="Animation_usafr"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_4e78f"]
+resource_name = "trick"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(6.28319, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_f5n8r"]
+_data = {
+&"RESET": SubResource("Animation_usafr"),
+&"trick": SubResource("Animation_4e78f")
+}
+
+[sub_resource type="Curve" id="Curve_ekr4a"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.405963, 0.536481), 0.0, 0.0, 0, 0, Vector2(0.860092, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_ekr4a"]
+curve = SubResource("Curve_ekr4a")
+
+[sub_resource type="QuadMesh" id="QuadMesh_i3c53"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_usafr"]
+angle_min = 1.07288e-05
+angle_max = 360.0
+direction = Vector3(0, 0, -1)
+spread = 13.0
+initial_velocity_min = 0.5
+initial_velocity_max = 1.5
+gravity = Vector3(0, 2, 0)
+scale_min = 0.2
+scale_max = 0.3
+scale_curve = SubResource("CurveTexture_ekr4a")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_rli1m"]
+angle_min = 1.07288e-05
+angle_max = 360.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.2
+scale_max = 0.5
+scale_curve = SubResource("CurveTexture_ekr4a")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_4e78f"]
+particle_flag_align_y = true
+angle_min = 1.07288e-05
+angle_max = 360.0
+angle_curve = SubResource("CurveTexture_rli1m")
+direction = Vector3(0, 1, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 5.0
+scale_min = 0.2
+scale_max = 0.4
+turbulence_enabled = true
+turbulence_influence_min = 0.01
+turbulence_influence_max = 0.05
+
+[sub_resource type="QuadMesh" id="QuadMesh_f5n8r"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4e78f"]
+render_priority = 0
+shader = ExtResource("11_8r62d")
+shader_parameter/alpha_texture = ExtResource("11_i3c53")
+shader_parameter/lifetime = 0.6
+shader_parameter/emission_strength = 4.655
+shader_parameter/start_color = Color(0.616667, 0, 1, 1)
+shader_parameter/end_color = Color(1, 0.6, 0, 1)
+
+[sub_resource type="Curve" id="Curve_4e78f"]
+_data = [Vector2(0, 0), 0.0, 3.71711, 0, 0, Vector2(0.3625, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -4.68466, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_usafr"]
+curve = SubResource("Curve_4e78f")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_f5n8r"]
+angle_min = -720.0
+angle_max = 720.0
+direction = Vector3(0, 0, -1)
+spread = 2.0
+initial_velocity_min = 0.5
+initial_velocity_max = 1.0
+gravity = Vector3(0, 0, 0)
+scale_max = 1.2
+scale_curve = SubResource("CurveTexture_usafr")
+
+[sub_resource type="QuadMesh" id="QuadMesh_qosft"]
+size = Vector2(0.1, 0.1)
+
+;@ all
 ;@ 2-6
 [node name="Kart" type="CharacterBody3D" node_paths=PackedStringArray("input")]
 ;@ 7+
@@ -56,12 +229,19 @@ kart = NodePath("..")
 settings = ExtResource("14_wake_settings")
 
 ;@ all
+;@ 2-9
 [node name="Visual" type="Node3D" parent="." node_paths=PackedStringArray("kart", "model", "steering_wheel", "wheels")]
+;@ 10+
+[node name="Visual" type="Node3D" parent="." node_paths=PackedStringArray("kart", "model", "steering_wheel", "wheels", "animation_player")]
+;@ all
 script = ExtResource("4_view")
 kart = NodePath("..")
 model = NodePath("Kart")
 steering_wheel = NodePath("Kart/Body/SteeringPivot/SteeringWheel")
 wheels = [NodePath("Kart/FrontLeftWheel"), NodePath("Kart/FrontRightWheel"), NodePath("Kart/RearLeftWheel"), NodePath("Kart/RearRightWheel")]
+;@ 10+
+animation_player = NodePath("Kart/AnimationPlayer")
+;@ all
 
 [node name="Kart" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
@@ -119,3 +299,127 @@ spring_rest_length = 0.5
 [node name="RearRightWheel" parent="Visual/Kart" instance=ExtResource("11_wheel")]
 transform = Transform3D(1, 0, 1.47027e-07, 0, 1, 0, -1.47027e-07, 0, 1, -0.6, 0.227493, -0.540219)
 spring_rest_length = 0.5
+
+;@ 10+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/Kart"]
+libraries = {
+&"": SubResource("AnimationLibrary_f5n8r")
+}
+
+[node name="Particles" type="Node3D" parent="Visual/Kart"]
+
+[node name="SlidingParticles" type="Node3D" parent="Visual/Kart/Particles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
+
+[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/SlidingParticles"]
+transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, -0.575, -0.0236623, -0.311601)
+material_override = ExtResource("11_4e78f")
+amount = 4
+lifetime = 0.3
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_usafr")
+draw_pass_1 = SubResource("QuadMesh_i3c53")
+
+[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/SlidingParticles"]
+transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, 0.575, -0.024, -0.312)
+material_override = ExtResource("11_4e78f")
+amount = 4
+lifetime = 0.3
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_usafr")
+draw_pass_1 = SubResource("QuadMesh_i3c53")
+
+[node name="DriftSparks" type="Node3D" parent="Visual/Kart/Particles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
+
+[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks"]
+transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, -0.575, -0.0236623, -0.410105)
+material_override = ExtResource("9_ekr4a")
+amount = 4
+lifetime = 0.15
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_rli1m")
+draw_pass_1 = SubResource("QuadMesh_i3c53")
+
+[node name="Sparks" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks/Particles"]
+material_override = ExtResource("9_ekr4a")
+amount = 5
+lifetime = 0.5
+process_material = SubResource("ParticleProcessMaterial_4e78f")
+draw_pass_1 = SubResource("QuadMesh_usafr")
+
+[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks"]
+transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, 0.575, -0.0235636, -0.409877)
+material_override = ExtResource("9_ekr4a")
+amount = 4
+lifetime = 0.15
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_rli1m")
+draw_pass_1 = SubResource("QuadMesh_f5n8r")
+
+[node name="Sparks" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks/Particles2"]
+material_override = ExtResource("9_ekr4a")
+amount = 5
+lifetime = 0.5
+process_material = SubResource("ParticleProcessMaterial_4e78f")
+draw_pass_1 = SubResource("QuadMesh_usafr")
+
+[node name="Boost" type="Node3D" parent="Visual/Kart/Particles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Visual/Kart/Particles/Boost"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.399376, 0.770018, -0.709039)
+material_override = SubResource("ShaderMaterial_4e78f")
+lifetime = 0.2
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_f5n8r")
+draw_pass_1 = SubResource("QuadMesh_qosft")
+
+[node name="GPUParticles3D2" type="GPUParticles3D" parent="Visual/Kart/Particles/Boost"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.399, 0.77, -0.709)
+material_override = SubResource("ShaderMaterial_4e78f")
+lifetime = 0.2
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_f5n8r")
+draw_pass_1 = SubResource("QuadMesh_qosft")
+
+[node name="KartParticles" type="Node3D" parent="." node_paths=PackedStringArray("kart", "sliding_particles", "drift_sparks", "boost_particles", "trick_sparks")]
+script = ExtResource("15_particles")
+kart = NodePath("..")
+sliding_particles = NodePath("../Visual/Kart/Particles/SlidingParticles")
+drift_sparks = NodePath("../Visual/Kart/Particles/DriftSparks")
+boost_particles = NodePath("../Visual/Kart/Particles/Boost")
+trick_sparks = NodePath("Trick/Sparks")
+sparks_material = ExtResource("9_ekr4a")
+sparks_color = Color(0.164706, 0.407843, 0.968627, 1)
+hot_sparks_color = Color(0.97, 0.527195, 0.1649, 1)
+
+[node name="Trick" type="Node3D" parent="KartParticles"]
+
+[node name="Sparks" type="GPUParticles3D" parent="KartParticles/Trick"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00947666, 0.360248, 0.0177888)
+material_override = SubResource("StandardMaterial3D_f5n8r")
+emitting = false
+amount = 40
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.9
+randomness = 0.54
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_qosft")
+draw_pass_1 = SubResource("QuadMesh_usafr")
+
+[node name="KartTireMarks" type="Node" parent="." node_paths=PackedStringArray("kart", "wheels")]
+script = ExtResource("16_tire_marks")
+kart = NodePath("..")
+wheels = [NodePath("../Visual/Kart/FrontLeftWheel"), NodePath("../Visual/Kart/FrontRightWheel"), NodePath("../Visual/Kart/RearLeftWheel"), NodePath("../Visual/Kart/RearRightWheel")]
+
+[node name="WheelEffects" parent="." node_paths=PackedStringArray("kart", "wheels") instance=ExtResource("17_wheel_fx")]
+kart = NodePath("..")
+wheels = [NodePath("../Visual/Kart/FrontLeftWheel"), NodePath("../Visual/Kart/FrontRightWheel"), NodePath("../Visual/Kart/RearLeftWheel"), NodePath("../Visual/Kart/RearRightWheel")]
+
+[node name="GhostTrail" parent="." node_paths=PackedStringArray("kart", "source") instance=ExtResource("18_ghost")]
+kart = NodePath("..")
+source = NodePath("../Visual")
+
+;@ all

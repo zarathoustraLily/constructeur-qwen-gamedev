@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://3_entities/effects/rain/rain_controller.gd" id="1_rain"]
+[ext_resource type="Script" path="res://3_entities/effects/rain/rain_view.gd" id="1_rain"]
 [ext_resource type="Shader" path="res://6_assets/shaders/effects/rain_drop.gdshader" id="2_drop"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_drops"]

@@ -29,3 +29,15 @@ water_vertical_damping = 41.588831
 water_spring_down = 50.0
 water_spring_up = 5.0
 ;@ all
+;@ 10+
+drift_steering_multiplier = 1.5
+drift_direction_weight = 0.6
+drift_sparks_time = 0.8
+drift_hot_sparks_time = 3.0
+drift_boost_short = 0.5
+drift_boost_long = 1.0
+boost_speed = 25.0
+boost_acceleration = 50.0
+trick_cooldown = 0.4
+trick_boost = 1.0
+;@ all

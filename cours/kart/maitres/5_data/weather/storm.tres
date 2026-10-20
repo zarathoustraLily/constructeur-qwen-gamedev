@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeatherSettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/weather/weather_settings.gd" id="1_weather"]
+
+[resource]
+script = ExtResource("1_weather")
+intensity = 0.8
+wetness_speed = 0.15
+start_wet = true
+lightning_min_intensity = 0.5
+lightning_interval_min = 6.0
+lightning_interval_max = 14.0
+random_seed = 0

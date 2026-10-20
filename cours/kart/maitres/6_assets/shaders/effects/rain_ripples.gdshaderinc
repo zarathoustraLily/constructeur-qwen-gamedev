@@ -6,7 +6,7 @@
 // instant aléatoires, et un anneau s'élargit autour du point d'impact avant de s'estomper.
 // Plusieurs couches décalées évitent l'effet de grille.
 
-// Pilotés par RainController (environment/weather/rain_controller.gd)
+// Donnés par GameState, que la scène principale règle d'après la météo (1_core/weather/weather.gd).
 global uniform float rain_intensity; // 0 = pas de pluie, 1 = averse
 global uniform float rain_wetness;   // 0 = sec, 1 = détrempé (suit la pluie avec du retard)
 

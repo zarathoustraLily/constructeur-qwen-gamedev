@@ -3,9 +3,9 @@ render_mode unshaded, blend_add, depth_draw_never, cull_front, shadows_disabled;
 
 // Halo des fantômes (seconde passe de ghost.gdshader) : coque légèrement agrandie dont on ne dessine
 // que les faces arrière, en additif. Lumineux au ras de la silhouette, il s'estompe vers l'extérieur.
-// Partage les paramètres d'instance du fantôme (couleur, fondu).
-instance uniform vec4 ghost_color : source_color = vec4(1.0, 0.3, 0.9, 1.0);
-instance uniform float ghost_fade = 1.0;
+// Mêmes couleur et fondu que le fantôme, donnés à son matériau par GhostTrail.
+uniform vec4 ghost_color : source_color = vec4(1.0, 0.3, 0.9, 1.0);
+uniform float ghost_fade = 1.0;
 
 // Taille du halo (agrandissement relatif de la coque)
 uniform float halo_size = 0.07;

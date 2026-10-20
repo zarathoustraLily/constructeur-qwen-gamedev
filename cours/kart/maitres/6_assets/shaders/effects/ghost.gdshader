@@ -2,9 +2,11 @@ shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_back, shadows_disabled;
 
 // Image fantôme (GhostTrail) : contour lumineux (fresnel) et cœur presque transparent.
-// Couleur et opacité propres à chaque fantôme, sans dupliquer le matériau.
-instance uniform vec4 ghost_color : source_color = vec4(1.0, 0.3, 0.9, 1.0);
-instance uniform float ghost_fade = 1.0;
+// Couleur et opacité propres à chaque fantôme : chaque fantôme a son matériau (GhostTrail le duplique). Des
+// paramètres d'instance éviteraient la copie, mais des centaines de maillages fantômes dépasseraient leur réserve
+// en rendu de compatibilité.
+uniform vec4 ghost_color : source_color = vec4(1.0, 0.3, 0.9, 1.0);
+uniform float ghost_fade = 1.0;
 
 uniform float fresnel_power = 2.2;
 uniform float core_opacity : hint_range(0.0, 1.0) = 0.1;

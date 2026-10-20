@@ -80,7 +80,9 @@ et anime le modèle :
 - il tourne le volant et fait pencher la caisse.
 
 `wheel_view.gd` cherche le sol sous chaque roue par un rayon et y descend le maillage : c'est la suspension,
-qu'on voit sans qu'elle porte le kart. `steering_wheel_view.gd` accroche les mains du pilote au volant.
+qu'on voit sans qu'elle porte le kart. Le rayon porte un peu plus loin que la suspension (0,7 m contre 0,5 m) :
+kart posé, le sol est à 0,53 à 0,60 m sous lui, et la roue doit se savoir au sol. Sans sol, la roue pend à sa
+longueur de repos. `steering_wheel_view.gd` accroche les mains du pilote au volant.
 
 Les scripts `_view` ont le droit d'écrire leurs chiffres d'affichage : ils ne changent pas la conduite.
 
@@ -94,7 +96,7 @@ le signal `jumped` du kart sur la vibration. Le kart ne connaît ni l'affichage 
 - `3_entities/kart/test_kart.gd` : une règle de conduite par test. Le kart est posé sur un vrai sol, puis
   piloté pas à pas, ses méthodes appelées directement.
 - `3_entities/kart/test_kart_view.gd` : les roues reçoivent la vitesse, seules les directrices braquent, le
-  modèle reste droit.
+  modèle reste droit ; kart posé, chaque roue se sait au sol ; en l'air, aucune.
 - `2_sequence/test_main.gd` : le kart se pose sur le sol ; en fonçant sur la rampe, il décolle.
 
 C'est ce dernier test qui a montré, en écrivant l'étape, que la rampe était posée à l'envers : un mur au

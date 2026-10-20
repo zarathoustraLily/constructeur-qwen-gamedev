@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://3_entities/decor/fish/fish_school.gd" id="1_school"]
+[ext_resource type="Script" path="res://3_entities/decor/fish/fish_school_view.gd" id="1_school"]
 [ext_resource type="Shader" path="res://6_assets/shaders/environment/fish_body.gdshader" id="2_body"]
 [ext_resource type="Shader" path="res://6_assets/shaders/environment/fish_fin.gdshader" id="3_fin"]
 
