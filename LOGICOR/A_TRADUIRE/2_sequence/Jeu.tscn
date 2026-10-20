@@ -1,0 +1,22 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://acteurs/BPC_Jeu.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Salle.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Heros.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/CameraTopDown.tscn" id="5"]
+[ext_resource type="Resource" path="res://donnees/HEROS.tres" id="6"]
+
+[node name="Jeu" type="Node"]
+script = ExtResource("1")
+heros_scene = ExtResource("3")
+salle_scene = ExtResource("2")
+hud_scene = ExtResource("4")
+camera_scene = ExtResource("5")
+fiche_heros = ExtResource("6")
+
+[node name="Monde" type="Node" parent="."]
+
+[node name="Lumiere" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 10, 0)
+shadow_enabled = true

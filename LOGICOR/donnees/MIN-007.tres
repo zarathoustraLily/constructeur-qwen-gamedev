@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheMiniBoss" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheMiniBoss.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "MIN-007"
+nom = "MIN-007"
+categorie = "mini-boss"
+PV_Max = 3200
+TamponPV = 3500
+phases = []
+attaques = []
+props = { "Gen_NoteDifficulte": 400 }

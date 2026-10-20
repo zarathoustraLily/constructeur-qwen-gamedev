@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://acteurs/BPC_SalleBase.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Ennemi.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Boss.tscn" id="3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_sol"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sol"]
+size = Vector3(20, 0.5, 20)
+
+[node name="Salle" type="Node"]
+script = ExtResource("1")
+scene_ennemi = ExtResource("2")
+scene_boss = ExtResource("3")
+
+[node name="Sol" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+mesh = SubResource("BoxMesh_sol")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_sol")
+
+[node name="Ennemis" type="Node" parent="."]
+
+[node name="Boss" type="Node" parent="."]

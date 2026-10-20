@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-058"
+nom = "CRT-058"
+categorie = "ennemi"
+PV_Max = 4200
+Vitesse = 480.0
+arsenal = ["CRT-058_BounceBallsx2", "CRT-058_Dive", "CRT-058_Powerslidex2", "CRT-058_Shred", "CRT-058_SpotlightCombo", "CRT-058_SpotlightPassive"]

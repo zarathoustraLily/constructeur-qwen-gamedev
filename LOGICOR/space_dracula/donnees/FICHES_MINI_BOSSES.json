@@ -1,0 +1,62 @@
+[
+  {
+    "nom": "miniboss-010-lvl_6",
+    "nom_original": "Charybdis",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-004-lvl_2",
+    "nom_original": "Uh-oh",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-012-lvl_7",
+    "nom_original": "Mega-Dracon",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-002-lvl_1",
+    "nom_original": "Shadow-Spiller",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-008-lvl_4",
+    "nom_original": "Goldwrath",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-006-lvl_3",
+    "nom_original": "Queen Lamia",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-009-lvl_5",
+    "nom_original": "Satyr Champion",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-007-lvl_4",
+    "nom_original": "The Verminancer",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-011-lvl_7",
+    "nom_original": "Talos",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-001-lvl_1",
+    "nom_original": "Root-Stalker",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-005-lvl_3",
+    "nom_original": "Phantom",
+    "categorie": "mini-boss"
+  },
+  {
+    "nom": "miniboss-003-lvl_2",
+    "nom_original": "Deep Serpent",
+    "categorie": "mini-boss"
+  }
+]

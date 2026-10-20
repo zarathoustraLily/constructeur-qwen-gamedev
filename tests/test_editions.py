@@ -139,6 +139,9 @@ def test_fins_de_ligne_crlf_conservees(projet):
     ({"op": "add_function", "script": "res://scripts/hero.gd", "code": "func can_dash() -> bool:\n\treturn true"}, "existe déjà"),
     ({"op": "add_function", "script": "res://scripts/hero.gd", "code": "var x = 1"}, "func nom"),
     ({"op": "replace_function", "script": "res://scripts/hero.gd", "fonction": "voler", "corps": "pass"}, "fonction inconnue"),
+    ({"op": "replace_function", "script": "res://scripts/hero.gd", "nom": "try_dash", "corps": "pass"}, "champ « fonction » manquant"),
+    ({"op": "replace_function", "script": "res://scripts/hero.gd", "function": "try_dash", "corps": "pass"},
+     "champs non reconnus : function (champs de replace_function : script, fonction, corps, code)"),
     ({"op": "set_resource_value", "ressource": "coin:CollisionShape2D#shape", "propriete": "rayon", "valeur": 2}, "propriété inconnue"),
     ({"op": "set_resource_value", "ressource": "coin:CollisionShape2D#position", "propriete": "x", "valeur": 2}, "ne désigne pas une ressource"),
     ({"op": "renommer", "noeud": "main"}, "opération inconnue"),
@@ -149,6 +152,25 @@ def test_edit_faux_refuse_projet_intact(projet, edit, fragment):
     assert not v["applique"] and v["etape"] == "validation"
     assert v["erreurs"][0]["edit"] == 1 and fragment in v["erreurs"][0]["message"], v["erreurs"]
     assert empreinte_dossier(projet) == avant
+
+
+def test_champs_documentes_sont_ceux_que_le_moteur_lit():
+    """CHAMPS ne sert qu'aux messages : il doit lister exactement les champs lus par chaque opération."""
+    import inspect
+    import re
+    from usine.projet import editions
+
+    def lus(fonction) -> set[str]:
+        source = inspect.getsource(fonction)
+        return (set(re.findall(r'\be(?:\.get\(|\[)"(\w+)"', source))
+                | set(re.findall(r'"(\w+)" in e\b', source)))
+
+    for op, fonction in editions.APPLICATEURS.items():
+        champs = lus(fonction)
+        for aide in re.findall(r"\b(_\w+)\(espace, e\b", inspect.getsource(fonction)):
+            champs |= lus(getattr(editions, aide))
+        assert champs == set(editions.CHAMPS[op]), (op, sorted(champs))
+    assert set(editions.CHAMPS) == set(editions.OPERATIONS)
 
 
 def test_remplacement_atomique_restaure_en_cas_d_echec(projet, monkeypatch):

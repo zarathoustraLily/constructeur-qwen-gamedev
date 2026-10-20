@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-057"
+nom = "CRT-057"
+categorie = "ennemi"
+PV_Max = 5950
+Vitesse = 0.0
+arsenal = ["CRT-057_BeatClawClosex2", "CRT-057_BeatClawFarx2", "CRT-057_BeatClawMidx2", "CRT-057_BeatConeInx2", "CRT-057_BeatConeOutx2", "CRT-057_BeatCoralClosex2", "CRT-057_BeatCoralFarx2", "CRT-057_BeatOpenerx2", "CRT-057_CircleCombo01", "CRT-057_CircleCombo02", "CRT-057_SpotlightCombo", "CRT-057_SpotlightPassive"]

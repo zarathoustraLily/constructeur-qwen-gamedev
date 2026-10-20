@@ -1,0 +1,595 @@
+[
+  {
+    "kind": "props",
+    "id": "PassiveRoomWeapon",
+    "props": {
+      "WakeUpDelay": 1.75,
+      "AI.AttackDistance": 99999
+    },
+    "file": "EnemyData.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "DefaultWeaponValues",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData.lua"
+  },
+  {
+    "kind": "props",
+    "id": "DefaultWeaponValues",
+    "props": {
+      "DefaultKnockbackForce": 800,
+      "DefaultKnockbackScale": 1
+    },
+    "file": "WeaponData.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "BaseUnlockableWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData.lua"
+  },
+  {
+    "kind": "props",
+    "id": "BaseUnlockableWeapon",
+    "props": {
+      "UsePromptOffsetX": 64,
+      "UsePromptOffsetY": -64
+    },
+    "file": "WeaponData.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "BaseCollisionWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData.lua"
+  },
+  {
+    "kind": "props",
+    "id": "BaseCollisionWeapon",
+    "props": {
+      "HitSimSlowCooldown": 0.4
+    },
+    "file": "WeaponData.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "enemi-054-lvl_8Weapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_Bloodless.lua"
+  },
+  {
+    "kind": "props",
+    "id": "enemi-054-lvl_8Weapon",
+    "props": {
+      "AI.FireProjectileStartDelay": 0.225,
+      "AI.BarrelLength": 300,
+      "AI.PreAttackDuration": 0.8,
+      "AI.FireDuration": 0.35,
+      "AI.PostAttackDuration": 1.47,
+      "AI.AttackDistance": 700,
+      "AI.RetreatDistance": 600
+    },
+    "file": "WeaponData_Bloodless.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "enemi-054-lvl_8WeaponElite",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_Bloodless.lua"
+  },
+  {
+    "kind": "props",
+    "id": "enemi-054-lvl_8WeaponElite",
+    "props": {
+      "AI.PostAttackDuration": 0.0
+    },
+    "file": "WeaponData_Bloodless.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "enemi-054-lvl_8WeaponElite2",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_Bloodless.lua"
+  },
+  {
+    "kind": "props",
+    "id": "enemi-054-lvl_8WeaponElite2",
+    "props": {
+      "AI.PreAttackDuration": 0.4,
+      "AI.PostAttackDuration": 2.0,
+      "AI.LeapWhenTargetBeyondDistance": 9999
+    },
+    "file": "WeaponData_Bloodless.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "WeaponTest",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_Lob.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "DartTrapWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_Traps.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "FloodTrapWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "FloodTrapWeapon",
+    "props": {
+      "AI.BarrelLength": 170,
+      "AI.FireTicks": 6,
+      "AI.FireInterval": 0.55,
+      "AI.PreAttackDuration": 0.8,
+      "AI.FireDuration": 0.0,
+      "AI.PostAttackDuration": 0
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "BrambleTrapWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "BrambleTrapWeapon",
+    "props": {
+      "AI.PreAttackDuration": 0.0,
+      "AI.FireDuration": 1.0,
+      "AI.PostAttackDuration": 0.0,
+      "AI.AttackDistance": 155
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "SteamTrapWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "SteamTrapWeapon",
+    "props": {
+      "AI.PreAttackDuration": 0.2,
+      "AI.FireDuration": 3.0,
+      "AI.PostAttackDuration": 6.0,
+      "AI.AttackDistance": 160,
+      "AI.AIResetDistance": 250
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "ThornTreeWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "ThornTreeWeapon",
+    "props": {
+      "AI.NumProjectiles": 3,
+      "AI.ProjectileInterval": 0.04,
+      "AI.Spread": 2,
+      "AI.BarrelLength": 0,
+      "AI.PreAttackDuration": 0.0,
+      "AI.FireDuration": 0.0,
+      "AI.PostAttackDuration": 0.0
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "PuddleTileWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "PuddleTileWeapon",
+    "props": {
+      "AI.AttackDistance": 9999999
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "GhostWallWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "GhostWallWeapon",
+    "props": {
+      "AI.AttackDistance": 9999999
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "SmokeTrapWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "SmokeTrapWeapon",
+    "props": {
+      "AI.PreAttackDuration": 0.0,
+      "AI.FireDuration": 0.0,
+      "AI.PostAttackDuration": 10.0
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "LavaTileWeapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "LavaTileWeapon",
+    "props": {
+      "AI.PreAttackDuration": 0.0,
+      "AI.FireDuration": 0.0,
+      "AI.PostAttackDuration": 0.0
+    },
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "LavaTileTriangle01Weapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "entity",
+    "id": "LavaTileTriangle02Weapon",
+    "cat": "WeaponData (arme lua)",
+    "file": "WeaponData_TrapsEnemies.lua"
+  },
+  {
+    "kind": "props",
+    "id": "1_BaseEnemyMagicWeapon",
+    "props": {
+      "AutoLockRange": 650
+    },
+    "file": "Weapons/EnemyWeapons.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "BaseCollisionWeapon",
+    "props": {
+      "Cooldown": 0.5
+    },
+    "file": "Weapons/EnemyWeapons.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "1_BaseMagicWeapon",
+    "props": {
+      "AutoLockRange": 650
+    },
+    "file": "Weapons/PlayerWeapons.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "WeaponTest",
+    "props": {
+      "ClipSize": 1,
+      "AutoLockRange": 100,
+      "NumProjectiles": 1,
+      "ChargeTimeFrames": 4,
+      "SelfVelocity": 0,
+      "Cooldown": 0.3
+    },
+    "file": "Weapons/PlayerWeapons.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "1_BasePlayerWeapon",
+    "props": {
+      "AutoLockRange": 650
+    },
+    "file": "Weapons/Weapons.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "SummonDeathWeapon",
+    "props": {
+      "DamageRadius": 670,
+      "Damage": 900
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "BaseCollisionWeapon",
+    "props": {
+      "Speed": 0.0,
+      "Range": 150,
+      "Damage": 20,
+      "DamageRadius": 150
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "DartTrapWeapon",
+    "props": {
+      "Range": 4000.0,
+      "Speed": 2500.0,
+      "Damage": 3
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "enemi-013-lvl_2Weapon",
+    "props": {
+      "Damage": 15,
+      "DamageRadius": 140.0
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "FloodTrapWeapon",
+    "props": {
+      "Speed": 1500,
+      "Range": 9999,
+      "Damage": 0
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "enemi-054-lvl_8Weapon",
+    "props": {
+      "Speed": 150,
+      "Range": 1300,
+      "Damage": 7
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "SpikeTrapWeapon",
+    "props": {
+      "Damage": 10
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "SpikeWallWeapon",
+    "props": {
+      "Speed": 0.0,
+      "Range": 9999,
+      "Damage": 6,
+      "DamageRadius": 200
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "AxeTrapWeapon",
+    "props": {
+      "Damage": 30
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "SmokeTrapWeapon",
+    "props": {
+      "Damage": 0,
+      "DamageRadius": 550
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "LavaTileWeapon",
+    "props": {
+      "Damage": 0
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "GunWeapon",
+    "props": {
+      "Range": 1060.0,
+      "Speed": 8000.0,
+      "DamageRadius": 0,
+      "Damage": 10
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "GunWeaponBounce",
+    "props": {
+      "Range": 3000
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "SniperGunWeapon",
+    "props": {
+      "Range": 3000,
+      "Damage": 30
+    },
+    "file": "Projectiles/EnemyProjectiles.sjson"
+  },
+  {
+    "kind": "props",
+    "id": "RushWeaponInvulnerable",
+    "props": {
+      "Type": "INVULNERABLE",
+      "DurationFrames": 16,
+      "Modifier": 1.0,
+      "NoUnitCollision": true,
+      "Active": true,
+      "CanAffectInvulnerable": true,
+      "Cancelable": true,
+      "Duration": 0.16
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "RushWeaponImmuneToForce",
+    "props": {
+      "ImmuneToForce": true,
+      "DurationFrames": 16,
+      "Active": true,
+      "CanAffectInvulnerable": true,
+      "Cancelable": true,
+      "Duration": 0.16
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "RushWeaponInvulnerableCharge",
+    "props": {
+      "Trigger": "Charging",
+      "Type": "INVULNERABLE",
+      "DurationFrames": 10,
+      "Modifier": 1.0,
+      "NoUnitCollision": true,
+      "Active": true,
+      "CanAffectInvulnerable": true,
+      "Cancelable": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "RushWeaponImmuneToForceCharge",
+    "props": {
+      "Trigger": "Charging",
+      "ImmuneToForce": true,
+      "DurationFrames": 10,
+      "Active": true,
+      "CanAffectInvulnerable": true,
+      "Cancelable": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "RushWeaponDisableRotation",
+    "props": {
+      "DurationFrames": 1,
+      "DisableMove": false,
+      "DisableRotate": true,
+      "DisableAttack": false,
+      "Cancelable": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "RushWeaponDisableMove",
+    "props": {
+      "DurationFrames": 8,
+      "DisableMove": true,
+      "DisableRotate": false,
+      "DisableAttack": false,
+      "Cancelable": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "DaggerBlinkWeaponInvulnerable",
+    "props": {
+      "Type": "INVULNERABLE",
+      "Duration": 0.11,
+      "Modifier": 1.0,
+      "NoUnitCollision": true,
+      "Active": true,
+      "CanAffectInvulnerable": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "DaggerBlinkWeaponImmuneToForce",
+    "props": {
+      "ImmuneToForce": true,
+      "Duration": 0.11,
+      "Active": true,
+      "CanAffectInvulnerable": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "WeaponLeapDisable",
+    "props": {
+      "DurationFrames": 12,
+      "DisableMove": true,
+      "DisableRotate": true,
+      "DisableAttack": true,
+      "Cancelable": false,
+      "RequestTriggerLock": true,
+      "Active": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "WeaponLeapDisable2",
+    "props": {
+      "DurationFrames": 16,
+      "DisableMove": true,
+      "DisableRotate": true,
+      "DisableAttack": true,
+      "Cancelable": true,
+      "RequestTriggerLock": true,
+      "Active": true
+    },
+    "file": "deep/effects",
+    "_deep": true
+  },
+  {
+    "kind": "props",
+    "id": "WeaponLeapInvulnerable",
+    "props": {
+      "Type": "INVULNERABLE",
+      "Duration": 1.35,
+      "Modifier": 1.0,
+      "Active": true,
+      "CanAffectInvulnerable": true,
+      "Cancelable": false
+    },
+    "file": "deep/effects",
+    "_deep": true
+  }
+]

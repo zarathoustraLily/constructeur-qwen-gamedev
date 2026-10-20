@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cnoocdymkslqn"
+
+[deps]
+
+files=["res://space_dracula/donnees/DT_EnemyRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Tag.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Level.translation", "res://space_dracula/donnees/DT_EnemyRegistry.PoolWeight.translation", "res://space_dracula/donnees/DT_EnemyRegistry.IconRef.translation", "res://space_dracula/donnees/DT_EnemyRegistry.ArsenalTags.translation", "res://space_dracula/donnees/DT_EnemyRegistry.MaxHealth.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Speed.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Gen.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AIAggroRange.translation", "res://space_dracula/donnees/DT_EnemyRegistry.ActiveCapWeight.translation", "res://space_dracula/donnees/DT_EnemyRegistry.StunBreakModifier.translation", "res://space_dracula/donnees/DT_EnemyRegistry.SlowEffectModifier.translation", "res://space_dracula/donnees/DT_EnemyRegistry.WakeUpDelay.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AISetupDelay.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AIWakeDelay.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AIEndHealthThreshold.translation"]
+
+source_file="res://space_dracula/donnees/DT_EnemyRegistry.csv"
+dest_files=["res://space_dracula/donnees/DT_EnemyRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Tag.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Level.translation", "res://space_dracula/donnees/DT_EnemyRegistry.PoolWeight.translation", "res://space_dracula/donnees/DT_EnemyRegistry.IconRef.translation", "res://space_dracula/donnees/DT_EnemyRegistry.ArsenalTags.translation", "res://space_dracula/donnees/DT_EnemyRegistry.MaxHealth.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Speed.translation", "res://space_dracula/donnees/DT_EnemyRegistry.Gen.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AIAggroRange.translation", "res://space_dracula/donnees/DT_EnemyRegistry.ActiveCapWeight.translation", "res://space_dracula/donnees/DT_EnemyRegistry.StunBreakModifier.translation", "res://space_dracula/donnees/DT_EnemyRegistry.SlowEffectModifier.translation", "res://space_dracula/donnees/DT_EnemyRegistry.WakeUpDelay.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AISetupDelay.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AIWakeDelay.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AI.translation", "res://space_dracula/donnees/DT_EnemyRegistry.AIEndHealthThreshold.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

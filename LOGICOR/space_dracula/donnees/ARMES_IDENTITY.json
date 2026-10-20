@@ -1,0 +1,138 @@
+{
+  "arme-001": {
+    "nom_original": "EncounterStartBuffWeapon",
+    "nom_actuel": "arme-001"
+  },
+  "arme-002": {
+    "nom_original": "FlashbackHadesBlink",
+    "nom_actuel": "arme-002"
+  },
+  "arme-003": {
+    "nom_original": "FlashbackMelBlink",
+    "nom_actuel": "arme-003"
+  },
+  "arme-004": {
+    "nom_original": "PoseidonSprintWeapon",
+    "nom_actuel": "arme-004"
+  },
+  "arme-005": {
+    "nom_original": "SelfSlow",
+    "nom_actuel": "arme-005"
+  },
+  "arme-006": {
+    "nom_original": "WeaponAnywhereCast",
+    "nom_actuel": "arme-006"
+  },
+  "arme-007": {
+    "nom_original": "WeaponAxe",
+    "nom_actuel": "arme-007"
+  },
+  "arme-008": {
+    "nom_original": "WeaponBlink",
+    "nom_actuel": "arme-008"
+  },
+  "arme-009": {
+    "nom_original": "WeaponCast",
+    "nom_actuel": "arme-009"
+  },
+  "arme-010": {
+    "nom_original": "WeaponDagger",
+    "nom_actuel": "arme-010"
+  },
+  "arme-011": {
+    "nom_original": "WeaponLob",
+    "nom_actuel": "arme-011"
+  },
+  "arme-012": {
+    "nom_original": "WeaponMorphedAttack",
+    "nom_actuel": "arme-012"
+  },
+  "arme-013": {
+    "nom_original": "WeaponMorphedBlink",
+    "nom_actuel": "arme-013"
+  },
+  "arme-014": {
+    "nom_original": "WeaponSkullImpulse",
+    "nom_actuel": "arme-014"
+  },
+  "arme-015": {
+    "nom_original": "WeaponSpellLaser",
+    "nom_actuel": "arme-015"
+  },
+  "arme-016": {
+    "nom_original": "WeaponSpellLeap",
+    "nom_actuel": "arme-016"
+  },
+  "arme-017": {
+    "nom_original": "WeaponSpellMeteor",
+    "nom_actuel": "arme-017"
+  },
+  "arme-018": {
+    "nom_original": "WeaponSpellMoonBeam",
+    "nom_actuel": "arme-018"
+  },
+  "arme-019": {
+    "nom_original": "WeaponSpellPolymorph",
+    "nom_actuel": "arme-019"
+  },
+  "arme-020": {
+    "nom_original": "WeaponSpellPotion",
+    "nom_actuel": "arme-020"
+  },
+  "arme-021": {
+    "nom_original": "WeaponSpellSummon",
+    "nom_actuel": "arme-021"
+  },
+  "arme-022": {
+    "nom_original": "WeaponSpellTimeSlow",
+    "nom_actuel": "arme-022"
+  },
+  "arme-023": {
+    "nom_original": "WeaponSpellTransform",
+    "nom_actuel": "arme-023"
+  },
+  "arme-024": {
+    "nom_original": "WeaponSprint",
+    "nom_actuel": "arme-024"
+  },
+  "arme-025": {
+    "nom_original": "WeaponStaffBall",
+    "nom_actuel": "arme-025"
+  },
+  "arme-026": {
+    "nom_original": "WeaponStaffBolt",
+    "nom_actuel": "arme-026"
+  },
+  "arme-027": {
+    "nom_original": "WeaponStaffDash",
+    "nom_actuel": "arme-027"
+  },
+  "arme-028": {
+    "nom_original": "WeaponStaffSwing",
+    "nom_actuel": "arme-028"
+  },
+  "arme-029": {
+    "nom_original": "WeaponSuit",
+    "nom_actuel": "arme-029"
+  },
+  "arme-030": {
+    "nom_original": "WeaponTorch",
+    "nom_actuel": "arme-030"
+  },
+  "arme-031": {
+    "nom_original": "WeaponTransformAttack",
+    "nom_actuel": "arme-031"
+  },
+  "arme-032": {
+    "nom_original": "WeaponTransformBlink",
+    "nom_actuel": "arme-032"
+  },
+  "arme-033": {
+    "nom_original": "WeaponTransformCast",
+    "nom_actuel": "arme-033"
+  },
+  "arme-034": {
+    "nom_original": "WeaponTransformSpecial",
+    "nom_actuel": "arme-034"
+  }
+}

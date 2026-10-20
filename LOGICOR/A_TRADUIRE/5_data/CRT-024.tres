@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-024"
+nom = "CRT-024"
+categorie = "ennemi"
+PV_Max = 1000
+Vitesse = 250.0
+NoteDifficulte = 110
+PoidsPiscine = 1
+PoidsPlafondActif = 2.5
+ModificateurCassureEtourdissement = 1.35
+arsenal = ["CRT-024_A01", "CRT-024_A02", "CRT-024_A03", "CRT-024_A04x2", "CRT-024_A05", "CRT-024_A06", "CRT-024_A07", "CRT-024_A08", "CRT-024_A09", "CRT-024_A10"]

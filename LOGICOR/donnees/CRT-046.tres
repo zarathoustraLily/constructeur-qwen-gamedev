@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-046"
+nom = "CRT-046"
+categorie = "ennemi"
+PV_Max = 1530
+Vitesse = 325.0
+NoteDifficulte = 90
+PoidsPiscine = 2
+PoidsPlafondActif = 1
+arsenal = ["CRT-046_BackDashx2", "CRT-046_Lobx2", "CRT-046_Meleex2", "CRT-046_Rocket", "CRT-046_RocketElite"]

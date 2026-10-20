@@ -1,0 +1,37 @@
+[
+  {
+    "nom": "boss-004-lvl_4",
+    "nom_original": "Chronos",
+    "categorie": "boss"
+  },
+  {
+    "nom": "boss-006-lvl_6",
+    "nom_original": "Eris",
+    "categorie": "boss"
+  },
+  {
+    "nom": "boss-001-lvl_1",
+    "nom_original": "Hecate",
+    "categorie": "boss"
+  },
+  {
+    "nom": "boss-003-lvl_3",
+    "nom_original": "Infernal Beast",
+    "categorie": "boss"
+  },
+  {
+    "nom": "boss-005-lvl_5",
+    "nom_original": "Polyphemus",
+    "categorie": "boss"
+  },
+  {
+    "nom": "boss-007-lvl_7",
+    "nom_original": "Prometheus",
+    "categorie": "boss"
+  },
+  {
+    "nom": "boss-002-lvl_2",
+    "nom_original": "Scylla",
+    "categorie": "boss"
+  }
+]

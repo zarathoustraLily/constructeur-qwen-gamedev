@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-051"
+nom = "CRT-051"
+categorie = "ennemi"
+PV_Max = 310
+Vitesse = 350.0
+NoteDifficulte = 12
+PoidsPiscine = 1
+arsenal = ["CRT-051_Melee", "CRT-051_MeleeBerserkerCombo1", "CRT-054_Weapon", "CRT-054_WeaponElite"]

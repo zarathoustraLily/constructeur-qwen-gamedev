@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-029"
+nom = "CRT-029"
+categorie = "ennemi"
+PV_Max = 170
+Vitesse = 75.0
+NoteDifficulte = 6
+PoidsPiscine = 1
+PoidsPlafondActif = 0.35
+ModificateurCassureEtourdissement = 0.14
+arsenal = ["CRT-029_Meleex2", "CRT-029_MeleeElitex2", "CRT-048_Melee", "CRT-048_MeleeElite"]

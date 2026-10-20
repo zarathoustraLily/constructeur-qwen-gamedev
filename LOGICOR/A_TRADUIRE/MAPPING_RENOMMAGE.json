@@ -1,0 +1,642 @@
+{
+  "Aphrodite": {
+    "nom_space_dracula": "dieu-007",
+    "categorie": "dieu"
+  },
+  "Apollo": {
+    "nom_space_dracula": "dieu-004",
+    "categorie": "dieu"
+  },
+  "Arachne": {
+    "nom_space_dracula": "pnj-001",
+    "categorie": "pnj"
+  },
+  "Ares": {
+    "nom_space_dracula": "dieu-011",
+    "categorie": "dieu"
+  },
+  "Artemis": {
+    "nom_space_dracula": "dieu-010",
+    "categorie": "dieu"
+  },
+  "Athena": {
+    "nom_space_dracula": "dieu-012",
+    "categorie": "dieu"
+  },
+  "AutomatonBeamer": {
+    "nom_space_dracula": "enemi-040-lvl_7",
+    "categorie": "ennemi"
+  },
+  "AutomatonEnforcer": {
+    "nom_space_dracula": "enemi-041-lvl_7",
+    "categorie": "ennemi"
+  },
+  "BiomeB": {
+    "nom_space_dracula": "lvl_8",
+    "categorie": "niveau"
+  },
+  "BiomeF": {
+    "nom_space_dracula": "lvl_1",
+    "categorie": "niveau"
+  },
+  "BiomeG": {
+    "nom_space_dracula": "lvl_2",
+    "categorie": "niveau"
+  },
+  "BiomeH": {
+    "nom_space_dracula": "lvl_3",
+    "categorie": "niveau"
+  },
+  "BiomeI": {
+    "nom_space_dracula": "lvl_4",
+    "categorie": "niveau"
+  },
+  "BiomeN": {
+    "nom_space_dracula": "lvl_5",
+    "categorie": "niveau"
+  },
+  "BiomeO": {
+    "nom_space_dracula": "lvl_6",
+    "categorie": "niveau"
+  },
+  "BiomeP": {
+    "nom_space_dracula": "lvl_7",
+    "categorie": "niveau"
+  },
+  "BloodlessBerserker": {
+    "nom_space_dracula": "enemi-049-lvl_8",
+    "categorie": "ennemi"
+  },
+  "BloodlessGrenadier": {
+    "nom_space_dracula": "enemi-050-lvl_8",
+    "categorie": "ennemi"
+  },
+  "BloodlessNaked": {
+    "nom_space_dracula": "enemi-051-lvl_8",
+    "categorie": "ennemi"
+  },
+  "BloodlessPitcher": {
+    "nom_space_dracula": "enemi-052-lvl_8",
+    "categorie": "ennemi"
+  },
+  "BloodlessSelfDestruct": {
+    "nom_space_dracula": "enemi-053-lvl_8",
+    "categorie": "ennemi"
+  },
+  "BloodlessWaveFist": {
+    "nom_space_dracula": "enemi-054-lvl_8",
+    "categorie": "ennemi"
+  },
+  "Brawler": {
+    "nom_space_dracula": "enemi-001-lvl_1",
+    "categorie": "ennemi"
+  },
+  "BrokenHearted": {
+    "nom_space_dracula": "enemi-015-lvl_3",
+    "categorie": "ennemi"
+  },
+  "Carrion": {
+    "nom_space_dracula": "enemi-027-lvl_5",
+    "categorie": "ennemi"
+  },
+  "CatFamiliar": {
+    "nom_space_dracula": "compagnon-001",
+    "categorie": "compagnon"
+  },
+  "Cerberus": {
+    "nom_space_dracula": "pnj-002",
+    "categorie": "pnj"
+  },
+  "Chaos": {
+    "nom_space_dracula": "pnj-003",
+    "categorie": "pnj"
+  },
+  "Charon": {
+    "nom_space_dracula": "pnj-004",
+    "categorie": "pnj"
+  },
+  "Charybdis": {
+    "nom_space_dracula": "miniboss-010-lvl_6",
+    "categorie": "mini-boss"
+  },
+  "CharybdisTentacle": {
+    "nom_space_dracula": "enemi-060-lvl_6",
+    "categorie": "ennemi"
+  },
+  "Chronos": {
+    "nom_space_dracula": "boss-004-lvl_4",
+    "categorie": "boss"
+  },
+  "Circe": {
+    "nom_space_dracula": "pnj-005",
+    "categorie": "pnj"
+  },
+  "ClockworkHeavyMelee": {
+    "nom_space_dracula": "enemi-021-lvl_4",
+    "categorie": "ennemi"
+  },
+  "CrawlerMiniboss": {
+    "nom_space_dracula": "miniboss-004-lvl_2",
+    "categorie": "mini-boss"
+  },
+  "Demeter": {
+    "nom_space_dracula": "dieu-005",
+    "categorie": "dieu"
+  },
+  "Dionysus": {
+    "nom_space_dracula": "dieu-013",
+    "categorie": "dieu"
+  },
+  "Dora": {
+    "nom_space_dracula": "pnj-006",
+    "categorie": "pnj"
+  },
+  "Dragon": {
+    "nom_space_dracula": "enemi-042-lvl_7",
+    "categorie": "ennemi"
+  },
+  "Dragon_MiniBoss": {
+    "nom_space_dracula": "miniboss-012-lvl_7",
+    "categorie": "mini-boss"
+  },
+  "Drunk": {
+    "nom_space_dracula": "enemi-033-lvl_6",
+    "categorie": "ennemi"
+  },
+  "Eagle": {
+    "nom_space_dracula": "enemi-061-lvl_7",
+    "categorie": "ennemi"
+  },
+  "Echo": {
+    "nom_space_dracula": "pnj-007",
+    "categorie": "pnj"
+  },
+  "EncounterStartBuffWeapon": {
+    "nom_space_dracula": "arme-001",
+    "categorie": "arme"
+  },
+  "Eris": {
+    "nom_space_dracula": "boss-006-lvl_6",
+    "categorie": "boss"
+  },
+  "FishSwarmerSquad": {
+    "nom_space_dracula": "enemi-008-lvl_2",
+    "categorie": "ennemi"
+  },
+  "FishmanMelee": {
+    "nom_space_dracula": "enemi-009-lvl_2",
+    "categorie": "ennemi"
+  },
+  "FishmanRanged": {
+    "nom_space_dracula": "enemi-010-lvl_2",
+    "categorie": "ennemi"
+  },
+  "FlashbackHadesBlink": {
+    "nom_space_dracula": "arme-002",
+    "categorie": "arme"
+  },
+  "FlashbackMelBlink": {
+    "nom_space_dracula": "arme-003",
+    "categorie": "arme"
+  },
+  "FogEmitter": {
+    "nom_space_dracula": "miniboss-002-lvl_1",
+    "categorie": "mini-boss"
+  },
+  "FogEmitter2": {
+    "nom_space_dracula": "enemi-016-lvl_3",
+    "categorie": "ennemi"
+  },
+  "FrogFamiliar": {
+    "nom_space_dracula": "compagnon-002",
+    "categorie": "compagnon"
+  },
+  "GoldElemental": {
+    "nom_space_dracula": "enemi-022-lvl_4",
+    "categorie": "ennemi"
+  },
+  "GoldElemental_MiniBoss": {
+    "nom_space_dracula": "miniboss-008-lvl_4",
+    "categorie": "mini-boss"
+  },
+  "Guard": {
+    "nom_space_dracula": "enemi-002-lvl_1",
+    "categorie": "ennemi"
+  },
+  "Guard2": {
+    "nom_space_dracula": "enemi-011-lvl_2",
+    "categorie": "ennemi"
+  },
+  "Hades": {
+    "nom_space_dracula": "pnj-008",
+    "categorie": "pnj"
+  },
+  "HarpyCutter": {
+    "nom_space_dracula": "enemi-034-lvl_6",
+    "categorie": "ennemi"
+  },
+  "HarpyDropper": {
+    "nom_space_dracula": "enemi-043-lvl_7",
+    "categorie": "ennemi"
+  },
+  "Hecate": {
+    "nom_space_dracula": "boss-001-lvl_1",
+    "categorie": "boss"
+  },
+  "Hephaestus": {
+    "nom_space_dracula": "dieu-008",
+    "categorie": "dieu"
+  },
+  "Hera": {
+    "nom_space_dracula": "dieu-002",
+    "categorie": "dieu"
+  },
+  "Heracles": {
+    "nom_space_dracula": "pnj-009",
+    "categorie": "pnj"
+  },
+  "Hermes": {
+    "nom_space_dracula": "dieu-009",
+    "categorie": "dieu"
+  },
+  "Hestia": {
+    "nom_space_dracula": "dieu-006",
+    "categorie": "dieu"
+  },
+  "HoundFamiliar": {
+    "nom_space_dracula": "compagnon-004",
+    "categorie": "compagnon"
+  },
+  "Hypnos": {
+    "nom_space_dracula": "pnj-010",
+    "categorie": "pnj"
+  },
+  "Icarus": {
+    "nom_space_dracula": "pnj-011",
+    "categorie": "pnj"
+  },
+  "InfestedCerberus": {
+    "nom_space_dracula": "boss-003-lvl_3",
+    "categorie": "boss"
+  },
+  "Lamia": {
+    "nom_space_dracula": "enemi-017-lvl_3",
+    "categorie": "ennemi"
+  },
+  "Lamia_Miniboss": {
+    "nom_space_dracula": "miniboss-006-lvl_3",
+    "categorie": "mini-boss"
+  },
+  "Lovesick": {
+    "nom_space_dracula": "enemi-018-lvl_3",
+    "categorie": "ennemi"
+  },
+  "Lycanthrope": {
+    "nom_space_dracula": "enemi-019-lvl_3",
+    "categorie": "ennemi"
+  },
+  "Mage": {
+    "nom_space_dracula": "enemi-003-lvl_1",
+    "categorie": "ennemi"
+  },
+  "Mage2": {
+    "nom_space_dracula": "enemi-035-lvl_6",
+    "categorie": "ennemi"
+  },
+  "Medea": {
+    "nom_space_dracula": "pnj-012",
+    "categorie": "pnj"
+  },
+  "Moros": {
+    "nom_space_dracula": "pnj-013",
+    "categorie": "pnj"
+  },
+  "Mourner": {
+    "nom_space_dracula": "enemi-020-lvl_3",
+    "categorie": "ennemi"
+  },
+  "Mudman": {
+    "nom_space_dracula": "enemi-028-lvl_5",
+    "categorie": "ennemi"
+  },
+  "Narcissus": {
+    "nom_space_dracula": "pnj-014",
+    "categorie": "pnj"
+  },
+  "Nemesis": {
+    "nom_space_dracula": "pnj-015",
+    "categorie": "pnj"
+  },
+  "Nyx": {
+    "nom_space_dracula": "pnj-016",
+    "categorie": "pnj"
+  },
+  "Odysseus": {
+    "nom_space_dracula": "pnj-017",
+    "categorie": "pnj"
+  },
+  "Persephone": {
+    "nom_space_dracula": "pnj-018",
+    "categorie": "pnj"
+  },
+  "Polyphemus": {
+    "nom_space_dracula": "boss-005-lvl_5",
+    "categorie": "boss"
+  },
+  "Poseidon": {
+    "nom_space_dracula": "dieu-003",
+    "categorie": "dieu"
+  },
+  "PoseidonSprintWeapon": {
+    "nom_space_dracula": "arme-004",
+    "categorie": "arme"
+  },
+  "Prometheus": {
+    "nom_space_dracula": "boss-007-lvl_7",
+    "categorie": "boss"
+  },
+  "Radiator": {
+    "nom_space_dracula": "enemi-004-lvl_1",
+    "categorie": "ennemi"
+  },
+  "Radiator2": {
+    "nom_space_dracula": "enemi-012-lvl_2",
+    "categorie": "ennemi"
+  },
+  "RavenFamiliar": {
+    "nom_space_dracula": "compagnon-003",
+    "categorie": "compagnon"
+  },
+  "SatyrCrossbow": {
+    "nom_space_dracula": "miniboss-009-lvl_5",
+    "categorie": "mini-boss"
+  },
+  "SatyrCrossbow2": {
+    "nom_space_dracula": "enemi-044-lvl_7",
+    "categorie": "ennemi"
+  },
+  "SatyrCultist": {
+    "nom_space_dracula": "enemi-059-lvl_4",
+    "categorie": "ennemi"
+  },
+  "SatyrLancer": {
+    "nom_space_dracula": "enemi-023-lvl_4",
+    "categorie": "ennemi"
+  },
+  "SatyrLancer2": {
+    "nom_space_dracula": "enemi-045-lvl_7",
+    "categorie": "ennemi"
+  },
+  "SatyrRatCatcher": {
+    "nom_space_dracula": "enemi-024-lvl_4",
+    "categorie": "ennemi"
+  },
+  "SatyrRatCatcher_Miniboss": {
+    "nom_space_dracula": "miniboss-007-lvl_4",
+    "categorie": "mini-boss"
+  },
+  "SatyrSapper": {
+    "nom_space_dracula": "enemi-046-lvl_7",
+    "categorie": "ennemi"
+  },
+  "Scimiterror": {
+    "nom_space_dracula": "enemi-036-lvl_6",
+    "categorie": "ennemi"
+  },
+  "Screamer": {
+    "nom_space_dracula": "enemi-005-lvl_1",
+    "categorie": "ennemi"
+  },
+  "Scylla": {
+    "nom_space_dracula": "boss-002-lvl_2",
+    "categorie": "boss"
+  },
+  "Selene": {
+    "nom_space_dracula": "pnj-019",
+    "categorie": "pnj"
+  },
+  "SelfSlow": {
+    "nom_space_dracula": "arme-005",
+    "categorie": "arme"
+  },
+  "SentryBot": {
+    "nom_space_dracula": "enemi-047-lvl_7",
+    "categorie": "ennemi"
+  },
+  "SiegeVine": {
+    "nom_space_dracula": "enemi-006-lvl_1",
+    "categorie": "ennemi"
+  },
+  "SirenDrummer": {
+    "nom_space_dracula": "enemi-057-lvl_2",
+    "categorie": "ennemi"
+  },
+  "SirenKeytarist": {
+    "nom_space_dracula": "enemi-058-lvl_2",
+    "categorie": "ennemi"
+  },
+  "Skelly": {
+    "nom_space_dracula": "pnj-020",
+    "categorie": "pnj"
+  },
+  "SpreadShotUnit": {
+    "nom_space_dracula": "enemi-055-lvl_8",
+    "categorie": "ennemi"
+  },
+  "Stickler": {
+    "nom_space_dracula": "enemi-037-lvl_6",
+    "categorie": "ennemi"
+  },
+  "Swab": {
+    "nom_space_dracula": "enemi-038-lvl_6",
+    "categorie": "ennemi"
+  },
+  "Swarmer": {
+    "nom_space_dracula": "enemi-056-lvl_8",
+    "categorie": "ennemi"
+  },
+  "SwarmerClockwork": {
+    "nom_space_dracula": "enemi-025-lvl_4",
+    "categorie": "ennemi"
+  },
+  "Talos": {
+    "nom_space_dracula": "miniboss-011-lvl_7",
+    "categorie": "mini-boss"
+  },
+  "Thanatos": {
+    "nom_space_dracula": "pnj-021",
+    "categorie": "pnj"
+  },
+  "TimeElemental": {
+    "nom_space_dracula": "enemi-026-lvl_4",
+    "categorie": "ennemi"
+  },
+  "Treant": {
+    "nom_space_dracula": "miniboss-001-lvl_1",
+    "categorie": "mini-boss"
+  },
+  "Turtle": {
+    "nom_space_dracula": "enemi-013-lvl_2",
+    "categorie": "ennemi"
+  },
+  "Vampire": {
+    "nom_space_dracula": "miniboss-005-lvl_3",
+    "categorie": "mini-boss"
+  },
+  "WaterElemental": {
+    "nom_space_dracula": "enemi-039-lvl_6",
+    "categorie": "ennemi"
+  },
+  "WaterUnit": {
+    "nom_space_dracula": "enemi-014-lvl_2",
+    "categorie": "ennemi"
+  },
+  "WaterUnitMiniboss": {
+    "nom_space_dracula": "miniboss-003-lvl_2",
+    "categorie": "mini-boss"
+  },
+  "WeaponAnywhereCast": {
+    "nom_space_dracula": "arme-006",
+    "categorie": "arme"
+  },
+  "WeaponAxe": {
+    "nom_space_dracula": "arme-007",
+    "categorie": "arme"
+  },
+  "WeaponBlink": {
+    "nom_space_dracula": "arme-008",
+    "categorie": "arme"
+  },
+  "WeaponCast": {
+    "nom_space_dracula": "arme-009",
+    "categorie": "arme"
+  },
+  "WeaponDagger": {
+    "nom_space_dracula": "arme-010",
+    "categorie": "arme"
+  },
+  "WeaponLob": {
+    "nom_space_dracula": "arme-011",
+    "categorie": "arme"
+  },
+  "WeaponMorphedAttack": {
+    "nom_space_dracula": "arme-012",
+    "categorie": "arme"
+  },
+  "WeaponMorphedBlink": {
+    "nom_space_dracula": "arme-013",
+    "categorie": "arme"
+  },
+  "WeaponSkullImpulse": {
+    "nom_space_dracula": "arme-014",
+    "categorie": "arme"
+  },
+  "WeaponSpellLaser": {
+    "nom_space_dracula": "arme-015",
+    "categorie": "arme"
+  },
+  "WeaponSpellLeap": {
+    "nom_space_dracula": "arme-016",
+    "categorie": "arme"
+  },
+  "WeaponSpellMeteor": {
+    "nom_space_dracula": "arme-017",
+    "categorie": "arme"
+  },
+  "WeaponSpellMoonBeam": {
+    "nom_space_dracula": "arme-018",
+    "categorie": "arme"
+  },
+  "WeaponSpellEff": {
+    "nom_space_dracula": "arme-019",
+    "categorie": "arme"
+  },
+  "WeaponSpellPotion": {
+    "nom_space_dracula": "arme-020",
+    "categorie": "arme"
+  },
+  "WeaponSpellSummon": {
+    "nom_space_dracula": "arme-021",
+    "categorie": "arme"
+  },
+  "WeaponSpellTimeSlow": {
+    "nom_space_dracula": "arme-022",
+    "categorie": "arme"
+  },
+  "WeaponSpellTransform": {
+    "nom_space_dracula": "arme-023",
+    "categorie": "arme"
+  },
+  "WeaponSprint": {
+    "nom_space_dracula": "arme-024",
+    "categorie": "arme"
+  },
+  "WeaponStaffBall": {
+    "nom_space_dracula": "arme-025",
+    "categorie": "arme"
+  },
+  "WeaponStaffBolt": {
+    "nom_space_dracula": "arme-026",
+    "categorie": "arme"
+  },
+  "WeaponStaffEff": {
+    "nom_space_dracula": "arme-027",
+    "categorie": "arme"
+  },
+  "WeaponStaffSwing": {
+    "nom_space_dracula": "arme-028",
+    "categorie": "arme"
+  },
+  "WeaponSuit": {
+    "nom_space_dracula": "arme-029",
+    "categorie": "arme"
+  },
+  "WeaponTorch": {
+    "nom_space_dracula": "arme-030",
+    "categorie": "arme"
+  },
+  "WeaponTransformAttack": {
+    "nom_space_dracula": "arme-031",
+    "categorie": "arme"
+  },
+  "WeaponTransformBlink": {
+    "nom_space_dracula": "arme-032",
+    "categorie": "arme"
+  },
+  "WeaponTransformCast": {
+    "nom_space_dracula": "arme-033",
+    "categorie": "arme"
+  },
+  "WeaponTransformSpecial": {
+    "nom_space_dracula": "arme-034",
+    "categorie": "arme"
+  },
+  "Wisp": {
+    "nom_space_dracula": "enemi-007-lvl_1",
+    "categorie": "ennemi"
+  },
+  "Zeus": {
+    "nom_space_dracula": "dieu-001",
+    "categorie": "dieu"
+  },
+  "Zombie": {
+    "nom_space_dracula": "enemi-029-lvl_5",
+    "categorie": "ennemi"
+  },
+  "ZombieAssassin": {
+    "nom_space_dracula": "enemi-030-lvl_5",
+    "categorie": "ennemi"
+  },
+  "ZombieHeavyRanged": {
+    "nom_space_dracula": "enemi-031-lvl_5",
+    "categorie": "ennemi"
+  },
+  "ZombieOlympus": {
+    "nom_space_dracula": "enemi-048-lvl_7",
+    "categorie": "ennemi"
+  },
+  "ZombieSpawner": {
+    "nom_space_dracula": "enemi-032-lvl_5",
+    "categorie": "ennemi"
+  }
+}

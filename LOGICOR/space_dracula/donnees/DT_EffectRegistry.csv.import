@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dushupj74ib0e"
+
+[deps]
+
+files=["res://space_dracula/donnees/DT_EffectRegistry.EffectId.translation", "res://space_dracula/donnees/DT_EffectRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_EffectRegistry.Type.translation", "res://space_dracula/donnees/DT_EffectRegistry.Duration.translation", "res://space_dracula/donnees/DT_EffectRegistry.DurationFrames.translation", "res://space_dracula/donnees/DT_EffectRegistry.Modifier.translation", "res://space_dracula/donnees/DT_EffectRegistry.Trigger.translation", "res://space_dracula/donnees/DT_EffectRegistry.HaltOnEnd.translation", "res://space_dracula/donnees/DT_EffectRegistry.NoUnitCollision.translation", "res://space_dracula/donnees/DT_EffectRegistry.Cancelable.translation", "res://space_dracula/donnees/DT_EffectRegistry.CanAffectInvulnerable.translation", "res://space_dracula/donnees/DT_EffectRegistry.Active.translation", "res://space_dracula/donnees/DT_EffectRegistry.DisableAttack.translation", "res://space_dracula/donnees/DT_EffectRegistry.DisableMove.translation"]
+
+source_file="res://space_dracula/donnees/DT_EffectRegistry.csv"
+dest_files=["res://space_dracula/donnees/DT_EffectRegistry.EffectId.translation", "res://space_dracula/donnees/DT_EffectRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_EffectRegistry.Type.translation", "res://space_dracula/donnees/DT_EffectRegistry.Duration.translation", "res://space_dracula/donnees/DT_EffectRegistry.DurationFrames.translation", "res://space_dracula/donnees/DT_EffectRegistry.Modifier.translation", "res://space_dracula/donnees/DT_EffectRegistry.Trigger.translation", "res://space_dracula/donnees/DT_EffectRegistry.HaltOnEnd.translation", "res://space_dracula/donnees/DT_EffectRegistry.NoUnitCollision.translation", "res://space_dracula/donnees/DT_EffectRegistry.Cancelable.translation", "res://space_dracula/donnees/DT_EffectRegistry.CanAffectInvulnerable.translation", "res://space_dracula/donnees/DT_EffectRegistry.Active.translation", "res://space_dracula/donnees/DT_EffectRegistry.DisableAttack.translation", "res://space_dracula/donnees/DT_EffectRegistry.DisableMove.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

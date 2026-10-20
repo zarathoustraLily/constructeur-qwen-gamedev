@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheMiniBoss" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheMiniBoss.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "MIN-004"
+nom = "MIN-004"
+categorie = "mini-boss"
+PV_Max = 4200
+Vitesse = 1250.0
+phases = []
+attaques = [{ "id": "MIN-004_Summon", "props": { "IA_AnnonceDuree": 0.5, "IA_TirDuree": 2.5, "IA_RecuperationDuree": 0.5, "IA_PorteeAttaque": 9999, "IA_ApparitionsParVagueMin": 5, "IA_ApparitionsParVagueMax": 7, "IA_RayonApparitionMin": 250, "IA_RayonApparitionMax": 9999, "IA_TauxApparition": 0.85, "IA_MaxActifs": 15 } }, { "id": "MIN-004_Slam", "props": { "IA_DelaiDebutTir": 0.15, "IA_PorteeAttaque": 200, "IA_PorteeAttaqueEchelleY": 0.85, "IA_AnnonceDuree": 0.9, "IA_VitesseAnimationAnnounce": 0.5, "IA_TirDuree": 0.5, "IA_RecuperationDuree": 0.5, "RayonDegats": 360, "Degats": 15, "Portee": 1.0 } }, { "id": "MIN-004_Rush", "props": { "Degats": 11 } }]
+props = { "EchelleMorphose": 0.5, "IA_DureeAggro": 0.5, "PoidsPlafondActif": 0.4, "Gen_NoteDifficulte": 100, "IA_AnnonceDuree": 0.5, "IA_TirDuree": 2.5, "IA_RecuperationDuree": 0.5, "IA_PorteeAttaque": 9999, "IA_ApparitionsParVagueMin": 5, "IA_ApparitionsParVagueMax": 7, "IA_RayonApparitionMin": 250, "IA_RayonApparitionMax": 9999, "IA_TauxApparition": 0.85, "IA_MaxActifs": 15, "IA_DelaiDebutTir": 0.15, "IA_PorteeAttaqueEchelleY": 0.85, "ModificateurEffetRalentissement": 0.9, "RayonDegats": 360, "Degats": 15, "Portee": 1.0, "IA_VitesseAnimationAnnonce": 0.5 }

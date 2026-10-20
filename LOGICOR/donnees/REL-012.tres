@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FicheArme" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheArme.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "REL-012"
+nom = "REL-012"
+categorie = "arme"
+numero = 12
+props = {}

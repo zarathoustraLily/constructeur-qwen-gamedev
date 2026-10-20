@@ -33,6 +33,20 @@ from usine.scene.texte import (Document, Entree, Section, echapper, ecrire_valeu
 
 OPERATIONS = ("add_node", "del_node", "set_property", "attach_script", "connect", "disconnect",
               "add_signal", "add_function", "replace_function", "set_resource_value")
+# Champs de chaque opération (EDITS_GODOT.md). Ne sert qu'à rédiger un refus : un champ non reconnu ne
+# change jamais la décision, car ce moteur est aussi le juge de S2 et l'applicateur de D2 (un seul vocabulaire).
+CHAMPS: dict[str, tuple[str, ...]] = {
+    "add_node": ("parent", "nom", "type", "instance", "script", "proprietes", "groupes"),
+    "del_node": ("noeud",),
+    "set_property": ("noeud", "propriete", "valeur"),
+    "attach_script": ("noeud", "script", "contenu"),
+    "connect": ("source", "signal", "cible", "methode", "binds", "unbinds", "flags"),
+    "disconnect": ("source", "signal", "cible", "methode"),
+    "add_signal": ("script", "signal", "arguments"),
+    "add_function": ("script", "code"),
+    "replace_function": ("script", "fonction", "corps", "code"),
+    "set_resource_value": ("ressource", "propriete", "valeur"),
+}
 BALISES_COMPACTES = {"ext_resource", "connection", "editable"}
 _IDENTIFIANT = re.compile(r"^[A-Za-z_]\w*$")
 
@@ -631,7 +645,10 @@ def op_add_function(espace: Espace, e: dict) -> None:
 def op_replace_function(espace: Espace, e: dict) -> None:
     res, s = _script(espace, e)
     nom = e.get("fonction")
-    f = s.fonction(nom) if isinstance(nom, str) else None
+    if not isinstance(nom, str) or not nom:
+        raise ErreurEdit("replace_function : champ « fonction » manquant (le nom de la fonction à remplacer)",
+                         "valeur_invalide", res)
+    f = s.fonction(nom)
     if f is None:
         raise ErreurEdit(f"fonction inconnue {nom!r} dans {res}", "id_inconnu", res)
     unite = unite_indentation(s.lignes)
@@ -748,8 +765,11 @@ def preparer_edits(projet: Path, edits: list[dict], vocab=None) -> tuple[Espace,
                 raise ErreurEdit(f"opération inconnue : {op!r} (attendu : {', '.join(OPERATIONS)})", "valeur_invalide")
             APPLICATEURS[op](espace, e)
         except ErreurEdit as exc:
+            inconnus = [c for c in e if c != "op" and c not in CHAMPS[op]] if op in CHAMPS else []
+            aide = (f" ; champs non reconnus : {', '.join(map(str, inconnus))} (champs de {op} : "
+                    f"{', '.join(CHAMPS[op])})") if inconnus else ""
             return espace, [{"edit": n, "op": op, "fichier": exc.fichier, "ligne": None, "categorie": exc.categorie,
-                             "message": f"édit {n} ({op}) refusé : {exc.message}"
+                             "message": f"édit {n} ({op}) refusé : {exc.message}{aide}"
                                         + (" ; éditions suivantes non examinées" if n + 1 < len(edits) else "")}]
     return espace, []
 

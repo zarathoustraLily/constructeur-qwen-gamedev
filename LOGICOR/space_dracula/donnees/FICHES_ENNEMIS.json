@@ -1,0 +1,307 @@
+[
+  {
+    "nom": "enemi-040-lvl_7",
+    "nom_original": "Auto-Watcher",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-041-lvl_7",
+    "nom_original": "Auto-Forcer",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-049-lvl_8",
+    "nom_original": "Bone-Raker",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-050-lvl_8",
+    "nom_original": "Inferno-Bomber",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-051-lvl_8",
+    "nom_original": "Bloodless",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-052-lvl_8",
+    "nom_original": "Burn-Flinger",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-053-lvl_8",
+    "nom_original": "Slam-Dancer",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-054-lvl_8",
+    "nom_original": "Wave-Maker",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-001-lvl_1",
+    "nom_original": "Wastrel",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-015-lvl_3",
+    "nom_original": "Smacker",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-027-lvl_5",
+    "nom_original": "Bronzebeak",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-060-lvl_6",
+    "nom_original": "Charybdis",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-021-lvl_4",
+    "nom_original": "Wretched Thug",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-042-lvl_7",
+    "nom_original": "Sky-Dracon",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-033-lvl_6",
+    "nom_original": "Boozer",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-061-lvl_7",
+    "nom_original": "Aetos",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-008-lvl_2",
+    "nom_original": "FishSwarmerSquad",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-009-lvl_2",
+    "nom_original": "Lurker",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-010-lvl_2",
+    "nom_original": "Hippo",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-016-lvl_3",
+    "nom_original": "Sorrow-Spiller",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-022-lvl_4",
+    "nom_original": "Goldwraith",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-002-lvl_1",
+    "nom_original": "Whisper",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-011-lvl_2",
+    "nom_original": "Wet-Whisper",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-034-lvl_6",
+    "nom_original": "Harpy Talon",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-043-lvl_7",
+    "nom_original": "Harpy Raptor",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-017-lvl_3",
+    "nom_original": "Lamia",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-018-lvl_3",
+    "nom_original": "Holeheart",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-019-lvl_3",
+    "nom_original": "Lycaon",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-003-lvl_1",
+    "nom_original": "Casket",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-035-lvl_6",
+    "nom_original": "Blasket",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-020-lvl_3",
+    "nom_original": "Mourner",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-028-lvl_5",
+    "nom_original": "Eidolon",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-004-lvl_1",
+    "nom_original": "Spindle",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-012-lvl_2",
+    "nom_original": "Sop-Spindle",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-044-lvl_7",
+    "nom_original": "Satyr Raider",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-059-lvl_4",
+    "nom_original": "Satyr Supplicant",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-023-lvl_4",
+    "nom_original": "Satyr Hoplite",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-045-lvl_7",
+    "nom_original": "Satyr Goldpike",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-024-lvl_4",
+    "nom_original": "Satyr Vierophant",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-046-lvl_7",
+    "nom_original": "Satyr Sapper",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-036-lvl_6",
+    "nom_original": "Seesword",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-005-lvl_1",
+    "nom_original": "Wailer",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-047-lvl_7",
+    "nom_original": "Auto-Seeker",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-006-lvl_1",
+    "nom_original": "Thorn-Weeper",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-057-lvl_2",
+    "nom_original": "Roxy",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-058-lvl_2",
+    "nom_original": "Jetty",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-055-lvl_8",
+    "nom_original": "Wretched Witch",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-037-lvl_6",
+    "nom_original": "Stickler",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-038-lvl_6",
+    "nom_original": "Anchor",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-056-lvl_8",
+    "nom_original": "Numbskull",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-025-lvl_4",
+    "nom_original": "Sandskull",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-026-lvl_4",
+    "nom_original": "Tempus",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-013-lvl_2",
+    "nom_original": "Shellback",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-039-lvl_6",
+    "nom_original": "Droplet",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-014-lvl_2",
+    "nom_original": "Sea-Serpent",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-007-lvl_1",
+    "nom_original": "Wisp",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-029-lvl_5",
+    "nom_original": "Shambler",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-030-lvl_5",
+    "nom_original": "Cutthroat",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-031-lvl_5",
+    "nom_original": "Lubber",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-048-lvl_7",
+    "nom_original": "Snow-Shambler",
+    "categorie": "ennemi"
+  },
+  {
+    "nom": "enemi-032-lvl_5",
+    "nom_original": "Tombstone",
+    "categorie": "ennemi"
+  }
+]

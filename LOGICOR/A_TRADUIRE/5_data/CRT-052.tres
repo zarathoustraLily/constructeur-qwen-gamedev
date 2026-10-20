@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-052"
+nom = "CRT-052"
+categorie = "ennemi"
+PV_Max = 350
+Vitesse = 600.0
+NoteDifficulte = 50
+PoidsPiscine = 1
+arsenal = []

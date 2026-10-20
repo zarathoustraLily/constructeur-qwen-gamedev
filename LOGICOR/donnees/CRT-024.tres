@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-024"
+nom = "CRT-024"
+categorie = "ennemi"
+PV_Max = 1000
+Vitesse = 250.0
+NoteDifficulte = 110
+PoidsPiscine = 1
+PoidsPlafondActif = 2.5
+ModificateurCassureEtourdissement = 1.35
+arsenal = ["CRT-024_Cast", "CRT-024_CastElite", "CRT-024_CastMiniboss", "CRT-024_Meleex2", "CRT-024_MeleeCultist", "CRT-024_MeleeMiniboss", "CRT-024_Spell", "CRT-024_Summon", "CRT-024_SummonElite", "CRT-024_SummonMiniboss"]

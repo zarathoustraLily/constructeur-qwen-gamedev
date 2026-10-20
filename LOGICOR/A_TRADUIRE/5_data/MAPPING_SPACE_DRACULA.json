@@ -1,0 +1,1482 @@
+{
+  "REL-001": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 1"
+  },
+  "REL-002": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 2"
+  },
+  "REL-003": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 3"
+  },
+  "REL-004": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 4"
+  },
+  "REL-005": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 5"
+  },
+  "REL-006": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 6"
+  },
+  "REL-007": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 7"
+  },
+  "REL-008": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 8"
+  },
+  "REL-009": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 9"
+  },
+  "REL-010": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 10"
+  },
+  "REL-011": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 11"
+  },
+  "REL-012": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 12"
+  },
+  "REL-013": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 13"
+  },
+  "REL-014": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 14"
+  },
+  "REL-015": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 15"
+  },
+  "REL-016": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 16"
+  },
+  "REL-017": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 17"
+  },
+  "REL-018": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 18"
+  },
+  "REL-019": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 19"
+  },
+  "REL-020": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 20"
+  },
+  "REL-021": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 21"
+  },
+  "REL-022": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 22"
+  },
+  "REL-023": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 23"
+  },
+  "REL-024": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 24"
+  },
+  "REL-025": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 25"
+  },
+  "REL-026": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 26"
+  },
+  "REL-027": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 27"
+  },
+  "REL-028": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 28"
+  },
+  "REL-029": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 29"
+  },
+  "REL-030": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 30"
+  },
+  "REL-031": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 31"
+  },
+  "REL-032": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 32"
+  },
+  "REL-033": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 33"
+  },
+  "REL-034": {
+    "categorie": "arme",
+    "nom_affiche": "Relique 34"
+  },
+  "ANO-001": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 1"
+  },
+  "ANO-002": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 2"
+  },
+  "ANO-003": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 3"
+  },
+  "ANO-004": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 4"
+  },
+  "ANO-005": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 5"
+  },
+  "ANO-006": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 6"
+  },
+  "ANO-007": {
+    "categorie": "boss",
+    "nom_affiche": "Boss 7"
+  },
+  "COP-001": {
+    "categorie": "compagnon",
+    "nom_affiche": "Compagnon 1"
+  },
+  "COP-002": {
+    "categorie": "compagnon",
+    "nom_affiche": "Compagnon 2"
+  },
+  "COP-003": {
+    "categorie": "compagnon",
+    "nom_affiche": "Compagnon 3"
+  },
+  "COP-004": {
+    "categorie": "compagnon",
+    "nom_affiche": "Compagnon 4"
+  },
+  "ENT-001": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 1"
+  },
+  "ENT-002": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 2"
+  },
+  "ENT-003": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 3"
+  },
+  "ENT-004": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 4"
+  },
+  "ENT-005": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 5"
+  },
+  "ENT-006": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 6"
+  },
+  "ENT-007": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 7"
+  },
+  "ENT-008": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 8"
+  },
+  "ENT-009": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 9"
+  },
+  "ENT-010": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 10"
+  },
+  "ENT-011": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 11"
+  },
+  "ENT-012": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 12"
+  },
+  "ENT-013": {
+    "categorie": "dieu",
+    "nom_affiche": "Dieu 13"
+  },
+  "CRT-001": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 1"
+  },
+  "CRT-002": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 2"
+  },
+  "CRT-003": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 3"
+  },
+  "CRT-004": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 4"
+  },
+  "CRT-005": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 5"
+  },
+  "CRT-006": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 6"
+  },
+  "CRT-007": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 7"
+  },
+  "CRT-008": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 8"
+  },
+  "CRT-009": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 9"
+  },
+  "CRT-010": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 10"
+  },
+  "CRT-011": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 11"
+  },
+  "CRT-012": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 12"
+  },
+  "CRT-013": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 13"
+  },
+  "CRT-014": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 14"
+  },
+  "CRT-015": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 15"
+  },
+  "CRT-016": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 16"
+  },
+  "CRT-017": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 17"
+  },
+  "CRT-018": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 18"
+  },
+  "CRT-019": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 19"
+  },
+  "CRT-020": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 20"
+  },
+  "CRT-021": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 21"
+  },
+  "CRT-022": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 22"
+  },
+  "CRT-023": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 23"
+  },
+  "CRT-024": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 24"
+  },
+  "CRT-025": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 25"
+  },
+  "CRT-026": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 26"
+  },
+  "CRT-027": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 27"
+  },
+  "CRT-028": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 28"
+  },
+  "CRT-029": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 29"
+  },
+  "CRT-030": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 30"
+  },
+  "CRT-031": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 31"
+  },
+  "CRT-032": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 32"
+  },
+  "CRT-033": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 33"
+  },
+  "CRT-034": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 34"
+  },
+  "CRT-035": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 35"
+  },
+  "CRT-036": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 36"
+  },
+  "CRT-037": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 37"
+  },
+  "CRT-038": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 38"
+  },
+  "CRT-039": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 39"
+  },
+  "CRT-040": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 40"
+  },
+  "CRT-041": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 41"
+  },
+  "CRT-042": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 42"
+  },
+  "CRT-043": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 43"
+  },
+  "CRT-044": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 44"
+  },
+  "CRT-045": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 45"
+  },
+  "CRT-046": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 46"
+  },
+  "CRT-047": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 47"
+  },
+  "CRT-048": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 48"
+  },
+  "CRT-049": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 49"
+  },
+  "CRT-050": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 50"
+  },
+  "CRT-051": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 51"
+  },
+  "CRT-052": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 52"
+  },
+  "CRT-053": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 53"
+  },
+  "CRT-054": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 54"
+  },
+  "CRT-055": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 55"
+  },
+  "CRT-056": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 56"
+  },
+  "CRT-057": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 57"
+  },
+  "CRT-058": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 58"
+  },
+  "CRT-059": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 59"
+  },
+  "CRT-060": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 60"
+  },
+  "CRT-061": {
+    "categorie": "ennemi",
+    "nom_affiche": "Ennemi 61"
+  },
+  "ANO-008": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 1"
+  },
+  "ENT-014": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 2"
+  },
+  "ENT-015": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 3"
+  },
+  "ENT-016": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 4"
+  },
+  "ENT-017": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 5"
+  },
+  "ENT-018": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 6"
+  },
+  "CRT-062": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 7"
+  },
+  "CRT-063": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 8"
+  },
+  "CRT-064": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 9"
+  },
+  "CRT-065": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 10"
+  },
+  "CRT-066": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 11"
+  },
+  "CRT-067": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 12"
+  },
+  "CRT-068": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 13"
+  },
+  "CRT-069": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 14"
+  },
+  "CRT-070": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 15"
+  },
+  "CRT-071": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 16"
+  },
+  "CRT-072": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 17"
+  },
+  "CRT-073": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 18"
+  },
+  "CRT-074": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 19"
+  },
+  "CRT-075": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 20"
+  },
+  "CRT-076": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 21"
+  },
+  "ENT-022": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 22"
+  },
+  "ENT-023": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 23"
+  },
+  "ENT-024": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 24"
+  },
+  "ENT-025": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 25"
+  },
+  "ENT-026": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 26"
+  },
+  "ENT-027": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 27"
+  },
+  "ENT-028": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 28"
+  },
+  "ENT-029": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 29"
+  },
+  "ENT-030": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 30"
+  },
+  "ENT-031": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 31"
+  },
+  "ENT-032": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 32"
+  },
+  "ENT-033": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 33"
+  },
+  "ENT-034": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 34"
+  },
+  "ENT-035": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 35"
+  },
+  "ENT-036": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 36"
+  },
+  "ENT-037": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 37"
+  },
+  "ENT-038": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 38"
+  },
+  "ENT-039": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 39"
+  },
+  "ENT-040": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 40"
+  },
+  "ENT-041": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 41"
+  },
+  "ENT-042": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 42"
+  },
+  "ENT-043": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 43"
+  },
+  "ENT-044": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 44"
+  },
+  "ENT-045": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 45"
+  },
+  "ENT-046": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 46"
+  },
+  "ENT-047": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 47"
+  },
+  "ENT-048": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 48"
+  },
+  "ENT-049": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 49"
+  },
+  "ENT-050": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 50"
+  },
+  "ENT-051": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 51"
+  },
+  "ENT-052": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 52"
+  },
+  "ENT-053": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 53"
+  },
+  "ENT-054": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 54"
+  },
+  "ENT-055": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 55"
+  },
+  "ENT-056": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 56"
+  },
+  "ENT-057": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 57"
+  },
+  "REL-058": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 58"
+  },
+  "REL-059": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 59"
+  },
+  "REL-060": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 60"
+  },
+  "ENT-061": {
+    "categorie": "entité",
+    "nom_affiche": "Entité 61"
+  },
+  "MIN-001": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 1"
+  },
+  "MIN-002": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 2"
+  },
+  "MIN-003": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 3"
+  },
+  "MIN-004": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 4"
+  },
+  "MIN-005": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 5"
+  },
+  "MIN-006": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 6"
+  },
+  "MIN-007": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 7"
+  },
+  "MIN-008": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 8"
+  },
+  "MIN-009": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 9"
+  },
+  "MIN-010": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 10"
+  },
+  "MIN-011": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 11"
+  },
+  "MIN-012": {
+    "categorie": "mini-boss",
+    "nom_affiche": "Mini-boss 12"
+  },
+  "SEC-001": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 1"
+  },
+  "SEC-002": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 2"
+  },
+  "SEC-003": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 3"
+  },
+  "SEC-004": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 4"
+  },
+  "SEC-005": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 5"
+  },
+  "SEC-006": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 6"
+  },
+  "SEC-007": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 7"
+  },
+  "SEC-008": {
+    "categorie": "niveau",
+    "nom_affiche": "Secteur 8"
+  },
+  "ENT-019": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 1"
+  },
+  "ENT-020": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 2"
+  },
+  "ENT-021": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 3"
+  },
+  "ENT-058": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 4"
+  },
+  "ENT-059": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 5"
+  },
+  "ENT-060": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 6"
+  },
+  "ENT-062": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 7"
+  },
+  "ENT-063": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 8"
+  },
+  "ENT-064": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 9"
+  },
+  "ENT-065": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 10"
+  },
+  "ENT-066": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 11"
+  },
+  "ENT-067": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 12"
+  },
+  "ENT-068": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 13"
+  },
+  "ENT-069": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 14"
+  },
+  "ENT-070": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 15"
+  },
+  "ENT-071": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 16"
+  },
+  "ENT-072": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 17"
+  },
+  "ENT-073": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 18"
+  },
+  "ENT-074": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 19"
+  },
+  "ENT-075": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 20"
+  },
+  "ENT-076": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 21"
+  },
+  "ENT-077": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 22"
+  },
+  "ENT-078": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 23"
+  },
+  "ENT-079": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 24"
+  },
+  "ENT-080": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 25"
+  },
+  "ENT-081": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 26"
+  },
+  "ENT-082": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 27"
+  },
+  "ENT-083": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 28"
+  },
+  "ENT-084": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 29"
+  },
+  "ENT-085": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 30"
+  },
+  "ENT-086": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 31"
+  },
+  "ENT-087": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 32"
+  },
+  "ENT-088": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 33"
+  },
+  "ENT-089": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 34"
+  },
+  "ENT-090": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 35"
+  },
+  "ENT-091": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 36"
+  },
+  "ENT-092": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 37"
+  },
+  "ENT-093": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 38"
+  },
+  "ENT-094": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 39"
+  },
+  "ENT-095": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 40"
+  },
+  "ENT-096": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 41"
+  },
+  "ENT-097": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 42"
+  },
+  "ENT-098": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 43"
+  },
+  "ENT-099": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 44"
+  },
+  "ENT-100": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 45"
+  },
+  "ENT-101": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 46"
+  },
+  "ENT-102": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 47"
+  },
+  "ENT-103": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 48"
+  },
+  "ENT-104": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 49"
+  },
+  "ENT-105": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 50"
+  },
+  "ENT-106": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 51"
+  },
+  "ENT-107": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 52"
+  },
+  "ENT-108": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 53"
+  },
+  "ENT-109": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 54"
+  },
+  "ENT-110": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 55"
+  },
+  "ENT-111": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 56"
+  },
+  "ENT-112": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 57"
+  },
+  "ENT-113": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 58"
+  },
+  "ENT-114": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 59"
+  },
+  "ENT-115": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 60"
+  },
+  "ENT-116": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 61"
+  },
+  "ENT-117": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 62"
+  },
+  "ENT-118": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 63"
+  },
+  "ENT-119": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 64"
+  },
+  "ENT-120": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 65"
+  },
+  "ENT-121": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 66"
+  },
+  "ENT-122": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 67"
+  },
+  "ENT-123": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 68"
+  },
+  "ENT-124": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 69"
+  },
+  "ENT-125": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 70"
+  },
+  "ENT-126": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 71"
+  },
+  "ENT-127": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 72"
+  },
+  "ENT-128": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 73"
+  },
+  "ENT-129": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 74"
+  },
+  "ENT-130": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 75"
+  },
+  "ENT-131": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 76"
+  },
+  "ENT-132": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 77"
+  },
+  "ENT-133": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 78"
+  },
+  "ENT-134": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 79"
+  },
+  "ENT-135": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 80"
+  },
+  "ENT-136": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 81"
+  },
+  "ENT-137": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 82"
+  },
+  "ENT-138": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 83"
+  },
+  "ENT-139": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 84"
+  },
+  "ENT-140": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 85"
+  },
+  "ENT-141": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 86"
+  },
+  "ENT-142": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 87"
+  },
+  "ENT-143": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 88"
+  },
+  "ENT-144": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 89"
+  },
+  "ENT-145": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 90"
+  },
+  "ENT-146": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 91"
+  },
+  "ENT-147": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 92"
+  },
+  "ENT-148": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 93"
+  },
+  "ENT-149": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 94"
+  },
+  "ENT-150": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 95"
+  },
+  "ENT-151": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 96"
+  },
+  "ENT-152": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 97"
+  },
+  "ENT-153": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 98"
+  },
+  "ENT-154": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 99"
+  },
+  "ENT-155": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 100"
+  },
+  "ENT-156": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 101"
+  },
+  "ENT-157": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 102"
+  },
+  "ENT-158": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 103"
+  },
+  "ENT-159": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 104"
+  },
+  "ENT-160": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 105"
+  },
+  "ENT-161": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 106"
+  },
+  "ENT-162": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 107"
+  },
+  "ENT-163": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 108"
+  },
+  "ENT-164": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 109"
+  },
+  "ENT-165": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 110"
+  },
+  "ENT-166": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 111"
+  },
+  "ENT-167": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 112"
+  },
+  "ENT-168": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 113"
+  },
+  "ENT-169": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 114"
+  },
+  "ENT-170": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 115"
+  },
+  "ENT-171": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 116"
+  },
+  "ENT-172": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 117"
+  },
+  "ENT-173": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 118"
+  },
+  "ENT-174": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 119"
+  },
+  "ENT-175": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 120"
+  },
+  "ENT-176": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 121"
+  },
+  "ENT-177": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 122"
+  },
+  "ENT-178": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 123"
+  },
+  "ENT-179": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 124"
+  },
+  "ENT-180": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 125"
+  },
+  "ENT-181": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 126"
+  },
+  "ENT-182": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 127"
+  },
+  "ENT-183": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 128"
+  },
+  "ENT-184": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 129"
+  },
+  "ENT-185": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 130"
+  },
+  "ENT-186": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 131"
+  },
+  "ENT-187": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 132"
+  },
+  "ENT-188": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 133"
+  },
+  "ENT-189": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 134"
+  },
+  "ENT-190": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 135"
+  },
+  "ENT-191": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 136"
+  },
+  "REL-137": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 137"
+  },
+  "REL-138": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 138"
+  },
+  "REL-139": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 139"
+  },
+  "REL-140": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 140"
+  },
+  "REL-141": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 141"
+  },
+  "REL-142": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 142"
+  },
+  "REL-143": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 143"
+  },
+  "REL-144": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 144"
+  },
+  "ENT-192": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 145"
+  },
+  "ENT-193": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 146"
+  },
+  "ENT-194": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 147"
+  },
+  "ENT-195": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 148"
+  },
+  "ENT-196": {
+    "categorie": "paramètre",
+    "nom_affiche": "Paramètre 149"
+  },
+  "NVA-001": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 1"
+  },
+  "NVA-002": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 2"
+  },
+  "NVA-003": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 3"
+  },
+  "NVA-004": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 4"
+  },
+  "NVA-005": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 5"
+  },
+  "NVA-006": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 6"
+  },
+  "NVA-007": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 7"
+  },
+  "NVA-008": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 8"
+  },
+  "NVA-009": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 9"
+  },
+  "NVA-010": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 10"
+  },
+  "NVA-011": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 11"
+  },
+  "NVA-012": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 12"
+  },
+  "NVA-013": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 13"
+  },
+  "NVA-014": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 14"
+  },
+  "NVA-015": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 15"
+  },
+  "NVA-016": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 16"
+  },
+  "NVA-017": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 17"
+  },
+  "NVA-018": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 18"
+  },
+  "NVA-019": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 19"
+  },
+  "NVA-020": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 20"
+  },
+  "NVA-021": {
+    "categorie": "pnj",
+    "nom_affiche": "PNJ 21"
+  }
+}

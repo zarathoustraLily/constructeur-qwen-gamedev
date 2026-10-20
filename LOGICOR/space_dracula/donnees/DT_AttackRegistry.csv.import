@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dx7d2nkqmuepx"
+
+[deps]
+
+files=["res://space_dracula/donnees/DT_AttackRegistry.OwnerTag.translation", "res://space_dracula/donnees/DT_AttackRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.Damage.translation", "res://space_dracula/donnees/DT_AttackRegistry.DamageRadius.translation", "res://space_dracula/donnees/DT_AttackRegistry.Range.translation"]
+
+source_file="res://space_dracula/donnees/DT_AttackRegistry.csv"
+dest_files=["res://space_dracula/donnees/DT_AttackRegistry.OwnerTag.translation", "res://space_dracula/donnees/DT_AttackRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.AI.translation", "res://space_dracula/donnees/DT_AttackRegistry.Damage.translation", "res://space_dracula/donnees/DT_AttackRegistry.DamageRadius.translation", "res://space_dracula/donnees/DT_AttackRegistry.Range.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

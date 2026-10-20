@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-027"
+nom = "CRT-027"
+categorie = "ennemi"
+PV_Max = 60
+Vitesse = 300.0
+NoteDifficulte = 11
+PoidsPiscine = 1
+PoidsPlafondActif = 0.5
+arsenal = ["CRT-027_Sweep", "CRT-027_SweepElite"]

@@ -1,0 +1,393 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>La béquille de Qwen</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Mise en page : une colonne de lecture, un bandeau de constats chiffrés, puis dix points numérotés (repère à gauche, texte à droite). */
+:root {
+  --fond: #eef2f5;
+  --surface: #ffffff;
+  --encre: #17222c;
+  --discret: #566574;
+  --trait: #d3dbe3;
+  --accent: #1b6a94;
+  --accent-doux: #dfecf3;
+  --alerte: #a8501a;
+  --alerte-doux: #f6e7da;
+  --titre: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --texte: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #0f151b; --surface: #172029; --encre: #e4ebf1; --discret: #94a3b1; --trait: #2a3743;
+    --accent: #72bbe2; --accent-doux: #1a2f3d; --alerte: #e7a06a; --alerte-doux: #33261b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fond: #0f151b; --surface: #172029; --encre: #e4ebf1; --discret: #94a3b1; --trait: #2a3743;
+  --accent: #72bbe2; --accent-doux: #1a2f3d; --alerte: #e7a06a; --alerte-doux: #33261b;
+  color-scheme: dark;
+}
+
+body { background: var(--fond); color: var(--encre); font-family: var(--texte); font-size: 17px; line-height: 1.6; }
+.page { max-width: 52rem; margin-inline: auto; padding-inline: 20px; padding-block: 2.5rem 4rem; display: flex; flex-direction: column; gap: 2.75rem; }
+h1, h2, h3 { font-family: var(--titre); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.45rem; font-weight: 700; }
+h3 { font-size: 1.22rem; font-weight: 700; }
+p { margin: 0; max-width: 66ch; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+code, pre, .journal { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--accent-doux); padding: 0.08em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+
+.entete { display: flex; flex-direction: column; gap: 1rem; }
+.surtitre { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--discret); }
+.chapeau { font-size: 1.15rem; color: var(--discret); }
+
+.constats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--trait); border: 1px solid var(--trait); border-radius: 10px; overflow: hidden; }
+.constat { background: var(--surface); padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.constat b { font-family: var(--titre); font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.constat.mal b { color: var(--alerte); }
+.constat span { font-size: 0.9rem; color: var(--discret); line-height: 1.35; }
+
+.bloc { display: flex; flex-direction: column; gap: 1rem; }
+.moments { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
+.moment { border-top: 3px solid var(--accent); padding-top: 0.7rem; display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
+.moment strong { font-family: var(--titre); font-size: 1.05rem; }
+.moment p { font-size: 0.97rem; }
+.moment em { font-style: normal; color: var(--discret); font-size: 0.92rem; }
+
+.sommaire { display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; padding: 0; margin: 0; list-style: none; }
+.sommaire a { display: inline-block; padding: 0.25rem 0.65rem; border: 1px solid var(--trait); border-radius: 999px; background: var(--surface); text-decoration: none; font-size: 0.92rem; color: var(--encre); }
+.sommaire a:hover { border-color: var(--accent); color: var(--accent); }
+
+.points { display: flex; flex-direction: column; }
+.point { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: 0 1rem; padding-block: 1.9rem; border-top: 1px solid var(--trait); }
+.point:last-child { border-bottom: 1px solid var(--trait); }
+.rang { font-family: var(--titre); font-weight: 700; font-size: 2rem; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.corps { display: flex; flex-direction: column; gap: 0.85rem; min-width: 0; }
+.leviers { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.levier { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 4px; background: var(--accent-doux); color: var(--accent); }
+.vu { background: var(--alerte-doux); border-radius: 8px; padding: 0.7rem 0.9rem; font-size: 0.97rem; }
+.vu b { color: var(--alerte); font-weight: 600; }
+.corps ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem; max-width: 66ch; }
+.sous { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--discret); }
+
+.defile { overflow-x: auto; }
+.journal, pre { background: var(--surface); border: 1px solid var(--trait); border-radius: 8px; padding: 0.8rem 1rem; margin: 0; line-height: 1.55; white-space: pre; }
+.journal .va { color: var(--accent); }
+.journal .revient { color: var(--discret); }
+.journal .mieux { color: var(--alerte); font-weight: 600; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--trait); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--discret); font-weight: 600; }
+td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.etapes { margin: 0; padding: 0; list-style: none; counter-reset: etape; display: flex; flex-direction: column; gap: 0.9rem; }
+.etapes li { counter-increment: etape; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.6rem; }
+.etapes li::before { content: counter(etape); font-family: var(--titre); font-weight: 700; color: var(--accent); font-size: 1.2rem; line-height: 1.4; }
+.etapes b { font-weight: 600; }
+.pied { color: var(--discret); font-size: 0.92rem; }
+
+@media (max-width: 34rem) {
+  .constats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .point { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .rang { font-size: 1.5rem; }
+}
+</style>
+
+<div class="page">
+
+  <header class="entete">
+    <div class="surtitre">Qwen 3.8 + LoRA · bilan de la nuit du 8 au 9 octobre 2026</div>
+    <h1>La béquille de Qwen</h1>
+    <p class="chapeau">Dix améliorations à apporter au comportement du modèle. L'idée commune : on ne cherche pas à le rendre plus savant, on lui met la bonne information sous les yeux au bon moment.</p>
+  </header>
+
+  <section class="bloc" aria-label="Ce que la nuit a montré">
+    <h2>Ce que la nuit a montré</h2>
+    <p>Trois campagnes de deux heures sur le même jeu, avec le même prompt : sans outils de l'usine, avec, puis avec la recherche dans la doc.</p>
+    <div class="constats">
+      <div class="constat"><b>0</b><span>erreur du moteur dans les trois jeux</span></div>
+      <div class="constat mal"><b>57 %</b><span>des écritures de fichiers répètent la précédente</span></div>
+      <div class="constat mal"><b>4</b><span>recherches dans la doc en deux heures</span></div>
+      <div class="constat mal"><b>≈ 70</b><span>éditions refusées par campagne outillée</span></div>
+      <div class="constat mal"><b>0 / 381</b><span>séries de captures commentées par Qwen</span></div>
+      <div class="constat mal"><b>0</b><span>scène, dossier ou ressource créés : tout reste à plat</span></div>
+    </div>
+  </section>
+
+  <section class="bloc" aria-label="Le principe">
+    <h2>Le principe : trois moments</h2>
+    <div class="moments">
+      <div class="moment"><strong>En permanence</strong><p>Le plan d'organisation, les conventions, un exemple complet. Calculé une fois, gardé en cache.</p><em>Évite le code rangé n'importe où.</em></div>
+      <div class="moment"><strong>Avant l'action</strong><p>Qwen dit ce qu'il va faire et reçoit : où travailler, quel exemple imiter, les règles, les pièges.</p><em>Évite les méthodes inventées et la logique fausse.</em></div>
+      <div class="moment"><strong>Après l'action</strong><p>Le résultat de l'outil dit ce qui s'est vraiment passé : rien n'a changé, ce test échoue, l'écran est illisible.</p><em>Évite les boucles et les erreurs inaperçues.</em></div>
+    </div>
+  </section>
+
+  <nav aria-label="Les dix points">
+    <ul class="sommaire">
+      <li><a href="#p1">1 · Retour des outils</a></li>
+      <li><a href="#p2">2 · Projet rangé</a></li>
+      <li><a href="#p3">3 · Consulter le plan</a></li>
+      <li><a href="#p4">4 · Déclarer l'action</a></li>
+      <li><a href="#p5">5 · RAG par tâche</a></li>
+      <li><a href="#p6">6 · L'assemblage</a></li>
+      <li><a href="#p7">7 · Bloc en cache</a></li>
+      <li><a href="#p8">8 · Voir et mesurer</a></li>
+      <li><a href="#p9">9 · Niveaux et tests</a></li>
+      <li><a href="#p10">10 · Entraînement</a></li>
+      <li><a href="#ordre">Ordre de construction</a></li>
+    </ul>
+  </nav>
+
+  <section class="points">
+
+    <article class="point" id="p1">
+      <div class="rang">1</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Outils</span></div>
+        <h3>Des outils qui disent ce qui s'est passé</h3>
+        <p class="vu"><b>Observé :</b> Qwen réécrit le même fichier jusqu'à 28 fois de suite. L'outil répond « écrit » même quand rien ne change, donc rien ne lui signale qu'il tourne en rond.</p>
+        <div class="defile"><div class="journal"><span class="va">→ write_file(TrackBuilder.gd)</span>
+<span class="revient">← écrit : 10 125 caractères</span>
+<span class="va">→ write_file(TrackBuilder.gd)</span>
+<span class="mieux">← aucun changement : ce contenu est déjà celui du fichier</span></div></div>
+        <ul>
+          <li>Une écriture sans effet le dit clairement.</li>
+          <li>Après l'écriture d'un script, l'outil vérifie chaque classe et méthode Godot utilisée et renvoie sa signature officielle.</li>
+          <li>Après une erreur du moteur, la fiche de doc de la méthode en cause est jointe.</li>
+        </ul>
+        <p>Exemple de ce que cela évite : sans vérification, Qwen a conclu que <code>PrismMesh</code> n'existe pas et l'a remplacée par un bricolage. Elle existe dans Godot 4.7.2.</p>
+      </div>
+    </article>
+
+    <article class="point" id="p2">
+      <div class="rang">2</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Structure</span></div>
+        <h3>Un projet rangé, avec son plan d'organisation</h3>
+        <p class="vu"><b>Observé :</b> une scène de 6 lignes et huit scripts à plat, dont un de 700 lignes. Un modèle prolonge la structure qu'il trouve.</p>
+        <p>Les dossiers sont rangés par rôle, du chef d'orchestre à la matière brute. Le numéro garde cet ordre à l'écran, car Godot trie les dossiers par nom.</p>
+        <div class="defile"><pre>res://
+├── ORGANISATION.md      le plan : rôle de chaque dossier, où ajouter quoi
+│
+├── 0_autoload/          LE CHEF D'ORCHESTRE : ce qui dirige tout le jeu
+│   ├── game_flow.gd         lit la séquence et charge l'étape suivante
+│   ├── game_state.gd        score, vies, progression, sauvegarde
+│   ├── event_bus.gd         les signaux partagés
+│   ├── audio_manager.gd
+│   └── trace.gd             journal de comportement et moniteurs
+│
+├── 1_core/              LE CŒUR : les mécanismes, sans aucun contenu de jeu
+│   ├── state_machine/       state_machine.gd, state.gd
+│   ├── components/          vie, zone de dégâts, zone de collision
+│   └── step/                step.gd : le contrat commun à toutes les étapes
+│
+├── 2_sequence/          LE DÉROULÉ : la liste ordonnée et ses étapes
+│   ├── sequence.tres        anim → menu → intro → level_01 → fin
+│   ├── cinematics/
+│   ├── menus/
+│   └── levels/              level_base.tscn, puis un dossier par niveau
+│
+├── 3_entities/          LES ACTEURS : scène, script et states/ ensemble
+│   ├── player/
+│   ├── enemies/&lt;type&gt;/
+│   ├── boss/
+│   └── projectiles/
+│
+├── 4_ui/                L'INTERFACE
+│   ├── hud/
+│   └── overlays/            pause, inventaire : posés par-dessus l'étape en cours
+│
+├── 5_data/              LES RÉGLAGES : ennemis, armes, vagues, en ressources
+├── 6_assets/            LA MATIÈRE : modèles, textures, audio, shaders, polices
+└── 7_tests/             en miroir des dossiers ci-dessus</pre></div>
+        <div class="sous">Qui connaît qui</div>
+        <ul>
+          <li><b>Le cœur ne connaît personne.</b> Il ne référence aucun autre dossier, donc il se réutilise tel quel dans un autre jeu.</li>
+          <li><b>Le chef d'orchestre s'appuie sur le cœur et lit le déroulé.</b> Il ne connaît aucun ennemi ni aucun niveau en particulier.</li>
+          <li><b>Le déroulé assemble les acteurs et l'interface.</b> Cinématique, menu ou niveau : chaque étape respecte le même contrat et passe par la même liste.</li>
+          <li><b>Les acteurs utilisent le cœur et les réglages.</b></li>
+          <li><b>Les réglages et la matière ne contiennent aucun code.</b></li>
+        </ul>
+        <p>Ces cinq règles se vérifient automatiquement, en lisant quels fichiers chaque script charge. La pause et l'inventaire restent hors du déroulé : ils l'interrompent sans le faire avancer.</p>
+      </div>
+    </article>
+
+    <article class="point" id="p3">
+      <div class="rang">3</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Consigne</span><span class="levier">Entraînement</span></div>
+        <h3>Consulter le plan avant d'écrire</h3>
+        <p class="vu"><b>Observé :</b> Qwen a lu <code>plan.md</code> en tout premier dans 48 sessions vérifiées sur 48, parce que c'était demandé. La recherche dans la doc, seulement proposée, a servi 4 fois.</p>
+        <ul>
+          <li>La consultation du plan est demandée noir sur blanc dans le message système.</li>
+          <li>Le tri des sessions d'entraînement vérifie deux choses sans modèle : le plan a été lu avant la première écriture, et chaque fichier créé est à l'endroit indiqué.</li>
+          <li>Il faut les deux : la consigne et l'habitude apprise.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="point" id="p4">
+      <div class="rang">4</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Outils</span><span class="levier">Consigne</span></div>
+        <h3>Dire ce qu'on va faire avant de le faire</h3>
+        <p>Qwen sait décomposer une tâche. Un laser a besoin d'une minuterie, d'un état, d'une collision, d'un son et d'un effet visuel. On se sert de ce savoir pour aller chercher ce qu'il ignore.</p>
+        <ul>
+          <li>Avant toute écriture, il déclare son action dans un format imposé : le but, le type d'action, les fichiers visés.</li>
+          <li>Il coche ses besoins dans une liste fermée : minuterie, état, collision, son, effet visuel, animation, interface, données, caméra, sauvegarde.</li>
+          <li>Le harnais renvoie en une fois ce qui correspond à chaque case. Aucune recherche par mots, aucun modèle pour interpréter.</li>
+          <li>Dans OpenCode : un outil de préparation et une règle dans <code>AGENTS.md</code>. On ne peut pas bloquer une écriture, seulement vérifier après coup.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="point" id="p5">
+      <div class="rang">5</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Contenu</span></div>
+        <h3>Un RAG organisé par tâche</h3>
+        <p class="vu"><b>Observé :</b> la doc répond à « que fait cette méthode ? ». Les 127 démos officielles couvrent la plateforme, un RPG et une machine à états, mais rien sur le jeu de tir, les vagues ou les boss.</p>
+        <div class="sous">Une fiche par situation</div>
+        <div class="defile"><table>
+          <tr><th>Rubrique</th><th>Contenu</th><th>Source</th></tr>
+          <tr><td>À considérer</td><td>Tout ce qu'un ennemi touché implique : vie, invincibilité, score, son, mort</td><td>À rédiger</td></tr>
+          <tr><td>Où travailler</td><td>Les dossiers et fichiers concernés</td><td>Plan d'organisation</td></tr>
+          <tr><td>Exemple</td><td>Un extrait vérifié</td><td>Le socle, les démos</td></tr>
+          <tr><td>Pièges</td><td>Les erreurs que Qwen commet réellement</td><td>1 025 essais ratés du tour t1</td></tr>
+          <tr><td>Voisins</td><td>Les thèmes liés : mort, score, effets d'impact</td><td>Graphe de relations</td></tr>
+        </table></div>
+        <ul>
+          <li>Les fiches forment un graphe. Tout est calculé à l'avance et lu en quelques millisecondes.</li>
+          <li>Des résumés courts, pas des pages entières.</li>
+          <li>Chaque exemple passe par l'usine : compilation et tests. Rien d'inventé n'entre.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="point" id="p6">
+      <div class="rang">6</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Contenu</span></div>
+        <h3>Montrer comment les pièces s'assemblent</h3>
+        <p>Qwen sait coder un dash ou un saut. Il ne sait pas que chez toi un dash est un état du joueur, rangé dans <code>3_entities/player/states/</code>, avec sa durée dans <code>5_data/</code>.</p>
+        <ul>
+          <li>Le socle contient un niveau complet et jouable : c'est l'exemple d'assemblage, présent en permanence.</li>
+          <li>Pour chaque type d'ajout, la carte donne la chaîne de fichiers à imiter.</li>
+        </ul>
+        <div class="defile"><pre>Ajouter un ennemi : regarde comment le drone est assemblé
+  5_data/enemies/drone.tres               ses réglages
+  3_entities/enemies/drone/drone.tscn     sa scène
+  3_entities/enemies/drone/drone.gd       son script
+  3_entities/enemies/drone/states/        ses états
+  2_sequence/levels/level_01/             là où il est posé</pre></div>
+        <p>Sept modèles d'intégration suffisent : un état, un ennemi, une arme, un réglage, un élément d'interface, un niveau, un effet visuel. Le projet du cours GameDev.tv montre bien cet assemblage, et ses 78 leçons sont autant de tâches possibles.</p>
+      </div>
+    </article>
+
+    <article class="point" id="p7">
+      <div class="rang">7</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Outils</span></div>
+        <h3>Un bloc de contexte fixe, calculé une seule fois</h3>
+        <p>Mesuré sur ton llama-server, avec un bloc de 13 507 jetons en tête du message système.</p>
+        <div class="defile"><table>
+          <tr><th>Envoi</th><th>Repris du cache</th><th>Durée</th></tr>
+          <tr><td>Premier envoi</td><td class="n">0</td><td class="n">7,6 s</td></tr>
+          <tr><td>Même bloc, autre question</td><td class="n">13 483</td><td class="n">0,3 s</td></tr>
+          <tr><td>Après une autre conversation</td><td class="n">13 483</td><td class="n">0,5 s</td></tr>
+          <tr><td>Bloc modifié au début</td><td class="n">0</td><td class="n">6,3 s</td></tr>
+        </table></div>
+        <ul>
+          <li>Le bloc se place tout au début et reste identique au caractère près.</li>
+          <li>Il contient le plan, les conventions et une chaîne d'exemple complète.</li>
+          <li>Visé : 3 000 à 5 000 jetons, pour entrer aussi dans les sessions d'entraînement, limitées à 16 384.</li>
+          <li>Aucune option à ajouter au lancement du serveur.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="point" id="p8">
+      <div class="rang">8</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Outils</span><span class="levier">Entraînement</span></div>
+        <h3>Voir, lire et mesurer le jeu</h3>
+        <p class="vu"><b>Observé :</b> Qwen a pris 381 séries de captures et n'a jamais écrit ce qu'il voyait. Une version est devenue illisible sans qu'il le remarque.</p>
+        <div class="sous">Ce que l'outil de capture doit renvoyer</div>
+        <div class="defile"><table>
+          <tr><th>Retour</th><th>Sert à juger</th></tr>
+          <tr><td>Les images</td><td>La lisibilité</td></tr>
+          <tr><td>Les erreurs du moteur</td><td>Le bon démarrage</td></tr>
+          <tr><td>Le journal de comportement</td><td>La logique : « ennemi 3 : poursuite → attaque », « score +100 »</td></tr>
+          <tr><td>Les chiffres de performance</td><td>Le coût par image, les objets restants</td></tr>
+        </table></div>
+        <ul>
+          <li>Un verdict écrit est exigé après chaque capture.</li>
+          <li>Deux compétences nouvelles : juger la logique sur une séquence et juger la lisibilité. On injecte un défaut connu, le juge compare à l'étiquette.</li>
+          <li>Un journal en texte est plus fiable qu'une image : « l'ennemi est mort deux fois » se lit et se vérifie sans modèle.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="point" id="p9">
+      <div class="rang">9</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Structure</span></div>
+        <h3>Des niveaux éditables et un projet qui se teste</h3>
+        <ul>
+          <li>Les ennemis sont posés à la main dans la scène, en vue de dessus. Le code lit ce qui est posé.</li>
+          <li>Le décor vient de Blender. Les suffixes de noms créent les collisions à l'import.</li>
+          <li>Chaque niveau a un budget de performance : temps par image, nombre d'objets, objets restants à la fermeture.</li>
+          <li>Une touche affiche l'état courant de chaque entité pendant le jeu.</li>
+        </ul>
+        <div class="sous">Un projet propre, en six points</div>
+        <ul>
+          <li>Une structure de dossiers et son plan d'organisation.</li>
+          <li>Une machine à états, des composants, des données en ressources.</li>
+          <li>Des niveaux éditables dans Godot.</li>
+          <li>Des tests de comportement.</li>
+          <li>Des tests de performance avec budget.</li>
+          <li>Un journal de comportement et un affichage de mise au point.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="point" id="p10">
+      <div class="rang">10</div>
+      <div class="corps">
+        <div class="leviers"><span class="levier">Entraînement</span></div>
+        <h3>Entraîner Qwen à se servir de la béquille</h3>
+        <p>Le LoRA n'apprend plus à tout savoir. Il apprend une démarche : déclarer, lire ce qu'on lui donne, agir, vérifier.</p>
+        <ul>
+          <li><b>Deux sortes de tâches sur le socle :</b> étendre proprement, ou nettoyer un projet sali de façon mécanique dont la bonne réponse est connue.</li>
+          <li><b>Trois contrôles pour retenir une session :</b> les tests passent, la structure est respectée, la session est saine (plan consulté, aucune boucle).</li>
+          <li><b>Le même harnais qu'à l'usage :</b> le LoRA actuel a appris <code>read_file</code> et <code>write_file</code>, qui n'existent pas dans OpenCode.</li>
+          <li><b>Des tâches courtes :</b> une entité, un état, pour tenir sous 16 384 jetons sans coupure.</li>
+          <li><b>Un risque :</b> la boucle n'apprend que de ce que Qwen réussit déjà parfois. Sinon il faut un professeur, validé par les mêmes juges.</li>
+        </ul>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="bloc" id="ordre">
+    <h2>Ordre de construction</h2>
+    <ol class="etapes">
+      <li><div><b>Le retour des outils.</b> Immédiat, sans entraînement : écriture sans changement, vérification des méthodes.</div></li>
+      <li><div><b>Le socle propre.</b> Structure, plan d'organisation, un niveau complet, juge de structure.</div></li>
+      <li><div><b>La déclaration d'action et le graphe.</b> D'abord la partie exacte, tirée du vocabulaire, des démos et de la doc.</div></li>
+      <li><div><b>La mesure.</b> La même campagne de deux heures, même départ, même prompt, avec et sans chaque béquille.</div></li>
+      <li><div><b>L'entraînement.</b> Une fois qu'on sait ce que la béquille apporte déjà seule.</div></li>
+    </ol>
+  </section>
+
+  <p class="pied">Chiffres relevés sur les campagnes du 9 octobre 2026 dans <code>G:\QWEN-GODOt</code>. Les dix points sont des propositions. Existent déjà : l'outil de capture qui montre les images à Qwen, et les outils de campagne.</p>
+
+</div>
+
+</body></html>

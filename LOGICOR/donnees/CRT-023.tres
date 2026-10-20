@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-023"
+nom = "CRT-023"
+categorie = "ennemi"
+PV_Max = 990
+Vitesse = 350.0
+NoteDifficulte = 120
+PoidsPiscine = 1
+PoidsPlafondActif = 1
+arsenal = ["CRT-023_BackDashx5", "CRT-023_StrafeLeftx5", "CRT-023_StrafeRightx5", "CRT-023_Throw", "CRT-023_ThrowElitex2", "CRT-023_Thrust", "CRT-023_ThrustElitex2", "CRT-045_Throw", "CRT-045_ThrowElite", "CRT-045_Thrust", "CRT-045_ThrustElite"]

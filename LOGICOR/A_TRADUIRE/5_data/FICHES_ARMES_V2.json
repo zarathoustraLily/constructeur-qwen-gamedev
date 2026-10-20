@@ -1,0 +1,240 @@
+[
+  {
+    "id": "REL-001",
+    "nom": "REL-001",
+    "categorie": "arme",
+    "numero": 1,
+    "props": {}
+  },
+  {
+    "id": "REL-002",
+    "nom": "REL-002",
+    "categorie": "arme",
+    "numero": 2,
+    "props": {}
+  },
+  {
+    "id": "REL-003",
+    "nom": "REL-003",
+    "categorie": "arme",
+    "numero": 3,
+    "props": {}
+  },
+  {
+    "id": "REL-004",
+    "nom": "REL-004",
+    "categorie": "arme",
+    "numero": 4,
+    "props": {}
+  },
+  {
+    "id": "REL-005",
+    "nom": "REL-005",
+    "categorie": "arme",
+    "numero": 5,
+    "props": {}
+  },
+  {
+    "id": "REL-006",
+    "nom": "REL-006",
+    "categorie": "arme",
+    "numero": 6,
+    "props": {}
+  },
+  {
+    "id": "REL-007",
+    "nom": "REL-007",
+    "categorie": "arme",
+    "numero": 7,
+    "props": {}
+  },
+  {
+    "id": "REL-008",
+    "nom": "REL-008",
+    "categorie": "arme",
+    "numero": 8,
+    "props": {}
+  },
+  {
+    "id": "REL-009",
+    "nom": "REL-009",
+    "categorie": "arme",
+    "numero": 9,
+    "props": {}
+  },
+  {
+    "id": "REL-010",
+    "nom": "REL-010",
+    "categorie": "arme",
+    "numero": 10,
+    "props": {}
+  },
+  {
+    "id": "REL-011",
+    "nom": "REL-011",
+    "categorie": "arme",
+    "numero": 11,
+    "props": {}
+  },
+  {
+    "id": "REL-012",
+    "nom": "REL-012",
+    "categorie": "arme",
+    "numero": 12,
+    "props": {}
+  },
+  {
+    "id": "REL-013",
+    "nom": "REL-013",
+    "categorie": "arme",
+    "numero": 13,
+    "props": {}
+  },
+  {
+    "id": "REL-014",
+    "nom": "REL-014",
+    "categorie": "arme",
+    "numero": 14,
+    "props": {}
+  },
+  {
+    "id": "REL-015",
+    "nom": "REL-015",
+    "categorie": "arme",
+    "numero": 15,
+    "props": {}
+  },
+  {
+    "id": "REL-016",
+    "nom": "REL-016",
+    "categorie": "arme",
+    "numero": 16,
+    "props": {}
+  },
+  {
+    "id": "REL-017",
+    "nom": "REL-017",
+    "categorie": "arme",
+    "numero": 17,
+    "props": {}
+  },
+  {
+    "id": "REL-018",
+    "nom": "REL-018",
+    "categorie": "arme",
+    "numero": 18,
+    "props": {}
+  },
+  {
+    "id": "REL-019",
+    "nom": "REL-019",
+    "categorie": "arme",
+    "numero": 19,
+    "props": {}
+  },
+  {
+    "id": "REL-020",
+    "nom": "REL-020",
+    "categorie": "arme",
+    "numero": 20,
+    "props": {}
+  },
+  {
+    "id": "REL-021",
+    "nom": "REL-021",
+    "categorie": "arme",
+    "numero": 21,
+    "props": {}
+  },
+  {
+    "id": "REL-022",
+    "nom": "REL-022",
+    "categorie": "arme",
+    "numero": 22,
+    "props": {}
+  },
+  {
+    "id": "REL-023",
+    "nom": "REL-023",
+    "categorie": "arme",
+    "numero": 23,
+    "props": {}
+  },
+  {
+    "id": "REL-024",
+    "nom": "REL-024",
+    "categorie": "arme",
+    "numero": 24,
+    "props": {}
+  },
+  {
+    "id": "REL-025",
+    "nom": "REL-025",
+    "categorie": "arme",
+    "numero": 25,
+    "props": {}
+  },
+  {
+    "id": "REL-026",
+    "nom": "REL-026",
+    "categorie": "arme",
+    "numero": 26,
+    "props": {}
+  },
+  {
+    "id": "REL-027",
+    "nom": "REL-027",
+    "categorie": "arme",
+    "numero": 27,
+    "props": {}
+  },
+  {
+    "id": "REL-028",
+    "nom": "REL-028",
+    "categorie": "arme",
+    "numero": 28,
+    "props": {}
+  },
+  {
+    "id": "REL-029",
+    "nom": "REL-029",
+    "categorie": "arme",
+    "numero": 29,
+    "props": {}
+  },
+  {
+    "id": "REL-030",
+    "nom": "REL-030",
+    "categorie": "arme",
+    "numero": 30,
+    "props": {}
+  },
+  {
+    "id": "REL-031",
+    "nom": "REL-031",
+    "categorie": "arme",
+    "numero": 31,
+    "props": {}
+  },
+  {
+    "id": "REL-032",
+    "nom": "REL-032",
+    "categorie": "arme",
+    "numero": 32,
+    "props": {}
+  },
+  {
+    "id": "REL-033",
+    "nom": "REL-033",
+    "categorie": "arme",
+    "numero": 33,
+    "props": {}
+  },
+  {
+    "id": "REL-034",
+    "nom": "REL-034",
+    "categorie": "arme",
+    "numero": 34,
+    "props": {}
+  }
+]

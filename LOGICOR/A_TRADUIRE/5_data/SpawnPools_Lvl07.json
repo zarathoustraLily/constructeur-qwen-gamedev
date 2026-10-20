@@ -1,0 +1,97 @@
+{
+ "LevelTag": "Level.Lvl7",
+ "Level": "lvl_7",
+ "EntryCount": 18,
+ "Entries": [
+  {
+   "Ref": "CRT-040",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-040",
+   "Weight": 2,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-041",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-041",
+   "Weight": 2,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-042",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-042",
+   "Weight": 2,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-043",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-043",
+   "Weight": 2,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-044",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-044",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-045",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-045",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-046",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-046",
+   "Weight": 2,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-047",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-047",
+   "Weight": 2,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-048",
+   "Weight": 2,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-048",
+   "Weight": 2,
+   "Elite": true
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheMiniBoss" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheMiniBoss.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "MIN-009"
+nom = "MIN-009"
+categorie = "mini-boss"
+PV_Max = 600
+Vitesse = 350.0
+TamponPV = 2200
+phases = []
+attaques = [{ "id": "MIN-009_ShieldedBolt", "props": { "IA_LongueurCanon": 55, "IA_AttenuationRotationAnnonce": 0.15, "IA_DureeAnnonceMin": 1.5, "IA_DureeAnnonceMax": 3.8, "IA_TirDuree": 0.3, "IA_RecuperationDuree": 1.4, "IA_PorteeAttaque": 900, "IA_TamponLigneVie": 100 } }, { "id": "MIN-009_ShieldRush", "props": { "IA_VitesseTir": 2300, "IA_AttenuationRotationAnnonce": 0.1, "IA_AnnonceDuree": 1.0, "IA_TirDuree": 0.5, "IA_RecuperationDuree": 0.9, "IA_PorteeAttaque": 600, "IA_TamponLigneVie": 85, "IA_OffsetEffetTir": 300 } }, { "id": "MIN-009_FadeBolt", "props": { "IA_NombreProjectiles": 3, "IA_IntervalleAngleProjectile": 55, "IA_VitesseTir": 1500, "IA_AngleOffsetVitesseTir": 180, "IA_PorteeAttaque": 9999, "IA_AnnonceDuree": 0.6, "IA_TirDuree": 0.3, "IA_RecuperationDuree": 0.9, "IA_AttenuationRotationAnnonce": 0.1 } }, { "id": "MIN-009_Bolt", "props": { "Portee": 1600, "Vitesse": 8000, "Degats": 16 } }, { "id": "MIN-009_HomingBolt", "props": { "Portee": 2000, "Vitesse": 700, "TotalFusible": 4, "Degats": 8 } }]
+props = { "Gen_OndesMin": 1, "Gen_OndesMax": 1, "Gen_TypesMin": 1, "Gen_TypesMax": 1, "Gen_RampeTypesProfondeur": 0, "Gen_RampeEnnemisProfondeur": 0, "Gen_TypesEliteMax": 2, "Gen_PlafondEnnemisActifsBase": 4, "Gen_PlafondEnnemisActifsMax": 4, "Gen_IntervalleApparitionMin": 2.25, "Gen_IntervalleApparitionMax": 5.4, "DelaiDepart": 2, "FinMusiqueFinCombat": 20, "Gen_PlafondLarguerArgentMin": 15, "Gen_PlafondLarguerArgentMax": 15, "Gen_RampePlafondLarguerArgentProfondeur": 0, "OffsetBarrePV_Y": -220, "Gen_NoteDifficulte": 100, "IA_LongueurCanon": 55, "IA_AttenuationRotationAnnonce": 0.15, "IA_DureeAnnonceMin": 1.5, "IA_DureeAnnonceMax": 3.8, "IA_TirDuree": 0.3, "IA_RecuperationDuree": 1.4, "IA_PorteeAttaque": 900, "IA_TamponLigneVie": 100, "IA_VitesseTir": 2300, "IA_AnnonceDuree": 1.0, "IA_OffsetEffetTir": 300, "IA_NombreProjectiles": 3, "IA_IntervalleAngleProjectile": 55, "IA_AngleOffsetVitesseTir": 180, "Portee": 1600, "Degats": 16, "TotalFusible": 4, "Gen_ParamsMiniBoss_009_Niveau_5": { "Gen_OndesMin": 1, "Gen_OndesMax": 1, "Gen_TypesMin": 1, "Gen_TypesMax": 1, "Gen_RampeTypesProfondeur": 0, "Gen_RampeEnnemisProfondeur": 0, "Gen_TypesEliteMax": 2, "Gen_PlafondEnnemisActifsBase": 4, "Gen_PlafondEnnemisActifsMax": 4, "Gen_IntervalleApparitionMin": 2.25, "Gen_IntervalleApparitionMax": 5.4, "DelaiDepart": 2, "FinMusiqueFinCombat": 20, "Gen_PlafondLarguerArgentMin": 15, "Gen_PlafondLarguerArgentMax": 15, "Gen_RampePlafondLarguerArgentProfondeur": 0 } }

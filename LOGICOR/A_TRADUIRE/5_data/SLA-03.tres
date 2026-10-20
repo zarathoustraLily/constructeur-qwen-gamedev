@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="FicheSalle" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheSalle.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "SLA-03"
+nom = "Niveau 3"
+niveau = 3
+profil_nom = "Profil_H"
+difficulte_de_base = 290
+ramp_difficulte_par_profondeur = 82
+plafond_ennemis_de_base = 4.5
+ramp_plafond_par_profondeur = 0.5
+plafond_ennemis_max = 7
+types_min = 2
+types_max = 2
+plafond_types = 3
+ramp_types_par_profondeur = 0.2
+elite_types_max = 3
+vagues_min = 1
+vagues_max = 1
+intervalle_spawn_min = 0.75
+intervalle_spawn_max = 0.95
+pool = [{ "ref": "CRT-015", "poids": 2, "elite": false }, { "ref": "CRT-015", "poids": 1, "elite": true }, { "ref": "CRT-016", "poids": 1, "elite": false }, { "ref": "CRT-017", "poids": 1, "elite": false }, { "ref": "CRT-017", "poids": 1, "elite": true }, { "ref": "CRT-018", "poids": 1, "elite": false }, { "ref": "CRT-018", "poids": 1, "elite": true }, { "ref": "CRT-019", "poids": 1, "elite": false }, { "ref": "CRT-019", "poids": 1, "elite": true }, { "ref": "CRT-020", "poids": 1, "elite": false }, { "ref": "CRT-020", "poids": 1, "elite": true }]
+total_poids = 12
+nb_types = 6

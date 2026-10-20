@@ -1,0 +1,748 @@
+[
+  {
+    "id": "SLA-01",
+    "nom": "Niveau 1",
+    "niveau": 1,
+    "profil_nom": "Profil_F",
+    "profil": {
+      "DifficulteDeBase": 55,
+      "RampDifficulteParProfondeur": 15,
+      "PlafondEnnemisDeBase": 3,
+      "RampPlafondParProfondeur": 0.35,
+      "PlafondEnnemisMax": 10,
+      "TypesMin": 2,
+      "TypesMax": 2,
+      "PlafondTypes": 4,
+      "RampTypesParProfondeur": 0.2,
+      "EliteTypesMax": 1,
+      "VaguesMin": 1,
+      "IntervalleSpawnMin": 0.2,
+      "IntervalleSpawnMax": 0.4
+    },
+    "pool": [
+      {
+        "ref": "CRT-001",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-001",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-002",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-002",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-003",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-003",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-004",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-004",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-005",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-005",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-006",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-006",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-007",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-007",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 24,
+    "nb_types": 7
+  },
+  {
+    "id": "SLA-02",
+    "nom": "Niveau 2",
+    "niveau": 2,
+    "profil_nom": "Profil_G",
+    "profil": {
+      "DifficulteDeBase": 140,
+      "RampDifficulteParProfondeur": 40,
+      "PlafondEnnemisDeBase": 1,
+      "RampPlafondParProfondeur": 1,
+      "PlafondEnnemisMax": 8,
+      "TypesMin": 1,
+      "TypesMax": 2,
+      "PlafondTypes": 3,
+      "RampTypesParProfondeur": 0.1,
+      "EliteTypesMax": 2,
+      "VaguesMin": 1,
+      "VaguesMax": 3
+    },
+    "pool": [
+      {
+        "ref": "CRT-008",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-008",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-009",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-009",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-010",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-010",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-011",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-011",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-012",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-012",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-013",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-013",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-014",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-014",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 14,
+    "nb_types": 7
+  },
+  {
+    "id": "SLA-03",
+    "nom": "Niveau 3",
+    "niveau": 3,
+    "profil_nom": "Profil_H",
+    "profil": {
+      "DifficulteDeBase": 290,
+      "RampDifficulteParProfondeur": 82,
+      "PlafondEnnemisDeBase": 4.5,
+      "RampPlafondParProfondeur": 0.5,
+      "PlafondEnnemisMax": 7,
+      "TypesMin": 2,
+      "TypesMax": 2,
+      "PlafondTypes": 3,
+      "RampTypesParProfondeur": 0.2,
+      "EliteTypesMax": 3,
+      "VaguesMin": 1,
+      "VaguesMax": 1,
+      "IntervalleSpawnMin": 0.75,
+      "IntervalleSpawnMax": 0.95
+    },
+    "pool": [
+      {
+        "ref": "CRT-015",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-015",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-016",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-017",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-017",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-018",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-018",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-019",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-019",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-020",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-020",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 12,
+    "nb_types": 6
+  },
+  {
+    "id": "SLA-04",
+    "nom": "Niveau 4",
+    "niveau": 4,
+    "profil_nom": "Profil_I",
+    "profil": {
+      "DifficulteDeBase": 325,
+      "RampDifficulteParProfondeur": 105,
+      "PlafondEnnemisDeBase": 2,
+      "RampPlafondParProfondeur": 1,
+      "PlafondEnnemisMax": 10,
+      "TypesMin": 2,
+      "TypesMax": 2,
+      "PlafondTypes": 3,
+      "RampTypesParProfondeur": 0.25,
+      "EliteTypesMax": 4,
+      "VaguesMin": 1,
+      "VaguesMax": 3
+    },
+    "pool": [
+      {
+        "ref": "CRT-021",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-021",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-022",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-022",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-023",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-023",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-024",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-024",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-025",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-025",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-026",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-026",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 12,
+    "nb_types": 6
+  },
+  {
+    "id": "SLA-05",
+    "nom": "Niveau 5",
+    "niveau": 5,
+    "profil_nom": "Profil_N",
+    "profil": {
+      "DifficulteDeBase": 110,
+      "RampDifficulteParProfondeur": 25,
+      "PlafondEnnemisDeBase": 4,
+      "RampPlafondParProfondeur": 1,
+      "PlafondEnnemisMax": 10,
+      "TypesMin": 2,
+      "TypesMax": 2,
+      "PlafondTypes": 3,
+      "RampTypesParProfondeur": 0.2,
+      "EliteTypesMax": 1,
+      "VaguesMin": 1,
+      "VaguesMax": 2
+    },
+    "pool": [
+      {
+        "ref": "CRT-027",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-027",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-028",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-028",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-029",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-030",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-030",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-031",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-031",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-032",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-032",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-029",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 12,
+    "nb_types": 6
+  },
+  {
+    "id": "SLA-06",
+    "nom": "Niveau 6",
+    "niveau": 6,
+    "profil_nom": "Profil_O",
+    "profil": {
+      "DifficulteDeBase": 115,
+      "RampDifficulteParProfondeur": 35,
+      "PlafondEnnemisDeBase": 4,
+      "RampPlafondParProfondeur": 0.45,
+      "PlafondEnnemisMax": 10,
+      "TypesMin": 1,
+      "TypesMax": 2,
+      "PlafondTypes": 3,
+      "RampTypesParProfondeur": 0.2,
+      "EliteTypesMax": 2,
+      "VaguesMin": 1,
+      "VaguesMax": 2
+    },
+    "pool": [
+      {
+        "ref": "CRT-033",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-033",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-034",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-034",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-035",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-035",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-036",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-036",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-037",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-037",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-038",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-038",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-039",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-039",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 14,
+    "nb_types": 7
+  },
+  {
+    "id": "SLA-07",
+    "nom": "Niveau 7",
+    "niveau": 7,
+    "profil_nom": "Profil_P",
+    "profil": {
+      "DifficulteDeBase": 340,
+      "RampDifficulteParProfondeur": 90,
+      "PlafondEnnemisDeBase": 3,
+      "RampPlafondParProfondeur": 0.45,
+      "PlafondEnnemisMax": 9,
+      "TypesMin": 1,
+      "TypesMax": 2,
+      "PlafondTypes": 3,
+      "RampTypesParProfondeur": 0.33,
+      "EliteTypesMax": 3,
+      "VaguesMin": 1,
+      "VaguesMax": 2
+    },
+    "pool": [
+      {
+        "ref": "CRT-040",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-040",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-041",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-041",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-042",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-042",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-043",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-043",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-044",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-044",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-045",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-045",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-046",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-046",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-047",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-047",
+        "poids": 2,
+        "elite": true
+      },
+      {
+        "ref": "CRT-048",
+        "poids": 2,
+        "elite": false
+      },
+      {
+        "ref": "CRT-048",
+        "poids": 2,
+        "elite": true
+      }
+    ],
+    "total_poids": 32,
+    "nb_types": 9
+  },
+  {
+    "id": "SLA-08",
+    "nom": "Niveau 8",
+    "niveau": 8,
+    "profil_nom": "aucun",
+    "profil": {
+      "DifficulteDeBase": 30,
+      "RampDifficulteParProfondeur": 10,
+      "PlafondEnnemisDeBase": 2.3,
+      "RampPlafondParProfondeur": 0.35,
+      "PlafondEnnemisMax": 8,
+      "TypesMin": 1,
+      "TypesMax": 2,
+      "PlafondTypes": 4,
+      "RampTypesParProfondeur": 0.2,
+      "VaguesMin": 1,
+      "VaguesMax": 3,
+      "IntervalleSpawnMin": 0.175,
+      "IntervalleSpawnMax": 0.225
+    },
+    "pool": [
+      {
+        "ref": "CRT-049",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-049",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-050",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-050",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-051",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-051",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-052",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-052",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-053",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-053",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-054",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-054",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-055",
+        "poids": 1,
+        "elite": false
+      },
+      {
+        "ref": "CRT-055",
+        "poids": 1,
+        "elite": true
+      },
+      {
+        "ref": "CRT-056",
+        "poids": 1,
+        "elite": true
+      }
+    ],
+    "total_poids": 15,
+    "nb_types": 8
+  }
+]

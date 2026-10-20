@@ -1,0 +1,158 @@
+{
+  "description": "Données UI extraites du jeu source, anonymisées pour Space Dracula. Toutes les valeurs sont des constantes de layout et de style — aucune donnée de gameplay.",
+  "resolution_cible": {"largeur": 1920, "hauteur": 1080, "centre_x": 960, "centre_y": 540},
+
+  "text_formats": {
+    "description": "Formats de texte. Chaque format définit police, taille, couleur, ombre, contour. Les noms de police sont anonymisés.",
+    "polices_disponibles": [
+      {"nom": "PoliceCorps", "description": "Police principale du texte courant (sans-serif, régulière)"},
+      {"nom": "PoliceGras", "description": "Police en gras pour titres et boutons (sans-serif, bold)"},
+      {"nom": "PoliceItalique", "description": "Police en italique pour les instructions (sans-serif, italic)"},
+      {"nom": "PoliceItaliqueGras", "description": "Italique demi-gras (sans-serif, semibold italic)"},
+      {"nom": "PoliceTitre", "description": "Police pour les titres et bannières (condensée, medium)"},
+      {"nom": "PoliceTitreGras", "description": "Police titre en gras (condensée, heavy)"},
+      {"nom": "PoliceNumerique", "description": "Police pour les nombres PV/souffle/argent (condensée, medium)"},
+      {"nom": "PoliceNumeriqueGras", "description": "Police numérique en gras (condensée, heavy)"}
+    ],
+    "formats": [
+      {"nom": "FormatBase", "police": "PoliceCorps", "taille": 19.5, "couleur": [160, 160, 160, 255], "justification_v": "haut"},
+      {"nom": "FormatGras", "police": "PoliceGras", "taille": 19.5, "couleur": [230, 230, 230, 255], "justification_v": "haut"},
+      {"nom": "FormatInstruction", "police": "PoliceItalique", "taille": 20, "couleur": [140, 140, 140, 255]},
+      {"nom": "FormatPropriete", "police": "PoliceCorps", "taille": 20, "couleur": "clair_grey", "justification_v": "haut"},
+      {"nom": "FormatArgent", "couleur": "or_clair"},
+      {"nom": "FormatArgentGras", "couleur": "or_clair", "gras": true},
+      {"nom": "FormatMontee", "couleur": "vert_montee", "gras": true, "ombre": {"couleur": "noir", "decalage": [3, 3], "flou": 3}},
+      {"nom": "FormatPenalite", "police": "PoliceGras", "taille": 20, "couleur": "rouge_penalite", "ombre": {"couleur": "noir", "decalage": [3, 3], "flou": 3}},
+      {"nom": "FormatSouffle", "police": "PoliceGras", "couleur": "bleu_royal", "ombre": {"couleur": "noir", "decalage": [3, 3], "flou": 3}},
+      {"nom": "FormatArmure", "police": "PoliceGras", "couleur": "vert_lime", "ombre": {"couleur": "noir", "decalage": [3, 3], "flou": 3}},
+      {"nom": "FormatNiveau", "police": "PoliceTitre", "taille": 25, "couleur": "vert_montee", "ombre": {"couleur": "noir", "decalage": [0, 2], "flou": 0}, "justification": "gauche"},
+      {"nom": "FormatUtilisation", "police": "PoliceTitreGras", "taille": 22, "couleur": "blanc", "justification": "centre", "contour": {"epaisseur": 3, "couleur": "noir"}, "ombre": {"couleur": "noir", "decalage": [0, 5], "flou": 0}},
+      {"nom": "FormatBanniereTitre", "police": "PoliceTitre", "taille": 42, "couleur": "blanc", "justification": "centre", "largeur": 1600, "ombre": {"couleur": [0,0,0,240], "decalage": [0, 3], "flou": 0}},
+      {"nom": "FormatBanniereSousTitre", "police": "PoliceTitre", "taille": 30, "couleur": "or", "justification": "centre", "largeur": 1600, "ombre": {"couleur": [0,0,0,240], "decalage": [0, 3], "flou": 0}},
+      {"nom": "FormatProfondeur", "police": "PoliceTitre", "taille": 22, "couleur": [220, 220, 220, 255], "justification": "droite", "contour": {"epaisseur": 3, "couleur": "noir"}, "ombre": {"couleur": "noir", "decalage": [0, 5], "flou": 0}}
+    ]
+  },
+
+  "hud": {
+    "description": "Layout du HUD en jeu. Position absolue en pixels 1920x1080.",
+    "barre_vie": {
+      "x": 315, "bottom_offset": 60, "echelle": 0.5,
+      "texte": {"police": "PoliceNumeriqueGras", "taille": 28, "justification": "centre", "decalage_x": 0, "decalage_y": 18},
+      "falloff": {"x": 325, "bottom_offset": 39, "echelle": 0.5, "delai": 0.4, "duree": 0.4, "ease_in": 0.66, "ease_out": 0.88},
+      "fill": {"x": 325, "bottom_offset": 39, "echelle": 0.5, "duree": 0.0},
+      "buffer": {"x": 325, "bottom_offset": 39, "echelle": 0.5, "texte": {"decalage_x": 225, "decalage_y": -4, "justification": "droite"}},
+      "indicateur_haut": {"x": 483, "bottom_offset": 45, "commentaire": "marque les 80% PV"},
+      "indicateur_bas": {"x": 217, "bottom_offset": 45, "commentaire": "marque les 30% PV"}
+    },
+    "barre_souffle": {
+      "x": 325, "bottom_offset": 95,
+      "fill": {"x": 325, "bottom_offset": 82, "echelle": 0.5},
+      "reserve": {"x": 325, "bottom_offset": 82, "echelle": 0.5, "texte": {"couleur": [180, 168, 255, 255], "decalage_x": 200, "decalage_y": -2, "justification": "droite"}},
+      "indicateur_bas": {"seuil_absolu": 10, "decalage_barre": 2}
+    },
+    "argent": {
+      "right_offset": 40, "bottom_offset": 24, "echelle": 0.6,
+      "texte": {"police": "PoliceNumerique", "taille": 28, "justification": "droite", "decalage_x": -30, "decalage_y": -4}
+    },
+    "profondeur": {
+      "right_offset": 180, "y": 30,
+      "texte": {"police": "PoliceTitre", "taille": 22, "couleur": [220, 220, 220, 255], "justification": "droite"}
+    },
+    "slots_trait": {
+      "description": "7 slots de traits alignés verticalement à gauche",
+      "x_depart": 40, "y_depart": 287, "espacement_y": 93.5,
+      "slots": ["Aspect", "Compagnon", "Corps", "Secondaire", "Distance", "Eff", "Souffle"]
+    },
+    "slots_actifs": {
+      "description": "3 slots de traits actifs en bas",
+      "y_depart": 900, "bottom_offset": 160,
+      "slots": ["Souvenir", "Sort", "Assistance"]
+    },
+    "barre_action": {
+      "y": 984, "bottom_offset": 96
+    },
+    "boutons_contextuels": {
+      "espacement": 120,
+      "y": 1030, "bottom_offset": 50,
+      "x_gauche": 40, "x_droite": 1875,
+      "format": {"police": "PoliceGras", "taille": 20, "largeur": 415, "couleur": [148, 87, 200, 255], "justification": "centre_v", "ombre": {"decalage": [0, 3]}}
+    },
+    "prompt_utilisation": {
+      "center_offset_x": 0, "bottom_offset": -10,
+      "texte": {"police": "PoliceTitreGras", "taille": 22, "couleur": "blanc", "justification": "centre", "contour": {"epaisseur": 3, "couleur": "noir"}, "ombre": {"couleur": "noir", "decalage": [0, 5]}}
+    },
+    "objectifs": {
+      "x_depart": 130, "y_depart": 150, "espacement_y": 40
+    },
+    "dernier_effort": {
+      "x": 610, "bottom_offset": 36, "espacement_x": 48, "echelle": 0.8,
+      "texte": {"police": "PoliceNumerique", "taille": 22, "couleur": "blanc", "justification": "centre", "decalage_x": 5, "decalage_y": 9}
+    },
+    "fade": {"duree_entree": 0.5, "duree_sortie": 0.2}
+  },
+
+  "combat_ui": {
+    "description": "Comportement du HUD en combat (auto-hide, barres de vie ennemies, texte de dégâts).",
+    "auto_hide": {"actif": true, "delai": 16},
+    "barres_vie_ennemies": {
+      "delai_falloff": 0.25,
+      "echelles": {"petite": 0.6, "moyenne": 1.0, "moyenne_grande": 1.5, "grande": 2.0, "tres_grande": 2.5},
+      "seuils": {"petite": 80, "moyenne": 250, "moyenne_grande": 320}
+    },
+    "pip_venin": {"espacement": 20, "largeur_max": 75, "espacement_boss": 30},
+    "pip_munitions": {"espacement": 22, "largeur_max": 66},
+    "fade_distance": {
+      "description": "Distance en pixels à laquelle chaque élément du HUD commence à fader",
+      "ombre": 20, "trait": 0, "vie": 30, "super": 20, "souffle": 20, "munitions": 20,
+      "point_autel": 50, "point_meta": 40, "argent": 30, "point_cadeau": 20, "cle": 10
+    },
+    "trait_ui_start": 50,
+    "fade": {"duree": 0.5, "duree_trait": 0.15, "duree_entree": 0.5},
+    "texte_degats": {
+      "duree_retention": 0.25,
+      "vitesse_tween": 0.5,
+      "distance_max_derive": 300,
+      "fusionner_tous": false
+    }
+  },
+
+  "sante": {
+    "description": "Seuils de PV faible pour les effets visuels.",
+    "seuil_faible": 0.35,
+    "max_faible": 50,
+    "min_faible": 10,
+    "seuil_coup_fort": 0.15
+  },
+
+  "icones": {
+    "description": "220 icônes extraites. Les chemins sont anonymisés — voir ICONES_UI.json pour la liste complète.",
+    "principales": [
+      {"nom": "Vie", "usage": "icône PV"},
+      {"nom": "Souffle", "usage": "icône souffle/mana"},
+      {"nom": "Argent", "usage": "icône monnaie"},
+      {"nom": "Elite", "usage": "badge ennemi élite"},
+      {"nom": "MiniBoss", "usage": "badge mini-boss"},
+      {"nom": "Armure", "usage": "icône armure"},
+      {"nom": "Trait", "usage": "icône trait/buff"},
+      {"nom": "Montee", "usage": "icône d'amélioration"},
+      {"nom": "Penalite", "usage": "icône de pénalité"}
+    ]
+  },
+
+  "couleurs": {
+    "description": "Palette de couleurs utilisée dans le HUD.",
+    "blanc": [255, 255, 255, 255],
+    "gris_clair": [160, 160, 160, 255],
+    "gris_moyen": [140, 140, 140, 255],
+    "or": [255, 215, 0, 255],
+    "or_clair": [255, 223, 100, 255],
+    "vert_montee": [80, 200, 80, 255],
+    "vert_lime": [144, 238, 144, 255],
+    "bleu_royal": [65, 105, 225, 255],
+    "rouge_penalite": [220, 50, 50, 255],
+    "violet": [148, 87, 200, 255],
+    "jaune": [255, 255, 0, 255],
+    "noir": [0, 0, 0, 255],
+    "contour_noir": [29, 29, 29, 255]
+  }
+}

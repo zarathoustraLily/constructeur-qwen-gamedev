@@ -1,0 +1,1105 @@
+[
+  {
+    "id": "CRT-001",
+    "nom": "CRT-001",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 210,
+      "Vitesse": 160,
+      "NoteDifficulte": 18
+    },
+    "arsenal": [
+      "CRT-001_Meleex2"
+    ]
+  },
+  {
+    "id": "CRT-002",
+    "nom": "CRT-002",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 60,
+      "Vitesse": 125,
+      "NoteDifficulte": 5,
+      "IA.PorteeAggro": 800,
+      "PoidsPlafondActif": 0.6
+    },
+    "arsenal": [
+      "CRT-002_HyperSpin",
+      "CRT-002_Melee",
+      "CRT-002_MeleeElite",
+      "CRT-002_Ranged",
+      "CRT-002_Saw"
+    ]
+  },
+  {
+    "id": "CRT-003",
+    "nom": "CRT-003",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 80,
+      "Vitesse": 280,
+      "NoteDifficulte": 12,
+      "IA.PorteeAggro": 1250,
+      "PoidsPlafondActif": 0.8,
+      "IA.MaxAttaquants": 6
+    },
+    "arsenal": [
+      "CRT-003_Ranged",
+      "CRT-003_RangedElite",
+      "CRT-035_Ranged",
+      "CRT-035_RangedElite"
+    ]
+  },
+  {
+    "id": "CRT-004",
+    "nom": "CRT-004",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 45,
+      "Vitesse": 390,
+      "NoteDifficulte": 7,
+      "IA.PorteeAggro": 1250,
+      "PoidsPlafondActif": 0.5
+    },
+    "arsenal": [
+      "CRT-004_Melee360",
+      "CRT-004_Melee360AutoFire",
+      "CRT-004_Melee360Elite"
+    ]
+  },
+  {
+    "id": "CRT-005",
+    "nom": "CRT-005",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 130,
+      "Vitesse": 290,
+      "NoteDifficulte": 13,
+      "IA.MaxAttaquants": 2,
+      "IA.IntervalleRafraichissementEntourer": 0.25,
+      "IA.DistanceEntourerRiposte": 125,
+      "IA.TamponRecul": 700
+    },
+    "arsenal": [
+      "CRT-005_Conex2",
+      "CRT-005_Vacuum"
+    ]
+  },
+  {
+    "id": "CRT-006",
+    "nom": "CRT-006",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 290,
+      "Vitesse": 0,
+      "NoteDifficulte": 22,
+      "IA.PorteeAggro": 1300,
+      "PoidsPlafondActif": 2.5
+    },
+    "arsenal": [
+      "CRT-006_2FastVines",
+      "CRT-006_2RootVines",
+      "CRT-006_s",
+      "CRT-006_sElite"
+    ]
+  },
+  {
+    "id": "CRT-007",
+    "nom": "CRT-007",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 90,
+      "Vitesse": 120,
+      "NoteDifficulte": 9,
+      "IA.PorteeAggro": 300,
+      "IA.TamponRecul": 250
+    },
+    "arsenal": [
+      "CRT-007_Fusex2"
+    ]
+  },
+  {
+    "id": "CRT-008",
+    "nom": "CRT-008",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "NoteDifficulte": 16
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-009",
+    "nom": "CRT-009",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 615,
+      "Vitesse": 370,
+      "NoteDifficulte": 45,
+      "IA.PorteeAggro": 910,
+      "ModificateurCassureEtourdissement": 1.35
+    },
+    "arsenal": [
+      "CRT-009_Impale",
+      "CRT-009_ImpaleElite"
+    ]
+  },
+  {
+    "id": "CRT-010",
+    "nom": "CRT-010",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 390,
+      "Vitesse": 390,
+      "NoteDifficulte": 39,
+      "IA.PorteeAggro": 1100,
+      "IA.MaxAttaquants": 2,
+      "IA.DistanceEntourer": 600,
+      "IA.IntervalleRafraichissementEntourer": 0.1,
+      "IA.TamponRecul": 9999
+    },
+    "arsenal": [
+      "CRT-010_Base",
+      "CRT-010_Elite"
+    ]
+  },
+  {
+    "id": "CRT-011",
+    "nom": "CRT-011",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 190,
+      "Vitesse": 250,
+      "NoteDifficulte": 12,
+      "IA.PorteeAggro": 800
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-012",
+    "nom": "CRT-012",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 120,
+      "Vitesse": 500,
+      "NoteDifficulte": 14,
+      "IA.PorteeAggro": 1100
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-013",
+    "nom": "CRT-013",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 240,
+      "Vitesse": 200,
+      "NoteDifficulte": 55,
+      "IA.PorteeAggro": 1300,
+      "ModificateurCassureEtourdissement": 0.33,
+      "IA.MaxAttaquants": 99,
+      "IA.DistanceEntourerRiposte": 370
+    },
+    "arsenal": [
+      "CRT-013_BounceLob",
+      "CRT-013_BounceLobElite",
+      "CRT-013_Clawx2",
+      "CRT-013_ClawRushx2",
+      "CRT-013_Hidex2"
+    ]
+  },
+  {
+    "id": "CRT-014",
+    "nom": "CRT-014",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 250,
+      "Vitesse": 0,
+      "NoteDifficulte": 30,
+      "IA.PorteeAggro": 2000,
+      "IA.MaxAttaquants": 99,
+      "IA.IntervalleRafraichissementEntourer": 0.4,
+      "IA.DistanceEntourerRiposte": 400
+    },
+    "arsenal": [
+      "CRT-014_Divex4",
+      "CRT-014_DiveMiniBossx2",
+      "CRT-014_Fidgetx2",
+      "CRT-014_Lobx2",
+      "CRT-014_LobMiniboss",
+      "CRT-014_Spit",
+      "CRT-014_SpitElite",
+      "CRT-014_SpitMiniBoss",
+      "CRT-014_Swipex2",
+      "CRT-014_SwipeMiniboss"
+    ]
+  },
+  {
+    "id": "CRT-057",
+    "nom": "CRT-057",
+    "categorie": "ennemi",
+    "props": {
+      "PV_Max": 5950,
+      "Vitesse": 0,
+      "IA.DelaiSetupIA": 1.5,
+      "IA.FinSeuilPV": 0.5
+    },
+    "arsenal": [
+      "CRT-057_BeatClawClosex2",
+      "CRT-057_BeatClawFarx2",
+      "CRT-057_BeatClawMidx2",
+      "CRT-057_BeatConeInx2",
+      "CRT-057_BeatConeOutx2",
+      "CRT-057_BeatCoralClosex2",
+      "CRT-057_BeatCoralFarx2",
+      "CRT-057_BeatOpenerx2",
+      "CRT-057_CircleCombo01",
+      "CRT-057_CircleCombo02",
+      "CRT-057_SpotlightCombo",
+      "CRT-057_SpotlightPassive"
+    ]
+  },
+  {
+    "id": "CRT-058",
+    "nom": "CRT-058",
+    "categorie": "ennemi",
+    "props": {
+      "PV_Max": 4200,
+      "Vitesse": 480,
+      "IA.DelaiSetupIA": 1.5,
+      "IA.TamponRecul": 900,
+      "IA.FinSeuilPV": 0.5
+    },
+    "arsenal": [
+      "CRT-058_BounceBallsx2",
+      "CRT-058_Dive",
+      "CRT-058_Powerslidex2",
+      "CRT-058_Shred",
+      "CRT-058_SpotlightCombo",
+      "CRT-058_SpotlightPassive"
+    ]
+  },
+  {
+    "id": "CRT-015",
+    "nom": "CRT-015",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 280,
+      "Vitesse": 290,
+      "NoteDifficulte": 38,
+      "PoidsPlafondActif": 0.34
+    },
+    "arsenal": [
+      "CRT-015_Slamx2",
+      "CRT-015_SlamElite",
+      "CRT-015_SpitElite"
+    ]
+  },
+  {
+    "id": "CRT-016",
+    "nom": "CRT-016",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 730,
+      "Vitesse": 210,
+      "NoteDifficulte": 80,
+      "IA.PorteeAggro": 1500,
+      "PoidsPlafondActif": 2
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-017",
+    "nom": "CRT-017",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 480,
+      "Vitesse": 450,
+      "NoteDifficulte": 70,
+      "IA.MaxAttaquants": 4,
+      "IA.IntervalleRafraichissementEntourer": 0.5,
+      "IA.DistanceEntourerRiposte": 400
+    },
+    "arsenal": [
+      "CRT-017_Miasma",
+      "CRT-017_Shockwavex3",
+      "CRT-017_ShockwaveMiniboss",
+      "CRT-017_SkyCast",
+      "CRT-017_SkyCastElite",
+      "CRT-017_SkyCastMiniboss",
+      "CRT-017_SkyCastSupport"
+    ]
+  },
+  {
+    "id": "CRT-018",
+    "nom": "CRT-018",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 400,
+      "Vitesse": 310,
+      "NoteDifficulte": 55,
+      "PoidsPlafondActif": 1,
+      "IA.MaxAttaquants": 3,
+      "IA.IntervalleRafraichissementEntourer": 0.4,
+      "IA.DistanceEntourerRiposte": 500
+    },
+    "arsenal": [
+      "CRT-018_Groundx2",
+      "CRT-018_GroundElite",
+      "CRT-018_Launcher",
+      "CRT-018_LauncherElite",
+      "CRT-018_Overhand"
+    ]
+  },
+  {
+    "id": "CRT-019",
+    "nom": "CRT-019",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 890,
+      "Vitesse": 350,
+      "NoteDifficulte": 115,
+      "PoidsPlafondActif": 1.5
+    },
+    "arsenal": [
+      "CRT-019_HowlSummons",
+      "CRT-019_HowlSummonsElite",
+      "CRT-019_Pounce",
+      "CRT-019_PounceElite"
+    ]
+  },
+  {
+    "id": "CRT-020",
+    "nom": "CRT-020",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 825,
+      "Vitesse": 340,
+      "NoteDifficulte": 85,
+      "PoidsPlafondActif": 1,
+      "ModificateurCassureEtourdissement": 1.35,
+      "IA.MaxAttaquants": 99,
+      "IA.IntervalleRafraichissementEntourer": 0.4,
+      "IA.DistanceEntourerRiposte": 400
+    },
+    "arsenal": [
+      "CRT-020_CastElite",
+      "CRT-020_Rampagex4",
+      "CRT-020_RampageElitex7",
+      "CRT-020_Screamx2"
+    ]
+  },
+  {
+    "id": "CRT-021",
+    "nom": "CRT-021",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 1650,
+      "Vitesse": 350,
+      "NoteDifficulte": 125,
+      "IA.PorteeAggro": 780,
+      "PoidsPlafondActif": 1,
+      "ModificateurCassureEtourdissement": 1.35,
+      "ModificateurEffetRalentissement": 0.7
+    },
+    "arsenal": [
+      "CRT-021_ThugShove",
+      "CRT-021_ThugShoveElite",
+      "CRT-021_ThugSwipe",
+      "CRT-021_ThugSwipeElite"
+    ]
+  },
+  {
+    "id": "CRT-022",
+    "nom": "CRT-022",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 510,
+      "Vitesse": 400,
+      "NoteDifficulte": 38,
+      "IA.PorteeAggro": 900,
+      "PoidsPlafondActif": 0.25,
+      "IA.MaxAttaquants": 4,
+      "IA.TamponRecul": 900
+    },
+    "arsenal": [
+      "CRT-022_Beam",
+      "CRT-022_BeamElitex2",
+      "CRT-022_BeamMiniBoss",
+      "CRT-022_Ground",
+      "CRT-022_Sky"
+    ]
+  },
+  {
+    "id": "CRT-023",
+    "nom": "CRT-023",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 990,
+      "Vitesse": 350,
+      "NoteDifficulte": 120,
+      "IA.PorteeAggro": 780,
+      "PoidsPlafondActif": 1
+    },
+    "arsenal": [
+      "CRT-023_BackDashx5",
+      "CRT-023_StrafeLeftx5",
+      "CRT-023_StrafeRightx5",
+      "CRT-023_Throw",
+      "CRT-023_ThrowElitex2",
+      "CRT-023_Thrust",
+      "CRT-023_ThrustElitex2",
+      "CRT-045_Throw",
+      "CRT-045_ThrowElite",
+      "CRT-045_Thrust",
+      "CRT-045_ThrustElite"
+    ]
+  },
+  {
+    "id": "CRT-024",
+    "nom": "CRT-024",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 1000,
+      "Vitesse": 250,
+      "NoteDifficulte": 110,
+      "IA.PorteeAggro": 780,
+      "PoidsPlafondActif": 2.5,
+      "ModificateurCassureEtourdissement": 1.35,
+      "IA.MaxAttaquants": 2,
+      "IA.DistanceEntourer": 750,
+      "IA.IntervalleRafraichissementEntourer": 0.5
+    },
+    "arsenal": [
+      "CRT-024_Cast",
+      "CRT-024_CastElite",
+      "CRT-024_CastMiniboss",
+      "CRT-024_Meleex2",
+      "CRT-024_MeleeCultist",
+      "CRT-024_MeleeMiniboss",
+      "CRT-024_Spell",
+      "CRT-024_Summon",
+      "CRT-024_SummonElite",
+      "CRT-024_SummonMiniboss"
+    ]
+  },
+  {
+    "id": "CRT-025",
+    "nom": "CRT-025",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 225,
+      "NoteDifficulte": 25,
+      "IA.PorteeAggro": 910
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-026",
+    "nom": "CRT-026",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 325,
+      "Vitesse": 100,
+      "NoteDifficulte": 45,
+      "IA.PorteeAggro": 850,
+      "PoidsPlafondActif": 0.5
+    },
+    "arsenal": [
+      "CRT-026_Orbit",
+      "CRT-026_OrbitElite"
+    ]
+  },
+  {
+    "id": "CRT-059",
+    "nom": "CRT-059",
+    "categorie": "ennemi",
+    "props": {
+      "PV_Max": 630,
+      "NoteDifficulte": 75,
+      "IA.PorteeAggro": 1500,
+      "IA.DelaiEveil": 1.35
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-027",
+    "nom": "CRT-027",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 60,
+      "Vitesse": 300,
+      "NoteDifficulte": 11,
+      "IA.PorteeAggro": 1200,
+      "PoidsPlafondActif": 0.5
+    },
+    "arsenal": [
+      "CRT-027_Sweep",
+      "CRT-027_SweepElite"
+    ]
+  },
+  {
+    "id": "CRT-028",
+    "nom": "CRT-028",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 330,
+      "Vitesse": 150,
+      "NoteDifficulte": 41,
+      "IA.PorteeAggro": 900,
+      "PoidsPlafondActif": 1.25,
+      "IA.MaxAttaquants": 2,
+      "IA.DistanceEntourer": 650,
+      "IA.IntervalleRafraichissementEntourer": 0.5
+    },
+    "arsenal": [
+      "CRT-028_EyeExplode",
+      "CRT-028_Shove",
+      "CRT-028_ShoveElite",
+      "CRT-028_StraightThrow",
+      "CRT-028_StraightThrowElite"
+    ]
+  },
+  {
+    "id": "CRT-029",
+    "nom": "CRT-029",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 170,
+      "Vitesse": 75,
+      "NoteDifficulte": 6,
+      "PoidsPlafondActif": 0.35,
+      "ModificateurCassureEtourdissement": 0.14,
+      "IA.TamponRecul": 550
+    },
+    "arsenal": [
+      "CRT-029_Meleex2",
+      "CRT-029_MeleeElitex2",
+      "CRT-048_Melee",
+      "CRT-048_MeleeElite"
+    ]
+  },
+  {
+    "id": "CRT-030",
+    "nom": "CRT-030",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 230,
+      "Vitesse": 300,
+      "NoteDifficulte": 30,
+      "IA.PorteeAggro": 1500,
+      "ModificateurCassureEtourdissement": 5,
+      "ModificateurEffetRalentissement": 0.8
+    },
+    "arsenal": [
+      "CRT-030_LateralDashx4",
+      "CRT-030_Stab",
+      "CRT-030_StabElite",
+      "CRT-030_Stalkx2"
+    ]
+  },
+  {
+    "id": "CRT-031",
+    "nom": "CRT-031",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 440,
+      "Vitesse": 175,
+      "NoteDifficulte": 40,
+      "IA.PorteeAggro": 1100,
+      "IA.MaxAttaquants": 3,
+      "IA.DistanceEntourer": 1000,
+      "IA.IntervalleRafraichissementEntourer": 1.5
+    },
+    "arsenal": [
+      "CRT-031_Shove",
+      "CRT-031_ShoveElite",
+      "CRT-031_Toss",
+      "CRT-031_TossElite"
+    ]
+  },
+  {
+    "id": "CRT-032",
+    "nom": "CRT-032",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 400,
+      "Vitesse": 0,
+      "NoteDifficulte": 40
+    },
+    "arsenal": [
+      "CRT-032_Summon",
+      "CRT-032_SummonElite",
+      "CRT-032_Waitx2"
+    ]
+  },
+  {
+    "id": "CRT-033",
+    "nom": "CRT-033",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 490,
+      "Vitesse": 300,
+      "NoteDifficulte": 50,
+      "IA.PorteeAggro": 1150,
+      "IA.MaxAttaquants": 4,
+      "IA.DistanceEntourer": 550,
+      "IA.IntervalleRafraichissementEntourer": 0.2
+    },
+    "arsenal": [
+      "CRT-033_Barrel",
+      "CRT-033_Stab",
+      "CRT-033_StabElite",
+      "CRT-033_SwingLeftx2",
+      "CRT-033_SwingLeftElite",
+      "CRT-033_SwingRightx2",
+      "CRT-033_SwingRightElite"
+    ]
+  },
+  {
+    "id": "CRT-034",
+    "nom": "CRT-034",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 925,
+      "Vitesse": 400,
+      "NoteDifficulte": 75,
+      "IA.PorteeAggro": 1150,
+      "PoidsPlafondActif": 0.67,
+      "ModificateurCassureEtourdissement": 2,
+      "IA.DelaiEveil": 0.9,
+      "IA.MaxAttaquants": 999,
+      "IA.IntervalleRafraichissementEntourer": 0.5,
+      "IA.DistanceEntourerRiposte": 450
+    },
+    "arsenal": [
+      "CRT-034_HarpyDashLeftx5",
+      "CRT-034_HarpyDashRightx5",
+      "CRT-034_HarpyFlap",
+      "CRT-034_HarpyFlapElitex2",
+      "CRT-034_HarpyFlapFast",
+      "CRT-034_HarpyFlapFastElite",
+      "CRT-034_HarpySlicex2",
+      "CRT-034_HarpySlice2x3",
+      "CRT-034_HarpyWindElitex2"
+    ]
+  },
+  {
+    "id": "CRT-035",
+    "nom": "CRT-035",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 415,
+      "NoteDifficulte": 40,
+      "IA.PorteeAggro": 1150,
+      "IA.MaxAttaquants": 2
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-036",
+    "nom": "CRT-036",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 260,
+      "Vitesse": 400,
+      "NoteDifficulte": 30,
+      "IA.PorteeAggro": 1150,
+      "PoidsPlafondActif": 0.5,
+      "IA.MaxAttaquants": 2,
+      "IA.DistanceEntourerRiposte": 300
+    },
+    "arsenal": [
+      "CRT-036_SlashLeftx2",
+      "CRT-036_SlashRightx2"
+    ]
+  },
+  {
+    "id": "CRT-037",
+    "nom": "CRT-037",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 480,
+      "Vitesse": 0,
+      "NoteDifficulte": 50,
+      "IA.PorteeAggro": 1150,
+      "IA.MaxAttaquants": 99,
+      "IA.DistanceEntourer": 9999,
+      "IA.IntervalleRafraichissementEntourer": 0.5
+    },
+    "arsenal": [
+      "CRT-037_Leap",
+      "CRT-037_LeapCombo",
+      "CRT-037_Throw",
+      "CRT-037_ThrowElite"
+    ]
+  },
+  {
+    "id": "CRT-038",
+    "nom": "CRT-038",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 1030,
+      "Vitesse": 200,
+      "NoteDifficulte": 65,
+      "IA.PorteeAggro": 1150,
+      "PoidsPlafondActif": 1
+    },
+    "arsenal": [
+      "CRT-038_Swing",
+      "CRT-038_SwingElite"
+    ]
+  },
+  {
+    "id": "CRT-039",
+    "nom": "CRT-039",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 140,
+      "Vitesse": 1275,
+      "NoteDifficulte": 13,
+      "IA.PorteeAggro": 1150,
+      "PoidsPlafondActif": 0.5,
+      "IA.MaxAttaquants": 99,
+      "IA.IntervalleRafraichissementEntourer": 0.5,
+      "IA.DistanceEntourerRiposte": 300
+    },
+    "arsenal": [
+      "CRT-039_Bite",
+      "CRT-039_BiteElite",
+      "CRT-039_Fidgetx2"
+    ]
+  },
+  {
+    "id": "CRT-060",
+    "nom": "CRT-060",
+    "categorie": "ennemi",
+    "props": {
+      "PV_Max": 3000,
+      "Vitesse": 400,
+      "NoteDifficulte": 200
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-040",
+    "nom": "CRT-040",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 1250,
+      "Vitesse": 275,
+      "NoteDifficulte": 130,
+      "IA.MaxAttaquants": 99,
+      "IA.DistanceEntourer": 800,
+      "IA.IntervalleRafraichissementEntourer": 0.5
+    },
+    "arsenal": [
+      "CRT-040_Scanx2",
+      "CRT-040_AutomatonBeamForwardx3",
+      "CRT-040_AutomatonBeamForwardElite"
+    ]
+  },
+  {
+    "id": "CRT-041",
+    "nom": "CRT-041",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 1350,
+      "Vitesse": 350,
+      "NoteDifficulte": 150
+    },
+    "arsenal": [
+      "CRT-041_Slash",
+      "CRT-041_SlashAmbientBattlex2",
+      "CRT-041_SlashElite",
+      "CRT-041_Whirlwind",
+      "CRT-041_WhirlwindElite"
+    ]
+  },
+  {
+    "id": "CRT-042",
+    "nom": "CRT-042",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 1450,
+      "Vitesse": 400,
+      "NoteDifficulte": 230,
+      "IA.DelaiEveil": 0.8
+    },
+    "arsenal": [
+      "CRT-042_Breathx2",
+      "CRT-042_BreathMiniBossx2",
+      "CRT-042_Glidex3",
+      "CRT-042_GlideMiniboss",
+      "CRT-042_TailWhipx3",
+      "CRT-042_TailWhipMiniboss",
+      "CRT-042_WhirlLeftx2",
+      "CRT-042_WhirlRightx2"
+    ]
+  },
+  {
+    "id": "CRT-043",
+    "nom": "CRT-043",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 1010,
+      "Vitesse": 500,
+      "NoteDifficulte": 90
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-044",
+    "nom": "CRT-044",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 750,
+      "NoteDifficulte": 240,
+      "PoidsPlafondActif": 1.9,
+      "IA.DelaiEveil": 1.3
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-045",
+    "nom": "CRT-045",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 1090,
+      "NoteDifficulte": 220,
+      "IA.DelaiEveil": 1.3
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-046",
+    "nom": "CRT-046",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 1530,
+      "Vitesse": 325,
+      "NoteDifficulte": 90,
+      "IA.PorteeAggro": 780,
+      "PoidsPlafondActif": 1,
+      "IA.DelaiEveil": 1.3,
+      "IA.MaxAttaquants": 2,
+      "IA.IntervalleRafraichissementEntourer": 0.5,
+      "IA.DistanceEntourerRiposte": 400
+    },
+    "arsenal": [
+      "CRT-046_BackDashx2",
+      "CRT-046_Lobx2",
+      "CRT-046_Meleex2",
+      "CRT-046_Rocket",
+      "CRT-046_RocketElite"
+    ]
+  },
+  {
+    "id": "CRT-047",
+    "nom": "CRT-047",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 470,
+      "Vitesse": 325,
+      "NoteDifficulte": 50,
+      "PoidsPlafondActif": 0.25,
+      "IA.MaxAttaquants": 3,
+      "IA.IntervalleRafraichissementEntourer": 0.5,
+      "IA.DistanceEntourerRiposte": 300
+    },
+    "arsenal": [
+      "CRT-047_Burst",
+      "CRT-047_BurstAmbientBattlex2",
+      "CRT-047_BurstElite",
+      "CRT-047_Ventx2"
+    ]
+  },
+  {
+    "id": "CRT-048",
+    "nom": "CRT-048",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 2,
+      "PV_Max": 640,
+      "Vitesse": 250,
+      "NoteDifficulte": 35
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-061",
+    "nom": "CRT-061",
+    "categorie": "ennemi",
+    "props": {
+      "PV_Max": 8000,
+      "Vitesse": 600
+    },
+    "arsenal": [
+      "CRT-061_RollLeft",
+      "CRT-061_RollRight",
+      "CRT-061_RushFastx2"
+    ]
+  },
+  {
+    "id": "CRT-049",
+    "nom": "CRT-049",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 400,
+      "Vitesse": 400,
+      "NoteDifficulte": 30
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-050",
+    "nom": "CRT-050",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 500,
+      "Vitesse": 400,
+      "NoteDifficulte": 50,
+      "PoidsPlafondActif": 1
+    },
+    "arsenal": [
+      "CRT-050_Cluster",
+      "CRT-050_Divex2",
+      "CRT-050_Ranged",
+      "CRT-051_Pitchx2",
+      "CRT-051_PitchCurve",
+      "CRT-051_PitchCurveVolley",
+      "CRT-051_Repositionx3"
+    ]
+  },
+  {
+    "id": "CRT-051",
+    "nom": "CRT-051",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 310,
+      "Vitesse": 350,
+      "NoteDifficulte": 12
+    },
+    "arsenal": [
+      "CRT-051_Melee",
+      "CRT-051_MeleeBerserkerCombo1",
+      "CRT-054_Weapon",
+      "CRT-054_WeaponElite"
+    ]
+  },
+  {
+    "id": "CRT-052",
+    "nom": "CRT-052",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 350,
+      "Vitesse": 600,
+      "NoteDifficulte": 50
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-053",
+    "nom": "CRT-053",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 500,
+      "Vitesse": 600,
+      "NoteDifficulte": 35
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-054",
+    "nom": "CRT-054",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 430,
+      "Vitesse": 250,
+      "NoteDifficulte": 40
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-055",
+    "nom": "CRT-055",
+    "categorie": "ennemi",
+    "props": {
+      "PoidsPiscine": 1,
+      "PV_Max": 150,
+      "NoteDifficulte": 20,
+      "IA.MaxAttaquants": 2,
+      "IA.DistanceEntourer": 550,
+      "IA.IntervalleRafraichissementEntourer": 0.5
+    },
+    "arsenal": []
+  },
+  {
+    "id": "CRT-056",
+    "nom": "CRT-056",
+    "categorie": "ennemi",
+    "props": {
+      "PV_Max": 30,
+      "Vitesse": 300,
+      "NoteDifficulte": 8,
+      "PoidsPlafondActif": 0.35
+    },
+    "arsenal": [
+      "CRT-025_Melee",
+      "CRT-025_MeleeElite",
+      "CRT-056_Melee"
+    ]
+  }
+]

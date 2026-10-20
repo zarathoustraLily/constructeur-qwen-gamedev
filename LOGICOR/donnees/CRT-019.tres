@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-019"
+nom = "CRT-019"
+categorie = "ennemi"
+PV_Max = 890
+Vitesse = 350.0
+NoteDifficulte = 115
+PoidsPiscine = 1
+PoidsPlafondActif = 1.5
+arsenal = ["CRT-019_HowlSummons", "CRT-019_HowlSummonsElite", "CRT-019_Pounce", "CRT-019_PounceElite"]

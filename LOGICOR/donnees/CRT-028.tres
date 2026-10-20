@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-028"
+nom = "CRT-028"
+categorie = "ennemi"
+PV_Max = 330
+Vitesse = 150.0
+NoteDifficulte = 41
+PoidsPiscine = 1
+PoidsPlafondActif = 1.25
+arsenal = ["CRT-028_EyeExplode", "CRT-028_Shove", "CRT-028_ShoveElite", "CRT-028_StraightThrow", "CRT-028_StraightThrowElite"]

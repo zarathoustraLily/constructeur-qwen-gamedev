@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-042"
+nom = "CRT-042"
+categorie = "ennemi"
+PV_Max = 1450
+Vitesse = 400.0
+NoteDifficulte = 230
+PoidsPiscine = 2
+arsenal = ["CRT-042_Breathx2", "CRT-042_BreathMiniBossx2", "CRT-042_Glidex3", "CRT-042_GlideMiniboss", "CRT-042_TailWhipx3", "CRT-042_TailWhipMiniboss", "CRT-042_WhirlLeftx2", "CRT-042_WhirlRightx2"]

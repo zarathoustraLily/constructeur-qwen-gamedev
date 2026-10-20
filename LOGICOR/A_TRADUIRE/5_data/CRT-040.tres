@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-040"
+nom = "CRT-040"
+categorie = "ennemi"
+PV_Max = 1250
+Vitesse = 275.0
+NoteDifficulte = 130
+PoidsPiscine = 2
+arsenal = ["CRT-040_A01x2", "CRT-040_A02x3", "CRT-040_A03"]

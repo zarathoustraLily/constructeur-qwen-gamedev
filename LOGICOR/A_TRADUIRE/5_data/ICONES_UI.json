@@ -1,0 +1,882 @@
+[
+  {
+    "nom": "BlankIcon",
+    "chemin": "Dev\\\\blank_invisible"
+  },
+  {
+    "nom": "SaveSymbol",
+    "chemin": "GUI\\\\Icons\\\\Symbole_01"
+  },
+  {
+    "nom": "Currency",
+    "chemin": "GUI\\\\Icons\\\\Currency"
+  },
+  {
+    "nom": "Currency_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Currency"
+  },
+  {
+    "nom": "MoneyDrop",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MoneyDrop_Text"
+  },
+  {
+    "nom": "MoneyDrop_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MoneyDrop_Text"
+  },
+  {
+    "nom": "MaxManaDrop",
+    "chemin": "Items\\\\Loot\\\\MaxManaDrop_Text"
+  },
+  {
+    "nom": "TalentDrop",
+    "chemin": "Items\\\\Loot\\\\TalentDrop\\\\TalentDrop_Text"
+  },
+  {
+    "nom": "PlantMoneyIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantMoney_Text"
+  },
+  {
+    "nom": "PlantMoney_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantMoney_Text"
+  },
+  {
+    "nom": "RandomLoot",
+    "chemin": "GUI\\\\Icons\\\\RandomLoot"
+  },
+  {
+    "nom": "RandomLootGiftItem",
+    "chemin": "GUI\\\\Icons\\\\RandomLoot"
+  },
+  {
+    "nom": "HealDrop",
+    "chemin": "Items\\\\Loot\\\\HealthItem01"
+  },
+  {
+    "nom": "LastStandGiftItem",
+    "chemin": "Items\\\\Loot\\\\LastStand"
+  },
+  {
+    "nom": "LastStand_NoTooltip",
+    "chemin": "Items\\\\Loot\\\\LastStand"
+  },
+  {
+    "nom": "TraitExchange",
+    "chemin": "GUI\\\\Icons\\\\TraitExchange"
+  },
+  {
+    "nom": "Quest",
+    "chemin": "GUI\\\\Icons\\\\Map\\\\Sub_Icon_Quest"
+  },
+  {
+    "nom": "RightArrow",
+    "chemin": "GUI\\\\HUD\\\\tooltip_arrow"
+  },
+  {
+    "nom": "Bullet",
+    "chemin": "GUI\\\\Icons\\\\Bullet"
+  },
+  {
+    "nom": "Div",
+    "chemin": "GUI\\\\HorizontalDivider"
+  },
+  {
+    "nom": "DivLong",
+    "chemin": "GUI\\\\HorizontalDividerLong"
+  },
+  {
+    "nom": "Health",
+    "chemin": "GUI\\\\Icons\\\\Life"
+  },
+  {
+    "nom": "HealthHome",
+    "chemin": "GUI\\\\Icons\\\\Life"
+  },
+  {
+    "nom": "HealthUp",
+    "chemin": "GUI\\\\Icons\\\\LifeUp"
+  },
+  {
+    "nom": "HealthUpAlt",
+    "chemin": "GUI\\\\Icons\\\\LifeUp_Empty"
+  },
+  {
+    "nom": "HealthDown",
+    "chemin": "GUI\\\\Icons\\\\LifeUp"
+  },
+  {
+    "nom": "HealthRestore",
+    "chemin": "GUI\\\\Icons\\\\LifeRestore"
+  },
+  {
+    "nom": "HealthRestoreHome",
+    "chemin": "GUI\\\\Icons\\\\LifeRestore"
+  },
+  {
+    "nom": "HealthAlly",
+    "chemin": "GUI\\\\Icons\\\\Life"
+  },
+  {
+    "nom": "EnemyHealth",
+    "chemin": "GUI\\\\Icons\\\\Life"
+  },
+  {
+    "nom": "Mana",
+    "chemin": "GUI\\\\Icons\\\\Mana"
+  },
+  {
+    "nom": "Mana_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Mana"
+  },
+  {
+    "nom": "ManaUp",
+    "chemin": "GUI\\\\Icons\\\\ManaUp"
+  },
+  {
+    "nom": "ManaUp_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\ManaUp"
+  },
+  {
+    "nom": "ManaDown",
+    "chemin": "GUI\\\\Icons\\\\ManaUp"
+  },
+  {
+    "nom": "ShieldHealth",
+    "chemin": "GUI\\\\Icons\\\\UnLife"
+  },
+  {
+    "nom": "ArmorTotal",
+    "chemin": "GUI\\\\Icons\\\\Armor"
+  },
+  {
+    "nom": "ArmorTotal_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Armor"
+  },
+  {
+    "nom": "Omega",
+    "chemin": "GUI\\\\Icons\\\\Omega"
+  },
+  {
+    "nom": "Omega_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Omega"
+  },
+  {
+    "nom": "Elite",
+    "chemin": "GUI\\\\Icons\\\\Elite_Badge_01"
+  },
+  {
+    "nom": "MiniBoss",
+    "chemin": "GUI\\\\Icons\\\\Elite_Badge_02"
+  },
+  {
+    "nom": "PerkBlink",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Blink"
+  },
+  {
+    "nom": "PerkFrenzy",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Frenzy"
+  },
+  {
+    "nom": "PerkArmor",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\HeavyArmor"
+  },
+  {
+    "nom": "PerkDamage",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\ExtraDamage"
+  },
+  {
+    "nom": "PerkHitShields",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\SpreadHitShields"
+  },
+  {
+    "nom": "PerkVacuum",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Vacuuming"
+  },
+  {
+    "nom": "PerkManaDrain",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\ManaDrain"
+  },
+  {
+    "nom": "PerkUnflinching",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Unflinching"
+  },
+  {
+    "nom": "PerkOrbit",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Orbit"
+  },
+  {
+    "nom": "PerkMassive",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Massive"
+  },
+  {
+    "nom": "PerkRooting",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Rooting"
+  },
+  {
+    "nom": "PerkStasisDeath",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\StasisDeath"
+  },
+  {
+    "nom": "PerkMiasma",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Miasma"
+  },
+  {
+    "nom": "PerkFog",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Fog"
+  },
+  {
+    "nom": "PerkHex",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Hex"
+  },
+  {
+    "nom": "PerkMetallic",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Metallic"
+  },
+  {
+    "nom": "PerkMolten",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Molten"
+  },
+  {
+    "nom": "PerkRifts",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Rifts"
+  },
+  {
+    "nom": "PerkHoming",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\Homing"
+  },
+  {
+    "nom": "PerkA12",
+    "chemin": "GUI\\\\Icons\\\\Attributes\\\\A12"
+  },
+  {
+    "nom": "LobAmmo",
+    "chemin": "GUI\\\\HUD\\\\WitchGrenadeIconHUD"
+  },
+  {
+    "nom": "LobAmmoInfo",
+    "chemin": "GUI\\\\Icons\\\\LobAmmo"
+  },
+  {
+    "nom": "LobAmmo_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\LobAmmo"
+  },
+  {
+    "nom": "Fuel",
+    "chemin": "GUI\\\\Icons\\\\Status\\\\Enraged"
+  },
+  {
+    "nom": "Fuel_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Status\\\\Enraged"
+  },
+  {
+    "nom": "ReRoll",
+    "chemin": "GUI\\\\Icons\\\\ReRoll"
+  },
+  {
+    "nom": "ReRollAlt",
+    "chemin": "GUI\\\\Icons\\\\ReRoll"
+  },
+  {
+    "nom": "ReRollPanelAlt",
+    "chemin": "GUI\\\\Icons\\\\ReRoll"
+  },
+  {
+    "nom": "Esquive",
+    "chemin": "GUI\\\\Icons\\\\Esquive"
+  },
+  {
+    "nom": "UpArrow",
+    "chemin": "GUI\\\\Icons\\\\UpArrow"
+  },
+  {
+    "nom": "DownArrow",
+    "chemin": "GUI\\\\Icons\\\\DownArrow"
+  },
+  {
+    "nom": "ExtraChance",
+    "chemin": "GUI\\\\HUD\\\\HealthBar_1up"
+  },
+  {
+    "nom": "ExtraChanceAlt",
+    "chemin": "GUI\\\\HUD\\\\HealthBar_1up"
+  },
+  {
+    "nom": "ExtraChanceRegen",
+    "chemin": "GUI\\\\Icons\\\\ExtraChanceRegen"
+  },
+  {
+    "nom": "ExtraChanceCat",
+    "chemin": "GUI\\\\HUD\\\\HealthBar_1upEcho"
+  },
+  {
+    "nom": "ExtraChanceNoTooltip",
+    "chemin": "GUI\\\\HUD\\\\HealthBar_1up"
+  },
+  {
+    "nom": "Alert",
+    "chemin": "GUI\\\\Icons\\\\Status\\\\WantsToFight"
+  },
+  {
+    "nom": "Aware",
+    "chemin": "GUI\\\\Icons\\\\Status\\\\Startled"
+  },
+  {
+    "nom": "AttackWarning",
+    "chemin": "GUI\\\\Icons\\\\Status\\\\WantsToTalk"
+  },
+  {
+    "nom": "Currency",
+    "chemin": "GUI\\\\Icons\\\\Currency"
+  },
+  {
+    "nom": "RandomPom",
+    "chemin": "GUI\\\\Icons\\\\RandomPom"
+  },
+  {
+    "nom": "RandomHammer",
+    "chemin": "GUI\\\\Icons\\\\RandomHammer"
+  },
+  {
+    "nom": "RandomPom",
+    "chemin": "GUI\\\\Icons\\\\RandomPom"
+  },
+  {
+    "nom": "Pom",
+    "chemin": "GUI\\\\Icons\\\\Pom"
+  },
+  {
+    "nom": "Onion",
+    "chemin": "GUI\\\\Icons\\\\Onion"
+  },
+  {
+    "nom": "MaxMana",
+    "chemin": "Items\\\\Loot\\\\MaxManaDrop_Preview"
+  },
+  {
+    "nom": "MetaCardPoints",
+    "chemin": "Items\\\\Loot\\\\MaxManaDrop_Preview"
+  },
+  {
+    "nom": "Hammer",
+    "chemin": "GUI\\\\Icons\\\\Hammer"
+  },
+  {
+    "nom": "FatedChoice",
+    "chemin": "GUI\\\\Screens\\\\QuestLog\\\\QuestAdded_Small"
+  },
+  {
+    "nom": "StoreItemPin",
+    "chemin": "GUI\\\\Icons\\\\Reminder"
+  },
+  {
+    "nom": "StoreItemPinNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Reminder"
+  },
+  {
+    "nom": "StoreItemPinCompleteNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Reminder_Complete"
+  },
+  {
+    "nom": "ShrinePoint",
+    "chemin": "GUI\\\\Icons\\\\ShrinePoint"
+  },
+  {
+    "nom": "ShrinePointNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\ShrinePoint"
+  },
+  {
+    "nom": "PoisonIcon",
+    "chemin": "GUI\\\\Icons\\\\PoisonIcon"
+  },
+  {
+    "nom": "GiftPointsIcon",
+    "chemin": "GUI\\\\Icons\\\\Gift"
+  },
+  {
+    "nom": "GiftPointsRareIcon",
+    "chemin": "Items\\\\Resources\\\\Other\\\\GiftPointsRare_Text"
+  },
+  {
+    "nom": "GiftPointsEpicIcon",
+    "chemin": "Items\\\\Resources\\\\Other\\\\GiftPointsEpic_Text"
+  },
+  {
+    "nom": "SuperGiftPointsIcon",
+    "chemin": "GUI\\\\Icons\\\\SuperGift"
+  },
+  {
+    "nom": "HypnosPointsIcon",
+    "chemin": "Items\\\\Resources\\\\Other\\\\HypnosPoints_Text"
+  },
+  {
+    "nom": "ManaLock",
+    "chemin": "GUI\\\\Icons\\\\ManaLock"
+  },
+  {
+    "nom": "RunReward",
+    "chemin": "GUI\\\\Icons\\\\RunReward"
+  },
+  {
+    "nom": "MetaReward",
+    "chemin": "GUI\\\\Icons\\\\MetaReward"
+  },
+  {
+    "nom": "FavorPoint",
+    "chemin": "GUI\\\\Icons\\\\Favor"
+  },
+  {
+    "nom": "LimitedTimeOffer",
+    "chemin": "GUI\\\\Screens\\\\LimitedTimeOffer"
+  },
+  {
+    "nom": "SpecialOffer",
+    "chemin": "GUI\\\\Screens\\\\LimitedTimeOffer"
+  },
+  {
+    "nom": "Locked",
+    "chemin": "GUI\\\\Icons\\\\Locked"
+  },
+  {
+    "nom": "PurchasedCheckmark",
+    "chemin": "GUI\\\\Screens\\\\ContractorPurchasedCheckmark"
+  },
+  {
+    "nom": "MirrorInactive",
+    "chemin": "GUI\\\\Screens\\\\MirrorLockedB"
+  },
+  {
+    "nom": "DefaultPurchasedCheckmark",
+    "chemin": "GUI\\\\Screens\\\\MirrorUnlockedA"
+  },
+  {
+    "nom": "MirrorPurchasedCheckmark",
+    "chemin": "GUI\\\\Screens\\\\MirrorUnlockedB"
+  },
+  {
+    "nom": "PactPurchasedCheckmark",
+    "chemin": "GUI\\\\Screens\\\\MirrorUnlockedC"
+  },
+  {
+    "nom": "CheckboxEmpty",
+    "chemin": "GUI\\\\Shell\\\\settings_toggle_off"
+  },
+  {
+    "nom": "CheckboxFilled",
+    "chemin": "GUI\\\\Shell\\\\settings_toggle_on"
+  },
+  {
+    "nom": "RewardLoot",
+    "chemin": "GUI\\\\Icons\\\\RewardLoot"
+  },
+  {
+    "nom": "RewardBoon",
+    "chemin": "GUI\\\\Icons\\\\Boon"
+  },
+  {
+    "nom": "RewardStackUpgrade",
+    "chemin": "GUI\\\\Icons\\\\Contract_01"
+  },
+  {
+    "nom": "RewardMetaModifier",
+    "chemin": "GUI\\\\Icons\\\\RewardMetaModifier"
+  },
+  {
+    "nom": "RewardShop",
+    "chemin": "GUI\\\\Icons\\\\RewardShop"
+  },
+  {
+    "nom": "RewardStory",
+    "chemin": "GUI\\\\Icons\\\\RewardStory"
+  },
+  {
+    "nom": "RewardRandom",
+    "chemin": "GUI\\\\Icons\\\\RewardRandom"
+  },
+  {
+    "nom": "RewardUnknown",
+    "chemin": "GUI\\\\Icons\\\\RewardUnknown"
+  },
+  {
+    "nom": "BuffHealing",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\hydralite_05_small"
+  },
+  {
+    "nom": "BuffWeapon",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\cyclops_jerky_01_small"
+  },
+  {
+    "nom": "BuffExtraChance",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\kiss_13_small"
+  },
+  {
+    "nom": "BuffExtraChanceAlt",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\kiss_13_small"
+  },
+  {
+    "nom": "BuffMegaPom",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\pom_porridge_small"
+  },
+  {
+    "nom": "BuffSlottedBoonRarity",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\ambrosia_delight_small"
+  },
+  {
+    "nom": "BuffFutureBoonRarity",
+    "chemin": "GUI\\\\Screens\\\\ShopIcons\\\\refreshing_nectar_small"
+  },
+  {
+    "nom": "StarFull",
+    "chemin": "GUI\\\\Icons\\\\StarFull"
+  },
+  {
+    "nom": "StarEmpty",
+    "chemin": "GUI\\\\Icons\\\\StarEmpty"
+  },
+  {
+    "nom": "Infinite",
+    "chemin": "GUI\\\\HUD\\\\InfiniteIcon"
+  },
+  {
+    "nom": "Slash",
+    "chemin": "GUI\\\\HUD\\\\Slash"
+  },
+  {
+    "nom": "SlashDark",
+    "chemin": "GUI\\\\HUD\\\\SlashDark"
+  },
+  {
+    "nom": "Clock",
+    "chemin": "GUI\\\\HUD\\\\TimeIcon"
+  },
+  {
+    "nom": "Refresh",
+    "chemin": "GUI\\\\HUD\\\\RefreshIcon"
+  },
+  {
+    "nom": "Shielded",
+    "chemin": "GUI\\\\Icons\\\\Status\\\\MyrmidonBracer"
+  },
+  {
+    "nom": "Champion",
+    "chemin": "GUI\\\\Icons\\\\Symbole_01"
+  },
+  {
+    "nom": "Elite",
+    "chemin": "GUI\\\\Icons\\\\Elite_Badge_01"
+  },
+  {
+    "nom": "NoCanDo",
+    "chemin": "GUI\\\\Icons\\\\CardRarityIcon_Heroic"
+  },
+  {
+    "nom": "PomLevel",
+    "chemin": "GUI\\\\Icons\\\\UpArrow"
+  },
+  {
+    "nom": "PomLevel_NoTooltip",
+    "chemin": "GUI\\\\Icons\\\\UpArrow"
+  },
+  {
+    "nom": "Moon_Crescent",
+    "chemin": "GUI\\\\Icons\\\\Moon_Crescent"
+  },
+  {
+    "nom": "Moon_Half",
+    "chemin": "GUI\\\\Icons\\\\Moon_Half"
+  },
+  {
+    "nom": "Moon_Full",
+    "chemin": "GUI\\\\Screens\\\\AwardMenu\\\\rank_5"
+  },
+  {
+    "nom": "EasyModeIcon",
+    "chemin": "GUI\\\\Shell\\\\EasyMode"
+  },
+  {
+    "nom": "RelationshipHeartIcon",
+    "chemin": "GUI\\\\Icons\\\\RelationshipHeart"
+  },
+  {
+    "nom": "QuestProgressIncomplete",
+    "chemin": "GUI\\\\Graybox\\\\RadioButton_Unselected"
+  },
+  {
+    "nom": "QuestProgressComplete",
+    "chemin": "GUI\\\\Graybox\\\\RadioButton_Selected"
+  },
+  {
+    "nom": "Music",
+    "chemin": "GUI\\\\Icons\\\\Music"
+  },
+  {
+    "nom": "RunClearDotsLeft",
+    "chemin": "GUI\\\\Icons\\\\DotsLeft"
+  },
+  {
+    "nom": "RunClearDotsRight",
+    "chemin": "GUI\\\\Icons\\\\DotsRight"
+  },
+  {
+    "nom": "BountySkull",
+    "chemin": "GUI\\\\Icons\\\\BountySkull"
+  },
+  {
+    "nom": "BountySkullEmpty",
+    "chemin": "GUI\\\\Icons\\\\BountySkullEmpty"
+  },
+  {
+    "nom": "PerfectEsquiveIcon",
+    "chemin": "GUI\\\\Screens\\\\MirrorBIcons\\\\Greater_Celerity"
+  },
+  {
+    "nom": "FrogHarvest",
+    "chemin": "GUI\\\\Icons\\\\Tool_Book_Frog"
+  },
+  {
+    "nom": "CatHarvest",
+    "chemin": "GUI\\\\Icons\\\\Tool_FishingRod_Cat"
+  },
+  {
+    "nom": "RavenHarvest",
+    "chemin": "GUI\\\\Icons\\\\Tool_Pickaxe_Raven"
+  },
+  {
+    "nom": "HoundHarvest",
+    "chemin": "GUI\\\\Icons\\\\Tool_Shovel_Hound"
+  },
+  {
+    "nom": "Pause",
+    "chemin": "GUI\\\\Icons\\\\Pause"
+  },
+  {
+    "nom": "ExorcismLeft",
+    "chemin": "GUI\\\\Icons\\\\BrasGauche"
+  },
+  {
+    "nom": "ExorcismRight",
+    "chemin": "GUI\\\\Icons\\\\BrasDroite"
+  },
+  {
+    "nom": "InventoryCategoryFish",
+    "chemin": "GUI\\\\Screens\\\\Inventory\\\\Icon-Fish"
+  },
+  {
+    "nom": "InventoryCategoryForgetMeNots",
+    "chemin": "GUI\\\\Screens\\\\Inventory\\\\Icon-ForgetMeNots"
+  },
+  {
+    "nom": "InventoryCategoryGifts",
+    "chemin": "GUI\\\\Screens\\\\Inventory\\\\Icon-Gifts"
+  },
+  {
+    "nom": "InventoryCategoryReagents",
+    "chemin": "GUI\\\\Screens\\\\Inventory\\\\Icon-Reagents"
+  },
+  {
+    "nom": "InventoryCategoryResources",
+    "chemin": "GUI\\\\Screens\\\\Inventory\\\\Icon-Resources"
+  },
+  {
+    "nom": "InventoryIcon",
+    "chemin": "GUI\\\\Screens\\\\Inventory\\\\Icon-Inventory"
+  },
+  {
+    "nom": "ToolPickIcon",
+    "chemin": "GUI\\\\Icons\\\\Pickaxe"
+  },
+  {
+    "nom": "ToolBookIcon",
+    "chemin": "GUI\\\\Icons\\\\ExorcismBook"
+  },
+  {
+    "nom": "ToolShovelIcon",
+    "chemin": "GUI\\\\Icons\\\\Shovel"
+  },
+  {
+    "nom": "ToolRodIcon",
+    "chemin": "GUI\\\\Icons\\\\FishingRod"
+  },
+  {
+    "nom": "CurseEarth",
+    "chemin": "GUI\\\\Icons\\\\Element_Earth_Text"
+  },
+  {
+    "nom": "EarthNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Element_Earth_Text"
+  },
+  {
+    "nom": "EarthBoonAlt",
+    "chemin": "GUI\\\\Icons\\\\Element_Earth_Text"
+  },
+  {
+    "nom": "CurseFire",
+    "chemin": "GUI\\\\Icons\\\\Element_Fire_Text"
+  },
+  {
+    "nom": "FireNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Element_Fire_Text"
+  },
+  {
+    "nom": "FireBoonAlt",
+    "chemin": "GUI\\\\Icons\\\\Element_Fire_Text"
+  },
+  {
+    "nom": "CurseAir",
+    "chemin": "GUI\\\\Icons\\\\Element_Air_Text"
+  },
+  {
+    "nom": "AirNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Element_Air_Text"
+  },
+  {
+    "nom": "AirBoonAlt",
+    "chemin": "GUI\\\\Icons\\\\Element_Air_Text"
+  },
+  {
+    "nom": "CurseWater",
+    "chemin": "GUI\\\\Icons\\\\Element_Water_Text"
+  },
+  {
+    "nom": "WaterNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Element_Water_Text"
+  },
+  {
+    "nom": "WaterBoonAlt",
+    "chemin": "GUI\\\\Icons\\\\Element_Water_Text"
+  },
+  {
+    "nom": "CurseAether",
+    "chemin": "GUI\\\\Icons\\\\Element_Aether_Text"
+  },
+  {
+    "nom": "AetherNoTooltip",
+    "chemin": "GUI\\\\Icons\\\\Element_Aether_Text"
+  },
+  {
+    "nom": "AetherBoonAlt",
+    "chemin": "GUI\\\\Icons\\\\Element_Aether_Text"
+  },
+  {
+    "nom": "ManaCrystal",
+    "chemin": "GUI\\\\Icons\\\\ManaCrystal"
+  },
+  {
+    "nom": "DeathIcon",
+    "chemin": "GUI\\\\Icons\\\\Critical"
+  },
+  {
+    "nom": "VulnerabilityIcon",
+    "chemin": "GUI\\\\Icons\\\\Vulnerability"
+  },
+  {
+    "nom": "MetaCardPointsCommonIcon",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MetaCardPointsCommon_Text"
+  },
+  {
+    "nom": "MetaCurrencyIcon",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MetaCurrency_Text"
+  },
+  {
+    "nom": "MemPointsCommonIcon",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MemPointsCommon_Text"
+  },
+  {
+    "nom": "MemPointsCommon_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MemPointsCommon_Text"
+  },
+  {
+    "nom": "CosmeticsPointsIcon",
+    "chemin": "Items\\\\Resources\\\\Alchemy\\\\CosmeticsPointsPrestige_Text"
+  },
+  {
+    "nom": "PlantFMolyIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantFMoly_Text"
+  },
+  {
+    "nom": "PlantFMoly_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantFMoly_Text"
+  },
+  {
+    "nom": "OreFSilverIcon",
+    "chemin": "Items\\\\Resources\\\\Ore\\\\OreFSilver_Text"
+  },
+  {
+    "nom": "OreFSilver_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Ore\\\\OreFSilver_Text"
+  },
+  {
+    "nom": "MetaFabricIcon",
+    "chemin": "Items\\\\Resources\\\\Common\\\\MetaFabric_Text"
+  },
+  {
+    "nom": "MetaFabric_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Other\\\\Mixer5Common_Text"
+  },
+  {
+    "nom": "CardUpgradePointsIcon",
+    "chemin": "Items\\\\Resources\\\\Other\\\\CardUpgradePoints_Text"
+  },
+  {
+    "nom": "FamiliarPointsIcon",
+    "chemin": "Items\\\\Resources\\\\Alchemy\\\\FamiliarPoints_Text"
+  },
+  {
+    "nom": "FamiliarPointsIcon_NoTooltip",
+    "chemin": "Items\\\\Resources\\\\Alchemy\\\\FamiliarPoints_Text"
+  },
+  {
+    "nom": "PlantFNightshadeIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantFNightshade_Text"
+  },
+  {
+    "nom": "PlanteToxiqueIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlanteToxique_Text"
+  },
+  {
+    "nom": "SeedMysteryIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantMysterySeed_Text"
+  },
+  {
+    "nom": "PlantIPoppyIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantIPoppy_Text"
+  },
+  {
+    "nom": "PlantGCattailIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantGCattail_Text"
+  },
+  {
+    "nom": "PlantNGarlicSeedIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantNGarlicSeed_Text"
+  },
+  {
+    "nom": "PlantNGarlicIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantNGarlic_Text"
+  },
+  {
+    "nom": "PlantOMandrakeSeedIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantOMandrakeSeed_Text"
+  },
+  {
+    "nom": "PlantOMandrakeIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantOMandrake_Text"
+  },
+  {
+    "nom": "PlantPOliveSeedIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantPOliveSeed_Text"
+  },
+  {
+    "nom": "PlantPOliveIcon",
+    "chemin": "Items\\\\Resources\\\\Plant\\\\PlantPOlive_Text"
+  },
+  {
+    "nom": "BountyEyeIcon",
+    "chemin": "GUI\\\\Icons\\\\BountyBoardEye"
+  },
+  {
+    "nom": "IconeNiveau",
+    "chemin": "GUI\\\\Screens\\\\WeaponUpgrade\\\\Icon-Niveau"
+  },
+  {
+    "nom": "SurfaceIcon",
+    "chemin": "GUI\\\\Screens\\\\WeaponUpgrade\\\\Icon-Surface"
+  }
+]

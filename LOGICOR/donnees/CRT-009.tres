@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-009"
+nom = "CRT-009"
+categorie = "ennemi"
+PV_Max = 615
+Vitesse = 370.0
+NoteDifficulte = 45
+PoidsPiscine = 1
+ModificateurCassureEtourdissement = 1.35
+arsenal = ["CRT-009_Impale", "CRT-009_ImpaleElite"]

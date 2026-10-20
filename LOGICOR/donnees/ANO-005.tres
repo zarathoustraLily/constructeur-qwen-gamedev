@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheBoss" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheBoss.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ANO-005"
+nom = "ANO-005"
+categorie = "boss"
+PV_Max = 8400
+Vitesse = 90.0
+NoteDifficulte = 0
+TamponPV = 0
+phases = [{ "id": "ANO-005_Phase1", "props": { "TypeTransition": "SeuilPV", "Seuil": 0.66, "NouveauPVMax": null, "AttenteDuree": null, "Depassement": null, "DequiperToutesArmes": false, "ArmesEquipees": [] } }, { "id": "ANO-005_Phase2", "props": { "TypeTransition": "SeuilPV", "Seuil": 0.33, "NouveauPVMax": null, "AttenteDuree": 0, "Depassement": null, "DequiperToutesArmes": true, "ArmesEquipees": ["ANO-005_Grab", "ANO-005_Leap", "ANO-005_March", "ANO-005_PlayerGrab"] } }, { "id": "ANO-005_Phase3", "props": { "TypeTransition": "SeuilPV", "Seuil": 0.0, "NouveauPVMax": null, "AttenteDuree": 0, "Depassement": null, "DequiperToutesArmes": true, "ArmesEquipees": ["ANO-005_Kick", "ANO-005_Leap", "ANO-005_March", "ANO-005_Slam", "ANO-005_Stomp"] } }]
+attaques = [{ "id": "ANO-005_Grab", "props": { "IA_AnnonceDuree": 0.3, "IA_TirDuree": 0, "IA_RecuperationDuree": 3, "IA_PorteeAttaque": 350, "IA_DelaiDeplacementPortee": 3 } }, { "id": "ANO-005_Kick", "props": { "IA_AnnonceDuree": 1.1, "IA_AnnonceFinDuree": 0.4, "IA_TirDuree": 0.6, "IA_RecuperationDuree": 1, "IA_PorteeAttaque": 9999, "IA_DelaiDebutTir": 0.125, "IA_VitesseTir": 800, "IA_LongueurCanon": 0, "IA_DelaiDeplacementPortee": 0, "Degats": 16, "Portee": 4000 } }, { "id": "ANO-005_Leap", "props": { "IA_AnnonceDuree": 0.48, "IA_TirDuree": 0.4, "IA_RecuperationDuree": 1.3, "IA_PorteeAttaque": 9999, "IA_TamponLigneVie": 85 } }, { "id": "ANO-005_March", "props": { "IA_RecuperationDuree": 2, "IA_PorteeAttaque": 1, "IA_DelaiDeplacementPortee": 5 } }, { "id": "ANO-005_MegaLeap", "props": { "IA_AnnonceDuree": 0.88, "IA_TirDuree": 0, "IA_RecuperationDuree": 3.1, "IA_PorteeAttaque": 9999, "IA_TamponLigneVie": 85, "IA_LongueurCanon": 180 } }, { "id": "ANO-005_PlayerGrab", "props": { "IA_AnnonceDuree": 0, "IA_TirDuree": 0, "IA_RecuperationDuree": 3, "IA_PorteeAttaque": 350, "IA_DelaiDeplacementPortee": 0 } }, { "id": "ANO-005_Slam", "props": { "IA_AnnonceDuree": 1.45, "IA_AnnonceFinDuree": 0.4, "IA_TirDuree": 0.3, "IA_RecuperationDuree": 2.5, "IA_PorteeAttaque": 500, "IA_DelaiDebutTir": 0.06, "IA_FractionFlashFinAnnonce": 0.8, "IA_LongueurCanon": 150, "IA_DelaiDeplacementPortee": 0 } }, { "id": "ANO-005_Stomp", "props": { "IA_AnnonceDuree": 1.03, "IA_AnnonceFinDuree": 0.4, "IA_TirDuree": 0, "IA_RecuperationDuree": 2.1, "IA_PorteeAttaque": 9999, "IA_TicksTir": 1, "IA_DelaiDeplacementPortee": 0 } }]

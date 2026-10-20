@@ -1,0 +1,67 @@
+{
+ "LevelTag": "Level.Lvl5",
+ "Level": "lvl_5",
+ "EntryCount": 12,
+ "Entries": [
+  {
+   "Ref": "CRT-027",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-027",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-028",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-028",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-029",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-030",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-030",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-031",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-031",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-032",
+   "Weight": 1,
+   "Elite": false
+  },
+  {
+   "Ref": "CRT-032",
+   "Weight": 1,
+   "Elite": true
+  },
+  {
+   "Ref": "CRT-029",
+   "Weight": 1,
+   "Elite": true
+  }
+ ]
+}

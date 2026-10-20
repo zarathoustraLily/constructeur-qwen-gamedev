@@ -1,0 +1,1642 @@
+[
+  {
+    "id": "ANO-001",
+    "nom": "ANO-001",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 5800,
+      "Vitesse": 600,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 0.0,
+      "IA.DelaiSetupIA": 0.2,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.66
+    },
+    "phases": [
+      {
+        "id": "ANO-001_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.66,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-001_Phase2",
+        "props": {
+          "TypeTransition": "RencontreAppeleeTerminee",
+          "Seuil": null,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0.0,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-001_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.33,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0.5,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-001_A01",
+            "ANO-001_A02",
+            "ANO-001_A07",
+            "ANO-001_A10"
+          ]
+        }
+      },
+      {
+        "id": "ANO-001_Phase4",
+        "props": {
+          "TypeTransition": "RencontreAppeleeTerminee",
+          "Seuil": null,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0.0,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-001_A03"
+          ]
+        }
+      },
+      {
+        "id": "ANO-001_Phase5",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0.5,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-001_A04",
+            "ANO-001_A07",
+            "ANO-001_A11",
+            "ANO-001_A12"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-001_A01",
+        "props": {
+          "IA.AnnonceDuree": 0.7,
+          "IA.TirDuree": 0.2,
+          "IA.RecuperationDuree": 2.2,
+          "IA.PorteeAttaque": 500,
+          "IA.VitesseTir": -2100,
+          "IA.FractionFlashFinAnnonce": 0.8,
+          "IA.LongueurCanon": 230,
+          "Degats": 9
+        }
+      },
+      {
+        "id": "ANO-001_A02",
+        "props": {}
+      },
+      {
+        "id": "ANO-001_A03",
+        "props": {
+          "IA.AnnonceDuree": 1.75,
+          "IA.TirDuree": 0.2,
+          "IA.RecuperationDuree": 1.3,
+          "IA.PorteeAttaque": 9999,
+          "IA.LongueurCanon": 100,
+          "Degats": 0,
+          "Portee": 7400
+        }
+      },
+      {
+        "id": "ANO-001_A04",
+        "props": {
+          "IA.AnnonceDuree": 2.25,
+          "IA.TirDuree": 2,
+          "IA.RecuperationDuree": 3,
+          "IA.PorteeAttaque": 2000,
+          "IA.IntervalleTir": 0.15,
+          "IA.TicksTir": 10,
+          "IA.AttenuationRotationTir": 0.12,
+          "IA.AttenuationRotationAnnonce": 0.12,
+          "IA.FractionFlashFinAnnonce": 0.8,
+          "IA.TamponLigneVie": 40,
+          "IA.LongueurCanon": 0
+        }
+      },
+      {
+        "id": "ANO-001_A05",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 2.2,
+          "IA.PorteeAttaque": 9999,
+          "IA.IntervalleTir": 0.3,
+          "IA.TicksTir": 10,
+          "IA.AttenuationRotationTir": 0.05,
+          "IA.AttenuationRotationAnnonce": 0.05,
+          "IA.VitesseAnimationAnnonce": 0.5,
+          "IA.TamponLigneVie": 40
+        }
+      },
+      {
+        "id": "ANO-001_A06",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 2.2,
+          "IA.PorteeAttaque": 9999,
+          "IA.IntervalleTir": 0.5,
+          "IA.TicksTir": 7,
+          "IA.AttenuationRotationTir": 0.05,
+          "IA.AttenuationRotationAnnonce": 0.05,
+          "IA.VitesseAnimationAnnonce": 0.5,
+          "IA.TamponLigneVie": 40
+        }
+      },
+      {
+        "id": "ANO-001_A07",
+        "props": {
+          "IA.AnnonceDuree": 1.4,
+          "IA.TirDuree": 3,
+          "IA.RecuperationDuree": 1.8,
+          "IA.PorteeAttaque": 700,
+          "IA.LongueurCanon": 0
+        }
+      },
+      {
+        "id": "ANO-001_A08",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 3.5,
+          "IA.RecuperationDuree": 2.2,
+          "IA.PorteeAttaque": 9999,
+          "IA.NombreProjectiles": 18,
+          "IA.IntervalleProjectile": 0.17,
+          "IA.VitesseAnimationAnnonce": 0.5,
+          "IA.TamponLigneVie": 40
+        }
+      },
+      {
+        "id": "ANO-001_A09",
+        "props": {
+          "IA.AnnonceDuree": 0,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 0,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-001_A10",
+        "props": {}
+      },
+      {
+        "id": "ANO-001_A11",
+        "props": {}
+      },
+      {
+        "id": "ANO-001_A12",
+        "props": {}
+      }
+    ],
+    "arsenal": [
+      "ANO-001_A01x3",
+      "ANO-001_A02x3",
+      "ANO-001_A03",
+      "ANO-001_A04",
+      "ANO-001_A05",
+      "ANO-001_A06",
+      "ANO-001_A07x4",
+      "ANO-001_A08",
+      "ANO-001_A09",
+      "ANO-001_A10x2",
+      "ANO-001_A11",
+      "ANO-001_A12"
+    ]
+  },
+  {
+    "id": "ANO-002",
+    "nom": "ANO-002",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 6550,
+      "Vitesse": 150,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 0.0,
+      "IA.DelaiSetupIA": 1.5,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.5
+    },
+    "phases": [
+      {
+        "id": "ANO-002_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.5,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-002_Phase2",
+        "props": {
+          "TypeTransition": "SeuilPVGroupe",
+          "Seuil": 0.5,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-002_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.2,
+          "NouveauPVMax": null,
+          "AttenteDuree": 1.5,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-002_A01",
+            "ANO-002_A02",
+            "ANO-002_A05",
+            "ANO-002_A07",
+            "ANO-002_A08",
+            "ANO-002_A09"
+          ]
+        }
+      },
+      {
+        "id": "ANO-002_Phase4",
+        "props": {
+          "TypeTransition": "LastAlive",
+          "Seuil": null,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-002_Phase5",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-002_A03",
+            "ANO-002_A04"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-002_A01",
+        "props": {
+          "IA.AnnonceDuree": 2.6,
+          "IA.TirDuree": 7,
+          "IA.RecuperationDureeMin": 1,
+          "IA.RecuperationDureeMax": 1.35,
+          "IA.PorteeAttaque": 1000,
+          "IA.AttenuationRotationTir": 0.07,
+          "IA.AttenuationRotationAnnonce": 0.07,
+          "IA.FractionFlashFinAnnonce": 0.6
+        }
+      },
+      {
+        "id": "ANO-002_A02",
+        "props": {
+          "IA.TirDuree": 0,
+          "IA.RecuperationDureeMin": 3.5,
+          "IA.RecuperationDureeMax": 4.5,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.54,
+          "IA.NombreProjectiles": 13,
+          "IA.IntervalleAngleProjectile": 10,
+          "IA.AttenuationRotationTir": 0.1,
+          "IA.AttenuationRotationAnnonce": 0.1,
+          "IA.FractionFlashFinAnnonce": 0.65,
+          "IA.LongueurCanon": 100
+        }
+      },
+      {
+        "id": "ANO-002_A03",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 10,
+          "IA.RecuperationDuree": 5.5,
+          "IA.PorteeAttaque": 9999,
+          "IA.AttenuationRotationAnnonce": 0.1
+        }
+      },
+      {
+        "id": "ANO-002_A04",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 4,
+          "IA.RecuperationDuree": 2.25
+        }
+      },
+      {
+        "id": "ANO-002_A05",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0.9,
+          "IA.RecuperationDuree": 2.75,
+          "IA.PorteeAttaque": 1300,
+          "IA.PorteeAttaqueEchelleY": 0.8,
+          "IA.DelaiDebutTir": 0.2,
+          "IA.NombreProjectiles": 1,
+          "IA.TamponLigneVie": 80,
+          "IA.LongueurCanon": 120,
+          "IA.DelaiDeplacementPortee": 5,
+          "Degats": 4,
+          "RayonDegats": 320,
+          "Portee": 99999
+        }
+      },
+      {
+        "id": "ANO-002_A06",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 6.5,
+          "IA.RecuperationDureeMin": 1.55,
+          "IA.RecuperationDureeMax": 1.85,
+          "IA.PorteeAttaque": 600,
+          "IA.PorteeAttaqueEchelleY": 0.9,
+          "IA.DelaiDeplacementPortee": 3.5,
+          "Degats": 13
+        }
+      },
+      {
+        "id": "ANO-002_A07",
+        "props": {
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-002_A08",
+        "props": {
+          "IA.AnnonceDuree": 0.1,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 5.5
+        }
+      },
+      {
+        "id": "ANO-002_A09",
+        "props": {
+          "IA.AnnonceDuree": 0.85,
+          "IA.RecuperationDureeMin": 2.25,
+          "IA.RecuperationDureeMax": 3.45,
+          "IA.PorteeAttaque": 380,
+          "IA.DelaiDebutTir": 0.05,
+          "IA.VitesseAnimationAnnonce": 0.95,
+          "IA.FractionFlashFinAnnonce": 0.6,
+          "IA.LongueurCanon": 100,
+          "IA.DelaiDeplacementPortee": 6,
+          "Degats": 11
+        }
+      }
+    ],
+    "arsenal": [
+      "ANO-002_A01x3",
+      "ANO-002_A02x3",
+      "ANO-002_A03",
+      "ANO-002_A04",
+      "ANO-002_A05x3",
+      "ANO-002_A06",
+      "ANO-002_A07x2",
+      "ANO-002_A08x2",
+      "ANO-002_A09x3"
+    ]
+  },
+  {
+    "id": "ANO-003",
+    "nom": "ANO-003",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 20500,
+      "Vitesse": 400,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 0.0,
+      "IA.DelaiSetupIA": 0.0,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.5
+    },
+    "phases": [
+      {
+        "id": "ANO-003_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.5,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-003_Phase2",
+        "props": {
+          "TypeTransition": "RencontreAppeleeTerminee",
+          "Seuil": null,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": 20,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-003_A09"
+          ]
+        }
+      },
+      {
+        "id": "ANO-003_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-003_A01",
+            "ANO-003_A02",
+            "ANO-003_A04",
+            "ANO-003_A07",
+            "ANO-003_A08",
+            "ANO-003_A11",
+            "ANO-003_A13",
+            "ANO-003_A17"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-003_A01",
+        "props": {
+          "IA.AnnonceDuree": 0,
+          "IA.TirDuree": 0.7,
+          "IA.RecuperationDuree": 0.45,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-003_A02",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 5.6,
+          "IA.RecuperationDuree": 2,
+          "IA.PorteeAttaque": 3000,
+          "IA.DelaiDebutTir": 0.21,
+          "IA.NombreProjectiles": 90,
+          "IA.Dispersion": 8,
+          "IA.IntervalleProjectile": 0.05,
+          "IA.AttenuationRotationTir": 0.09,
+          "IA.AttenuationRotationAnnonce": 0.15,
+          "IA.LongueurCanon": 50
+        }
+      },
+      {
+        "id": "ANO-003_A03",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-003_A04",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-003_A05",
+        "props": {}
+      },
+      {
+        "id": "ANO-003_A06",
+        "props": {
+          "IA.PorteeAttaque": 15000
+        }
+      },
+      {
+        "id": "ANO-003_A07",
+        "props": {
+          "IA.PorteeAttaque": 15000
+        }
+      },
+      {
+        "id": "ANO-003_A08",
+        "props": {
+          "IA.AnnonceDuree": 1.2,
+          "IA.AnnonceFinDuree": 0.45,
+          "IA.TirDuree": 0.65,
+          "IA.RecuperationDuree": 0.8,
+          "IA.PorteeAttaque": 1600,
+          "IA.DelaiDebutTir": 0.1,
+          "IA.VitesseAnimationAnnonce": 0.6,
+          "IA.FractionFlashFinAnnonce": 0.6,
+          "IA.TamponLigneVie": 300
+        }
+      },
+      {
+        "id": "ANO-003_A09",
+        "props": {
+          "IA.AnnonceDuree": 0,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 1,
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-003_A10",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-003_A11",
+        "props": {
+          "IA.AnnonceDuree": 0.67,
+          "IA.TirDuree": 0.65,
+          "IA.RecuperationDuree": 1.1,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-003_A12",
+        "props": {
+          "IA.AnnonceDuree": 0.5,
+          "IA.TirDuree": 1.5,
+          "IA.RecuperationDuree": 0.5,
+          "IA.NombreProjectiles": 10,
+          "IA.Dispersion": 360,
+          "IA.IntervalleProjectile": 0.06,
+          "IA.VitesseAnimationAnnonce": 1.5,
+          "IA.LongueurCanon": 0
+        }
+      },
+      {
+        "id": "ANO-003_A13",
+        "props": {
+          "IA.PorteeAttaque": 15000
+        }
+      },
+      {
+        "id": "ANO-003_A14",
+        "props": {
+          "IA.AnnonceDuree": 0.77,
+          "IA.TirDuree": 0.45,
+          "IA.RecuperationDuree": 1.7,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.18,
+          "IA.FractionFlashFinAnnonce": 0.6
+        }
+      },
+      {
+        "id": "ANO-003_A15",
+        "props": {}
+      },
+      {
+        "id": "ANO-003_A16",
+        "props": {
+          "IA.AnnonceDuree": 1.48,
+          "IA.AnnonceFinDuree": 0.45,
+          "IA.TirDuree": 0.55,
+          "IA.RecuperationDuree": 1.8,
+          "IA.PorteeAttaque": 965,
+          "IA.DelaiDebutTir": 0.08,
+          "IA.AttenuationRotationAnnonce": 0.08,
+          "IA.FractionFlashFinAnnonce": 0.6,
+          "Degats": 30
+        }
+      },
+      {
+        "id": "ANO-003_A17",
+        "props": {
+          "IA.AnnonceDuree": 1.15,
+          "IA.TirDuree": 0.6,
+          "IA.RecuperationDuree": 1.7,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.15,
+          "IA.VitesseAnimationAnnonce": 0.35,
+          "IA.FractionFlashFinAnnonce": 0.3
+        }
+      },
+      {
+        "id": "ANO-003_A18",
+        "props": {
+          "IA.AnnonceDuree": 0.5,
+          "IA.TirDuree": 1.35,
+          "IA.RecuperationDuree": 0.3,
+          "IA.PorteeAttaque": 2000,
+          "IA.DelaiDebutTir": 0.35,
+          "IA.VitesseAnimationAnnonce": 1.5,
+          "IA.LongueurCanon": 200
+        }
+      }
+    ],
+    "arsenal": [
+      "ANO-003_A01",
+      "ANO-003_A02",
+      "ANO-003_A03",
+      "ANO-003_A04",
+      "ANO-003_A05",
+      "ANO-003_A06",
+      "ANO-003_A07",
+      "ANO-003_A08",
+      "ANO-003_A09x2",
+      "ANO-003_A10x2",
+      "ANO-003_A11",
+      "ANO-003_A12",
+      "ANO-003_A13",
+      "ANO-003_A14",
+      "ANO-003_A15",
+      "ANO-003_A16x2",
+      "ANO-003_A17x2",
+      "ANO-003_A18"
+    ]
+  },
+  {
+    "id": "ANO-004",
+    "nom": "ANO-004",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 20000,
+      "Vitesse": 290,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 1.0,
+      "IA.DelaiSetupIA": 4.5,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.75
+    },
+    "phases": [
+      {
+        "id": "ANO-004_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.75,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-004_Phase2",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.5,
+          "NouveauPVMax": null,
+          "AttenteDuree": 1.4,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-004_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.25,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0.2,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-004_A01",
+            "ANO-004_A02",
+            "ANO-004_A04",
+            "ANO-004_A06",
+            "ANO-004_A07",
+            "ANO-004_A13"
+          ]
+        }
+      },
+      {
+        "id": "ANO-004_Phase4",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": 1.4,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-004_Phase5",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.5,
+          "NouveauPVMax": 16000,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-004_A03",
+            "ANO-004_A08",
+            "ANO-004_A09",
+            "ANO-004_A10",
+            "ANO-004_A12",
+            "ANO-004_A13",
+            "ANO-004_A14",
+            "ANO-004_A15",
+            "ANO-004_A16"
+          ]
+        }
+      },
+      {
+        "id": "ANO-004_Phase6",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": 1.4,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-004_A03",
+            "ANO-004_A07",
+            "ANO-004_A08",
+            "ANO-004_A09",
+            "ANO-004_A10",
+            "ANO-004_A13"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-004_A01",
+        "props": {
+          "IA.AnnonceDuree": 1.4,
+          "IA.TirDuree": 0.5,
+          "IA.RecuperationDuree": 1.5,
+          "IA.PorteeAttaque": 150,
+          "IA.DelaiDeplacementPortee": 3.5
+        }
+      },
+      {
+        "id": "ANO-004_A02",
+        "props": {
+          "IA.AnnonceDuree": 0.83,
+          "IA.TirDuree": 1.3,
+          "IA.RecuperationDuree": 1.1,
+          "IA.PorteeAttaque": 150,
+          "IA.DelaiDebutTir": 0.7,
+          "IA.NombreProjectiles": 12,
+          "IA.IntervalleAngleProjectile": 30,
+          "IA.DelaiDeplacementPortee": 5
+        }
+      },
+      {
+        "id": "ANO-004_A03",
+        "props": {
+          "IA.RecuperationDuree": 7,
+          "IA.PorteeAttaque": 100,
+          "IA.NombreProjectiles": 9,
+          "IA.IntervalleAngleProjectile": 45
+        }
+      },
+      {
+        "id": "ANO-004_A04",
+        "props": {
+          "IA.AnnonceDuree": 0.83,
+          "IA.TirDuree": 0.7,
+          "IA.RecuperationDuree": 0,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.7,
+          "IA.TamponLigneVie": 85
+        }
+      },
+      {
+        "id": "ANO-004_A05",
+        "props": {
+          "IA.TirDuree": 0.72,
+          "IA.RecuperationDureeMin": 1.25,
+          "IA.RecuperationDureeMax": 1.25,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.57,
+          "IA.NombreProjectiles": 6,
+          "IA.IntervalleAngleProjectile": 60,
+          "IA.IntervalleTir": 0.25,
+          "IA.TicksTir": 5
+        }
+      },
+      {
+        "id": "ANO-004_A06",
+        "props": {
+          "IA.AnnonceDuree": 0.53,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 2.1,
+          "IA.PorteeAttaque": 600,
+          "IA.AttenuationRotationTir": 0.05,
+          "IA.AttenuationRotationAnnonce": 0.25,
+          "IA.DelaiDeplacementPortee": 0.75
+        }
+      },
+      {
+        "id": "ANO-004_A07",
+        "props": {}
+      },
+      {
+        "id": "ANO-004_A08",
+        "props": {
+          "IA.AnnonceDuree": 0.68,
+          "IA.TirDuree": 1.21,
+          "IA.RecuperationDuree": 0.95,
+          "IA.PorteeAttaque": 9999,
+          "Degats": 24,
+          "RayonDegats": 300
+        }
+      },
+      {
+        "id": "ANO-004_A09",
+        "props": {
+          "IA.AnnonceDuree": 3.17,
+          "IA.TirDuree": 0.78,
+          "IA.RecuperationDuree": 1.5,
+          "IA.PorteeAttaque": 100,
+          "IA.DelaiDebutTir": 0.45
+        }
+      },
+      {
+        "id": "ANO-004_A10",
+        "props": {
+          "IA.AnnonceDuree": 3.17,
+          "IA.TirDuree": 0.78,
+          "IA.RecuperationDuree": 1.5,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.45
+        }
+      },
+      {
+        "id": "ANO-004_A11",
+        "props": {
+          "IA.AnnonceDuree": 3.83,
+          "IA.RecuperationDureeMin": 9,
+          "IA.RecuperationDureeMax": 13,
+          "Degats": 31,
+          "RayonDegats": 2100,
+          "Portee": 1
+        }
+      },
+      {
+        "id": "ANO-004_A12",
+        "props": {
+          "IA.AnnonceDuree": 1.17,
+          "IA.AnnonceFinDuree": 0.32,
+          "IA.TirDuree": 0.67,
+          "IA.RecuperationDuree": 1.6,
+          "IA.PorteeAttaque": 850,
+          "IA.PorteeAttaqueEchelleY": 0.55,
+          "IA.DelaiDebutTir": 0.05,
+          "IA.VitesseTir": 3800,
+          "IA.AttenuationRotationAnnonce": 0.07,
+          "IA.TamponLigneVie": 85,
+          "Degats": 23
+        }
+      },
+      {
+        "id": "ANO-004_A13",
+        "props": {
+          "IA.AnnonceDuree": 0.87,
+          "IA.AnnonceFinDuree": 0.34,
+          "IA.TirDuree": 0.32,
+          "IA.RecuperationDuree": 2,
+          "IA.PorteeAttaque": 870,
+          "IA.DelaiDebutTir": 0.07,
+          "IA.LongueurCanon": 600,
+          "Degats": 35,
+          "Portee": 700
+        }
+      },
+      {
+        "id": "ANO-004_A14",
+        "props": {
+          "IA.AnnonceDuree": 1.96,
+          "IA.TirDuree": 0.32,
+          "IA.RecuperationDuree": 1.3,
+          "IA.PorteeAttaque": 500,
+          "IA.PorteeAttaqueEchelleY": 0.8,
+          "IA.DelaiDebutTir": 0.13,
+          "IA.AttenuationRotationTir": 0.08,
+          "IA.AttenuationRotationAnnonce": 0.08
+        }
+      },
+      {
+        "id": "ANO-004_A15",
+        "props": {
+          "IA.AnnonceDuree": 1.34,
+          "IA.TirDuree": 0.45,
+          "IA.RecuperationDuree": 1.3,
+          "IA.PorteeAttaque": 500,
+          "IA.PorteeAttaqueEchelleY": 0.8,
+          "IA.DelaiDebutTir": 0.13,
+          "IA.AttenuationRotationTir": 0.08,
+          "IA.AttenuationRotationAnnonce": 0.08,
+          "Degats": 29
+        }
+      },
+      {
+        "id": "ANO-004_A16",
+        "props": {
+          "IA.AnnonceDuree": 1.4,
+          "IA.TirDuree": 0.25,
+          "IA.RecuperationDuree": 1.35,
+          "IA.PorteeAttaque": 9999
+        }
+      }
+    ],
+    "arsenal": [
+      "ANO-004_A01x3",
+      "ANO-004_A02x3",
+      "ANO-004_A03x2",
+      "ANO-004_A04x3",
+      "ANO-004_A05",
+      "ANO-004_A06x3",
+      "ANO-004_A07x5",
+      "ANO-004_A08x2",
+      "ANO-004_A09x2",
+      "ANO-004_A10x2",
+      "ANO-004_A11",
+      "ANO-004_A12x3",
+      "ANO-004_A13x6",
+      "ANO-004_A14x2",
+      "ANO-004_A15x2",
+      "ANO-004_A16"
+    ]
+  },
+  {
+    "id": "ANO-005",
+    "nom": "ANO-005",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 8400,
+      "Vitesse": 90,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 0.0,
+      "IA.DelaiSetupIA": 1.5,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.66
+    },
+    "phases": [
+      {
+        "id": "ANO-005_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.66,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-005_Phase2",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.33,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-005_A01",
+            "ANO-005_A03",
+            "ANO-005_A04",
+            "ANO-005_A06"
+          ]
+        }
+      },
+      {
+        "id": "ANO-005_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": 0,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-005_A02",
+            "ANO-005_A03",
+            "ANO-005_A04",
+            "ANO-005_A07",
+            "ANO-005_A08"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-005_A01",
+        "props": {
+          "IA.AnnonceDuree": 0.3,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 3,
+          "IA.PorteeAttaque": 350,
+          "IA.DelaiDeplacementPortee": 3
+        }
+      },
+      {
+        "id": "ANO-005_A02",
+        "props": {
+          "IA.AnnonceDuree": 1.1,
+          "IA.AnnonceFinDuree": 0.4,
+          "IA.TirDuree": 0.6,
+          "IA.RecuperationDuree": 1,
+          "IA.PorteeAttaque": 9999,
+          "IA.DelaiDebutTir": 0.125,
+          "IA.VitesseTir": 800,
+          "IA.LongueurCanon": 0,
+          "IA.DelaiDeplacementPortee": 0,
+          "Degats": 16,
+          "Portee": 4000
+        }
+      },
+      {
+        "id": "ANO-005_A03",
+        "props": {
+          "IA.AnnonceDuree": 0.48,
+          "IA.TirDuree": 0.4,
+          "IA.RecuperationDuree": 1.3,
+          "IA.PorteeAttaque": 9999,
+          "IA.TamponLigneVie": 85
+        }
+      },
+      {
+        "id": "ANO-005_A04",
+        "props": {
+          "IA.RecuperationDuree": 2,
+          "IA.PorteeAttaque": 1,
+          "IA.DelaiDeplacementPortee": 5
+        }
+      },
+      {
+        "id": "ANO-005_A05",
+        "props": {
+          "IA.AnnonceDuree": 0.88,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 3.1,
+          "IA.PorteeAttaque": 9999,
+          "IA.TamponLigneVie": 85,
+          "IA.LongueurCanon": 180
+        }
+      },
+      {
+        "id": "ANO-005_A06",
+        "props": {
+          "IA.AnnonceDuree": 0,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 3,
+          "IA.PorteeAttaque": 350,
+          "IA.DelaiDeplacementPortee": 0
+        }
+      },
+      {
+        "id": "ANO-005_A07",
+        "props": {
+          "IA.AnnonceDuree": 1.45,
+          "IA.AnnonceFinDuree": 0.4,
+          "IA.TirDuree": 0.3,
+          "IA.RecuperationDuree": 2.5,
+          "IA.PorteeAttaque": 500,
+          "IA.DelaiDebutTir": 0.06,
+          "IA.FractionFlashFinAnnonce": 0.8,
+          "IA.LongueurCanon": 150,
+          "IA.DelaiDeplacementPortee": 0
+        }
+      },
+      {
+        "id": "ANO-005_A08",
+        "props": {
+          "IA.AnnonceDuree": 1.03,
+          "IA.AnnonceFinDuree": 0.4,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 2.1,
+          "IA.PorteeAttaque": 9999,
+          "IA.TicksTir": 1,
+          "IA.DelaiDeplacementPortee": 0
+        }
+      }
+    ],
+    "arsenal": [
+      "ANO-005_A01x3",
+      "ANO-005_A02x2",
+      "ANO-005_A03x4",
+      "ANO-005_A04x3",
+      "ANO-005_A05",
+      "ANO-005_A06x4",
+      "ANO-005_A07x2",
+      "ANO-005_A08"
+    ]
+  },
+  {
+    "id": "ANO-006",
+    "nom": "ANO-006",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 16000,
+      "Vitesse": 600,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 0.0,
+      "IA.DelaiSetupIA": 1.5,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.5
+    },
+    "phases": [
+      {
+        "id": "ANO-006_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.75,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-006_Phase2",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.5,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-006_A01",
+            "ANO-006_A02",
+            "ANO-006_A04",
+            "ANO-006_A11",
+            "ANO-006_A12"
+          ]
+        }
+      },
+      {
+        "id": "ANO-006_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.25,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-006_A01",
+            "ANO-006_A02",
+            "ANO-006_A05",
+            "ANO-006_A11",
+            "ANO-006_A12"
+          ]
+        }
+      },
+      {
+        "id": "ANO-006_Phase4",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.05,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-006_A01",
+            "ANO-006_A02",
+            "ANO-006_A06",
+            "ANO-006_A08",
+            "ANO-006_A13"
+          ]
+        }
+      },
+      {
+        "id": "ANO-006_Phase5",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-006_A02",
+            "ANO-006_A08",
+            "ANO-006_A09",
+            "ANO-006_A13"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-006_A01",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.AnnonceFinDuree": 0.35,
+          "IA.TirDuree": 0.35,
+          "IA.RecuperationDuree": 1.5,
+          "IA.PorteeAttaque": 720,
+          "IA.Dispersion": 0,
+          "IA.IntervalleTir": 0.04,
+          "IA.TicksTir": 10,
+          "IA.VitesseTir": 2400,
+          "IA.VitesseAnimationAnnonce": 0.4,
+          "IA.TamponLigneVie": 80,
+          "IA.LongueurCanon": 200
+        }
+      },
+      {
+        "id": "ANO-006_A02",
+        "props": {
+          "IA.AnnonceDuree": 0.45,
+          "IA.TirDuree": 0.55,
+          "IA.RecuperationDuree": 0.6,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-006_A03",
+        "props": {
+          "IA.AnnonceDuree": 0.83,
+          "IA.TirDuree": 0.43,
+          "IA.RecuperationDuree": 0.82,
+          "IA.PorteeAttaque": 2000,
+          "IA.AttenuationRotationAnnonce": 0.15
+        }
+      },
+      {
+        "id": "ANO-006_A04",
+        "props": {}
+      },
+      {
+        "id": "ANO-006_A05",
+        "props": {}
+      },
+      {
+        "id": "ANO-006_A06",
+        "props": {}
+      },
+      {
+        "id": "ANO-006_A07",
+        "props": {
+          "IA.AnnonceDuree": 0.83,
+          "IA.TirDuree": 0.43,
+          "IA.RecuperationDuree": 0.8,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-006_A08",
+        "props": {
+          "IA.AnnonceDuree": 0.225,
+          "IA.TirDuree": 0.275,
+          "IA.RecuperationDuree": 0,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-006_A09",
+        "props": {}
+      },
+      {
+        "id": "ANO-006_A10",
+        "props": {
+          "IA.AnnonceDuree": 0.83,
+          "IA.TirDuree": 0.23,
+          "IA.RecuperationDuree": 0.82,
+          "IA.PorteeAttaque": 550,
+          "IA.PorteeAttaqueEchelleY": 0.8,
+          "IA.Dispersion": 7,
+          "IA.IntervalleTir": 0.15,
+          "IA.AttenuationRotationTir": 0.09,
+          "IA.AttenuationRotationAnnonce": 0.18,
+          "IA.TamponLigneVie": 100,
+          "IA.LongueurCanon": 65
+        }
+      },
+      {
+        "id": "ANO-006_A11",
+        "props": {
+          "IA.AnnonceDuree": 0.83,
+          "IA.TirDuree": 0.23,
+          "IA.RecuperationDuree": 0.82,
+          "IA.PorteeAttaque": 370,
+          "IA.Dispersion": 0,
+          "IA.IntervalleTir": 0.5,
+          "IA.TicksTir": 6,
+          "IA.AttenuationRotationTir": 0.11,
+          "IA.AttenuationRotationAnnonce": 0.16,
+          "IA.TamponLigneVie": 80,
+          "IA.LongueurCanon": 100
+        }
+      },
+      {
+        "id": "ANO-006_A12",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-006_A13",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      }
+    ],
+    "arsenal": [
+      "ANO-006_A01x5",
+      "ANO-006_A02x6",
+      "ANO-006_A03",
+      "ANO-006_A04x2",
+      "ANO-006_A05",
+      "ANO-006_A06",
+      "ANO-006_A07",
+      "ANO-006_A08x2",
+      "ANO-006_A09",
+      "ANO-006_A10",
+      "ANO-006_A11x3",
+      "ANO-006_A12x4",
+      "ANO-006_A13x2"
+    ]
+  },
+  {
+    "id": "ANO-007",
+    "nom": "ANO-007",
+    "categorie": "boss",
+    "props": {
+      "PV_Max": 33000,
+      "Vitesse": 1200,
+      "NoteDifficulte": 0,
+      "IA.PorteeAggro": 0.0,
+      "TamponPV": 0,
+      "IA.DelaiEveil": 0.0,
+      "IA.DelaiSetupIA": 0.0,
+      "IA.MaxAttaquants": 0,
+      "IA.DistanceEntourer": 0.0,
+      "IA.IntervalleRafraichissementEntourer": 0.0,
+      "IA.FinSeuilPV": 0.66
+    },
+    "phases": [
+      {
+        "id": "ANO-007_Phase1",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.66,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": false,
+          "ArmesEquipees": []
+        }
+      },
+      {
+        "id": "ANO-007_Phase2",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.33,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-007_A02",
+            "ANO-007_A04",
+            "ANO-007_A05",
+            "ANO-007_A07",
+            "ANO-007_A10",
+            "ANO-007_A14",
+            "ANO-007_A16",
+            "ANO-007_A19"
+          ]
+        }
+      },
+      {
+        "id": "ANO-007_Phase3",
+        "props": {
+          "TypeTransition": "SeuilPV",
+          "Seuil": 0.0,
+          "NouveauPVMax": null,
+          "AttenteDuree": null,
+          "Depassement": null,
+          "DequiperToutesArmes": true,
+          "ArmesEquipees": [
+            "ANO-007_A03",
+            "ANO-007_A04",
+            "ANO-007_A08",
+            "ANO-007_A11",
+            "ANO-007_A15",
+            "ANO-007_A17",
+            "ANO-007_A20"
+          ]
+        }
+      }
+    ],
+    "attaques": [
+      {
+        "id": "ANO-007_A01",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A02",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A03",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A04",
+        "props": {
+          "IA.AnnonceDuree": 0.2,
+          "IA.TirDuree": 0.15,
+          "IA.RecuperationDuree": 0.9,
+          "IA.VitesseTir": 2500
+        }
+      },
+      {
+        "id": "ANO-007_A05",
+        "props": {
+          "IA.AnnonceDuree": 0.2,
+          "IA.TirDuree": 0.1,
+          "IA.RecuperationDuree": 0.285,
+          "IA.PorteeAttaque": 9999,
+          "IA.VitesseTir": 7000
+        }
+      },
+      {
+        "id": "ANO-007_A06",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 2.6
+        }
+      },
+      {
+        "id": "ANO-007_A07",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A08",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0,
+          "IA.RecuperationDuree": 0.15
+        }
+      },
+      {
+        "id": "ANO-007_A09",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0.39,
+          "IA.RecuperationDuree": 2.4,
+          "IA.AttenuationRotationAnnonce": 0.1
+        }
+      },
+      {
+        "id": "ANO-007_A10",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A11",
+        "props": {
+          "IA.AnnonceDuree": 1,
+          "IA.TirDuree": 0.39,
+          "IA.RecuperationDuree": 0.05
+        }
+      },
+      {
+        "id": "ANO-007_A12",
+        "props": {
+          "IA.AnnonceDuree": 0,
+          "IA.TirDuree": 0.5,
+          "IA.RecuperationDuree": 0,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "ANO-007_A13",
+        "props": {
+          "IA.AnnonceDuree": 0.86,
+          "IA.TirDuree": 0.275,
+          "IA.RecuperationDuree": 2.6
+        }
+      },
+      {
+        "id": "ANO-007_A14",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A15",
+        "props": {
+          "IA.AnnonceDuree": 0.86,
+          "IA.TirDuree": 0.275,
+          "IA.RecuperationDuree": 0.12
+        }
+      },
+      {
+        "id": "ANO-007_A16",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-007_A17",
+        "props": {
+          "IA.PorteeAttaque": 99999
+        }
+      },
+      {
+        "id": "ANO-007_A18",
+        "props": {
+          "IA.AnnonceDuree": 0.93,
+          "IA.TirDuree": 0.365,
+          "IA.RecuperationDuree": 2.5
+        }
+      },
+      {
+        "id": "ANO-007_A19",
+        "props": {}
+      },
+      {
+        "id": "ANO-007_A20",
+        "props": {
+          "IA.AnnonceDuree": 0.93,
+          "IA.TirDuree": 0.365,
+          "IA.RecuperationDuree": 0.1
+        }
+      }
+    ],
+    "arsenal": [
+      "ANO-007_A01",
+      "ANO-007_A02x2",
+      "ANO-007_A03",
+      "ANO-007_A04x4",
+      "ANO-007_A05x2",
+      "ANO-007_A06",
+      "ANO-007_A07x2",
+      "ANO-007_A08",
+      "ANO-007_A09",
+      "ANO-007_A10x2",
+      "ANO-007_A11",
+      "ANO-007_A12",
+      "ANO-007_A13",
+      "ANO-007_A14x2",
+      "ANO-007_A15",
+      "ANO-007_A16x2",
+      "ANO-007_A17",
+      "ANO-007_A18",
+      "ANO-007_A19x2",
+      "ANO-007_A20"
+    ]
+  }
+]

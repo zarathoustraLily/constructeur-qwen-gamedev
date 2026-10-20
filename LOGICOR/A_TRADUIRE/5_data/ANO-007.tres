@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheBoss" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheBoss.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ANO-007"
+nom = "ANO-007"
+categorie = "boss"
+PV_Max = 33000
+Vitesse = 1200.0
+NoteDifficulte = 0
+TamponPV = 0
+phases = [{ "id": "ANO-007_Phase1", "props": { "TypeTransition": "SeuilPV", "Seuil": 0.66, "NouveauPVMax": null, "AttenteDuree": null, "Depassement": null, "DequiperToutesArmes": false, "ArmesEquipees": [] } }, { "id": "ANO-007_Phase2", "props": { "TypeTransition": "SeuilPV", "Seuil": 0.33, "NouveauPVMax": null, "AttenteDuree": null, "Depassement": null, "DequiperToutesArmes": true, "ArmesEquipees": ["ANO-007_A02", "ANO-007_A04", "ANO-007_A05", "ANO-007_A07", "ANO-007_A10", "ANO-007_A14", "ANO-007_A16", "ANO-007_A19"] } }, { "id": "ANO-007_Phase3", "props": { "TypeTransition": "SeuilPV", "Seuil": 0.0, "NouveauPVMax": null, "AttenteDuree": null, "Depassement": null, "DequiperToutesArmes": true, "ArmesEquipees": ["ANO-007_A03", "ANO-007_A04", "ANO-007_A08", "ANO-007_A11", "ANO-007_A15", "ANO-007_A17", "ANO-007_A20"] } }]
+attaques = [{ "id": "ANO-007_A01", "props": {} }, { "id": "ANO-007_A02", "props": {} }, { "id": "ANO-007_A03", "props": {} }, { "id": "ANO-007_A04", "props": { "IA_AnnonceDuree": 0.2, "IA_TirDuree": 0.15, "IA_RecuperationDuree": 0.9, "IA_VitesseTir": 2500 } }, { "id": "ANO-007_A05", "props": { "IA_AnnonceDuree": 0.2, "IA_TirDuree": 0.1, "IA_RecuperationDuree": 0.285, "IA_PorteeAttaque": 9999, "IA_VitesseTir": 7000 } }, { "id": "ANO-007_A06", "props": { "IA_AnnonceDuree": 1, "IA_TirDuree": 0, "IA_RecuperationDuree": 2.6 } }, { "id": "ANO-007_A07", "props": {} }, { "id": "ANO-007_A08", "props": { "IA_AnnonceDuree": 1, "IA_TirDuree": 0, "IA_RecuperationDuree": 0.15 } }, { "id": "ANO-007_A09", "props": { "IA_AnnonceDuree": 1, "IA_TirDuree": 0.39, "IA_RecuperationDuree": 2.4, "IA_AttenuationRotationAnnonce": 0.1 } }, { "id": "ANO-007_A10", "props": {} }, { "id": "ANO-007_A11", "props": { "IA_AnnonceDuree": 1, "IA_TirDuree": 0.39, "IA_RecuperationDuree": 0.05 } }, { "id": "ANO-007_A12", "props": { "IA_AnnonceDuree": 0, "IA_TirDuree": 0.5, "IA_RecuperationDuree": 0, "IA_PorteeAttaque": 9999 } }, { "id": "ANO-007_A13", "props": { "IA_AnnonceDuree": 0.86, "IA_TirDuree": 0.275, "IA_RecuperationDuree": 2.6 } }, { "id": "ANO-007_A14", "props": {} }, { "id": "ANO-007_A15", "props": { "IA_AnnonceDuree": 0.86, "IA_TirDuree": 0.275, "IA_RecuperationDuree": 0.12 } }, { "id": "ANO-007_A16", "props": { "IA_PorteeAttaque": 99999 } }, { "id": "ANO-007_A17", "props": { "IA_PorteeAttaque": 99999 } }, { "id": "ANO-007_A18", "props": { "IA_AnnonceDuree": 0.93, "IA_TirDuree": 0.365, "IA_RecuperationDuree": 2.5 } }, { "id": "ANO-007_A19", "props": {} }, { "id": "ANO-007_A20", "props": { "IA_AnnonceDuree": 0.93, "IA_TirDuree": 0.365, "IA_RecuperationDuree": 0.1 } }]

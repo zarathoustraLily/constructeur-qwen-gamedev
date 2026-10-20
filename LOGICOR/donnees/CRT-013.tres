@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-013"
+nom = "CRT-013"
+categorie = "ennemi"
+PV_Max = 240
+Vitesse = 200.0
+NoteDifficulte = 55
+PoidsPiscine = 1
+ModificateurCassureEtourdissement = 0.33
+arsenal = ["CRT-013_BounceLob", "CRT-013_BounceLobElite", "CRT-013_Clawx2", "CRT-013_ClawRushx2", "CRT-013_Hidex2"]

@@ -1,0 +1,1165 @@
+[
+  {
+    "id": "MIN-010",
+    "nom": "MIN-010",
+    "categorie": "mini-boss",
+    "props": {
+      "PV_Max": 1,
+      "WakeUpDelay": 8.0,
+      "Money.Chance": 0.0,
+      "IA.FinSeuilPVGroupe": 0.5,
+      "Gen.NoteDifficulte": 1000,
+      "IA.DelaiDebutTir": 0.1,
+      "IA.TicksTir": 3,
+      "IA.IntervalleTir": 0.65,
+      "IA.Dispersion": 45,
+      "IA.PorteeAttaque": 99999,
+      "IA.AnnonceDuree": 2.5,
+      "IA.TirDuree": 0.0,
+      "IA.RecuperationDuree": 0.01,
+      "IA.TicksTirMin": 1,
+      "IA.TicksTirMax": 2,
+      "IA.DureeRecuperationMin": 9.0,
+      "IA.DureeRecuperationMax": 10.0,
+      "Vitesse": 0.0,
+      "Degats": 13,
+      "DegatsRadius": 325
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-010_Spit1",
+        "props": {
+          "IA.DelaiDebutTir": 0.1,
+          "IA.TicksTir": 3,
+          "IA.IntervalleTir": 0.65,
+          "IA.Dispersion": 45,
+          "IA.PorteeAttaque": 99999,
+          "IA.AnnonceDuree": 2.5,
+          "IA.TirDuree": 0.0,
+          "IA.RecuperationDuree": 0.01
+        }
+      },
+      {
+        "id": "MIN-010_Spit2",
+        "props": {
+          "IA.TicksTir": 5,
+          "IA.TirDuree": 0.0
+        }
+      },
+      {
+        "id": "MIN-010_Spit3",
+        "props": {
+          "IA.TicksTir": 8,
+          "IA.TirDuree": 0.0
+        }
+      },
+      {
+        "id": "MIN-010_SpitSmall",
+        "props": {
+          "IA.TicksTirMin": 1,
+          "IA.TicksTirMax": 2,
+          "IA.IntervalleTir": 0.5,
+          "IA.TirDuree": 0.65,
+          "IA.DureeRecuperationMin": 9.0,
+          "IA.DureeRecuperationMax": 10.0
+        }
+      },
+      {
+        "id": "MIN-010_Ranged",
+        "props": {
+          "Vitesse": 650,
+          "Degats": 13
+        }
+      },
+      {
+        "id": "MIN-010_RangedTransport",
+        "props": {
+          "Vitesse": 700
+        }
+      },
+      {
+        "id": "MIN-010_Spit",
+        "props": {
+          "DegatsRadius": 325,
+          "Degats": 16
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-004",
+    "nom": "MIN-004",
+    "categorie": "mini-boss",
+    "props": {
+      "PolymorphScaleOverride": 0.5,
+      "PV_Max": 4200,
+      "AggroDuree": 0.5,
+      "ActifCapWeight": 0.4,
+      "Gen.NoteDifficulte": 100,
+      "IA.AnnonceDuree": 0.5,
+      "IA.TirDuree": 2.5,
+      "IA.RecuperationDuree": 0.5,
+      "IA.PorteeAttaque": 9999,
+      "IA.ApparitionsParVagueMin": 5,
+      "IA.ApparitionsParVagueMax": 7,
+      "IA.RayonApparitionMin": 250,
+      "IA.RayonApparitionMax": 9999,
+      "IA.TauxApparition": 0.85,
+      "IA.MaxActifs": 15,
+      "IA.DelaiDebutTir": 0.15,
+      "IA.PorteeAttaqueEchelleY": 0.85,
+      "Vitesse": 1250.0,
+      "SlowEffectModificateur": 0.9,
+      "DegatsRadius": 360,
+      "Degats": 15,
+      "Portee": 1.0,
+      "IA.VitesseAnimationAnnonce": 0.5
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-004_Summon",
+        "props": {
+          "IA.AnnonceDuree": 0.5,
+          "IA.TirDuree": 2.5,
+          "IA.RecuperationDuree": 0.5,
+          "IA.PorteeAttaque": 9999,
+          "IA.ApparitionsParVagueMin": 5,
+          "IA.ApparitionsParVagueMax": 7,
+          "IA.RayonApparitionMin": 250,
+          "IA.RayonApparitionMax": 9999,
+          "IA.TauxApparition": 0.85,
+          "IA.MaxActifs": 15
+        }
+      },
+      {
+        "id": "MIN-004_Slam",
+        "props": {
+          "IA.DelaiDebutTir": 0.15,
+          "IA.PorteeAttaque": 200,
+          "IA.PorteeAttaqueEchelleY": 0.85,
+          "IA.AnnonceDuree": 0.9,
+          "IA.VitesseAnimationAnnounce": 0.5,
+          "IA.TirDuree": 0.5,
+          "IA.RecuperationDuree": 0.5,
+          "DegatsRadius": 360,
+          "Degats": 15,
+          "Portee": 1.0
+        }
+      },
+      {
+        "id": "MIN-004_Rush",
+        "props": {
+          "Degats": 11
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-012",
+    "nom": "MIN-012",
+    "categorie": "mini-boss",
+    "props": {
+      "PV_Max": 4200,
+      "HealthBuffer": 11450,
+      "HealthBarOffsetY": -400,
+      "AIAggroPortee": 1000,
+      "WakeUpDelay": 1.5,
+      "Gen.NoteDifficulte": 1000,
+      "SlowEffectModificateur": 0.5
+    },
+    "phases": [],
+    "attaques": []
+  },
+  {
+    "id": "MIN-002",
+    "nom": "MIN-002",
+    "categorie": "mini-boss",
+    "props": {
+      "Gen.OndesMin": 2,
+      "Gen.OndesMax": 2,
+      "Gen.TypesMin": 1,
+      "Gen.TypesMax": 1,
+      "Gen.RampeTypesProfondeur": 0,
+      "Gen.RampeEnnemisProfondeur": 0,
+      "Gen.TypesEliteMax": 2,
+      "Gen.PlafondEnnemisActifsBase": 10,
+      "Gen.PlafondEnnemisActifsMin": 10,
+      "Gen.PlafondEnnemisActifsMax": 10,
+      "Gen.IntervalleApparitionMin": 0.02,
+      "Gen.IntervalleApparitionMax": 0.02,
+      "EndMusicOnCombatOver": 20,
+      "Gen.PlafondLarguerArgentMin": 15,
+      "Gen.PlafondLarguerArgentMax": 15,
+      "Gen.RampePlafondLarguerArgentProfondeur": 0,
+      "PV_Max": 290,
+      "HealthBarOffsetY": -300,
+      "IA.RayonBrume": 725,
+      "IA.EchelleYRayonBrume": 0.85,
+      "IA.TamponRayonBrumeEntree": 0,
+      "IA.TamponRayonBrumeSortie": 0,
+      "Money.Chance": 1.0,
+      "Money.MinParcels": 1,
+      "Money.MaxParcels": 1,
+      "Money.MinValue": 50,
+      "Money.MaxValue": 70,
+      "Gen.NoteDifficulte": 22,
+      "Gen.NombreMax": 1,
+      "HealthBuffer": 1450,
+      "IA.TamponRecul": 550,
+      "IA.PorteeAttaque": 725,
+      "IA.PorteeAttaqueEchelleY": 0.85,
+      "IA.AnnonceDuree": 1.23,
+      "IA.TirDuree": 0.6,
+      "IA.RecuperationDuree": 1.5,
+      "IA.MaxUsagesConsecutifs": 2,
+      "IA.OffsetEffetTir": 300,
+      "IA.ApparitionsParVagueMin": 1,
+      "IA.ApparitionsParVagueMax": 1,
+      "IA.MaxActifs": 4,
+      "Vitesse": 0.0,
+      "Degats": 8,
+      "DegatsRadius": 380,
+      "Portee": 1.0,
+      "IA.RetreatTimeoutMin": 2.0,
+      "IA.RetreatTimeoutMax": 5.0,
+      "IA.VitesseAnimationAnnonce": 0.5,
+      "Gen.MiniBossminiboss-002-lvl_1": {
+        "Gen.OndesMin": 2,
+        "Gen.OndesMax": 2,
+        "Gen.TypesMin": 1,
+        "Gen.TypesMax": 1,
+        "Gen.RampeTypesProfondeur": 0,
+        "Gen.RampeEnnemisProfondeur": 0,
+        "Gen.TypesEliteMax": 2,
+        "Gen.PlafondEnnemisActifsBase": 10,
+        "Gen.PlafondEnnemisActifsMin": 10,
+        "Gen.PlafondEnnemisActifsMax": 10,
+        "Gen.IntervalleApparitionMin": 0.02,
+        "Gen.IntervalleApparitionMax": 0.02,
+        "EndMusicOnCombatOver": 20,
+        "Gen.PlafondLarguerArgentMin": 15,
+        "Gen.PlafondLarguerArgentMax": 15,
+        "Gen.RampePlafondLarguerArgentProfondeur": 0
+      }
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-002_Shrine",
+        "props": {
+          "Gen.PlafondEnnemisActifsBase": 5,
+          "Gen.PlafondEnnemisActifsMin": 5,
+          "Gen.PlafondEnnemisActifsMax": 5,
+          "Gen.IntervalleApparitionMin": 1.0,
+          "Gen.IntervalleApparitionMax": 2.0
+        }
+      },
+      {
+        "id": "MIN-002_Elite",
+        "props": {
+          "PV_Max": 510,
+          "HealthBuffer": 1450,
+          "Gen.NoteDifficulte": 50,
+          "Gen.NombreMax": 1
+        }
+      },
+      {
+        "id": "MIN-002_Shadow",
+        "props": {
+          "HealthBuffer": 1750,
+          "IA.TamponRecul": 550,
+          "Vitesse": 420,
+          "IA.RetreatTimeoutMin": 2.0,
+          "IA.RetreatTimeoutMax": 5.0
+        }
+      },
+      {
+        "id": "MIN-002_Sweep",
+        "props": {
+          "IA.PorteeAttaque": 725,
+          "IA.PorteeAttaqueEchelleY": 0.85,
+          "IA.AnnonceDuree": 1.23,
+          "IA.TirDuree": 0.6,
+          "IA.RecuperationDuree": 1.5,
+          "IA.MaxUsagesConsecutifs": 2,
+          "Vitesse": -577,
+          "Degats": 8
+        }
+      },
+      {
+        "id": "MIN-002_Slam",
+        "props": {
+          "IA.PorteeAttaque": 725,
+          "IA.PorteeAttaqueEchelleY": 0.85,
+          "IA.AnnonceDuree": 1.6,
+          "IA.VitesseAnimationAnnounce": 0.5,
+          "IA.RecuperationDuree": 0.75,
+          "IA.OffsetEffetTir": 300,
+          "IA.MaxUsagesConsecutifs": 2,
+          "DegatsRadius": 380,
+          "Degats": 9,
+          "Portee": 1.0
+        }
+      },
+      {
+        "id": "MIN-002_HowlSummonminiboss-002-lvl_1s",
+        "props": {
+          "IA.ApparitionsParVagueMin": 1,
+          "IA.ApparitionsParVagueMax": 1,
+          "IA.MaxActifs": 4,
+          "IA.RecuperationDuree": 1.5,
+          "IA.VitesseAnimationAnnounce": 2.0
+        }
+      },
+      {
+        "id": "MIN-002_SweepSmall",
+        "props": {
+          "Vitesse": -865,
+          "Degats": 8
+        }
+      },
+      {
+        "id": "MIN-002_SlamSmall",
+        "props": {
+          "DegatsRadius": 210,
+          "Degats": 10,
+          "Portee": 1.0
+        }
+      },
+      {
+        "id": "MIN-002_Slam2",
+        "props": {
+          "DegatsRadius": 185
+        }
+      },
+      {
+        "id": "MIN-002_Slam3",
+        "props": {
+          "DegatsRadius": 115
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-008",
+    "nom": "MIN-008",
+    "categorie": "mini-boss",
+    "props": {
+      "PV_Max": 3100,
+      "HealthBuffer": 8250,
+      "HealthBarOffsetY": -270,
+      "IA.DashSiDepassement": 100,
+      "Gen.NoteDifficulte": 200
+    },
+    "phases": [],
+    "attaques": []
+  },
+  {
+    "id": "MIN-006",
+    "nom": "MIN-006",
+    "categorie": "mini-boss",
+    "props": {
+      "HealthBuffer": 3800,
+      "HealthBarOffsetY": -340,
+      "WakeUpDelayMin": 0.5,
+      "WakeUpDelayMax": 0.5,
+      "Gen.NoteDifficulte": 200,
+      "Vitesse": 600
+    },
+    "phases": [],
+    "attaques": []
+  },
+  {
+    "id": "MIN-009",
+    "nom": "MIN-009",
+    "categorie": "mini-boss",
+    "props": {
+      "Gen.OndesMin": 1,
+      "Gen.OndesMax": 1,
+      "Gen.TypesMin": 1,
+      "Gen.TypesMax": 1,
+      "Gen.RampeTypesProfondeur": 0,
+      "Gen.RampeEnnemisProfondeur": 0,
+      "Gen.TypesEliteMax": 2,
+      "Gen.PlafondEnnemisActifsBase": 4,
+      "Gen.PlafondEnnemisActifsMax": 4,
+      "Gen.IntervalleApparitionMin": 2.25,
+      "Gen.IntervalleApparitionMax": 5.4,
+      "StartDelay": 2,
+      "EndMusicOnCombatOver": 20,
+      "Gen.PlafondLarguerArgentMin": 15,
+      "Gen.PlafondLarguerArgentMax": 15,
+      "Gen.RampePlafondLarguerArgentProfondeur": 0,
+      "PV_Max": 600,
+      "HealthBuffer": 2200,
+      "HealthBarOffsetY": -220,
+      "Gen.NoteDifficulte": 100,
+      "IA.LongueurCanon": 55,
+      "IA.AttenuationRotationAnnonce": 0.15,
+      "IA.DureeAnnonceMin": 1.5,
+      "IA.DureeAnnonceMax": 3.8,
+      "IA.TirDuree": 0.3,
+      "IA.RecuperationDuree": 1.4,
+      "IA.PorteeAttaque": 900,
+      "IA.TamponLigneVie": 100,
+      "IA.VitesseTir": 2300,
+      "IA.AnnonceDuree": 1.0,
+      "IA.OffsetEffetTir": 300,
+      "IA.NombreProjectiles": 3,
+      "IA.IntervalleAngleProjectile": 55,
+      "IA.AngleOffsetVitesseTir": 180,
+      "Vitesse": 350.0,
+      "Portee": 1600,
+      "Degats": 16,
+      "TotalFuse": 4,
+      "Gen.MiniBossminiboss-009-lvl_5": {
+        "Gen.OndesMin": 1,
+        "Gen.OndesMax": 1,
+        "Gen.TypesMin": 1,
+        "Gen.TypesMax": 1,
+        "Gen.RampeTypesProfondeur": 0,
+        "Gen.RampeEnnemisProfondeur": 0,
+        "Gen.TypesEliteMax": 2,
+        "Gen.PlafondEnnemisActifsBase": 4,
+        "Gen.PlafondEnnemisActifsMax": 4,
+        "Gen.IntervalleApparitionMin": 2.25,
+        "Gen.IntervalleApparitionMax": 5.4,
+        "StartDelay": 2,
+        "EndMusicOnCombatOver": 20,
+        "Gen.PlafondLarguerArgentMin": 15,
+        "Gen.PlafondLarguerArgentMax": 15,
+        "Gen.RampePlafondLarguerArgentProfondeur": 0
+      }
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-009_ShieldedBolt",
+        "props": {
+          "IA.LongueurCanon": 55,
+          "IA.AttenuationRotationAnnonce": 0.15,
+          "IA.DureeAnnonceMin": 1.5,
+          "IA.DureeAnnonceMax": 3.8,
+          "IA.TirDuree": 0.3,
+          "IA.RecuperationDuree": 1.4,
+          "IA.PorteeAttaque": 900,
+          "IA.TamponLigneVie": 100
+        }
+      },
+      {
+        "id": "MIN-009_ShieldRush",
+        "props": {
+          "IA.VitesseTir": 2300,
+          "IA.AttenuationRotationAnnonce": 0.1,
+          "IA.AnnonceDuree": 1.0,
+          "IA.TirDuree": 0.5,
+          "IA.RecuperationDuree": 0.9,
+          "IA.PorteeAttaque": 600,
+          "IA.TamponLigneVie": 85,
+          "IA.OffsetEffetTir": 300
+        }
+      },
+      {
+        "id": "MIN-009_FadeBolt",
+        "props": {
+          "IA.NombreProjectiles": 3,
+          "IA.IntervalleAngleProjectile": 55,
+          "IA.VitesseTir": 1500,
+          "IA.AngleOffsetVitesseTir": 180,
+          "IA.PorteeAttaque": 9999,
+          "IA.AnnonceDuree": 0.6,
+          "IA.TirDuree": 0.3,
+          "IA.RecuperationDuree": 0.9,
+          "IA.AttenuationRotationAnnonce": 0.1
+        }
+      },
+      {
+        "id": "MIN-009_Bolt",
+        "props": {
+          "Portee": 1600,
+          "Vitesse": 8000,
+          "Degats": 16
+        }
+      },
+      {
+        "id": "MIN-009_HomingBolt",
+        "props": {
+          "Portee": 2000,
+          "Vitesse": 700,
+          "TotalFuse": 4,
+          "Degats": 8
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-007",
+    "nom": "MIN-007",
+    "categorie": "mini-boss",
+    "props": {
+      "PV_Max": 3200,
+      "HealthBuffer": 3500,
+      "Gen.NoteDifficulte": 400
+    },
+    "phases": [],
+    "attaques": []
+  },
+  {
+    "id": "MIN-011",
+    "nom": "MIN-011",
+    "categorie": "mini-boss",
+    "props": {
+      "PV_Max": 14000,
+      "DeathPanOffsetY": -220,
+      "DeathAngle": 270,
+      "InvulnerableHitImpactVelocity": 1000,
+      "AISetupDelay": 1.5,
+      "Gen.NoteDifficulte": 500,
+      "HealthBuffer": 1500,
+      "HealthBarOffsetY": -250,
+      "IA.DelaiDebutTir": 0.08,
+      "IA.LongueurCanon": 50,
+      "IA.PorteeAttaque": 870,
+      "IA.AnnonceDuree": 0.8,
+      "IA.TirDuree": 1.7,
+      "IA.RecuperationDuree": 2.0,
+      "IA.DelaiAngleCible": 1.0,
+      "IA.AttenuationRotationAnnonce": 0.1,
+      "IA.DureeFinAnnonce": 0.5,
+      "IA.TamponLigneVie": 100,
+      "IA.AttenuationRotationTir": 0.03,
+      "IA.DureeRecuperationMin": 0.6,
+      "IA.DureeRecuperationMax": 1.2,
+      "IA.TicksTir": 7,
+      "IA.IntervalleTir": 0.16,
+      "IA.VitesseTir": 900,
+      "IA.NombreProjectiles": 20,
+      "IA.IntervalleProjectile": 0.1,
+      "IA.Dispersion": 180,
+      "IA.PorteeAttaqueEchelleY": 0.9,
+      "IA.DistanceSuccesDeplacement": 1,
+      "IA.DistanceCibleMin": 0,
+      "IA.DistanceCibleMax": 0,
+      "Vitesse": 325.0,
+      "SlowEffectModificateur": 0.4,
+      "Portee": 9999,
+      "Degats": 30,
+      "DegatsRadius": 400,
+      "TotalFuse": 2.0
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-011_Shadow",
+        "props": {
+          "PV_Max": 1000,
+          "HealthBuffer": 1500,
+          "HealthBarOffsetY": -250
+        }
+      },
+      {
+        "id": "MIN-011_ShieldThrow",
+        "props": {
+          "IA.DelaiDebutTir": 0.08,
+          "IA.LongueurCanon": 50,
+          "IA.PorteeAttaque": 870,
+          "IA.AnnonceDuree": 0.8,
+          "IA.TirDuree": 1.7,
+          "IA.RecuperationDuree": 2.0
+        }
+      },
+      {
+        "id": "MIN-011_ShieldThrowLeft",
+        "props": {
+          "IA.DelaiDebutTir": 0.1,
+          "IA.DelaiAngleCible": 1.0,
+          "IA.AttenuationRotationAnnonce": 0.1,
+          "IA.LongueurCanon": 50,
+          "IA.PorteeAttaque": 870,
+          "IA.AnnonceDuree": 0.8,
+          "IA.TirDuree": 0.7,
+          "IA.RecuperationDuree": 1.2,
+          "Portee": 9999,
+          "Vitesse": 1600,
+          "Degats": 30
+        }
+      },
+      {
+        "id": "MIN-011_Magnet",
+        "props": {
+          "IA.DureeFinAnnonce": 0.5,
+          "IA.AnnonceDuree": 1.0,
+          "IA.TirDuree": 0.41,
+          "IA.RecuperationDuree": 0.0,
+          "IA.DelaiAngleCible": 1.0,
+          "IA.AttenuationRotationAnnonce": 0.1,
+          "IA.PorteeAttaque": 900,
+          "IA.TamponLigneVie": 100,
+          "Degats": 0
+        }
+      },
+      {
+        "id": "MIN-011_Punch",
+        "props": {
+          "IA.DelaiDebutTir": 0.07,
+          "IA.AttenuationRotationAnnonce": 0.25,
+          "IA.AttenuationRotationTir": 0.03,
+          "IA.AnnonceDuree": 0.5,
+          "IA.TirDuree": 0.4,
+          "IA.DureeRecuperationMin": 0.6,
+          "IA.DureeRecuperationMax": 1.2,
+          "IA.PorteeAttaque": 9999,
+          "Degats": 35
+        }
+      },
+      {
+        "id": "MIN-011_Spin",
+        "props": {
+          "IA.TicksTir": 7,
+          "IA.IntervalleTir": 0.16,
+          "IA.VitesseTir": 900,
+          "IA.AnnonceDuree": 1.4,
+          "IA.TirDuree": 0.0,
+          "IA.DureeRecuperationMin": 1.0,
+          "IA.DureeRecuperationMax": 1.3,
+          "IA.DelaiAngleCible": 1.0,
+          "IA.AttenuationRotationAnnonce": 0.09,
+          "IA.AttenuationRotationTir": 0.05,
+          "IA.PorteeAttaque": 600,
+          "DegatsRadius": 400,
+          "Degats": 22,
+          "Portee": 1.0
+        }
+      },
+      {
+        "id": "MIN-011_Sprint",
+        "props": {
+          "IA.NombreProjectiles": 20,
+          "IA.IntervalleProjectile": 0.1,
+          "IA.Dispersion": 180,
+          "IA.AttenuationRotationAnnonce": 0.8,
+          "IA.AttenuationRotationTir": 0.3,
+          "IA.AnnonceDuree": 0.65,
+          "IA.TirDuree": 2.35,
+          "IA.RecuperationDuree": 2.0,
+          "IA.PorteeAttaque": 900,
+          "IA.PorteeAttaqueEchelleY": 0.9,
+          "IA.DistanceSuccesDeplacement": 1
+        }
+      },
+      {
+        "id": "MIN-011_SprintKnockback",
+        "props": {
+          "IA.NombreProjectiles": 1,
+          "IA.DistanceCibleMin": 0,
+          "IA.DistanceCibleMax": 0,
+          "IA.PorteeAttaque": 9999,
+          "Degats": 0,
+          "TotalFuse": 2.0
+        }
+      },
+      {
+        "id": "MIN-011_ShieldThrowStraight",
+        "props": {
+          "Portee": 9999,
+          "Vitesse": 3500,
+          "Degats": 30
+        }
+      },
+      {
+        "id": "MIN-011_BeamSpin1",
+        "props": {
+          "Vitesse": 750,
+          "Degats": 22
+        }
+      },
+      {
+        "id": "MIN-011_Spin_Shadow",
+        "props": {
+          "DegatsRadius": 300
+        }
+      },
+      {
+        "id": "MIN-011_FireLob",
+        "props": {
+          "Degats": 15,
+          "DegatsRadius": 200.0,
+          "Vitesse": 300
+        }
+      },
+      {
+        "id": "MIN-011_Fire",
+        "props": {
+          "Portee": 0,
+          "DegatsRadius": 100,
+          "TotalFuse": 15.0,
+          "Degats": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-001",
+    "nom": "MIN-001",
+    "categorie": "mini-boss",
+    "props": {
+      "Gen.OndesMin": 1,
+      "Gen.OndesMax": 1,
+      "Gen.TypesMin": 1,
+      "Gen.TypesMax": 1,
+      "Gen.RampeTypesProfondeur": 0,
+      "Gen.RampeEnnemisProfondeur": 0,
+      "Gen.TypesEliteMax": 2,
+      "Gen.PlafondEnnemisActifsBase": 3,
+      "Gen.PlafondEnnemisActifsMax": 3,
+      "Gen.IntervalleApparitionMin": 0.05,
+      "Gen.IntervalleApparitionMax": 0.05,
+      "EndMusicOnCombatOver": 20,
+      "Gen.PlafondLarguerArgentMin": 15,
+      "Gen.PlafondLarguerArgentMax": 15,
+      "Gen.RampePlafondLarguerArgentProfondeur": 0,
+      "PV_Max": 450,
+      "HealthBuffer": 1110,
+      "HealthBarOffsetY": -300,
+      "Money.Chance": 0.0,
+      "Gen.NoteDifficulte": 65,
+      "ActivateFxPreSpawnDelay": 0.0,
+      "ActivateStartAlpha": 1.0,
+      "ActivateDuree": 1.0,
+      "WakeUpDelay": 1.0,
+      "ActivateFadeInDelay": 0.0,
+      "ActivateFadeInDuree": 0.25,
+      "ActivateTintDelay": 0.0,
+      "ActivateTintDuree": 0.5,
+      "ActifCapWeight": 3.0,
+      "IA.AnnonceDuree": 1.0,
+      "IA.RecuperationDuree": 2.5,
+      "IA.PorteeAttaque": 400,
+      "IA.DelaiDebutTir": 0.12,
+      "IA.LongueurCanon": 125,
+      "IA.Dispersion": 15,
+      "IA.DelaiAngleCible": 0.8,
+      "IA.AttenuationRotationAnnonce": 0.14,
+      "IA.AttenuationRotationTir": 0.14,
+      "IA.NombreProjectiles": 60,
+      "IA.IntervalleProjectile": 0.0485,
+      "IA.TirDuree": 3.5,
+      "IA.DureeRecuperationMin": 2.85,
+      "IA.DureeRecuperationMax": 3.65,
+      "IA.RayonApparition": 700,
+      "IA.TauxApparition": 0.35,
+      "IA.MaxActifs": 1,
+      "IA.TicksTir": 2,
+      "IA.IntervalleTir": 0.15,
+      "IA.DistanceSuccesDeplacement": 50,
+      "Vitesse": 0.0,
+      "StunBreakModificateur": 1.5,
+      "SlowEffectModificateur": 0.5,
+      "Portee": 1200,
+      "Degats": 1,
+      "DegatsRadius": 320.0,
+      "IA.SpawnsPerBurst": 1,
+      "IA.MaxUses": 1,
+      "IA.TargetSpawnPointsRayon": 675,
+      "IA.TargetSpawnPointsRayonMin": 55,
+      "IA.VitesseAnimationAnnonce": 0.45,
+      "Gen.MiniBossminiboss-001-lvl_1": {
+        "Gen.OndesMin": 1,
+        "Gen.OndesMax": 1,
+        "Gen.TypesMin": 1,
+        "Gen.TypesMax": 1,
+        "Gen.RampeTypesProfondeur": 0,
+        "Gen.RampeEnnemisProfondeur": 0,
+        "Gen.TypesEliteMax": 2,
+        "Gen.PlafondEnnemisActifsBase": 3,
+        "Gen.PlafondEnnemisActifsMax": 3,
+        "Gen.IntervalleApparitionMin": 0.05,
+        "Gen.IntervalleApparitionMax": 0.05,
+        "EndMusicOnCombatOver": 20,
+        "Gen.PlafondLarguerArgentMin": 15,
+        "Gen.PlafondLarguerArgentMax": 15,
+        "Gen.RampePlafondLarguerArgentProfondeur": 0
+      }
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-001_2",
+        "props": {
+          "Gen.OndesMin": 1,
+          "Gen.OndesMax": 1,
+          "Gen.TypesMin": 2,
+          "Gen.TypesMax": 2,
+          "Gen.RampeTypesProfondeur": 0,
+          "Gen.RampeEnnemisProfondeur": 0,
+          "Gen.TypesEliteMax": 2,
+          "EndMusicOnCombatOver": 20,
+          "PV_Max": 850,
+          "HealthBuffer": 1850,
+          "ActivateFadeInDelay": 0.0,
+          "ActivateFadeInDuree": 0.25,
+          "ActivateTintDelay": 0.0,
+          "ActivateTintDuree": 0.5,
+          "ActivateStartAlpha": 0,
+          "ActivateDuree": 0.75,
+          "ActifCapWeight": 3.0,
+          "Gen.NoteDifficulte": 480,
+          "Vitesse": 200,
+          "StunBreakModificateur": 1.5,
+          "SlowEffectModificateur": 0.5
+        }
+      },
+      {
+        "id": "MIN-001_Tail",
+        "props": {
+          "ActivateFxPreSpawnDelay": 0.0,
+          "ActivateStartAlpha": 1.0,
+          "ActivateDuree": 1.0,
+          "PV_Max": 345,
+          "HealthBuffer": 485,
+          "HealthBarOffsetY": -200,
+          "WakeUpDelay": 1.0,
+          "Money.Chance": 0.0,
+          "Gen.NoteDifficulte": 25,
+          "Vitesse": 400.0
+        }
+      },
+      {
+        "id": "MIN-001_Tail2",
+        "props": {
+          "PV_Max": 460,
+          "HealthBuffer": 520,
+          "Gen.NoteDifficulte": 50
+        }
+      },
+      {
+        "id": "MIN-001_Melee",
+        "props": {
+          "IA.AnnonceDuree": 1.0,
+          "IA.VitesseAnimationAnnounce": 0.45,
+          "IA.RecuperationDuree": 2.5,
+          "IA.PorteeAttaque": 400,
+          "Degats": 12
+        }
+      },
+      {
+        "id": "MIN-001_RangedRoots",
+        "props": {
+          "IA.AnnonceDuree": 1.0,
+          "IA.RecuperationDuree": 0.7,
+          "IA.PorteeAttaque": 1000,
+          "Degats": 0,
+          "DegatsRadius": 320.0
+        }
+      },
+      {
+        "id": "MIN-001_RangedSpray",
+        "props": {
+          "IA.DelaiDebutTir": 0.12,
+          "IA.LongueurCanon": 125,
+          "IA.Dispersion": 15,
+          "IA.DelaiAngleCible": 0.8,
+          "IA.AttenuationRotationAnnonce": 0.14,
+          "IA.AttenuationRotationTir": 0.14,
+          "IA.NombreProjectiles": 60,
+          "IA.IntervalleProjectile": 0.0485,
+          "IA.AnnonceDuree": 1.0,
+          "IA.TirDuree": 3.5,
+          "IA.DureeRecuperationMin": 2.85,
+          "IA.DureeRecuperationMax": 3.65,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "MIN-001_TailSpawn",
+        "props": {
+          "IA.AnnonceDuree": 0.0,
+          "IA.TirDuree": 0.0,
+          "IA.RecuperationDuree": 0.5,
+          "IA.PorteeAttaque": 9999,
+          "IA.RayonApparition": 700,
+          "IA.TauxApparition": 0.35,
+          "IA.MaxActifs": 1,
+          "IA.SpawnsPerBurst": 1,
+          "IA.MaxUses": 1
+        }
+      },
+      {
+        "id": "MIN-001_TailSpawn_Shadow",
+        "props": {
+          "IA.MaxActifs": 4,
+          "IA.SpawnsPerBurst": 4
+        }
+      },
+      {
+        "id": "MIN-001_TailSwipe",
+        "props": {
+          "IA.TicksTir": 2,
+          "IA.IntervalleTir": 0.15,
+          "IA.AnnonceDuree": 1.0,
+          "IA.VitesseAnimationAnnounce": 0.6,
+          "IA.TirDuree": 1.0,
+          "IA.DureeRecuperationMin": 1.75,
+          "IA.DureeRecuperationMax": 2.65,
+          "IA.PorteeAttaque": 9999,
+          "DegatsRadius": 260,
+          "Degats": 6
+        }
+      },
+      {
+        "id": "MIN-001_TailUnburrow",
+        "props": {
+          "IA.AnnonceDuree": 0.0,
+          "IA.DureeRecuperationMin": 0.55,
+          "IA.DureeRecuperationMax": 0.65,
+          "IA.PorteeAttaque": 100,
+          "IA.DistanceSuccesDeplacement": 50,
+          "IA.TargetSpawnPointsRayon": 675,
+          "IA.TargetSpawnPointsRayonMin": 55
+        }
+      },
+      {
+        "id": "MIN-001_TailBurrow",
+        "props": {
+          "IA.AnnonceDuree": 0.0,
+          "IA.RecuperationDuree": 0.0,
+          "IA.PorteeAttaque": 9999
+        }
+      },
+      {
+        "id": "MIN-001_Ranged",
+        "props": {
+          "Portee": 2400,
+          "Vitesse": 1850,
+          "Degats": 3
+        }
+      },
+      {
+        "id": "MIN-001_Tail2Swipe",
+        "props": {
+          "Degats": 12,
+          "DegatsRadius": 360
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-005",
+    "nom": "MIN-005",
+    "categorie": "mini-boss",
+    "props": {
+      "Gen.PlafondEnnemisActifsBase": 5,
+      "Gen.PlafondEnnemisActifsMax": 5,
+      "Gen.OndesMin": 3,
+      "Gen.OndesMax": 3,
+      "Gen.TypesMin": 4,
+      "Gen.TypesMax": 4,
+      "Gen.RampeTypesProfondeur": 0,
+      "Gen.RampeEnnemisProfondeur": 0,
+      "Gen.TypesEliteMax": 4,
+      "Gen.IntervalleApparitionMin": 0.02,
+      "Gen.IntervalleApparitionMax": 0.02,
+      "EndMusicOnCombatOver": 20,
+      "Gen.PlafondLarguerArgentMin": 15,
+      "Gen.PlafondLarguerArgentMax": 15,
+      "Gen.RampePlafondLarguerArgentProfondeur": 0,
+      "PV_Max": 4000,
+      "HealthBarOffsetY": -280,
+      "HitSparkScale": 3.0,
+      "IA.DegresTickOrbite": 15,
+      "IA.DureeTickOrbite": 0.2,
+      "IA.DistanceOrbite": 900,
+      "Gen.NoteDifficulte": 80,
+      "HealthBuffer": 300,
+      "WakeUpDelayMin": 1.1,
+      "WakeUpDelayMax": 1.1,
+      "IA.LongueurCanon": 50,
+      "IA.DelaiDebutTir": 0.22,
+      "IA.AttenuationRotationAnnonce": 0.045,
+      "IA.AttenuationRotationTir": 0.03,
+      "IA.AnnonceDuree": 1.18,
+      "IA.TirDuree": 1.03,
+      "IA.RecuperationDuree": 1.1,
+      "IA.PorteeAttaque": 700,
+      "IA.PorteeAttaqueEchelleY": 0.75,
+      "IA.NombreProjectiles": 2,
+      "IA.IntervalleProjectile": 0.08,
+      "IA.VitesseTir": 1550,
+      "IA.TamponLigneVie": 85,
+      "IA.AttentePreTeleport": 0.68,
+      "IA.AttentePostTeleport": 0.7,
+      "IA.TeleportMinDistance": 400,
+      "IA.TeleportMaxDistance": 2500,
+      "IA.IntervalleTeleport": 0,
+      "Vitesse": 800.0,
+      "StunBreakModificateur": 5.0,
+      "SlowEffectModificateur": 0.5,
+      "Degats": 16,
+      "TotalFuse": 1.0,
+      "IA.OrbitAIDureeMin": 5.0,
+      "IA.OrbitAIDureeMax": 6.0,
+      "IA.VitesseAnimationAnnonce": 1.0,
+      "Gen.MiniBossminiboss-005-lvl_3": {
+        "Gen.OndesMin": 1,
+        "Gen.OndesMax": 1,
+        "Gen.TypesMin": 4,
+        "Gen.TypesMax": 4,
+        "Gen.RampeTypesProfondeur": 0,
+        "Gen.RampeEnnemisProfondeur": 0,
+        "Gen.TypesEliteMax": 4,
+        "Gen.PlafondEnnemisActifsBase": 10,
+        "Gen.PlafondEnnemisActifsMax": 10,
+        "Gen.IntervalleApparitionMin": 0.02,
+        "Gen.IntervalleApparitionMax": 0.02,
+        "EndMusicOnCombatOver": 20,
+        "Gen.PlafondLarguerArgentMin": 15,
+        "Gen.PlafondLarguerArgentMax": 15,
+        "Gen.RampePlafondLarguerArgentProfondeur": 0
+      }
+    },
+    "phases": [],
+    "attaques": [
+      {
+        "id": "MIN-005_Intro",
+        "props": {
+          "Gen.PlafondEnnemisActifsBase": 5,
+          "Gen.PlafondEnnemisActifsMax": 5,
+          "Gen.OndesMin": 3,
+          "Gen.OndesMax": 3
+        }
+      },
+      {
+        "id": "MIN-005_Elite",
+        "props": {
+          "PV_Max": 2000,
+          "HealthBuffer": 300,
+          "WakeUpDelayMin": 1.1,
+          "WakeUpDelayMax": 1.1,
+          "Gen.NoteDifficulte": 170,
+          "Vitesse": 800,
+          "StunBreakModificateur": 5,
+          "SlowEffectModificateur": 0.5
+        }
+      },
+      {
+        "id": "MIN-005_Cast",
+        "props": {
+          "IA.LongueurCanon": 50,
+          "IA.DelaiDebutTir": 0.22,
+          "IA.AttenuationRotationAnnonce": 0.045,
+          "IA.AttenuationRotationTir": 0.03,
+          "IA.AnnonceDuree": 1.18,
+          "IA.TirDuree": 1.03,
+          "IA.RecuperationDuree": 1.1,
+          "IA.PorteeAttaque": 700,
+          "IA.PorteeAttaqueEchelleY": 0.75,
+          "TotalFuse": 1.0,
+          "Degats": 10
+        }
+      },
+      {
+        "id": "MIN-005_Swipe",
+        "props": {
+          "IA.DelaiDebutTir": 0.26,
+          "IA.NombreProjectiles": 2,
+          "IA.IntervalleProjectile": 0.08,
+          "IA.AnnonceDuree": 0.6,
+          "IA.VitesseAnimationAnnounce": 1.0,
+          "IA.TirDuree": 0.73,
+          "IA.RecuperationDuree": 0.62,
+          "IA.PorteeAttaque": 500,
+          "IA.AttenuationRotationAnnonce": 0.1,
+          "IA.VitesseTir": 1550,
+          "IA.TamponLigneVie": 85,
+          "Degats": 16
+        }
+      },
+      {
+        "id": "MIN-005_Uppercut",
+        "props": {
+          "IA.DelaiDebutTir": 0.1,
+          "IA.NombreProjectiles": 2,
+          "IA.IntervalleProjectile": 0.12,
+          "IA.AnnonceDuree": 1.0,
+          "IA.TirDuree": 0.48,
+          "IA.RecuperationDuree": 0.32,
+          "IA.PorteeAttaque": 700,
+          "IA.VitesseTir": 2200,
+          "IA.AttenuationRotationAnnonce": 0.1,
+          "IA.TamponLigneVie": 85,
+          "Degats": 12
+        }
+      },
+      {
+        "id": "MIN-005_Sweep",
+        "props": {
+          "IA.DelaiDebutTir": 0.05,
+          "IA.AnnonceDuree": 0.5,
+          "IA.TirDuree": 0.48,
+          "IA.RecuperationDuree": 1.48,
+          "IA.PorteeAttaque": 9999,
+          "IA.VitesseTir": 1700,
+          "IA.TamponLigneVie": 85,
+          "Degats": 18,
+          "Vitesse": 1000
+        }
+      },
+      {
+        "id": "MIN-005_ComboSwing1",
+        "props": {
+          "IA.DelaiDebutTir": 0.03,
+          "IA.AnnonceDuree": 1.0,
+          "IA.TirDuree": 0.37,
+          "IA.RecuperationDuree": 0.0,
+          "IA.PorteeAttaque": 300,
+          "IA.AttenuationRotationAnnonce": 0.06,
+          "IA.VitesseTir": 1700,
+          "IA.TamponLigneVie": 85,
+          "Degats": 16,
+          "Vitesse": 1000
+        }
+      },
+      {
+        "id": "MIN-005_ComboSwing2",
+        "props": {
+          "IA.DelaiDebutTir": 0.11,
+          "IA.AnnonceDuree": 0.0,
+          "IA.TirDuree": 0.38,
+          "IA.RecuperationDuree": 1.55,
+          "IA.PorteeAttaque": 9999,
+          "IA.AttenuationRotationAnnonce": 0.06,
+          "IA.VitesseTir": 1700,
+          "IA.TamponLigneVie": 85,
+          "Degats": 16,
+          "Vitesse": 1000
+        }
+      },
+      {
+        "id": "MIN-005_Teleport",
+        "props": {
+          "IA.PorteeAttaque": 9999,
+          "IA.AttentePreTeleport": 0.68,
+          "IA.AttentePostTeleport": 0.7,
+          "IA.TeleportMinDistance": 400,
+          "IA.TeleportMaxDistance": 2500,
+          "IA.IntervalleTeleport": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "MIN-003",
+    "nom": "MIN-003",
+    "categorie": "mini-boss",
+    "props": {
+      "PV_Max": 700,
+      "HealthBuffer": 2650,
+      "HealthBarOffsetY": -350,
+      "Gen.NoteDifficulte": 60
+    },
+    "phases": [],
+    "attaques": []
+  }
+]

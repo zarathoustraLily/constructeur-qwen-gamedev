@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FicheMiniBoss" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheMiniBoss.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "MIN-010"
+nom = "MIN-010"
+categorie = "mini-boss"
+PV_Max = 1
+Vitesse = 0.0
+phases = []
+attaques = [{ "id": "MIN-010_A01", "props": { "IA_DelaiDebutTir": 0.1, "IA_TicksTir": 3, "IA_IntervalleTir": 0.65, "IA_Dispersion": 45, "IA_PorteeAttaque": 99999, "IA_AnnonceDuree": 2.5, "IA_TirDuree": 0.0, "IA_RecuperationDuree": 0.01 } }, { "id": "MIN-010_A02", "props": { "IA_TicksTir": 5, "IA_TirDuree": 0.0 } }, { "id": "MIN-010_A03", "props": { "IA_TicksTir": 8, "IA_TirDuree": 0.0 } }, { "id": "MIN-010_A04", "props": { "IA_TicksTirMin": 1, "IA_TicksTirMax": 2, "IA_IntervalleTir": 0.5, "IA_TirDuree": 0.65, "IA_DureeRecuperationMin": 9.0, "IA_DureeRecuperationMax": 10.0 } }, { "id": "MIN-010_A05", "props": { "Vitesse": 650, "Degats": 13 } }, { "id": "MIN-010_A05Transport", "props": { "Vitesse": 700 } }, { "id": "MIN-010_A07", "props": { "RayonDegats": 325, "Degats": 16 } }]
+props = { "IA_DelaiEveil": 8.0, "Argent_Probabilite": 0.0, "IA_FinSeuilPVGroupe": 0.5, "Gen_NoteDifficulte": 1000, "IA_DelaiDebutTir": 0.1, "IA_TicksTir": 3, "IA_IntervalleTir": 0.65, "IA_Dispersion": 45, "IA_PorteeAttaque": 99999, "IA_AnnonceDuree": 2.5, "IA_TirDuree": 0.0, "IA_RecuperationDuree": 0.01, "IA_TicksTirMin": 1, "IA_TicksTirMax": 2, "IA_DureeRecuperationMin": 9.0, "IA_DureeRecuperationMax": 10.0, "Degats": 13, "RayonDegats": 325 }

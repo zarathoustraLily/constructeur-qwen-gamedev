@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-047"
+nom = "CRT-047"
+categorie = "ennemi"
+PV_Max = 470
+Vitesse = 325.0
+NoteDifficulte = 50
+PoidsPiscine = 2
+PoidsPlafondActif = 0.25
+arsenal = ["CRT-047_Burst", "CRT-047_BurstAmbientBattlex2", "CRT-047_BurstElite", "CRT-047_Ventx2"]

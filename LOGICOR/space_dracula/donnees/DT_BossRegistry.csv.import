@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cwio2a1k3hhx4"
+
+[deps]
+
+files=["res://space_dracula/donnees/DT_BossRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_BossRegistry.Tag.translation", "res://space_dracula/donnees/DT_BossRegistry.Role.translation", "res://space_dracula/donnees/DT_BossRegistry.Level.translation", "res://space_dracula/donnees/DT_BossRegistry.IconRef.translation", "res://space_dracula/donnees/DT_BossRegistry.ArsenalTags.translation", "res://space_dracula/donnees/DT_BossRegistry.PhasesRef.translation", "res://space_dracula/donnees/DT_BossRegistry.MaxHealth.translation", "res://space_dracula/donnees/DT_BossRegistry.Speed.translation", "res://space_dracula/donnees/DT_BossRegistry.Gen.translation", "res://space_dracula/donnees/DT_BossRegistry.AIAggroRange.translation", "res://space_dracula/donnees/DT_BossRegistry.ActiveCapWeight.translation", "res://space_dracula/donnees/DT_BossRegistry.HealthBuffer.translation", "res://space_dracula/donnees/DT_BossRegistry.StunBreakModifier.translation", "res://space_dracula/donnees/DT_BossRegistry.SlowEffectModifier.translation", "res://space_dracula/donnees/DT_BossRegistry.WakeUpDelay.translation", "res://space_dracula/donnees/DT_BossRegistry.AISetupDelay.translation", "res://space_dracula/donnees/DT_BossRegistry.AIWakeDelay.translation", "res://space_dracula/donnees/DT_BossRegistry.AI.translation", "res://space_dracula/donnees/DT_BossRegistry.AIEndHealthThreshold.translation"]
+
+source_file="res://space_dracula/donnees/DT_BossRegistry.csv"
+dest_files=["res://space_dracula/donnees/DT_BossRegistry.DisplayName.translation", "res://space_dracula/donnees/DT_BossRegistry.Tag.translation", "res://space_dracula/donnees/DT_BossRegistry.Role.translation", "res://space_dracula/donnees/DT_BossRegistry.Level.translation", "res://space_dracula/donnees/DT_BossRegistry.IconRef.translation", "res://space_dracula/donnees/DT_BossRegistry.ArsenalTags.translation", "res://space_dracula/donnees/DT_BossRegistry.PhasesRef.translation", "res://space_dracula/donnees/DT_BossRegistry.MaxHealth.translation", "res://space_dracula/donnees/DT_BossRegistry.Speed.translation", "res://space_dracula/donnees/DT_BossRegistry.Gen.translation", "res://space_dracula/donnees/DT_BossRegistry.AIAggroRange.translation", "res://space_dracula/donnees/DT_BossRegistry.ActiveCapWeight.translation", "res://space_dracula/donnees/DT_BossRegistry.HealthBuffer.translation", "res://space_dracula/donnees/DT_BossRegistry.StunBreakModifier.translation", "res://space_dracula/donnees/DT_BossRegistry.SlowEffectModifier.translation", "res://space_dracula/donnees/DT_BossRegistry.WakeUpDelay.translation", "res://space_dracula/donnees/DT_BossRegistry.AISetupDelay.translation", "res://space_dracula/donnees/DT_BossRegistry.AIWakeDelay.translation", "res://space_dracula/donnees/DT_BossRegistry.AI.translation", "res://space_dracula/donnees/DT_BossRegistry.AIEndHealthThreshold.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

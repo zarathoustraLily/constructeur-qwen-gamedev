@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FicheEnnemi" format=3]
+
+[ext_resource type="Script" path="res://donnees/FicheEnnemi.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "CRT-004"
+nom = "CRT-004"
+categorie = "ennemi"
+PV_Max = 45
+Vitesse = 390.0
+NoteDifficulte = 7
+PoidsPiscine = 2
+PoidsPlafondActif = 0.5
+arsenal = ["CRT-004_Melee360", "CRT-004_Melee360AutoFire", "CRT-004_Melee360Elite"]

@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "logical_date": "2026-07-13",
+  "props_merge": "first-value-wins (garde la 1re valeur non-nulle par clé — cf. xlsx)",
+  "name_conversion": "'.' -> '_' pour tout identifiant UE5",
+  "counts": {
+    "enemies": 61,
+    "minibosses": 12,
+    "bosses": 7,
+    "weapons_catalog": 34,
+    "params": 439,
+    "effect_types": 8
+  },
+  "schema": {
+    "unit": [
+      "MaxHealth",
+      "Speed",
+      "Gen_DifficultyRating",
+      "AIAggroRange",
+      "ActiveCapWeight",
+      "HealthBuffer",
+      "StunBreakModifier",
+      "SlowEffectModifier",
+      "WakeUpDelay",
+      "AISetupDelay",
+      "AIWakeDelay",
+      "AI_MaxAttackers",
+      "AI_SurroundDistance",
+      "AI_SurroundRefreshInterval",
+      "AI_SurroundRetaliateDistance",
+      "AI_RetreatBufferDistance",
+      "AIEndHealthThreshold"
+    ],
+    "attack": [
+      "AI_PreAttackDuration",
+      "AI_PreAttackEndDuration",
+      "AI_FireDuration",
+      "AI_PostAttackDuration",
+      "AI_PostAttackDurationMin",
+      "AI_PostAttackDurationMax",
+      "AI_PostAttackCooldown",
+      "AI_AttackDistance",
+      "AI_AttackDistanceScaleY",
+      "AI_FireProjectileStartDelay",
+      "AI_NumProjectiles",
+      "AI_Spread",
+      "AI_ProjectileAngleInterval",
+      "AI_ProjectileInterval",
+      "AI_FireInterval",
+      "AI_FireTicks",
+      "AI_FireSelfVelocity",
+      "AI_FireRotationDampening",
+      "AI_PreAttackRotationDampening",
+      "AI_PreAttackAnimationSpeed",
+      "AI_PreAttackEndFlashFraction",
+      "AI_LoSBuffer",
+      "AI_BarrelLength",
+      "AI_MoveWithinRangeTimeout",
+      "Damage",
+      "DamageRadius",
+      "Range",
+      "Cooldown"
+    ],
+    "effect": [
+      "Type",
+      "Duration",
+      "DurationFrames",
+      "Modifier",
+      "Trigger",
+      "HaltOnEnd",
+      "NoUnitCollision",
+      "Cancelable",
+      "CanAffectInvulnerable",
+      "Active",
+      "DisableAttack",
+      "DisableMove"
+    ]
+  },
+  "unit_stat_missing_counts": {
+    "AI.MaxAttackers": 58,
+    "AI.RetreatBufferDistance": 73,
+    "AI.SurroundDistance": 72,
+    "AI.SurroundRefreshInterval": 63,
+    "AI.SurroundRetaliateDistance": 69,
+    "AIAggroRange": 48,
+    "AISetupDelay": 71,
+    "AIWakeDelay": 78,
+    "ActiveCapWeight": 53,
+    "Gen.DifficultyRating": 10,
+    "HealthBuffer": 73,
+    "MaxHealth": 2,
+    "SlowEffectModifier": 73,
+    "Speed": 11,
+    "StunBreakModifier": 71,
+    "WakeUpDelay": 73
+  },
+  "files": [
+    {
+      "name": "BossPhases_B001.json",
+      "bytes": 1757,
+      "sha256": "cffd95ba372d990585f9fc8855c64aaac9096a1395bc697dd6da2eba67ea7132"
+    },
+    {
+      "name": "BossPhases_B002.json",
+      "bytes": 1667,
+      "sha256": "192bf86b2b78f3f3ab11d314b1a40cd6b04aef4810d2cc6c028937a7cb83b56b"
+    },
+    {
+      "name": "BossPhases_B003.json",
+      "bytes": 1321,
+      "sha256": "08dc779e8552e25eaa358187dc8d2c2d88f99e48051b1fd74e5f3d01933ac33e"
+    },
+    {
+      "name": "BossPhases_B004.json",
+      "bytes": 2737,
+      "sha256": "fafe36b6b1b15912d346938023b692537d634fb19fdc6473e39aa1f9a3b0eb0e"
+    },
+    {
+      "name": "BossPhases_B005.json",
+      "bytes": 1272,
+      "sha256": "970fbb5c5ee758ebc611e6c1be9bd56015c98847c18fcf3aa4f35640235fcc71"
+    },
+    {
+      "name": "BossPhases_B006.json",
+      "bytes": 2423,
+      "sha256": "b4fbc1e053e78fdb3bcceb4e22c932d0b6d03adea45178705054aa4393f1c351"
+    },
+    {
+      "name": "BossPhases_B007.json",
+      "bytes": 1793,
+      "sha256": "519be26bdd492880c9de7f8cb3a5c0499923b598826120f288eeef2e44b7ce12"
+    },
+    {
+      "name": "DT_AttackRegistry.csv",
+      "bytes": 36288,
+      "sha256": "403e9ea37255eda2ca2b877273da761839919d876aac4d2c4315c4ca89029e53"
+    },
+    {
+      "name": "DT_BossRegistry.csv",
+      "bytes": 6032,
+      "sha256": "00615101d284d6357194c3179e8801832520c6cd6e0de557854cefe2cefb56af"
+    },
+    {
+      "name": "DT_EffectRegistry.csv",
+      "bytes": 9090,
+      "sha256": "d48206dc6c1607d5c451a5bd1e2470a983d066d31e090d938204963baea7223a"
+    },
+    {
+      "name": "DT_EnemyRegistry.csv",
+      "bytes": 11732,
+      "sha256": "62b9836bef1b9d371599e3d33628e667179818a7b696edb332599ca7259044b9"
+    },
+    {
+      "name": "DefaultGameplayTags.ini",
+      "bytes": 14983,
+      "sha256": "1d8cb065eaa3ac17569b6b5dd7c2fd35e69807b834738f36b9f61ec9ba356d8c"
+    },
+    {
+      "name": "EncounterProfiles.json",
+      "bytes": 3232,
+      "sha256": "b177cdf89348ad5dd586425f1bd459bd003231d58df1103a42c682f6a9c263a1"
+    },
+    {
+      "name": "SpawnPools_Lvl01.json",
+      "bytes": 1086,
+      "sha256": "5481cd4cd8bb4009aaec912953ff0ff6c9d5ccf62bc360aa7fd46b0b6d56387e"
+    },
+    {
+      "name": "SpawnPools_Lvl02.json",
+      "bytes": 1086,
+      "sha256": "c4844722141ab46992606f0a2964822f08d7327771890bbbc49bc76d675381ff"
+    },
+    {
+      "name": "SpawnPools_Lvl03.json",
+      "bytes": 872,
+      "sha256": "26a207d92b4f96a26b2465203df3e0052064b218b6a95062846adffd97ff9260"
+    },
+    {
+      "name": "SpawnPools_Lvl04.json",
+      "bytes": 943,
+      "sha256": "6471c9ebb94a67dc862795621f924ad017a8e5290e385920d06a286d68ccd7d1"
+    },
+    {
+      "name": "SpawnPools_Lvl05.json",
+      "bytes": 943,
+      "sha256": "79e86dd59f6a6c4388dc330c5a4f2a1fe0442c7f1119d980f722f8a8f9887f07"
+    },
+    {
+      "name": "SpawnPools_Lvl06.json",
+      "bytes": 1086,
+      "sha256": "3cf752194a6d77af894118c0daa04bcfcd66f1a3f3e7efe247abe3ae0947a174"
+    },
+    {
+      "name": "SpawnPools_Lvl07.json",
+      "bytes": 1372,
+      "sha256": "2efe0fd52cddf5380baac758affc23371f66cbe3946773570314b33b766780e6"
+    },
+    {
+      "name": "SpawnPools_Lvl08.json",
+      "bytes": 1157,
+      "sha256": "f48e447b117cc893f971720697bc11bb7a7d4f8fe7abbf0a07fab8d782a98fc8"
+    }
+  ]
+}
