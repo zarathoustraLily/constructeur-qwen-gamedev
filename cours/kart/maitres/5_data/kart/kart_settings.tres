@@ -20,3 +20,12 @@ wheel_base = 2.0
 jump_velocity = 4.0
 gravity = 19.62
 push_impulse = 1.0
+;@ 7+
+water_ride_height = 0.2
+water_stick_delay = 1.0
+water_settle_time = 2.0
+water_stick_rate = 13.388613
+water_vertical_damping = 41.588831
+water_spring_down = 50.0
+water_spring_up = 5.0
+;@ all

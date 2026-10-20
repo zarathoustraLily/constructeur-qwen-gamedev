@@ -76,7 +76,7 @@ script = ExtResource("1_pb7k5")
 explosion_effect = ExtResource("2_3bvsj")
 buoyancy_multiplier = 10000.0
 buoyancy_power = 3.0
-metadata/_custom_type_script = "uid://buuv5cuiuaxlg"
+metadata/_custom_type_script = "res://1_core/water/buoyancy/buoyant_body_3d.gd"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_ksril")

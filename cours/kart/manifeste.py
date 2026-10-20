@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6]
+PRETES = [1, 2, 3, 4, 5, 6, 7]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -107,14 +107,17 @@ FICHIERS = {
     "6_assets/shaders/environment/palm.gdshader": "5+",
     "1_core/tools/detail_populator.gd": "6+",
     "6_assets/shaders/environment/grass.gdshader": "6+",
-    "1_core/water/buoyancy/buoyant_body3d.gd": "7+",
+    "1_core/water/buoyancy/buoyant_body_3d.gd": "7+",
     "1_core/water/buoyancy/water_buoyancy_sensor.gd": "7+",
     "1_core/water/water_surface.gd": "7+",
     "3_entities/interactables/buoy/buoy.tscn": "7+",
     "3_entities/interactables/traffic_cone/traffic_cone.tscn": "7+",
-    "7_tests/1_core/water/buoyancy/test_buoyant_body3d.gd": "7+",
+    "7_tests/1_core/water/buoyancy/test_buoyant_body_3d.gd": "7+",
     "7_tests/1_core/water/buoyancy/test_water_buoyancy_sensor.gd": "7+",
     "7_tests/1_core/water/surface_temoin.gd": "7+",
+    "6_assets/shaders/water/calm_water.gdshader": "7",
+    "7_tests/3_entities/kart/test_kart_on_water.gd": "7+",
+    "7_tests/3_entities/interactables/test_interactables.gd": "7+",
     "1_core/water/fft/fft_ocean.gd": "8+",
     "1_core/water/fft/quad_tree_3d.gd": "8+",
     "1_core/water/fft/quad_tree_3d.tscn": "8+",

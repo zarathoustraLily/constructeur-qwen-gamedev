@@ -4,6 +4,9 @@ extends GdUnitTestSuite
 ## soleil, avec des ombres, et son environnement ; ses rampes ont une collision.
 #@ 4-6
 ## En attendant l'eau (étape 007), une mer provisoire et solide, au niveau 0, porte le kart.
+#@ 7+
+## La mer est la surface d'eau de la scène (groupe « ocean ») : un kart lâché au large y flotte à sa hauteur
+## de flottaison, et les bouées y flottent.
 #@ all
 
 const ISLAND := preload("res://2_sequence/levels/island/island.tscn")
@@ -87,4 +90,25 @@ func test_la_mer_provisoire_porte_le_kart_au_niveau_zero() -> void:
 	var kart: Kart = await _drop_kart(Vector3(400.0, 3.0, 400.0), 120)
 	assert_bool(kart.is_on_ground()).is_true()
 	assert_float(kart.global_position.y).is_between(-0.5, 0.5)
+#@ 7+
+
+
+func test_la_mer_est_la_surface_d_eau_de_la_scene() -> void:
+	assert_object(get_tree().get_first_node_in_group("ocean") as WaterSurface).is_not_null()
+
+
+func test_au_large_le_kart_flotte_sur_la_mer() -> void:
+	var kart: Kart = await _drop_kart(Vector3(400.0, 3.0, 400.0), 240)
+	assert_bool(kart.is_in_water()).is_true()
+	assert_float(kart.global_position.y).is_equal_approx(kart.settings.water_ride_height, 0.05)
+
+
+func test_les_bouees_flottent() -> void:
+	for _frame: int in 300:
+		await get_tree().physics_frame
+	for buoy: Node in _island.get_node("Buoys").get_children():
+		var body := buoy as BuoyantBody3D
+		assert_bool(body.submerged).override_failure_message(str(body.name) + " hors de l'eau").is_true()
+		assert_float(body.global_position.y).override_failure_message(str(body.name) + " a coulé").is_greater(-3.0)
+		assert_float(body.linear_velocity.length()).override_failure_message(str(body.name) + " dérive").is_less(0.5)
 #@ all

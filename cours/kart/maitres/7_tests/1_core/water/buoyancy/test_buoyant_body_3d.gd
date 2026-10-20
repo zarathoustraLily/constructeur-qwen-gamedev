@@ -1,11 +1,18 @@
 extends GdUnitTestSuite
-## Règles du corps flottant : il repère ses capteurs, sait combien sont immergés, est freiné
-## dans l'eau, et la poussée ralentit sa chute.
+## Règles du corps flottant, sur une surface d'eau plate à hauteur 0 : il repère ses capteurs, sait combien
+## sont immergés, est freiné dans l'eau, et la poussée ralentit sa chute ; elle suit les multiplicateurs et la
+## profondeur, et un capteur décalé fait pencher le corps.
+
+const SurfaceTemoin := preload("res://7_tests/1_core/water/surface_temoin.gd")
+
+
+func before_test() -> void:
+	add_child(auto_free(SurfaceTemoin.new()))
 
 
 func _corps(hauteurs_des_capteurs: Array[float], position: Vector3 = Vector3.ZERO) -> BuoyantBody3D:
 	var corps: BuoyantBody3D = auto_free(BuoyantBody3D.new())
-	for y in hauteurs_des_capteurs:
+	for y: float in hauteurs_des_capteurs:
 		var capteur := WaterBuoyancySensor.new()
 		capteur.position.y = y
 		corps.add_child(capteur)
@@ -14,9 +21,12 @@ func _corps(hauteurs_des_capteurs: Array[float], position: Vector3 = Vector3.ZER
 	return corps
 
 
-## Un pas de flottaison, sans laisser le moteur physique avancer.
+## Un pas de flottaison, sans laisser le moteur physique avancer : les capteurs lisent la surface, puis le
+## corps compte ceux qui sont immergés.
 func _un_pas(corps: BuoyantBody3D) -> void:
 	corps.gravity_scale = 0.0
+	for capteur: WaterBuoyancySensor in corps._buoyancy_sensors:
+		capteur._physics_process(1.0 / 60.0)
 	corps._physics_process(1.0 / 60.0)
 
 
@@ -60,7 +70,7 @@ func test_la_poussee_ralentit_la_chute_dans_l_eau() -> void:
 	var flottant := _corps([0.0], Vector3(0, -1, 0))
 	var lest := _corps([0.0], Vector3(20, -1, 0))
 	lest.buoyancy_multiplier = 0.0
-	for i in 30:
+	for _frame: int in 30:
 		await get_tree().physics_frame
 	assert_float(flottant.global_position.y).is_greater(lest.global_position.y)
 
@@ -79,7 +89,7 @@ func _corps_libre(position: Vector3, capteurs: Array[Vector3]) -> BuoyantBody3D:
 	var forme := CollisionShape3D.new()
 	forme.shape = SphereShape3D.new()
 	corps.add_child(forme)
-	for p in capteurs:
+	for p: Vector3 in capteurs:
 		var capteur := WaterBuoyancySensor.new()
 		capteur.position = p
 		corps.add_child(capteur)
@@ -89,7 +99,7 @@ func _corps_libre(position: Vector3, capteurs: Array[Vector3]) -> BuoyantBody3D:
 
 
 func _pas_de_physique(nombre: int) -> void:
-	for i in nombre:
+	for _frame: int in nombre:
 		await get_tree().physics_frame
 
 

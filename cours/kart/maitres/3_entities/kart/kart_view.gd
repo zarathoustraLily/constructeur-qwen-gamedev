@@ -8,6 +8,12 @@ extends Node3D
 const GROUND_SMOOTHING := 0.025
 ## Lissage de l'alignement en l'air.
 const AIR_SMOOTHING := 0.5
+#@ 7+
+## Lissage de l'alignement sur l'eau.
+const WATER_SMOOTHING := 0.3
+## Lissage de la pente de l'eau lue sous le kart.
+const WATER_NORMAL_SMOOTHING := 0.03125
+#@ all
 ## Inclinaison en l'air (radians) par m/s de vitesse verticale.
 const AIR_LEAN_STRENGTH := -0.2
 ## Inclinaison maximale en l'air, en radians.
@@ -29,12 +35,24 @@ const BODY_ROLL_SCALE := 0.5
 @export var wheels: Array[WheelView] = []
 
 var _model_up: Vector3 = Vector3.UP
+#@ 7+
+var _water_normal: Vector3 = Vector3.UP
+#@ all
 
 
 func _process(delta: float) -> void:
 	var target := Vector3.UP
 	var smoothing := AIR_SMOOTHING
+#@ 2-6
 	if kart.is_on_ground():
+#@ 7+
+	if kart.is_in_water():
+		smoothing = WATER_SMOOTHING
+		_water_normal = _water_normal.lerp(kart.water_sensor.compute_normal(),
+			1.0 - pow(WATER_NORMAL_SMOOTHING, 2.0 * delta))
+		target = _water_normal
+	elif kart.is_on_ground():
+#@ all
 		smoothing = GROUND_SMOOTHING
 		target = kart.get_floor_normal()
 	else:

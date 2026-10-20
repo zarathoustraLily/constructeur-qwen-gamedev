@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://d2rcslwgwftan"]
 
-[ext_resource type="Script" uid="uid://buuv5cuiuaxlg" path="res://1_core/water/buoyancy/buoyant_body3d.gd" id="1_miksy"]
+[ext_resource type="Script" path="res://1_core/water/buoyancy/buoyant_body_3d.gd" id="1_miksy"]
 [ext_resource type="Material" uid="uid://dylmbfcmmn0vr" path="res://6_assets/models/buoy/buoy_material.tres" id="2_miksy"]
 [ext_resource type="ArrayMesh" uid="uid://bo5qky8crp2xp" path="res://6_assets/models/buoy/buoy.obj" id="3_h5kff"]
 [ext_resource type="Script" uid="uid://cq4einn6nftcp" path="res://1_core/water/buoyancy/water_buoyancy_sensor.gd" id="5_lv0ef"]

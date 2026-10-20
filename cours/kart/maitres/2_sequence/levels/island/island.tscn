@@ -37,6 +37,9 @@
 
 ;@ 6+
 [ext_resource type="PackedScene" path="res://2_sequence/levels/island/island_details.tscn" id="island_details"]
+;@ 7
+[ext_resource type="Script" path="res://1_core/water/water_surface.gd" id="water_surface"]
+[ext_resource type="Shader" path="res://6_assets/shaders/water/calm_water.gdshader" id="calm_water"]
 ;@ all
 [ext_resource type="Shape3D" path="res://6_assets/models/island/collision/terrain_collision.tres" id="ConcavePolygonShape3D_363ur"]
 [ext_resource type="Shape3D" path="res://6_assets/models/race_track/collision/race_track_collision.tres" id="ConcavePolygonShape3D_46sum"]
@@ -63,6 +66,15 @@ material = SubResource("StandardMaterial3D_mer")
 size = Vector2(2048, 2048)
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_mer"]
+
+;@ 7
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mer"]
+render_priority = 0
+shader = ExtResource("calm_water")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_mer"]
+material = SubResource("ShaderMaterial_mer")
+size = Vector2(2048, 2048)
 
 ;@ all
 [node name="Island" type="Node"]
@@ -96,6 +108,14 @@ mesh = SubResource("PlaneMesh_mer")
 
 [node name="Shape" type="CollisionShape3D" parent="Sea"]
 shape = SubResource("WorldBoundaryShape3D_mer")
+
+;@ 7
+[node name="Sea" type="Node3D" parent="." groups=["ocean"]]
+script = ExtResource("water_surface")
+
+[node name="Mesh" type="MeshInstance3D" parent="Sea"]
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_mer")
 
 ;@ all
 [node name="Environment" type="Node3D" parent="."]

@@ -5,6 +5,10 @@ class_name Kart extends CharacterBody3D
 ## pilote automatique les écrit dans `commands`. Au sol, le moteur pousse le long de l'axe du kart et la
 ## vitesse de côté est effacée : le kart ne glisse pas. En l'air, la gravité le ramène. Le modèle, les roues
 ## et le volant sont animés par la présentation (kart_view.gd), qui lit cet état sans le changer.
+#@ 7+
+## Sur l'eau, il roule comme au sol : son capteur de flottaison (WaterBuoyancySensor) lit la surface, et le
+## kart est ramené à `water_ride_height` au-dessus d'elle.
+#@ all
 
 ## Émis quand le kart quitte le sol par un saut.
 signal jumped
@@ -13,11 +17,19 @@ signal jumped
 @export var settings: KartSettings
 ## Adaptateur d'entrées ; vide, le kart garde les commandes qu'on lui écrit.
 @export var input: KartInput
+#@ 7+
+## Capteur de flottaison, sous le kart.
+@export var water_sensor: WaterBuoyancySensor
+#@ all
 
 ## Commandes de l'image en cours.
 var commands: DriveCommands = DriveCommands.new()
 ## Braquage effectif, de -1 à 1, lissé vers le braquage demandé.
 var steering: float = 0.0
+#@ 7+
+## Temps passé dans l'eau depuis l'arrivée ou le dernier saut (s).
+var in_water_time: float = 0.0
+#@ all
 
 
 func _ready() -> void:
@@ -25,9 +37,20 @@ func _ready() -> void:
 		push_error("Kart : réglages de conduite (settings) absents")
 
 
+#@ 2-6
 ## Vrai si le kart touche le sol.
 func is_on_ground() -> bool:
 	return is_on_floor()
+#@ 7+
+## Vrai si le kart touche le sol ou l'eau : sur l'eau, il roule comme au sol.
+func is_on_ground() -> bool:
+	return is_on_floor() or is_in_water()
+
+
+## Vrai si le capteur de flottaison est dans l'eau.
+func is_in_water() -> bool:
+	return water_sensor != null and water_sensor.is_in_water()
+#@ all
 
 
 ## Vitesse sans sa composante verticale.
@@ -51,10 +74,16 @@ func _physics_process(delta: float) -> void:
 	if input != null:
 		commands = input.read()
 	apply_steering(delta)
+#@ 7+
+	apply_water(delta)
+#@ all
 	if is_on_ground():
 		apply_engine(delta)
 		if commands.jump:
 			velocity.y += settings.jump_velocity
+#@ 7+
+			in_water_time = 0.0
+#@ all
 			jumped.emit()
 	else:
 		apply_air(delta)
@@ -103,6 +132,28 @@ func apply_air(delta: float) -> void:
 	var forward := -global_basis.z
 	var horizontal := forward * forward.dot(get_horizontal_velocity())
 	velocity = horizontal + Vector3.UP * velocity.y + Vector3.DOWN * settings.gravity * delta
+
+
+#@ 7+
+## Sur l'eau, pendant `delta` secondes. Pendant `water_settle_time`, un ressort rappelle le kart vers sa
+## hauteur de flottaison (la surface plus `water_ride_height`) : raide quand il s'enfonce, doux quand il
+## remonte ; il rebondit à l'arrivée. Après `water_stick_delay`, il est en plus collé à cette hauteur, de plus
+## en plus fort, et sa vitesse verticale s'éteint.
+func apply_water(delta: float) -> void:
+	if not is_in_water():
+		in_water_time = 0.0
+		return
+	in_water_time += delta
+	var ride_height := water_sensor.get_water_height() + settings.water_ride_height
+	var sticking := clampf(in_water_time / settings.water_settle_time, 0.0, 1.0)
+	if in_water_time >= settings.water_stick_delay:
+		global_position.y = lerpf(global_position.y, ride_height,
+			1.0 - exp(-settings.water_stick_rate * sticking * delta))
+		velocity.y = lerpf(velocity.y, 0.0, 1.0 - exp(-settings.water_vertical_damping * (1.0 - sticking) * delta))
+	if in_water_time < settings.water_settle_time:
+		var stiffness := settings.water_spring_down if velocity.y < 0.0 else settings.water_spring_up
+		velocity.y += (ride_height - global_position.y) * stiffness * delta
+#@ all
 
 
 func _push_rigid_bodies() -> void:

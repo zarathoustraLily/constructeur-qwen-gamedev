@@ -1,5 +1,9 @@
 class_name KartSettings extends Resource
+#@ 2-6
 ## Réglages de conduite d'un kart : moteur, direction, saut et gravité. Les valeurs vivent dans un .tres de
+#@ 7+
+## Réglages de conduite d'un kart : moteur, direction, saut et gravité, eau. Les valeurs vivent dans un .tres de
+#@ all
 ## 5_data (5_data/kart/kart_settings.tres), jamais dans le script du kart (règle DAT-01).
 ##
 ## Les amortissements sont des taux par seconde : chaque image, une vitesse v devient v × exp(−taux × dt).
@@ -45,3 +49,21 @@ class_name KartSettings extends Resource
 @export_group("Contacts")
 ## Impulsion donnée à un corps rigide que le kart pousse.
 @export_custom(PROPERTY_HINT_NONE, "suffix:N·s") var push_impulse: float = 0.0
+#@ 7+
+
+@export_group("Eau")
+## Hauteur du kart au-dessus de la surface, quand il flotte.
+@export_custom(PROPERTY_HINT_NONE, "suffix:m") var water_ride_height: float = 0.0
+## Temps passé dans l'eau avant que le kart ne soit collé à la surface.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var water_stick_delay: float = 0.0
+## Temps passé dans l'eau au bout duquel le rappel cesse et le collage est complet.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var water_settle_time: float = 0.0
+## Taux de rapprochement de la hauteur de flottaison, collage complet.
+@export_custom(PROPERTY_HINT_NONE, "suffix:/s") var water_stick_rate: float = 0.0
+## Taux d'amortissement de la vitesse verticale au début du collage ; il s'éteint avec le collage complet.
+@export_custom(PROPERTY_HINT_NONE, "suffix:/s") var water_vertical_damping: float = 0.0
+## Raideur du rappel vers la hauteur de flottaison quand le kart s'enfonce.
+@export_custom(PROPERTY_HINT_NONE, "suffix:/s²") var water_spring_down: float = 0.0
+## Raideur du rappel quand le kart remonte.
+@export_custom(PROPERTY_HINT_NONE, "suffix:/s²") var water_spring_up: float = 0.0
+#@ all

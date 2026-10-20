@@ -75,6 +75,18 @@ import/use_multiple_threads=false
 
 enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
 
+;@ 7+
+[global_group]
+
+;@ 12+
+player=""
+;@ 7+
+ocean=""
+;@ 10+
+tire_marks=""
+;@ 7+
+
+;@ all
 [input]
 
 move_forward={
