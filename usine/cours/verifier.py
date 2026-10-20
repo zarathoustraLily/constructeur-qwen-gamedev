@@ -2,6 +2,7 @@
 
 Pour chaque projet d'étape :
 - juge des règles d'architecture (usine/regles) : 0 écart attendu ;
+- matériaux : aucun paramètre sans uniform dans son shader (parametres_orphelins) ;
 - import du projet ; analyse de chaque script (`--check-only`), avec les avertissements que le projet traite en
   erreurs (bloc [debug] de son project.godot) ;
 - tests de l'étape (scripts `extends SceneTree` de 7_tests) : code 0, aucune « SCRIPT ERROR », aucun « ÉCHEC » ;
@@ -67,6 +68,47 @@ _BRUIT_IMPORT = re.compile(r'Parameter "material" is null|material_get_instance_
                            r'\(servers/rendering/dummy/|update_scripts_classes')
 
 
+_UNIFORM = re.compile(r"^\s*(?:global\s+|instance\s+)?uniform\s+(?:(?:lowp|mediump|highp)\s+)?\w+\s+(\w+)", re.M)
+_INCLUDE = re.compile(r'^\s*#include\s+"([^"]+)"', re.M)
+_SHADER_EXT = re.compile(r'^\[ext_resource type="Shader"[^\]]*?path="([^"]+)"[^\]]*?id="([^"]+)"', re.M)
+
+
+def _uniformes(projet: Path, shader: Path, vus: set[Path]) -> set[str]:
+    """Les uniforms d'un shader, ceux de ses #include compris."""
+    if shader in vus or not shader.is_file():
+        return set()
+    vus.add(shader)
+    texte = shader.read_text(encoding="utf-8", errors="replace")
+    noms = set(_UNIFORM.findall(texte))
+    for inclus in _INCLUDE.findall(texte):
+        cible = projet / inclus.removeprefix("res://") if inclus.startswith("res://") else shader.parent / inclus
+        noms |= _uniformes(projet, cible.resolve(), vus)
+    return noms
+
+
+def parametres_orphelins(projet: Path) -> list[str]:
+    """Les paramètres de matériau (`shader_parameter/<nom>`) qu'aucun uniform de leur shader ne déclare : restes
+    d'une étape plus tardive (les traces de pneus, la pluie), qui chargent sans erreur mais égarent qui lit le
+    matériau. Seuls les shaders en fichier (ExtResource) sont lus."""
+    projet = Path(projet).resolve()
+    ecarts: list[str] = []
+    for fichier in sorted([*projet.rglob("*.tres"), *projet.rglob("*.tscn")]):
+        parties = fichier.relative_to(projet).parts
+        if ".godot" in parties or "addons" in parties:
+            continue
+        texte = fichier.read_text(encoding="utf-8", errors="replace")
+        shaders = {ident: chemin for chemin, ident in _SHADER_EXT.findall(texte)}
+        for bloc in re.split(r"\n(?=\[)", texte):
+            m = re.search(r'^shader = ExtResource\("([^"]+)"\)', bloc, re.M)
+            if m is None or m.group(1) not in shaders:
+                continue
+            chemin = shaders[m.group(1)]
+            declares = _uniformes(projet, (projet / chemin.removeprefix("res://")).resolve(), set())
+            ecarts += [f"{fichier.relative_to(projet).as_posix()} : {nom} absent de {chemin}"
+                       for nom in re.findall(r"^shader_parameter/(\w+)", bloc, re.M) if nom not in declares]
+    return ecarts
+
+
 def suites_gdunit(projet: Path) -> list[str]:
     """Les suites GdUnit4 de l'étape (7_tests/, `extends GdUnitTestSuite`), si l'extension est là."""
     projet = Path(projet)
@@ -103,12 +145,13 @@ def verifier_projet(projet: Path, godot: Path | None = None, rendu: bool = True,
     verdict = verifier_regles(projet)
     bilan["regles"] = par_regle(verdict)
     bilan["regles_detail"] = [f"{e['fichier']}:{e['ligne']} {e['message']}" for e in verdict.get("erreurs", [])][:20]
+    bilan["materiaux"] = parametres_orphelins(projet)
     if godot is None:
         try:
             godot = cfg.chemin_godot()
         except cfg.GodotIntrouvable:
             bilan["godot"] = False
-            bilan["ok"] = verdict["ok"]
+            bilan["ok"] = verdict["ok"] and not bilan["materiaux"]
             return bilan
     shutil.rmtree(projet / ".godot", ignore_errors=True)
     imp = executer([godot, "--headless", "--path", projet, "--import"], delai_s=delai_s)
@@ -160,7 +203,7 @@ def verifier_projet(projet: Path, godot: Path | None = None, rendu: bool = True,
         texte = nettoyer_sortie(r.sortie, projet)
         bilan["rendu"] = {"code": r.code, "erreurs": [l for l in texte.splitlines() if "ERROR" in l],
                           "image": png.is_file()}
-    bilan["ok"] = (verdict["ok"] and not bilan["import"] and not bilan["analyses"]
+    bilan["ok"] = (verdict["ok"] and not bilan["materiaux"] and not bilan["import"] and not bilan["analyses"]
                    and all(test_reussi(t["code"], t["sortie"]) for t in bilan["tests"].values())
                    and (bool(bilan["tests"]) or gdunit is not None)
                    and (gdunit is None or gdunit_reussi(gdunit))

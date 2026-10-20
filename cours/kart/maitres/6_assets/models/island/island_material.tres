@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://bpu37sbehq3g4"]
+
+[ext_resource type="Shader" uid="uid://b50d3hybock16" path="res://6_assets/shaders/environment/island.gdshader" id="1_vp11t"]
+[ext_resource type="Texture2D" uid="uid://c7lgbunrifo6d" path="res://6_assets/textures/common/cell_noise2.png" id="2_qedes"]
+[ext_resource type="Texture2D" uid="uid://d22nt247hapxx" path="res://6_assets/models/island/island_material_map.png" id="3_22muy"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_vp11t")
+shader_parameter/sand_color = Color(0.88, 0.76648, 0.5016, 1)
+shader_parameter/wheel_sand_color = Color(0.62, 0.55676, 0.4092, 1)
+shader_parameter/rock_color = Color(0.59, 0.59, 0.59, 1)
+shader_parameter/grass_color = Color(0.513726, 0.733333, 0.282353, 1)
+shader_parameter/dirt_color = Color(0.6, 0.448, 0.36, 1)
+shader_parameter/detail_noise_scale = 0.002
+shader_parameter/detail_noise_normal_strength = 0.075
+shader_parameter/detail_noise = ExtResource("2_qedes")
+shader_parameter/terrain_material_map = ExtResource("3_22muy")
+;@ 10+
+shader_parameter/tire_marks_texture_resulution = Vector2(512, 512)
+shader_parameter/tire_marks_texture_size = Vector2(512, 512)
+shader_parameter/tire_marks_texture_offset = Vector2(0, 0)
+;@ all

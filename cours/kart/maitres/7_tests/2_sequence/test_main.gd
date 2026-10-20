@@ -9,10 +9,14 @@ extends GdUnitTestSuite
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur le sol et décolle de
 ## la rampe, et la caméra le suit.
-#@ 4+
+#@ 4-5
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, et la
 ## caméra le suit.
+#@ 6+
+## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
+## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, sa
+## position est recopiée dans GameState pour les shaders, et la caméra le suit.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -86,6 +90,16 @@ func test_le_kart_se_pose_sur_l_ile_au_depart() -> void:
 		await get_tree().physics_frame
 	assert_bool(kart.is_on_ground()).is_true()
 	assert_float(kart.global_position.distance_to(Vector3(4.8399, 4.47262, -5.20099))).is_less(2.0)
+#@ 6+
+
+
+func test_la_position_du_kart_est_recopiee_pour_les_shaders() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	for _frame: int in 3:
+		await get_tree().physics_frame
+	assert_float(GameState.player_position.distance_to(kart.global_position)).is_less(0.5)
 #@ 3+
 
 

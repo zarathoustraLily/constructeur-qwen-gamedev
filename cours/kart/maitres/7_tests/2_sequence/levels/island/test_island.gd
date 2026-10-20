@@ -71,6 +71,15 @@ func test_les_rampes_ont_une_collision() -> void:
 	assert_int(ramps.size()).is_greater(0)
 	for ramp: Node in ramps:
 		assert_int(ramp.find_children("*", "CollisionShape3D", true, false).size()).override_failure_message(str(ramp.name)).is_greater(0)
+#@ 6+
+
+
+func test_l_herbe_est_semee_en_blocs_nommes() -> void:
+	var blocks := _island.get_node("Details").get_children()
+	assert_int(blocks.size()).is_greater(100)
+	for block: Node in blocks:
+		assert_bool(block is MultiMeshInstance3D).override_failure_message(str(block.name)).is_true()
+		assert_bool(str(block.name).begins_with("DetailBlock")).override_failure_message(str(block.name)).is_true()
 #@ 4-6
 
 

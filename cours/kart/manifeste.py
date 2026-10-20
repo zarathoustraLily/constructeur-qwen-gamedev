@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5]
+PRETES = [1, 2, 3, 4, 5, 6]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -70,8 +70,9 @@ FICHIERS = {
     "2_sequence/levels/island/island.tscn": "4+",
     "7_tests/2_sequence/levels/island/test_island.gd": "4+",
     "7_tests/3_entities/decor/test_decor.gd": "5+",
+    "7_tests/1_core/tools/test_detail_populator.gd": "6+",
     "0_autoload/game_flow.gd": "14+",
-    "0_autoload/game_state.gd": "14+",
+    "0_autoload/game_state.gd": "6+",
     "1_core/step/sequence.gd": "14+",
     "1_core/step/step.gd": "14+",
     "2_sequence/main.tscn": "1+",
@@ -79,7 +80,7 @@ FICHIERS = {
     "7_tests/0_autoload/etape_a.tscn": "14+",
     "7_tests/0_autoload/etape_b.tscn": "14+",
     "7_tests/0_autoload/test_game_flow.gd": "14+",
-    "7_tests/0_autoload/test_game_state.gd": "14+",
+    "7_tests/0_autoload/test_game_state.gd": "6+",
     "7_tests/1_core/step/test_step.gd": "14+",
     "project.godot": "1+",
     "3_entities/kart/kart.gd": "2+",
@@ -90,6 +91,10 @@ FICHIERS = {
     "3_entities/decor/ramp/ramp.tscn": "4+",
     "6_assets/shaders/common/triplanar_sampling.gdshaderinc": "4+",
     "6_assets/shaders/environment/island.gdshader": "4+",
+    "6_assets/models/race_track/track_stripes_material.tres": "4+",
+    "6_assets/models/race_track/track_material.tres": "4+",
+    "6_assets/models/grass/grass_material.tres": "6+",
+    "6_assets/models/island/island_material.tres": "4+",
     "3_entities/decor/cloud/cloud.tscn": "5+",
     "3_entities/decor/palm/small_palm.tscn": "5+",
     "3_entities/decor/rock/rock.tscn": "5+",

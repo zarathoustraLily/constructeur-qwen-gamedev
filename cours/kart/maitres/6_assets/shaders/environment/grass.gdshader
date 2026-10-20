@@ -22,6 +22,7 @@ uniform float push_strength = 1.0;
 varying vec3 global_position;
 varying float height;
 
+//@ 10+
 group_uniforms Internal;
 
 uniform sampler2D tire_marks_texture;
@@ -38,6 +39,7 @@ float sample_water_tire_marks(vec3 global_pos) {
 	vec2 uv = coord / tire_marks_texture_size;
 	return texture(tire_marks_texture, uv).r;
 }
+//@ all
 
 void vertex() {
     global_position = VERTEX;
@@ -50,7 +52,9 @@ void vertex() {
     vec3 direction = normalize(player_position - global_position);
     direction.y = 1.0;
 
+//@ 10+
 	float tire_mark_strength = clamp(1.0 - sample_water_tire_marks(global_position), 0.1, 1.0);
+//@ all
 
     vec3 displacement = direction * push_strength * influence;
 
@@ -58,7 +62,11 @@ void vertex() {
     VERTEX += displacement * 1.0;
 
     vec4 local = inverse(MODEL_MATRIX) * vec4(VERTEX, 1.0);
+//@ 6-9
+    local.y *= 0.5 * mix(1.0, -0.5, influence) * height;
+//@ 10+
     local.y *= 0.5 * mix(1.0, -0.5, influence) * height * tire_mark_strength;
+//@ all
     VERTEX = (MODEL_MATRIX * local).xyz;
 
     global_position = VERTEX;

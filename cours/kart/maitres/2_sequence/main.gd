@@ -3,10 +3,20 @@ extends Node3D
 ## Scène principale. À chaque image physique, l'adaptateur d'entrées du kart (KartInput) traduit le clavier
 ## et la manette en commandes de conduite, et l'affichage (InputDisplay) les montre ; un saut fait vibrer la
 ## manette (jump_rumble). La scène fait le lien : l'adaptateur et l'affichage ne se connaissent pas.
-#@ 2+
+#@ 2-3
 ## Scène principale : une aire d'essai (un sol, une rampe) et le kart. À chaque image physique, l'affichage
 ## (InputDisplay) montre les commandes que le kart a reçues de son adaptateur d'entrées ; un saut fait vibrer
 ## la manette (jump_rumble). La scène fait le lien : le kart et l'affichage ne se connaissent pas.
+#@ 4-5
+## Scène principale : l'île et le kart. À chaque image physique, l'affichage (InputDisplay) montre les
+## commandes que le kart a reçues de son adaptateur d'entrées ; un saut fait vibrer la manette (jump_rumble).
+## La scène fait le lien : le kart et l'affichage ne se connaissent pas.
+#@ 6+
+## Scène principale : l'île et le kart. À chaque image physique, l'affichage (InputDisplay) montre les
+## commandes que le kart a reçues de son adaptateur d'entrées ; un saut fait vibrer la manette (jump_rumble) ;
+## la position du kart est recopiée dans GameState.player_position, que GameState passe au paramètre global
+## de shader du même nom : l'herbe le lit pour s'écarter sous le kart. La scène fait le lien : le kart,
+## l'affichage et les shaders ne se connaissent pas.
 #@ all
 
 ## Vibration jouée à chaque saut (5_data/input/jump_rumble.tres).
@@ -38,6 +48,9 @@ func _physics_process(_delta: float) -> void:
 	# Un kart piloté par un script n'a pas d'adaptateur d'entrées : pas de manette à montrer.
 	var pads := _kart.input.joypad_names() if _kart.input != null else PackedStringArray()
 	_display.show_commands(_kart.commands, pads)
+#@ 6+
+	GameState.player_position = _kart.global_position
+#@ 2+
 
 
 func _on_kart_jumped() -> void:

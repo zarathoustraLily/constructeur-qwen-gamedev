@@ -1,7 +1,11 @@
 extends Node
 ## Variables générales du jeu, en un seul endroit (singleton GameState).
 ## Celles que lisent les shaders sont recopiées dans leur paramètre global (project.godot,
+#@ 6-10
+## [shader_globals]) à chaque changement : un script règle GameState.player_position, et non
+#@ 11+
 ## [shader_globals]) à chaque changement : un script règle GameState.rain_intensity, et non
+#@ all
 ## RenderingServer directement.
 
 ## Position du kart du joueur (shaders : herbe qui s'écarte, eau).
@@ -9,6 +13,7 @@ var player_position := Vector3.ZERO:
 	set(valeur):
 		player_position = valeur
 		RenderingServer.global_shader_parameter_set("player_position", valeur)
+#@ 11+
 
 ## Force de la pluie, de 0 (rien) à 1 (averse) : anneaux d'impact sur la mer et la route.
 var rain_intensity := 0.0:
@@ -21,6 +26,7 @@ var rain_wetness := 0.0:
 	set(valeur):
 		rain_wetness = valeur
 		RenderingServer.global_shader_parameter_set("rain_wetness", valeur)
+#@ all
 
 ## Vent (herbe, palmiers) : valeurs de départ lues dans project.godot.
 var wind_direction: Vector3 = _reglage("wind_direction", Vector3(0.707, 0, 0.707)):
