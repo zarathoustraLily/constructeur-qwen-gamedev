@@ -12,10 +12,15 @@ class_name WaterSurface extends Node3D
 ## Cette surface de base est plate, à hauteur 0, et ignore les vagues.
 #@ all
 
+## Précision par défaut de get_wave_height(), pour les surfaces qui en ont besoin : nombre de cascades lues.
+const DEFAULT_CASCADES := 3
+## Précision par défaut : nombre de corrections du déplacement horizontal.
+const DEFAULT_STEPS := 4
+
 
 ## Hauteur de l'eau à la verticale de `global_pos` (seuls x et z comptent).
 ## `max_cascade` et `steps` règlent la précision du calcul pour les surfaces qui en ont besoin.
-func get_wave_height(_global_pos: Vector3, _max_cascade: int = 3, _steps: int = 4) -> float:
+func get_wave_height(_global_pos: Vector3, _max_cascade: int = DEFAULT_CASCADES, _steps: int = DEFAULT_STEPS) -> float:
 	return 0.0
 #@ 9+
 

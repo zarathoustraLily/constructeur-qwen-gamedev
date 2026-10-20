@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -106,6 +106,8 @@ FICHIERS = {
     "6_assets/shaders/environment/clouds.gdshader": "5+",
     "6_assets/shaders/environment/palm.gdshader": "5+",
     "1_core/tools/detail_populator.gd": "6+",
+    "1_core/tools/image_sampling.gd": "6+",
+    "7_tests/1_core/tools/test_image_sampling.gd": "6+",
     "6_assets/shaders/environment/grass.gdshader": "6+",
     "1_core/water/buoyancy/buoyant_body_3d.gd": "7+",
     "1_core/water/buoyancy/water_buoyancy_sensor.gd": "7+",
@@ -115,12 +117,12 @@ FICHIERS = {
     "7_tests/1_core/water/buoyancy/test_buoyant_body_3d.gd": "7+",
     "7_tests/1_core/water/buoyancy/test_water_buoyancy_sensor.gd": "7+",
     "7_tests/1_core/water/surface_temoin.gd": "7+",
-    "6_assets/shaders/water/calm_water.gdshader": "7",
+    "6_assets/shaders/water/calm_water.gdshader": "7+",
     "7_tests/3_entities/kart/test_kart_on_water.gd": "7+",
     "7_tests/3_entities/interactables/test_interactables.gd": "7+",
-    "1_core/water/fft/fft_ocean.gd": "8+",
-    "1_core/water/fft/quad_tree_3d.gd": "8+",
-    "1_core/water/fft/quad_tree_3d.tscn": "8+",
+    "1_core/water/fft/ocean_fft_waves.gd": "8+",
+    "1_core/water/fft/quad_tree_3d_view.gd": "8+",
+    "1_core/water/fft/quad_tree_3d_view.tscn": "8+",
     "1_core/water/fft/shaders/fft_horizontal.glsl": "8+",
     "1_core/water/fft/shaders/fft_vertical.glsl": "8+",
     "1_core/water/fft/shaders/initial_spectrum.glsl": "8+",
@@ -128,10 +130,12 @@ FICHIERS = {
     "1_core/water/fft/shaders/spectrum.glsl": "8+",
     "3_entities/ocean/ocean.gd": "8+",
     "3_entities/ocean/ocean.tscn": "8+",
+    "7_tests/3_entities/ocean/test_ocean.gd": "8+",
     "5_data/water/ocean_settings.tres": "8+",
     "6_assets/shaders/common/screen_space_reflections.gdshaderinc": "8+",
     "6_assets/shaders/water/ocean_common.gdshaderinc": "8+",
     "6_assets/shaders/water/water_surface.gdshader": "8+",
+    "6_assets/materials/water/water_surface_material.tres": "8+",
     "6_assets/shaders/water/water_textures.gdshaderinc": "8+",
     "1_core/water/waves/accumulate_foam.glsl": "9+",
     "1_core/water/waves/water_foam.gd": "9+",

@@ -1,55 +1,54 @@
-extends Node3D
-class_name QuadTree3D
+class_name QuadTree3DView extends Node3D
 ## Maillage de la surface de l'océan découpé en arbre quaternaire, avec niveaux de détail (CDLOD) :
 ## près de la caméra, chaque carré se divise en quatre carrés plus fins ; loin, un seul carré grossier
-## suffit. La racine choisit à chaque image les maillages affichés, avec une transition (geomorph)
-## entre deux niveaux.
+## suffit. La racine choisit une image sur deux les maillages affichés, avec une transition (geomorph)
+## entre deux niveaux. C'est une présentation : elle ne décide que de ce qui est dessiné (règle ARC-02).
 
 
-## Specifies the LOD level of the current quad. There will be X - 1 subquad
-## levels nested below this quad.
+## Niveau de détail de ce carré : il a lod_level niveaux de sous-carrés sous lui.
 @export_range(0, 1000000, 1) var lod_level := 2
 
-## Horizontal size of the current quad.
+## Côté (m) de ce carré.
 @export_range(1.0, 65535.0) var quad_size := 1024.0
 
-## Morph range for CDLOD geomorph between LOD levels.
+## Part de la plage d'un niveau où le maillage se transforme vers le niveau voisin (geomorph CDLOD).
 @export_range(0.0, 1.0, 0.001) var morph_range := 0.15
 
-## Vertex resolution of each of the quads in this tree.
+## Nombre de sommets par côté du maillage de chaque carré.
 @export_range(0, 32000, 1) var mesh_vertex_resolution := 256
 
-## Ranges for each LOD level. Accessed as ranges[lod_level].
+## Distance (m) de chaque niveau de détail : ranges[lod_level].
 @export var ranges:Array[float] = [512.0, 1024.0, 2048.0]
 
-## The visual shader to apply to the surface geometry.
+## Matériau de la surface, donné à chaque carré.
 @export var material:ShaderMaterial
 
+## Surface montrée à la place des carrés quand la houle ne peut pas être calculée : sans RenderingDevice (rendu
+## de compatibilité, ou sans fenêtre), pas de shaders de calcul.
+@export var fallback: Node3D
 
-## Will hold this resource loaded so as to instantiate subquads
-## This can't currently be preloaded due to an engine bug
-## https://github.com/godotengine/godot/issues/70985
-var Quad: PackedScene
 
-## Whether the current quad is the root quad in the tree. Initializes all nested
-## subquads on ready.
+## Scène de l'arbre, chargée par la racine pour créer les sous-carrés. Elle ne peut pas être préchargée
+## (preload) : la scène se contiendrait elle-même (https://github.com/godotengine/godot/issues/70985).
+var quad_scene: PackedScene
+
+## Vrai pour la racine de l'arbre : elle construit tous les sous-carrés à son entrée dans l'arbre.
 var is_root_quad := true
 
-## If this is true, the LOD system will be paused in its current state.
+## Vrai : le choix des niveaux de détail est figé dans son état.
 var pause_cull := false
 
-## The cull box that encloses this quad.
+## Boîte qui enferme ce carré, pour le test de distance.
 var cull_box:AABB
 
-## Meshes for each LOD level.
-## TODO: Why am I storing so many meshes?
+## Maillages de chaque niveau de détail, partagés par tous les carrés d'un même niveau.
 var lod_meshes:Array[PlaneMesh] = []
 
-## This quads mesh instance.
+## Le maillage affiché de ce carré.
 var mesh_instance:MeshInstance3D
 
 var _visibility_detector:VisibleOnScreenNotifier3D
-var _subquads:Array[QuadTree3D] = []
+var _subquads: Array[QuadTree3DView] = []
 
 
 func _ready() -> void:
@@ -58,24 +57,28 @@ func _ready() -> void:
 	if material == null:
 		set_process(false)
 		return
-	
+	# Sans RenderingDevice, la houle ne tourne pas : la surface de repli prend sa place, et aucun carré n'est
+	# construit (en compatibilité, leurs paramètres d'instance dépasseraient la réserve du moteur de rendu).
+	if is_root_quad and RenderingServer.get_rendering_device() == null:
+		if fallback != null:
+			fallback.visible = true
+		set_process(false)
+		return
+
 	if is_root_quad:
-		## Load self to instantiate subquads with
-		## This can't currently be preloaded due to an engine bug
-		## https://github.com/godotengine/godot/issues/70985
-		Quad = load("res://1_core/water/fft/quad_tree_3d.tscn")
+		quad_scene = load("res://1_core/water/fft/quad_tree_3d_view.tscn")
 		
-		## Set max view distance and fade range start
+		## Distance de vue maximale et début du fondu
 		var camera := get_viewport().get_camera_3d()
 		# Sans caméra (scène de test, par exemple) : la distance de vue garde la valeur du matériau.
 		if camera:
 			material.set_shader_parameter("view_distance_max", camera.far)
 		material.set_shader_parameter("vertex_resolution", mesh_vertex_resolution)
 		
-		## Initialize LOD meshes for each level
+		## Un maillage par niveau de détail
 		var current_size: float = quad_size
 		
-		for i in range(lod_level + 1):
+		for _level: int in range(lod_level + 1):
 			var mesh := PlaneMesh.new()
 			mesh.size = Vector2.ONE * current_size
 			mesh.subdivide_depth = mesh_vertex_resolution - 1
@@ -112,18 +115,17 @@ func _ready() -> void:
 	cull_box = AABB(global_position + Vector3(-quad_size * 0.5, -10, -quad_size * 0.5),
 			Vector3(quad_size, 20, quad_size))
 	
-	## If this is not the most detailed LOD level, initialize more detailed
-	## children.
+	## Hors du niveau le plus fin, quatre sous-carrés plus détaillés.
 	if lod_level > 0:
 		for offset: Vector3 in [Vector3(1, 0, 1), Vector3(-1, 0, 1), Vector3(1, 0, -1), Vector3(-1, 0, -1)]:
-			var new_quad := Quad.instantiate() as QuadTree3D
+			var new_quad := quad_scene.instantiate() as QuadTree3DView
 			new_quad.lod_level = lod_level - 1
 			new_quad.quad_size = quad_size * 0.5
 			new_quad.ranges = ranges
 			new_quad.process_mode = PROCESS_MODE_DISABLED
 			new_quad.position = offset * offset_length
 			new_quad.morph_range = morph_range
-			new_quad.Quad = Quad
+			new_quad.quad_scene = quad_scene
 			new_quad.lod_meshes = lod_meshes
 			new_quad.is_root_quad = false
 			new_quad.material = material
@@ -132,8 +134,8 @@ func _ready() -> void:
 			_subquads.append(new_quad)
 
 
-## Process mode is set to PROCESS_MODE_DISABLED for subquads, so only the root
-## quad will run _process().
+## Les sous-carrés sont désactivés (PROCESS_MODE_DISABLED) : seule la racine passe ici ; elle choisit
+## les niveaux une image sur deux.
 func _process(_delta:float) -> void:
 	if not pause_cull and Engine.get_frames_drawn() % 2:
 		var camera := get_viewport().get_camera_3d()
@@ -141,80 +143,72 @@ func _process(_delta:float) -> void:
 			lod_select(camera.global_position)
 
 
-## Select which meshes will be displayed at which LOD level. A return value of
-## true marks the node as handled, and a value of false indicates the parent
-## node must handle it.
-## cam_pos is the camera/player position in global coordinates.
+## Choisit les maillages affichés à chaque niveau de détail, pour une caméra en `cam_pos` (coordonnées du
+## monde). Rend vrai si ce carré a traité sa zone ; faux si son parent doit l'afficher à un niveau moins
+## fin.
 func lod_select(cam_pos:Vector3) -> bool:
-	## Beginning at the root node of lowest LOD, and working towards the most
-	## detailed LOD 0.
+	## On part de la racine, au niveau le moins fin, vers le niveau 0, le plus fin.
 	
 	if not within_sphere(cam_pos, ranges[lod_level]):
-		## This quad is not within range of the selected LOD level, the parent
-		## will need to display this at a lower detailed LOD. Return false to
-		## mark the area as not handled.
+		## Trop loin pour ce niveau : le parent affichera la zone à un niveau moins fin. Faux : zone non
+		## traitée.
 		reset_visibility()
 		return false
 	
 	if not _visibility_detector.is_on_screen():
-		## This quad is not on screen. Do not make it visible, and return true
-		## to mark the area as handled.
+		## Hors de l'écran : rien à afficher, mais la zone est traitée.
 		mesh_instance.visible = false
 		return true
 	
 	if lod_level == 0:
-		## Within range of selected LOD level, and at highest detailed LOD,
-		## there are no more detailed children to render this. Make this quad
-		## visible. Return true to mark the area handled.
+		## À portée, au niveau le plus fin : aucun enfant plus détaillé, ce carré s'affiche. Zone
+		## traitée.
 		mesh_instance.visible = true
 		return true
 	
 	else:
-		## Within range of selected LOD level, but there are more detailed
-		## children that may be able to display this. Check if any are within
-		## their LOD range.
+		## À portée, avec des enfants plus détaillés : on regarde s'ils sont à portée de leur propre
+		## niveau.
 		if not within_sphere(cam_pos, ranges[lod_level - 1]):
 			reset_visibility()
 			
-			## No children are within range of their LOD levels, make this quad
-			## visible to handle the area.
-			for subquad in _subquads:
+			## Aucun enfant à portée de son niveau : les quatre s'affichent, au niveau de ce carré.
+			for subquad: QuadTree3DView in _subquads:
 				subquad.mesh_instance.visible = true
 		
 		else:
-			## At least one more detailed children is within LOD range. Recurse
-			## through them and select them if appropriate.
-			for subquad in _subquads:
+			## Au moins un enfant à portée : on descend dans chacun, et ceux qui ne traitent pas leur zone
+			## s'affichent.
+			for subquad: QuadTree3DView in _subquads:
 				if not subquad.lod_select(cam_pos):
 					subquad.mesh_instance.visible = true
 		
-		## The area has been handled.
+		## La zone est traitée.
 		return true
 
 
-## Reset this quad and all subquads to invisible.
+## Cache ce carré et tous ses sous-carrés.
 func reset_visibility() -> void:
 	if mesh_instance.visible:
-		## If this quad is visible, no children should be visible.
+		## Ce carré est affiché : aucun enfant ne l'est.
 		mesh_instance.visible = false
 	
 	else:
-		## If this quad is not visible, there are likely children displaying it.
-		for subquad in _subquads:
+		## Ce carré est caché : des enfants affichent sans doute sa zone.
+		for subquad: QuadTree3DView in _subquads:
 			subquad.reset_visibility()
 
 
-## Returns true if this quads cull_box AABB intersects with a sphere with the
-## specified radius and center point.
+## Vrai si la boîte de ce carré (cull_box) touche la sphère de centre `center` et de rayon `radius`.
 func within_sphere(center:Vector3, radius:float) -> bool:
 	var radius_squared := radius * radius
 	var dmin := 0.0
 	
-	for i in range(3):
-		if center[i] < cull_box.position[i]:
-			dmin += pow(center[i] - cull_box.position[i], 2.0)
+	for axis: int in range(3):
+		if center[axis] < cull_box.position[axis]:
+			dmin += pow(center[axis] - cull_box.position[axis], 2.0)
 		
-		elif center[i] > cull_box.end[i]:
-			dmin += pow(center[i] - cull_box.end[i], 2.0)
+		elif center[axis] > cull_box.end[axis]:
+			dmin += pow(center[axis] - cull_box.end[axis], 2.0)
 	
 	return dmin <= radius_squared

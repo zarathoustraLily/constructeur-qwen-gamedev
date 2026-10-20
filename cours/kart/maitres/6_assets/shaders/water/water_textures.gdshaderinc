@@ -3,30 +3,35 @@
 
 group_uniforms WaterTextures;
 
-//ripples
+//@ 9+
+// Ondulations
 uniform sampler2D ripples_texture;
 uniform vec2 ripples_texture_resolution = vec2(512, 512);
 uniform vec2 ripples_texture_size = vec2(32, 32);
 uniform vec2 ripples_texture_offset = vec2(0, 0);
 
-//waves
+// Vagues d'impact
 uniform sampler2D waves_texture ;
 uniform vec2 waves_texture_resulution = vec2(512, 512);
 uniform vec2 waves_texture_size = vec2(512, 512);
 uniform vec2 waves_texture_offset = vec2(0, 0);
 
-//island
+//@ all
+// Masque de l'île
 uniform sampler2D island_texture : hint_default_white, repeat_disable;
 uniform vec2 island_texture_size = vec2(960, 960);
 
+//@ 9+
 uniform sampler2D foam_mask_texture;
 uniform vec2 foam_mask_texture_resulution = vec2(512, 512);
 uniform vec2 foam_mask_texture_size = vec2(512, 512);
 uniform vec2 foam_mask_texture_offset = vec2(0, 0);
+//@ all
 
 group_uniforms;
 
 
+//@ 9+
 float sample_water_ripples(vec3 global_pos) {
 	vec2 uv = (global_pos.xz - ripples_texture_offset) / ripples_texture_size + 0.5;
 	if (uv.x < 0.0 || uv.y < 0.0 || uv.x >= 1.0 || uv.y >= 1.0)
@@ -52,17 +57,20 @@ float sample_water_waves_height(vec3 global_pos) {
 	return texture(waves_texture, uv).r;
 }
 
+//@ all
 float get_island_height_multiplier(vec3 global_pos) {
 	vec2 uv = global_pos.xz / island_texture_size;
 	return texture(island_texture, uv + 0.5).r;
 }
 
+//@ 9+
 float sample_foam_mask(vec3 global_pos) {
 	vec2 uv = (global_pos.xz - foam_mask_texture_offset) / foam_mask_texture_size + 0.5;
 	if (uv.x < 0.0 || uv.y < 0.0 || uv.x >= 1.0 || uv.y >= 1.0)
 		return 0.0;
 	return texture(foam_mask_texture, uv).r;
 }
+//@ all
 
 
 

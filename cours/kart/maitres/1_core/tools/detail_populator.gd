@@ -101,21 +101,6 @@ func populate() -> void:
 					chunk.owner = get_tree().edited_scene_root
 
 
-## Couleur de `image` en `uv` (de 0 à 1), interpolée entre les quatre pixels voisins ; noir hors de l'image.
-func sample_image_billinear(image: Image, uv: Vector2) -> Color:
-	if uv.x < 0.0 or uv.y < 0.0 or uv.x >= 1.0 or uv.y >= 1.0:
-		return Color.BLACK
-	uv *= Vector2(image.get_size())
-	var px: Vector2 = floor(uv)
-	var frac := uv - px
-	var x := int(px.x)
-	var y := int(px.y)
-	var v0: Color = lerp(image.get_pixel(x, y), image.get_pixel(mini(x + 1, image.get_width() - 1), y), frac.x)
-	var v1: Color = lerp(image.get_pixel(x, mini(y + 1, image.get_height() - 1)),
-		image.get_pixel(mini(x + 1, image.get_width() - 1), mini(y + 1, image.get_height() - 1)), frac.x)
-	return lerp(v0, v1, frac.y)
-
-
 ## Pour la face `index` du terrain : ses trois positions, puis ses trois normales.
 func face_positions_normals(index: int) -> PackedVector3Array:
 	var data := PackedVector3Array()
@@ -156,7 +141,7 @@ func chunk_transforms(chunk_size: Vector3, chunk_corner: Vector3, rng: RandomNum
 			var weights: Vector3 = Geometry3D.get_triangle_barycentric_coords(point, face[0], face[1], face[2])
 			var normal: Vector3 = (face[3] * weights.x + face[4] * weights.y + face[5] * weights.z).normalized()
 			var uv: Vector2 = uvs[0] * weights.x + uvs[1] * weights.y + uvs[2] * weights.z
-			if sample_image_billinear(terrain_image, uv).g < MASK_MAX and normal.dot(Vector3.UP) > FLAT_MIN:
+			if ImageSampling.bilinear(terrain_image, uv).g < MASK_MAX and normal.dot(Vector3.UP) > FLAT_MIN:
 				transforms.append(_detail_transform(point - chunk_corner, normal, rng))
 	return transforms
 

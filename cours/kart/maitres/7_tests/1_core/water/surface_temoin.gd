@@ -20,7 +20,7 @@ func _init() -> void:
 	add_to_group("ocean")
 
 
-func get_wave_height(global_pos: Vector3, _max_cascade: int = 3, _steps: int = 4) -> float:
+func get_wave_height(global_pos: Vector3, _max_cascade: int = DEFAULT_CASCADES, _steps: int = DEFAULT_STEPS) -> float:
 	return hauteur.call(global_pos)
 #@ 9+
 

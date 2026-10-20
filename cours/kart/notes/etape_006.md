@@ -43,8 +43,9 @@ quatre conditions :
 Le hasard passe par un `RandomNumberGenerator` de graine `random_seed` : une même graine donne le même semis.
 Le kart d'origine tirait au hasard global ; la règle SIM-09 l'interdit dans la logique.
 
-La lecture du masque (`sample_image_billinear`) mélange quatre pixels voisins. Celle du kart d'origine lisait
-un pixel hors de l'image sur le bord droit et le bord bas ; elle s'arrête maintenant au dernier pixel.
+La lecture du masque (`ImageSampling.bilinear`, `1_core/tools/image_sampling.gd`) mélange quatre pixels
+voisins. Celle du kart d'origine lisait un pixel hors de l'image sur le bord droit et le bord bas ; elle
+s'arrête maintenant au dernier pixel. L'océan de l'étape 008 lira le masque de l'île avec la même fonction.
 
 ### 3. Le shader de l'herbe
 
@@ -75,6 +76,8 @@ Le vent passe aussi dans GameState (`wind_direction`, `wind_strength`), avec les
   de la grille et range chaque bloc, nommé, à son coin ; même graine, même semis ; un masque vert ou une plage
   de hauteur hors du terrain n'en laissent aucun. Sans fenêtre, le moteur ne garde pas les transformations d'un
   MultiMesh : le test compare celles que calcule `chunk_transforms()`.
+- `1_core/tools/test_image_sampling.gd` : au coin d'un pixel, sa couleur ; entre deux pixels, le mélange ;
+  hors de l'image, noir ; au bord, aucune lecture hors de l'image.
 - `0_autoload/test_game_state.gd` : chaque variable partagée a son paramètre global, et une valeur écrite se
   relit.
 - `2_sequence/test_main.gd` : la position du kart arrive dans GameState.

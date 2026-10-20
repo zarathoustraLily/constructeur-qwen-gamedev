@@ -5,29 +5,30 @@ render_mode world_vertex_coords, depth_draw_always, cull_disabled;
 #include "res://6_assets/shaders/water/water_textures.gdshaderinc"
 #include "res://6_assets/shaders/common/utils.gdshaderinc"
 #include "res://6_assets/shaders/common/screen_space_reflections.gdshaderinc"
+//@ 11+
 #include "res://6_assets/shaders/effects/rain_ripples.gdshaderinc"
+//@ all
 
 
 
-// Sun specular highlight
+// Reflet du soleil
 uniform float specular_strength = 1.0;
 uniform float specular_power = 1500.0;
 
-// ALPHA will begin decreasing to 0.0 after view_distance_max * view_fade_start
+// ALPHA commence à décroître vers 0 au-delà de view_distance_max * view_fade_start
 uniform float view_fade_start = 0.95;
 
-// Colors
+// Couleurs
 uniform vec4 deep_color:source_color = vec4(0.004f, 0.016f, 0.047f, 1.0);
 uniform vec4 shallow_color:source_color = vec4(0, 0.729412, 0.988235, 1);
 
 
 group_uniforms Fresnel;
 /******************************************************************************/
-// Note that PBR specular and metallic settings can significantly affect the
-// result of fresnel shading. Consider playing with those settings if fresnel
-// shading can't be made to look proper with just these settings.
+// Les réglages PBR (specular, metallic) changent beaucoup le rendu de Fresnel : y toucher si ces
+// seuls réglages ne suffisent pas.
 
-// Fresnel Shading
+// Fresnel
 uniform float fresnel_offset = 0.02;
 uniform float fresnel_strength = 0.0;
 uniform float fresnel_power = 5.0;
@@ -44,7 +45,7 @@ uniform float pbr_metallic_strength = 0.0;
 
 group_uniforms Refraction;
 /******************************************************************************/
-// TODO: Needs to be completely redone;
+// À refaire entièrement.
 
 uniform float refraction_factor_min = 0.0;
 uniform float refraction_factor_max = 0.025;
@@ -52,8 +53,8 @@ uniform float refraction_distance_power = 1.55;
 uniform float refraction_distance_max = 30000.0;
 uniform float refraction_background_brightness = 0.2;
 
-// Adjusts how strong the refraction is based on the distance between the ocean
-// pixel and the object behind it.
+// Force de la réfraction selon la distance entre le pixel de l'océan et l'objet derrière
+// lui.
 uniform float refraction_depth_factor = 1.0;
 
 
@@ -68,9 +69,9 @@ uniform vec4 sss_color:source_color = vec4(0, 0.729412, 0.988235, 1);
 
 group_uniforms Whitecaps;
 /******************************************************************************/
-// Basic whitecap rendering using Jacobian determinant.
-// TODO: Calculate Jacobian and foam in another shader to support temporal
-//       effects like foam persisting and bubbling out.
+// Écume des crêtes, par le déterminant jacobien : là où la surface se resserre, elle moutonne.
+// Plus tard : calculer jacobien et écume dans un autre shader, pour une écume qui dure et se
+//       dissipe.
 
 uniform float foam_jacobian_limit = 0.5;
 uniform float foam_coverage = 0.1;
@@ -82,19 +83,17 @@ uniform sampler2D foam_texture : hint_default_white;
 
 group_uniforms Internal;
 /******************************************************************************/
-// These are intended to be updated during runtime. Setting values in the editor
-// may not have the desired result.
+// Réglés pendant le jeu : une valeur posée dans l'éditeur risque d'être écrasée.
 
-// The vertex resolution of the mesh tiles the shader is applied to.
+// Nombre de sommets par côté des carrés de maillage qui portent ce shader.
 uniform float vertex_resolution = 256.0;
 
 
 group_uniforms Internal.WaveDeformModifiers;
 /******************************************************************************/
 
-// Decreases the height of the wave deformation as distance from the camera
-// increases.
-// This occurs after surface normals and whitecap coverage has been calculated.
+// Aplatit les vagues avec la distance à la caméra.
+// Appliqué après le calcul des normales et de l'écume des crêtes.
 uniform float amplitude_scale_min = 0.25;
 uniform float amplitude_scale_max = 1.0;
 uniform float amplitude_scale_fade_distance = 12000.0;
@@ -136,14 +135,16 @@ uniform float parallax_strength = 0.6;
 uniform float floor_caustics_strength = 0.6;
 group_uniforms;
 
+//@ 11+
 group_uniforms Rain;
 // Anneaux d'impact des gouttes (intensité pilotée par le global « rain_intensity »)
 uniform float rain_drops_per_meter = 2.0;
 uniform float rain_normal_strength = 0.9;
 uniform float rain_ring_brightness = 0.2;
 group_uniforms;
+//@ all
 
-// Instance Uniforms
+// Uniformes d'instance
 /******************************************************************************/
 instance uniform float patch_size = 512.0;
 instance uniform float min_lod_morph_distance;
@@ -171,30 +172,32 @@ varying mat4 model_mat;
 void vertex() {
 	float linear_dist = length(VERTEX - CAMERA_POSITION_WORLD);
 
-	// LOD Morph
+	// Transition entre niveaux de détail (geomorph)
 	float morph_factor = (clamp(linear_dist, min_lod_morph_distance, max_lod_morph_distance) - min_lod_morph_distance) / (max_lod_morph_distance - min_lod_morph_distance);
 	VERTEX.xz -= lod_morph(morph_factor, UV);
 
-	// Domain Warp
+	// Déformation du domaine
 	vec2 domain_warped_uv = domain_warp(VERTEX.xz, linear_dist);
 
-	// Vertex Offset
+	// Déplacement du sommet
 	float wave_height_multiplier = get_island_height_multiplier(VERTEX);
 
 	vec3 displacement = get_displacement(domain_warped_uv);
+//@ 9+
 	displacement += vec3(0, sample_water_waves_height(VERTEX) + sample_water_ripples(VERTEX) * 0.5, 0);
+//@ all
 
 	VERTEX += displacement * wave_height_multiplier;
 	world_vertex = VERTEX;
 
-	// Surface Normals & Jacobian
+	// Normales de la surface et jacobien
 	vec4 nj = get_normals_jacobian(domain_warped_uv, displacement);
 	NORMAL = nj.xyz * normal_factor;
 	jacobian_determinant = nj.w;
 
-	// Wave Amplitude Distance Fade
-	// Flattens the waves with increasing distance from camera. This is done
-	// after surface normal calculations to retain normals in the distance.
+	// Atténuation de l'amplitude avec la distance
+	// Aplatit les vagues avec la distance à la caméra, après le calcul des normales : au loin, les
+	// normales gardent le relief.
 	float amplitude_fade_range = clamp(linear_dist, 0.0, amplitude_scale_fade_distance) / amplitude_scale_fade_distance;
 	VERTEX.y *= mix(amplitude_scale_max, amplitude_scale_min, amplitude_fade_range);
 
@@ -202,11 +205,11 @@ void vertex() {
 }
 
 void fragment() {
-	// Calculate fragments Fresnel factor
+	// Facteur de Fresnel du fragment
 	float fresnel_factor = clamp(pow(abs(1.0 - dot(NORMAL, normalize(VIEW))), fresnel_power), -1.0, 1.0);
 	float fresnel = fresnel_factor * fresnel_strength + fresnel_offset;
 
-	// Get the linear depth between each ocean pixel and whatever is behind it.
+	// Profondeur linéaire entre chaque pixel de l'océan et ce qui est derrière lui.
 	float depth = texture(depth_texture, SCREEN_UV).r;
 	vec4 view = INV_PROJECTION_MATRIX * vec4(vec3(SCREEN_UV * 2.0 - 1.0, depth), 1.0);
 	view /= view.w;
@@ -215,13 +218,12 @@ void fragment() {
 	vec4 depth_position = INV_VIEW_MATRIX * view;
 	depth_position.xyz /= depth_position.w;
 
-	// Get the distance between the camera and each ocean pixel.
+	// Distance entre la caméra et chaque pixel de l'océan.
 	float linear_dist = length(world_vertex - CAMERA_POSITION_WORLD);
 	float water_depth =  world_vertex.y - depth_position.y;
 
-	// Refraction, based on depth between ocean pixel and object behind.
-	// Fades out with distance so as to be smooth transition to lower LOD shaders
-	// which may exclude this.
+	// Réfraction, selon la profondeur entre le pixel de l'océan et l'objet derrière. Elle s'efface
+	// avec la distance, pour une transition douce vers les niveaux de détail moins fins.
 	float refraction_factor = clamp(linear_depth * refraction_depth_factor, refraction_factor_min, refraction_factor_max);
 	vec2 refracted_uv = SCREEN_UV - NORMAL.xz * refraction_factor;
 	vec3 background_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
@@ -230,27 +232,28 @@ void fragment() {
 
 	water_color = mix(deep_color.rgb, water_color, 1.0 / pow(1.0 + max(water_depth, 0.0), 1.1));
 
-	// Caustics
+	// Caustiques
 	if (water_depth > 0.0) {
 	    float c = mix(texture(caustics_texture, depth_position.xz * 0.1 + TIME * vec2(0.01, 0.02)).r, texture(caustics_texture, depth_position.xz * 0.059 + TIME * vec2(-0.012, -0.04)).r, 0.5);
 	    water_color += c * caustics_strength / pow(1.0 + water_depth, 2.0);
 	}
 
-	 //Fresnel Shading
+	 // Fresnel
 	vec3 sky = fresnel_sky_color.rgb * fresnel;
 	vec3 water = (1.0 - fresnel) * water_color * fresnel_sky_color.rgb;
 	water_color = HDR(sky + water, fresnel_exposure);
 
-	// Foam rendering: Depth
+	// Écume : faible profondeur
 	foam_mix_factor = clamp(1.0 / pow(1.0 + water_depth, 8.0), 0.0, 1.0);
 
-	// Foam rendering: acucmulated foam
+//@ 9+
+	// Écume : écume accumulée
 	foam_mix_factor += sample_foam_mask(world_vertex);
-	// Foam Rendering: interactive waves
-	//foam_mix_factor += sample_water_waves_height(world_vertex); <--- this is solely handled by the foam mask
+	// Écume : les vagues d'impact passent par le masque d'écume, pas par cette ligne
 	foam_mix_factor += sample_water_ripples(world_vertex) * 3.0;
+//@ all
 
-	// TODO Foam rendering: FFT Waves
+	// Plus tard : l'écume de la houle FFT
 	foam_mix_factor = clamp(foam_mix_factor, 0.0, 1.0);
 	float foam_texture_sample = 0.5 * (texture(foam_texture, world_vertex.xz * uv_scale * 10.0 - 0.00137 * TIME).r + texture(foam_texture, world_vertex.xz * uv_scale * 6.0 + 0.001 * TIME).r);
 	foam_mix_factor = smoothstep(0.6, 0.9, 0.6 * foam_texture_sample + 0.5 * foam_mix_factor);
@@ -259,29 +262,35 @@ void fragment() {
 	foam_specular_factor = (1.0 - foam_mix_factor);
 
 
-	// Distance Fade
+	// Fondu avec la distance
 	float fade_start = view_distance_max * view_fade_start;
 	ALPHA = 1.0 - (clamp(linear_dist, fade_start, view_distance_max) - fade_start) / (view_distance_max - fade_start);
 
-	// Misc. PBR Settings
+	// Autres réglages PBR
 	ROUGHNESS = foam_mix_factor + 0.02;
 	METALLIC = pbr_metallic_strength * foam_specular_factor;
 	SPECULAR = pbr_specular_strength * foam_specular_factor * fresnel_factor + pbr_specular_offset;
 
 
-	// Normal maps
+	// Cartes de normales
 	vec2 normal_offset1 = (TIME * wave_dir1) * wave_speed;
 	vec2 normal_offset2 = (TIME * wave_dir2) * wave_speed;
 	vec3 wave_normals = blend_normals(texture(normal1, world_vertex.xz * wave_scale + normal_offset1).rgb, texture(normal2, world_vertex.xz * wave_scale + normal_offset2).rgb);
 	wave_normals = scale_normal_strength(wave_normals, wave_strength);
 
+//@ 8-8
+	NORMAL_MAP = wave_normals;
+//@ 9+
 	NORMAL_MAP = blend_normals(wave_normals, compute_ripples_normal(world_vertex));
+//@ all
 
+//@ 11+
 	// Pluie : anneaux d'impact sur la surface
 	vec3 rain = rain_ripples(world_vertex.xz, TIME, rain_intensity, rain_drops_per_meter) * foam_specular_factor;
 	vec3 rain_normal = normalize(vec3(-rain.x * rain_normal_strength, -rain.y * rain_normal_strength, 1.0)) * 0.5 + 0.5;
 	NORMAL_MAP = blend_normals(NORMAL_MAP, rain_normal);
 	ALBEDO = mix(ALBEDO, vec3(1.0), clamp(rain.z, 0.0, 1.0) * rain_ring_brightness);
+//@ all
 
 	// --- Eau claire peu profonde : fond visible avec parallaxe ---
 	// Le point du fond vu sans réfraction est décalé selon l'inclinaison de la surface et la profondeur,
@@ -322,7 +331,7 @@ void fragment() {
 
 	wave_height = world_vertex.y;
 
-	//SSR
+	// Réflexions en espace écran (SSR)
 	float far_clip = 256.0;
 	int steps = 16;
 	float ssr_screen_fade = 0.05;
@@ -338,30 +347,29 @@ void fragment() {
 
 	vec4 SSR = get_screen_space_reflection(far_clip, steps, ssr_screen_fade, VIEW, ssr_normal, VERTEX, PROJECTION_MATRIX, INV_PROJECTION_MATRIX, depth_texture, screen_texture);
 	ALBEDO = mix(ALBEDO, SSR.rgb , SSR.w * ssr_strength);
-	//ALBEDO = vec3(sample_foam_mask(world_vertex));
 }
 
 void light() {
 	vec3 half_vector = normalize(LIGHT + VIEW);
 
-	// Specular
+	// Reflet spéculaire
 	float spec = clamp(pow(dot(NORMAL, half_vector), specular_power), 0.0, 1.0) * specular_strength;
 	SPECULAR_LIGHT += (LIGHT_COLOR * ALBEDO * ATTENUATION / PI) * clamp(dot(NORMAL, half_vector), 0.0, 1.0) * foam_specular_factor;
 	SPECULAR_LIGHT += LIGHT_COLOR * ATTENUATION * spec * foam_specular_factor;
 
-	// Sub Surface Scattering
+	// Diffusion sous la surface
 	vec3 sss_sun_light = sss_color.rgb * ATTENUATION;
 
-	// SSS Wave Backlight
+	// Diffusion : contre-jour dans les vagues
 	float sss = sss_backlight_strength * max(0.0, wave_height + sss_backlight_depth) * pow(max(0.0, dot(-LIGHT, VIEW)), 4.0);
 	sss *= pow(0.5 - 0.5 * dot(-LIGHT, half_vector), 3.0);
 	sss *= sss_backlight_fov * pow(max(0.0, dot(VIEW, half_vector)) , 2.0);
 	vec3 sss_result = sss * sss_sun_light;
 
-	// SSS Upwelling Light
+	// Diffusion : lumière qui remonte
 	sss_result += sss_upwelling * max(0.0, dot(LIGHT, half_vector)) * sss_sun_light;
 	SPECULAR_LIGHT += sss_result * foam_specular_factor;
 
-	// Foam Lighting
+	// Éclairage de l'écume
 	DIFFUSE_LIGHT += foam_diffuse_strength * foam_mix_factor * foam_diffuse_color.rgb * ATTENUATION;
 }
