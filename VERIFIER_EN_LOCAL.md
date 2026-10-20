@@ -777,7 +777,7 @@ python -m pytest -q tests\test_observation_visuelle.py
 
 Attendu : `16 passed`. Le test de bout en bout génère une tâche sur `parisien_etape_005` et la fait juger : départ `FAIL@observation_visuelle` avec des erreurs `image`, référence `PASS@observation_visuelle`.
 
-### 30 b. Production (environ 3 heures pour les 39 étapes ; `--filtre parisien_etape_005` pour une seule)
+### 30 b. Production (environ 1 heure pour les 39 étapes ; `--filtre parisien_etape_005` pour une seule)
 
 ```bat
 python -m usine.generateurs.observation_visuelle donnees\cours\batiments_proceduraux\projets --sortie donnees\candidats_o1v --par-projet 4 --essais 30

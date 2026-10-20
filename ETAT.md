@@ -1479,6 +1479,44 @@ observation O1       10 tâches    38 écartés  (931 s)
 
 - **Un script `-s` hérite des avertissements du projet** : tout script d'outil de l'usine lancé sur un projet strict (socle, cours, kart) doit lui-même être typé, sinon il ne compile pas et l'outil échoue sans rapport avec le candidat.
 
+### O1 par l'image : bâtiments procéduraux — 2026-10-20 (branche `claude/observation-visuelle`)
+
+Demande de laurent : « tu lui apprends à corriger en observant, c'est primordial, et c'est la même chose pour les bâtiments procéduraux : il faut que tu inclues cette vérification visuelle et la correction ». Ses choix (questions du 2026-10-20) : Qwen regarde « l'image elle-même » ; rendus « hors de l'écran » ; ordre « bâtiments, kart, roguelike ».
+
+**Fait**
+- `usine/observation/visuel.py` : rendu des vues en Compatibilité (960×540), fenêtre placée en `-6000,-6000` ; comparaison d'images par Godot (`gd/comparer_images.gd`, `Image.get_data`, sans dépendance Python : Pillow n'est pas dans `requirements.txt`) ; écart décrit en mots (part de l'image, zone, plus sombre ou plus claire).
+- `usine/observation/juge_visuel.py` : étape `observation_visuelle`. Les tests d'origine de l'étape sont remis par-dessus le candidat (règle 3), lancés, puis chaque vue (jour, nuit, soleil rasant) est comparée à son image de référence. Catégories d'erreur `image` et `rendu`. Branchée dans `usine/taches.py`, le portillon (`depart_hors_observation` vaut aussi pour cette étape) et le score de mutation (les shaders entrent dans la zone de la référence).
+- `usine/generateurs/operateurs.py` : opérateurs de shader (commentaires `//` et `/* */` masqués) : constante, opération, comparaison, composantes permutées, arguments de `mix`/`step`/`smoothstep` échangés, `1.0 - x` retiré, sortie du fragment retirée (`ALBEDO`, `NORMAL_MAP`…).
+- `usine/generateurs/observation_visuelle.py` : un mutant d'un shader, d'un générateur de maillage, d'une palette ou de l'outil de maillage commun devient une tâche s'il passe le rendu sans erreur, se voit (au moins une vue change sur 1,5 % de l'image) et laisse passer les tests de l'étape. Seuil relevé de 0,5 % à 1,5 % après examen des images : à 1,1 % (des pièces un peu plus sombres la nuit), le défaut ne se voyait pas sans l'image de référence.
+- `usine/generateurs/commun.py` : `ecrire_tache` écrit aussi du binaire (images de référence du juge).
+- `tests/test_observation_visuelle.py` (16 tests), `CLAUDE.md` (O1), `VERIFIER_EN_LOCAL.md` étape 30.
+
+**Preuve** (machine de laurent, Windows 11, Godot 4.7.2)
+
+```
+rendu visible et rendu hors de l'écran (parisien 005) : identiques octet pour octet
+python -m pytest -q tests/test_observation_visuelle.py : 16 passed
+suites touchées (-m "not godot") : 135 passed, 1 skipped (sqlite_vec absent) ; (-m godot) : 2 passed
+juger_tache o1v_parisien_005_pierre_216_arguments_echanges_0 : départ FAIL@observation_visuelle
+  (« vue « jour » : 16 % de l'image diffère de la référence, au centre (zone plus sombre) »), référence PASS
+python -m usine.portillon evaluer …o1v_newyorkais_002_brique_87_arguments_echanges_0 : acceptée
+  (départ FAIL@observation_visuelle ×3, référence PASS ×3, mutants 1/1)
+production, 39 étapes, --par-projet 4 --essais 30 (8 h 43 → 9 h 43) : TOTAL : 146 tâche(s), 654 candidat(s) écarté(s)
+  écartés : invisible (la grande majorité), erreur_au_rendu, vu_par_les_tests (2)
+  opérateurs des 146 tâches : sortie_retiree 32, operateur_arithmetique 18, condition_niee 17,
+  arguments_echanges 16, constante_modifiee 16, composantes_permutees 14, un_moins_retire 12,
+  appel_supprime 11, booleen_inverse 5, comparaison_inversee 5
+```
+
+**Reste à faire**
+- Relever la forme des images dans OpenCode (`VERIFIER_EN_LOCAL.md` 30 d, avec laurent) : aucune session capturée n'en contient. Ensuite : sessions de débogage visuel dans la base du cours (regarder, lire le code, corriger, regarder de nouveau).
+- Portillon sur les 146 tâches (environ 2 min par tâche).
+- Kart puis roguelike en cours par étapes, avec leur observation (découpage du kart proposé à laurent, en attente de son accord).
+
+**Pièges**
+- Les identifiants des tâches qui mutent le générateur principal répètent le nom de l'étape (`o1v_newyorkais_002_building_proceduraux_newyorkais_etape_002_133_…`) : sans effet sur le juge.
+- Un défaut visuel peut ne se voir que dans une vue (de nuit, sous un soleil rasant) : les trois vues sont rendues pour chaque candidat.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.
