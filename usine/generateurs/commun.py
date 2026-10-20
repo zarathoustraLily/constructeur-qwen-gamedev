@@ -147,13 +147,17 @@ def ident(*morceaux: Any) -> str:
     return re.sub(r"[^a-z0-9_]+", "_", texte.lower()).strip("_")
 
 
-def _ecrire(chemin: Path, texte: str) -> None:
+def _ecrire(chemin: Path, texte: str | bytes) -> None:
+    """Écrit un texte (fins de ligne LF) ou, pour du binaire (images de référence d'un juge), les octets."""
     chemin.parent.mkdir(parents=True, exist_ok=True)
-    chemin.write_text(texte, encoding="utf-8", newline="\n")
+    if isinstance(texte, bytes):
+        chemin.write_bytes(texte)
+    else:
+        chemin.write_text(texte, encoding="utf-8", newline="\n")
 
 
 def ecrire_tache(sortie: Path, tache: dict[str, Any], depart: dict[str, str], reference: dict[str, str],
-                 tests_caches: dict[str, str]) -> Path:
+                 tests_caches: dict[str, str | bytes]) -> Path:
     """Écrit donnees/…/<competence>/<id>/ et calcule l'empreinte. Remplace un dossier existant."""
     dossier = Path(sortie) / tache["competence"] / tache["id"]
     if dossier.exists():

@@ -179,6 +179,107 @@ OPERATEURS_GD: dict[str, Callable[[str, str], Iterator[str]]] = {
     "argument_retire": argument_retire,
 }
 
+# --- Shaders (.gdshader, .gdshaderinc) : des fautes qui compilent, mais qui se voient au rendu ---------
+
+SHADERS = (".gdshader", ".gdshaderinc")
+
+
+def masque_shader(ligne: str, dans_bloc: bool) -> tuple[str, bool]:
+    """Même longueur que `ligne`, commentaires (// …, /* … */) masqués. `dans_bloc` : la ligne commence dans
+    un commentaire /* … */ ouvert plus haut. Renvoie (code masqué, encore dans un bloc en fin de ligne)."""
+    sortie: list[str] = []
+    i, n = 0, len(ligne)
+    while i < n:
+        if dans_bloc:
+            fin = ligne.find("*/", i)
+            if fin < 0:
+                sortie.append("\x00" * (n - i))
+                break
+            sortie.append("\x00" * (fin + 2 - i))
+            i, dans_bloc = fin + 2, False
+        elif ligne.startswith("//", i):
+            sortie.append("\x00" * (n - i))
+            break
+        elif ligne.startswith("/*", i):
+            sortie.append("\x00\x00")
+            i, dans_bloc = i + 2, True
+        else:
+            sortie.append(ligne[i])
+            i += 1
+    return "".join(sortie), dans_bloc
+
+
+def _permutation(m: re.Match[str]) -> str | None:
+    inverse = m.group(1)[::-1]
+    return None if inverse == m.group(1) else "." + inverse
+
+
+composantes_permutees = _par_motif(re.compile(r"\.([xyzw]{2,4}|[rgba]{2,4})\b"), _permutation)
+
+un_moins_retire = _par_motif(re.compile(r"(?<![\w.])1\.0\s*-\s*(?=[\w(])"), lambda m: "")
+
+
+def _arguments(code: str, debut: int) -> list[tuple[int, int]] | None:
+    """Étendues des arguments de premier niveau d'un appel dont la parenthèse ouvrante précède `debut`,
+    espaces exclus ; None si l'appel ne se ferme pas sur la ligne."""
+    etendues: list[tuple[int, int]] = []
+    profondeur, depart = 0, debut
+    for k in range(debut, len(code)):
+        c = code[k]
+        if c in "([{":
+            profondeur += 1
+        elif c in ")]}":
+            if profondeur == 0:
+                etendues.append((depart, k))
+                break
+            profondeur -= 1
+        elif c == "," and profondeur == 0:
+            etendues.append((depart, k))
+            depart = k + 1
+    else:
+        return None
+    rognees = []
+    for a, b in etendues:
+        while a < b and code[a].isspace():
+            a += 1
+        while b > a and code[b - 1].isspace():
+            b -= 1
+        rognees.append((a, b))
+    return rognees
+
+
+def arguments_echanges(ligne: str, code: str) -> Iterator[str]:
+    """`mix(a, b, t)` → `mix(b, a, t)` ; de même les deux premiers arguments de `step` et `smoothstep`."""
+    for m in re.finditer(r"\b(mix|step|smoothstep)\s*\(", code):
+        args = _arguments(code, m.end())
+        if not args or len(args) < 2:
+            continue
+        (a0, a1), (b0, b1) = args[0], args[1]
+        if ligne[a0:a1] == ligne[b0:b1] or a0 == a1 or b0 == b1:
+            continue
+        yield ligne[:a0] + ligne[b0:b1] + ligne[a1:b0] + ligne[a0:a1] + ligne[b1:]
+
+
+_SORTIES = re.compile(r"^\s*(ALBEDO|EMISSION|ROUGHNESS|METALLIC|NORMAL_MAP|NORMAL_MAP_DEPTH|SPECULAR|AO|ALPHA|RIM"
+                      r"|BACKLIGHT)\s*[-+*/]?=")
+
+
+def sortie_retiree(ligne: str, code: str) -> Iterator[None]:
+    """Une affectation d'une sortie du fragment (ALBEDO, NORMAL_MAP…) tenue sur une ligne est retirée."""
+    if _SORTIES.match(code) and code.rstrip().endswith(";"):
+        yield None
+
+
+OPERATEURS_SHADER: dict[str, Callable[[str, str], Iterator[str | None]]] = {
+    "constante_modifiee": constante_modifiee,
+    "operateur_arithmetique": operateur_arithmetique,
+    "comparaison_inversee": comparaison_inversee,
+    "composantes_permutees": composantes_permutees,
+    "arguments_echanges": arguments_echanges,
+    "un_moins_retire": un_moins_retire,
+    "sortie_retiree": sortie_retiree,
+}
+
 # --- Scènes .tscn ------------------------------------------------------------------------------
 
 _CONNEXION = re.compile(r'^\[connection signal="([^"]+)"')
@@ -199,11 +300,19 @@ def mutants_fichier(rel: str, texte: str, lignes: set[int] | None = None,
                     operateurs: set[str] | None = None) -> list[Mutant]:
     """Tous les mutants d'un fichier, éventuellement restreints à certaines lignes (1-based)."""
     resultat: list[Mutant] = []
+    dans_bloc = False
     for num, ligne in enumerate(texte.split("\n"), start=1):
+        code_shader = ""
+        if rel.endswith(SHADERS):
+            code_shader, dans_bloc = masque_shader(ligne, dans_bloc)
         if lignes is not None and num not in lignes:
             continue
         candidats: list[tuple[str, str | None]] = []
-        if rel.endswith(".gd"):
+        if rel.endswith(SHADERS):
+            if code_shader.strip() and not code_shader.lstrip().startswith("#"):
+                for nom, op_s in OPERATEURS_SHADER.items():
+                    candidats += [(nom, m) for m in op_s(ligne, code_shader)]
+        elif rel.endswith(".gd"):
             if ligne.lstrip().startswith("#") or not ligne.strip():
                 continue
             code = masque_code(ligne)
@@ -235,3 +344,4 @@ def mutants_projet(fichiers: dict[str, str], cibles: dict[str, set[int] | None] 
 
 
 NOMS_OPERATEURS = sorted(set(OPERATEURS_GD) | {"connexion_supprimee", "signal_renomme", "chemin_noeud_casse"})
+NOMS_OPERATEURS_SHADER = sorted(OPERATEURS_SHADER)

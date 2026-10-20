@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from usine.generateurs.commun import ecrire_projet, lire_projet
-from usine.generateurs.operateurs import Mutant, mutants_projet
+from usine.generateurs.operateurs import SHADERS, Mutant, mutants_projet
 from usine.juge import cache
 from usine.juge.projet import ETAPES, IGNORES_COPIE
 from usine.taches import lire_tache
@@ -89,12 +89,12 @@ def score_mutation_tache(dossier: Path, maximum: int | None = 8, graine: Any = 0
     cibles = {}
     for f in sorted((dossier / "reference").rglob("*"), key=lambda p: p.relative_to(dossier / "reference").parts):
         rel = f.relative_to(dossier / "reference").as_posix()
-        if f.is_file() and rel.endswith((".gd", ".tscn")) and not rel.startswith("tests/"):
+        if f.is_file() and rel.endswith((".gd", ".tscn", *SHADERS)) and not rel.startswith("tests/"):
             cibles[rel] = lignes_changees(depart.get(rel), fichiers[rel])
     mutants = tirer(mutants_projet(fichiers, cibles), maximum, f"{graine}:{tache['id']}")
-    # Compétences E et O1 : un mutant qui casse l'efficience (E) ou une règle de partie (O1) est tué
-    # aussi, même si le jeu se charge et que ses tests passent.
-    complet = dossier if "mesure_efficience" in tache or "observation" in tache else None
+    # Compétences E et O1 : un mutant qui casse l'efficience (E), une règle de partie (O1) ou l'image (O1 par
+    # l'image) est tué aussi, même si le jeu se charge et que ses tests passent.
+    complet = dossier if any(k in tache for k in ("mesure_efficience", "observation", "observation_visuelle")) else None
     tues = [_juger(fichiers, m, dossier / "tests_caches", etapes, complet) for m in mutants]
     return _resultat(mutants, tues)
 

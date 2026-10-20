@@ -19,6 +19,10 @@ Compétence O1 (corriger en observant) : le juge ajoute l'étape « observation 
 tests cachés. Le départ doit échouer à cette étape précisément : un bug qui empêche déjà le jeu de
 se charger relève de K3, et la tâche est refusée (depart_hors_observation).
 
+Compétence O1 par l'image : le juge ajoute l'étape « observation_visuelle » (usine/observation/juge_visuel.py) ;
+son matériel (tests_caches/observation_visuelle/ : vues, images de référence, tests d'origine) tient lieu de tests
+cachés, et le départ doit échouer à cette étape précisément.
+
 Chaque rejet porte une raison (RAISONS) et un détail lisible.
 """
 
@@ -121,11 +125,18 @@ def evaluer(dossier: Path, reglages: Reglages) -> Decision:
     if tache["empreinte"] != calculer_empreinte(dossier, tache):
         d.raison, d.detail = "format_invalide", "empreinte fausse"
         return d
-    observation = "observation" in tache
-    if observation:
+    observation = "observation" in tache or "observation_visuelle" in tache
+    etape_observation = "observation" if "observation" in tache else "observation_visuelle"
+    if "observation" in tache:
         from usine.observation.juge import materiel
         if not all(f.is_file() for f in materiel(dossier)):
             d.raison, d.detail = "format_invalide", "matériel d'observation absent (tests_caches/observation/)"
+            return d
+    elif "observation_visuelle" in tache:
+        from usine.observation.juge_visuel import materiel_complet
+        if not materiel_complet(dossier):
+            d.raison, d.detail = ("format_invalide",
+                                  "matériel d'observation visuelle absent (tests_caches/observation_visuelle/)")
             return d
     elif not any((dossier / "tests_caches").glob("test_*.gd")):
         d.raison, d.detail = "format_invalide", "aucun test caché"
@@ -142,7 +153,7 @@ def evaluer(dossier: Path, reglages: Reglages) -> Decision:
         d.mesures[f"{version}_cache"] = sum(bool(v.get("depuis_cache")) for v in verdicts)
         if "metriques" in verdicts[-1]:
             d.mesures[f"{version}_efficience"] = _efficience(verdicts[-1])
-        if observation and version == "depart" and not verdicts[-1]["ok"] and verdicts[-1]["etape"] != "observation":
+        if observation and version == "depart" and not verdicts[-1]["ok"] and verdicts[-1]["etape"] != etape_observation:
             d.raison = "depart_hors_observation"
             d.detail = f"départ : {', '.join(d.mesures[version])}"
             if verdicts[-1]["erreurs"]:

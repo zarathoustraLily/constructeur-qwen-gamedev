@@ -159,6 +159,9 @@ def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None
         if "observation" in tache:
             from usine.observation.juge import completer as completer_observation
             verdict = completer_observation(verdict, dossier, tache, source, superpositions, repetition)
+        if "observation_visuelle" in tache:
+            from usine.observation.juge_visuel import completer as completer_visuel
+            verdict = completer_visuel(verdict, dossier, tache, source, superpositions, repetition)
         verdict = completer_regles(verdict, composer(pile, source, superpositions), regles.get("regles_cibles"))
     verdict["tache_id"] = tache["id"]
     return verdict

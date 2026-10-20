@@ -765,6 +765,45 @@ python -m usine.rft tour --taches donnees\candidats_o1 --sortie donnees\rft\o1_e
 
 Attendu : la session enregistrée (`donnees\rft\o1_essai\sessions\…\essai_0.jsonl`) montre des appels à `play_sequence`, et son en-tête porte le verdict final. Réussite ou échec, c'est la première mesure de la difficulté d'O1 pour Qwen de base.
 
+## 30. O1 par l'image — bâtiments procéduraux (2026-10-20)
+
+Préalable : le cours fabriqué (`python -m usine.cours fabriquer batiments_proceduraux`, sans Godot, environ 1 minute). Les rendus ouvrent une fenêtre Godot placée hors de l'écran (`--position -6000,-6000`) : rien n'apparaît, et l'image est identique à celle d'une fenêtre visible.
+
+### 30 a. Tests (environ 1 minute)
+
+```bat
+python -m pytest -q tests\test_observation_visuelle.py
+```
+
+Attendu : `16 passed`. Le test de bout en bout génère une tâche sur `parisien_etape_005` et la fait juger : départ `FAIL@observation_visuelle` avec des erreurs `image`, référence `PASS@observation_visuelle`.
+
+### 30 b. Production (environ 3 heures pour les 39 étapes ; `--filtre parisien_etape_005` pour une seule)
+
+```bat
+python -m usine.generateurs.observation_visuelle donnees\cours\batiments_proceduraux\projets --sortie donnees\candidats_o1v --par-projet 4 --essais 30
+```
+
+Attendu : par étape, une ligne `N tâche(s) ; écartés : {...}` (raisons `invisible`, `erreur_au_rendu`, `vu_par_les_tests`), puis `TOTAL`. Chaque tâche dit ce qui se voit, vue par vue (« vue « jour » : 16 % de l'image diffère de la référence, au centre (zone plus sombre) »).
+
+### 30 c. Portillon sur une tâche (environ 5 minutes)
+
+```bat
+python -m usine.portillon evaluer donnees\candidats_o1v\O1\o1v_parisien_005_pierre_216_arguments_echanges_0
+```
+
+Attendu : acceptée. Départ rouge trois fois à l'étape `observation_visuelle`, référence verte trois fois.
+
+### 30 d. Une session OpenCode où Qwen regarde une image (llama-server lancé avec son `--mmproj`, environ 10 minutes)
+
+But : relever la forme exacte sous laquelle OpenCode envoie une image à llama-server. Aucune session capturée n'en contient. Tant qu'elle n'est pas relevée, la base du cours n'exporte aucune session avec image (règle de `usine/cours/base/opencode.py` : une forme non relevée écarte l'exemple).
+
+1. Copie une étape : `xcopy /e /i /q donnees\cours\batiments_proceduraux\projets\building_proceduraux_parisien_etape_005 D:\GODOT\essai_image`, puis `python outils\opencode_fusion.py D:\GODOT\essai_image --proxy` (comme à l'étape 15).
+2. Dans une autre fenêtre : `python -m usine.capture proxy`.
+3. Ouvre OpenCode sur `D:\GODOT\essai_image` et demande : « Lance la visite avec le rendu de compatibilité et --shot=vue.png, ouvre l'image vue.png et décris l'immeuble. »
+4. `python -m usine.capture lister`, puis copie dans le fil le nom du fichier de la session.
+
+Attendu : Qwen lit `vue.png` et décrit l'immeuble (cinq étages de pierre claire, des fenêtres à petits carreaux). La session montre comment l'image arrive : dans le retour de l'outil `read`, ou dans un message à part.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Base au format d'OpenCode (étape 28) : que PowerShell passe bien `++ --shot=…` à Godot (le rendu des exemples met les arguments de la visite après `++`, l'autre séparateur que donne la référence de `OS.get_cmdline_user_args`, parce que le traitement de `--` par PowerShell n'a pas été vérifié) ; et la forme des sorties de Godot dans OpenCode chez toi : lignes en CRLF et progression de l'import en français, que les exemples, produits sous Linux, n'ont pas.
