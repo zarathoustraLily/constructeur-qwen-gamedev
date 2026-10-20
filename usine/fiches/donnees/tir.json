@@ -1,0 +1,41 @@
+{
+ "id": "tir",
+ "genre": "situation",
+ "titre": "Un acteur tire",
+ "a_considerer": [
+  "arme = WeaponComponent + WeaponStats (cadence, vitesse, dégâts, durée de vie)",
+  "le projectile et son conteneur (World/Projectiles) sont fournis par le niveau via setup()",
+  "couches : tirs joueur 4, tirs ennemis 5"
+ ],
+ "ou_travailler": [
+  "5_data/weapons/<arme>.tres",
+  "3_entities/projectiles/<projectile>/"
+ ],
+ "api": [
+  "PackedScene.instantiate",
+  "Node3D.global_position"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://1_core/components/weapon_component.gd",
+   "fonction": "fire"
+  },
+  {
+   "fichier": "res://3_entities/projectiles/bullet/bullet.gd"
+  }
+ ],
+ "pieges": [
+  "ajouter le projectile comme enfant du tireur : il suit ses mouvements",
+  "oublier la durée de vie : les projectiles s'accumulent"
+ ],
+ "voisins": [
+  "collision",
+  "donnees",
+  "effet_visuel"
+ ],
+ "regles": [
+  "DAT-01",
+  "ARC-06",
+  "SIM-02"
+ ]
+}

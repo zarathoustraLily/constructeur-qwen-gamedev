@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/player/player.gd" id="1_player"]
+[ext_resource type="Resource" path="res://5_data/actors/player.tres" id="2_stats"]
+[ext_resource type="Material" path="res://6_assets/materials/player.tres" id="3_mat"]
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="4_health"]
+[ext_resource type="Script" path="res://1_core/components/hurtbox_component.gd" id="5_hurtbox"]
+[ext_resource type="Script" path="res://1_core/components/weapon_component.gd" id="6_weapon"]
+[ext_resource type="Resource" path="res://5_data/weapons/blaster.tres" id="7_blaster"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="8_sm"]
+[ext_resource type="Script" path="res://3_entities/player/states/player_idle.gd" id="9_idle"]
+[ext_resource type="Script" path="res://3_entities/player/states/player_move.gd" id="10_move"]
+[ext_resource type="Script" path="res://3_entities/player/states/player_dash.gd" id="11_dash"]
+[ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="12_input"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_ship"]
+material = ExtResource("3_mat")
+size = Vector3(1.2, 1.6, 0.4)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_body"]
+radius = 0.6
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hurt"]
+radius = 0.5
+
+[node name="Player" type="CharacterBody3D" groups=["debuggable", "player", "trace"]]
+collision_layer = 2
+collision_mask = 5
+motion_mode = 1
+script = ExtResource("1_player")
+stats = ExtResource("2_stats")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+mesh = SubResource("PrismMesh_ship")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_body")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("4_health")
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("health")]
+collision_layer = 32
+collision_mask = 0
+monitoring = false
+script = ExtResource("5_hurtbox")
+health = NodePath("../Health")
+
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+shape = SubResource("SphereShape3D_hurt")
+
+[node name="Weapon" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.9)
+script = ExtResource("6_weapon")
+stats = ExtResource("7_blaster")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("8_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("9_idle")
+
+[node name="Move" type="Node" parent="StateMachine"]
+script = ExtResource("10_move")
+
+[node name="Dash" type="Node" parent="StateMachine"]
+script = ExtResource("11_dash")
+
+[node name="Input" type="Node" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("12_input")
+player = NodePath("..")

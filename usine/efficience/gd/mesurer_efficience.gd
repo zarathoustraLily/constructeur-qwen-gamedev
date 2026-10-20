@@ -191,7 +191,7 @@ func _compter_lots() -> int:
 	var precedent_tex := RID()
 	var precedent_mat := -1
 	var precedent_genre := ""
-	for cle in _cles:
+	for cle: Variant in _cles:
 		var item: CanvasItem = ordre[cle[2]]
 		var genre := item.get_class()
 		if item is MultiMeshInstance2D or not item is Sprite2D and not item is TextureRect:
@@ -267,7 +267,7 @@ func _materiau_signature(item: CanvasItem) -> String:
 		var sm := m as ShaderMaterial
 		var params := []
 		if sm.shader != null:
-			for u in sm.shader.get_shader_uniform_list():
+			for u: Dictionary in sm.shader.get_shader_uniform_list():
 				params.append(str(u["name"]) + "=" + var_to_str(sm.get_shader_parameter(u["name"])))
 		return "shader:" + (sm.shader.code.sha256_text().substr(0, 16) if sm.shader else "-") + ":" + ";".join(params)
 	if m is CanvasItemMaterial:
@@ -305,7 +305,7 @@ func _signature_sprite(s: Sprite2D, sortie: Array) -> void:
 	if s.flip_v:
 		p = [p[3], p[2], p[1], p[0]]
 	var coins := []
-	for q in p:
+	for q: Variant in p:
 		coins.append(x * q)
 	sortie.append(_quad(tex, src_cell, uv, coins, _modulation(s), s))
 
@@ -379,7 +379,7 @@ func _signature() -> Dictionary:
 	_parcourir_signature(scene_racine, elements)
 	elements.sort()
 	var resume := {}
-	for e in elements:
+	for e: Variant in elements:
 		var genre: String = e.get_slice("|", 0)
 		if genre == "quad":
 			genre += ":" + e.get_slice("|", 1)

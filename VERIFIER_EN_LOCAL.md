@@ -252,7 +252,7 @@ python -m usine.capture preuve
 python -m mcp_serveur.preuve
 ```
 
-Attendu : `CONFORME` pour la première ; `13/13 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; 12/12 avant la compétence E et son outil `measure_efficiency`).
+Attendu : `CONFORME` pour la première ; `16/16 contrôles conformes` pour la seconde (environ une minute : Godot juge les éditions ; une fenêtre de jeu s’ouvre une seconde pour `capture_frames` ; 15/15 avant cet outil, 14/14 avant l’outil `prepare_action`, 13/13 avant le juge de structure `check_structure`, 12/12 avant la compétence E).
 
 ## 15. Session 4 — brancher l'usine sur un projet
 
@@ -338,7 +338,7 @@ echo %ERRORLEVEL%
 
 Attendu :
 - pytest : `20 passed` (environ 7 min dans le cloud), puis `0` ;
-- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `13/13 contrôles conformes` et `0`.
+- la preuve MCP : une ligne `measure_efficiency      OK …` parmi les autres, puis `16/16 contrôles conformes` et `0`.
 
 Un échec ici est un écart à signaler : copie la fin de la sortie dans le fil. Le cas le plus probable est un test de temps (`efficience_temps`), puisque le temps est la seule mesure qui dépend de la machine. Signale-le aussi, avec le rapport affiché.
 
@@ -517,11 +517,223 @@ python -m usine.mesure rapport donnees\mesure\resultats_essai.jsonl donnees\mesu
 
 Attendu : les colonnes `frontière` et `frontière + RAG` sont remplies pour F1, et le verdict est calculé contre `frontière + RAG`.
 
-## 21. Compétence O1 — corriger en observant
+## 21. Gel complet sous Godot 4.7.2, compétence E comprise (une nuit)
+
+Décision du 2026-10-06 : on gèle sous Godot 4.7.2 ; le passage à 4.8 viendra plus tard. Lance cette étape le soir : la chaîne dure environ 3 h 30 sans E dans le cloud, sur 4 cœurs. E y ajoute à peu près autant, soit 7 à 8 h en tout sur 4 travailleurs. Le gel précédent de ta machine (session 3) est remplacé : aucun entraînement n'a eu lieu.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git pull
+rmdir /s /q donnees\geles
+python -m usine.portillon chaine --graine 1 --f1 100 --travailleurs 4
+echo %ERRORLEVEL%
+python -c "import json; m = json.load(open(r'donnees\geles\manifeste.json', encoding='utf-8')); [print(c, len(v['taches']), 'complet' if v.get('complet') else 'incomplet') for c, v in sorted(m['competences'].items())]"
+python -m usine.rag verifier
+```
+
+Attendu :
+- le tableau de la chaîne a une ligne par compétence : D1, E, F1, K1, K2, K3, S1, S2. Sans E, les nombres sont proches de ceux du gel cloud du 2026-10-04 (TOTAL 414 379 172 201) ; la ligne E compte environ 120 candidates et 50 gelées au plus ;
+- `Doublons avec les jeux gelés dans taches/ : 0`, puis `0` pour `%ERRORLEVEL%` ;
+- le script Python affiche une ligne par compétence (nombre de tâches gelées, complet ou incomplet). F1, K3 et E doivent être complets ;
+- `verifier` finit par `fragments qui reprennent une tâche : 0` : aucune tâche gelée n'est dans le RAG.
+
+Copie dans le fil le tableau de la chaîne et les lignes du script. Garde le dossier `donnees\geles` : c'est le jeu de test définitif tant que personne ne décide de le compléter (`--completer-gel`, avant tout entraînement).
+
+## 22. Retour des outils (béquille, point 1) — environ 5 minutes
+
+Ce qui change pour Qwen : `write_file` (agent maison et `harnais_maison.py` s'il passe par `usine.rft.agent`) répond « aucun changement » quand le contenu est déjà celui du fichier, avec le nombre d'écritures identiques d'affilée ; après l'écriture d'un script, il vérifie chaque classe et membre Godot utilisé et renvoie les signatures officielles. `check_script` (serveur MCP, donc aussi OpenCode) ajoute le même rapport, et `check_script`, `load_scene` et `run_tests` joignent la fiche du membre en cause quand Godot signale une erreur.
+
+Avant le `git pull`, regarde si ton dossier a des modifications locales (le travail du 8 au 10 octobre n'est pas sur GitHub) :
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+```
+
+Si `usine\rft\agent.py` ou `mcp_serveur\outils.py` apparaissent en `M`, ne lance pas `git pull` : copie la liste dans le fil. Sinon :
+
+```bat
+git pull
+py -3.12 -m pytest -q tests\test_retour.py tests\test_mcp_serveur.py tests\test_rft.py
+py -3.12 -m usine.retour verifier godot\survivor
+py -3.12 -m usine.retour verifier D:\GODOT\projet_starfox
+```
+
+Attendu :
+- pytest : tout passe, aucun `skipped` dans `test_retour.py` (les deux derniers tests utilisent ton vocabulaire Godot) ;
+- `survivor` : `68 scripts, 0 problème(s)` ;
+- `projet_starfox` : la liste des accès suspects des scripts écrits par Qwen, s'il y en a, puis le total. Chaque ligne `✗` doit être une vraie faute (membre inexistant dans Godot 4.7.2, ou mauvais nombre d'arguments). Si une ligne te paraît fausse, copie-la dans le fil : c'est le vérificateur qu'on corrige.
+
+## 23. Socle rangé, fiches et captures (béquille, points 2 à 9) — environ 10 minutes
+
+Ce qui change pour Qwen :
+- `godot\socle_jeu` est un jeu complet et rangé (titre, intro, niveau 1 jouable, fin), avec `ORGANISATION.md` (le plan et les exemples à imiter) et `AGENTS.md` (ton bloc permanent et les règles avant/après, avec les deux nouveaux outils) ;
+- `check_structure` dit si un fichier est mal rangé ou si un dossier en connaît un autre qu'il ne devrait pas ;
+- `prepare_action` : Qwen donne son but, le type d'ajout, ses fichiers et coche ses besoins dans une liste fermée ; il reçoit d'un coup où travailler, l'exemple à imiter et une fiche par besoin (à considérer, API avec signatures officielles, exemple tiré du projet, pièges, voisins) ;
+- `capture_frames` : le jeu tourne quelques secondes et renvoie une grille d'images horodatées, avec pour chaque case ce que le journal a noté (états, coups, score). Il peut tenir des touches (`move_up:10-70`).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+```
+
+Même précaution qu'à l'étape 22 si des fichiers apparaissent en `M`. Sinon :
+
+```bat
+git pull
+py -3.12 -m pytest -q tests\test_fiches.py tests\test_structure.py tests\test_retour.py tests\test_mcp_serveur.py
+py -3.12 -m usine.structure verifier godot\socle_jeu
+py -3.12 -m usine.retour capturer godot\socle_jeu --scene res://2_sequence/levels/level_01/level_01.tscn --images 20,60,100,140,180,220,260,300 --touche move_up:10-70 --touche fire:40-300 --sortie %TEMP%\capture_socle
+```
+
+Attendu :
+- pytest : tout passe (une fenêtre de jeu s'ouvre et se ferme seule plusieurs fois) ;
+- structure : `"ok": true` ;
+- capture : une légende de 8 cases ; vers la case 3, `Drone3 : détruit, score +100` ; ensuite `Player : touché -1, vie 4`, puis 3, 2, 1. Ouvre la grille (`%TEMP%\capture_socle\capture_….png`) : le vaisseau bleu monte, tire, un drone rouge disparaît, les deux voisins descendent sur lui.
+- Pour l'essayer dans OpenCode : ouvre une copie de `godot\socle_jeu` comme dossier de travail, avec le serveur MCP de l'usine déclaré dans son `opencode.json` (étape 16).
+
+## 24. Règles d'architecture : juge, socle propre, tâches « nettoyer » (après ta campagne V2) — environ 15 minutes
+
+À lancer seulement quand ta campagne V2 est jugée : rien de ce qui suit ne doit tourner pendant qu'elle occupe la machine.
+
+Ce qui change pour Qwen :
+- `check_structure` juge maintenant tes règles mécaniques (rangement, tableau des dépendances, typage, syntaxe Godot 4, nommage, valeurs dans 5_data, présentation dans `_view`, entrées dans `_input`, `/root` et `../`, `create_timer` sans `false`, priorités nommées, `_process`, hasard) et nomme chaque écart par son identifiant (« SIM-08 : … ») ;
+- le socle passe ce juge à 100 % : plus d'`EventBus`, l'audio global ne fait que la musique et le volume, les durées et les règles de partie sont dans 5_data, chaque entité reçoit ses dépendances du niveau par `setup()` ;
+- `AGENTS.md` : le bloc permanent ne garde que les cinq principes et le tableau des dossiers ; `ORGANISATION.md` suit ton tableau ;
+- `prepare_action` rappelle les règles de chaque besoin coché ;
+- 124 tâches K4 « nettoyer » : le socle sali d'une règle à la fois ; elles ne passent que si les tests restent verts et que le juge ne signale plus rien ;
+- le tri d'entraînement garde, par tâche, la session réussie, bien rangée et saine qui a le moins de violations (QA-03 fichiers non déclarés, QA-07 tests annoncés sans preuve, QA-08 compte rendu absent comptent aussi).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+git pull
+py -3.12 -m pytest -q tests\test_regles.py tests\test_fiches.py tests\test_structure.py tests\test_rft.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+py -3.12 -m mcp_serveur.preuve
+```
+
+Attendu :
+- pytest : tout passe ;
+- `usine.regles` : `0 violation(s) {}` ;
+- preuve MCP : `check_structure` toujours `OK` (projet sans plan numéroté signalé).
+
+Puis, facultatif et long (chaque tâche est jugée quatre fois, environ 40 s par jugement ; compte plusieurs heures pour les 124) :
+
+```bat
+py -3.12 -m usine.generateurs produire --competences K4 --sortie %TEMP%\nettoyer
+py -3.12 -m usine.juge modeles --dossier %TEMP%\nettoyer --travailleurs 4
+```
+
+Attendu : `124 tâches candidates`, puis `124/124 tâches conformes` (chaque tâche `FAIL` au départ, `PASS` en référence).
+
+## 25. Règles qui priment et décors procéduraux (2026-10-14) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne. Le travail est dans `main` depuis le 2026-10-15 : la branche de travail et la passe « bâtiments procéduraux » y ont été fusionnées à ta demande, avant ces vérifications. Commite d'abord tes corrections V2 du PC, puis récupère `main`.
+
+Ce qui change :
+- `CLAUDE.md` commence par « Règles qui priment » : tes règles (forme, feu vert, interdits, décisions validées, pièges, points ouverts) et celles de la passe « bâtiments procéduraux » (vérification, rangement des décors, données d'entraînement) l'emportent sur le reste du dépôt ;
+- le juge des règles admet les décors procéduraux : générateurs `@tool` et scènes dans `6_assets/Mesh/Procedural/` (ils peuvent connaître `1_core/` et `5_data/`), données en scripts de constantes dans `5_data/DECORS/` ; ailleurs, `5_data/` et `6_assets/` restent sans code ;
+- `prepare_action` et `AGENTS.md`, `ORGANISATION.md` du socle disent la même chose.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+git status --short
+git switch main
+git pull
+py -3.12 -m pytest -q tests\test_structure.py tests\test_regles.py tests\test_fiches.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+```
+
+Attendu :
+- pytest : tout passe (`56 passed` dans le cloud), dont `test_decors_proceduraux` et `test_decor_procedural_dans_le_plan` ;
+- `usine.regles` : `0 violation(s) {}` (le socle ne change pas).
+
+## 26. Cours « bâtiments procéduraux » dans le dépôt (2026-10-14) — environ 15 minutes
+
+À lancer quand aucune campagne ne tourne, sur `main`, comme l'étape 25. Le cours (3 villes × 13 étapes) est dans `cours\batiments_proceduraux\` ; `usine.cours` en fabrique un projet Godot par étape dans `donnees\cours\batiments_proceduraux\projets\`, puis les juge et les fait tourner par Godot. Rien ne touche à tes projets ni à llama-server.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours.py
+py -3.12 -m usine.cours fabriquer batiments_proceduraux
+py -3.12 -m usine.cours juger batiments_proceduraux
+py -3.12 -m usine.cours verifier batiments_proceduraux --travailleurs 4
+```
+
+Attendu :
+- pytest : `6 passed` ;
+- `fabriquer` : 39 lignes `building_proceduraux_<ville>_etape_<NNN> : … fichiers`, puis `Projets dans …` ;
+- `juger` : `39 projets, 0 écart(s)` ;
+- `verifier` : `39/39 projets vérifiés sans erreur`. Chaque projet ouvre une fenêtre le temps de rendre une image (rendu de compatibilité, ta carte graphique) ; `--sans-rendu` l'évite. Les images sont dans `donnees\cours\batiments_proceduraux\images\`.
+
+Pour visiter une étape : ouvrir son dossier de `donnees\cours\batiments_proceduraux\projets\` dans l'éditeur Godot 4.7.2, puis F5. Sa note est son `README.md`.
+
+## 27. Générateur de la base et socle aux avertissements en erreurs (2026-10-14) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne, sur `main`. Deux changements :
+- le générateur de la base « bâtiments procéduraux » est dans le dépôt (`usine\cours\base\`) ; les exemples de création sont maintenant en plusieurs tours : chaque sortie de Godot arrive dans le tour « user » suivant (règle 7.2). Chaque commande montrée est celle qui a tourné, arguments compris : le rendu enregistre son image dans `.godot/rendu.png`, puis quitte ;
+- le socle (`godot\socle_jeu`) traite tous les avertissements de GDScript en erreurs, comme le cours (règle 5.3) : cinq retouches (division entière explicite dans `capture.gd`, deux ternaires dont les deux branches sont maintenant des `String`, le paramètre `target` de `Drone.setup`, qui masquait la méthode `target()`, renommé `chased`, un `@warning_ignore` commenté sur le signal de `State` émis par les états dérivés et sur les `await runner.simulate_frames` des tests).
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours.py tests\test_cours_base.py tests\test_regles.py tests\test_fiches.py
+py -3.12 -m usine.regles verifier godot\socle_jeu
+py -3.12 -m usine.juge run godot\socle_jeu --filtre res://7_tests
+```
+
+Attendu :
+- pytest : tout passe (`65 passed` dans le cloud, dont 16 pour les deux premiers fichiers) ;
+- `usine.regles` : `0 violation(s) {}` ;
+- `usine.juge run` : `"ok": true`, puis `"total": 31, "passes": 31`.
+
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs, et chaque rendu ouvre une fenêtre le temps d'une image) demande trois chemins dans `config.toml` (modèle : `config.example.toml`) : `[chemins] docs_godot` (godot-docs), `[chemins] source_godot` (dépôt godot à l'étiquette `4.7.2-stable` : `doc\classes`, `modules\gdscript\doc_classes`, `editor\project_upgrade`) et `[entrainement] vocab_qwen` (depuis l'étape 28 : le GGUF de Qwen 3.8, voir plus bas), plus `grep` dans le PATH (celui de Git for Windows, dossier `usr\bin`) :
+
+```bat
+py -3.12 -m usine.cours.base tout --travailleurs 4
+```
+
+Attendu : à la fin, `problèmes : 0` ; la base est dans `donnees\cours\batiments_proceduraux\base\livraison\` (format chat, sharegpt, `dataset_info.json`, `echantillon.md`, `controles.json`, `LISEZMOI.md`). Les sorties de Godot citées viennent alors de ta machine (Windows, ta carte graphique) : elles peuvent différer de celles du cloud, c'est attendu.
+
+Depuis l'étape 28, la régénération demande aussi les réglages de l'étape 28 ci-dessous.
+
+## 28. Base au format d'OpenCode (2026-10-15) — environ 5 minutes
+
+À lancer quand aucune campagne ne tourne, sur `main`. Ce qui change :
+- la base « bâtiments procéduraux » est au format d'OpenCode (décision 14, règle 7.4) : le prompt système d'OpenCode entier, tel que ta session capturée le montre (seules changent les lignes du dossier de travail), et ses 12 outils. Les réponses lisent le code par plages (`read`), le changent (`edit`, `write`), lancent Godot par son chemin complet (`shell`, comme le dit `D:\GODOT\AGENTS.md`) et cherchent (`grep`). Les retours d'outils ont les formes relevées dans tes sessions d'OpenCode 2.0.6 ;
+- les jetons se comptent avec le tokenizer et le gabarit de chat de ton GGUF de Qwen 3.8 (règle 5.8). Le `ggml-vocab-qwen35.gguf` de llama.cpp, employé jusqu'ici, est un autre vocabulaire : 151 936 jetons, contre 248 320 ;
+- une étape trop longue pour 32 768 jetons est découpée en parties qui se compilent chacune.
+
+```bat
+cd /d D:\constructeur-qwen-gamedev
+py -3.12 -m pytest -q tests\test_cours_base.py tests\test_cours_opencode.py
+```
+
+Attendu : `25 passed`. Si `jinja2` n'est pas installé dans ce Python, le test qui compare le rendu au gabarit de ton GGUF est sauté (`24 passed, 1 skipped`). `jinja2` est déjà là dans un Python où LLaMA-Factory ou transformers sont installés.
+
+Régénérer la base (facultatif ; 18 minutes dans le cloud avec 2 travailleurs) demande, en plus des chemins de l'étape 27, trois réglages dans `config.toml` (modèle : `config.example.toml`) :
+- `[entrainement] vocab_qwen` : `E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf` (le vocabulaire seul, extrait le 2026-10-15 de ton modèle, avec ton accord), ou le GGUF du modèle lui-même : seul son en-tête est lu ;
+- `[opencode] session_reference` : la session capturée qui sert de modèle, `donnees\sessions\20261004-190325_13780ad518f3.jsonl` ;
+- `[opencode] dossier_cours` : `D:\GODOT\projet_enseingement\001_Batiments proceduraux`, le dossier où les exemples situent les projets du cours.
+
+```bat
+py -3.12 -m usine.cours.base tout --travailleurs 4
+```
+
+Attendu : `problèmes : 0`.
+
+Facultatif, et sans rien charger sur la carte graphique : croiser les jetons de l'usine avec ceux de ton llama.cpp. `llama-tokenize.exe` est dans le dossier de `llama-server.exe` ; il ne lit que le vocabulaire. Il faut la base de la régénération ci-dessus.
+
+```bat
+py -3.12 -m usine.cours.base.jetons E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf croiser <dossier de llama-server>\llama-tokenize.exe donnees\cours\batiments_proceduraux\base\livraison\base_batiments_proceduraux.jsonl
+```
+
+Attendu : `374/374 exemples identiques jeton pour jeton à llama-tokenize` (dans le cloud, avec llama.cpp `fd55cb9`). Le nombre d'exemples peut changer si ta régénération écarte d'autres sessions.
+## 29. Compétence O1 — corriger en observant
 
 Préalable : `[sources] kart` renseigné dans `config.toml` (chemin du kart rangé, par exemple `D:\GODOT\PROJETS_DEMOS\PROJET_KART_RANGE`). Sans lui, les tests Godot d'O1 sont sautés et `produire` ignore la source.
 
-### 21 a. Tests (environ 3 minutes)
+### 29 a. Tests (environ 3 minutes)
 
 ```bat
 python -m pytest -q tests\test_observation.py
@@ -529,7 +741,7 @@ python -m pytest -q tests\test_observation.py
 
 Attendu : `20 passed`. Le test marqué `godot` génère une vraie tâche (« gravité nulle ») et la fait juger : départ `FAIL@observation` avec une erreur `partie_gravite`, référence `PASS@observation`.
 
-### 21 b. Production des tâches O1 du kart (environ 15 minutes)
+### 29 b. Production des tâches O1 du kart (environ 15 minutes)
 
 ```bat
 python -m usine.generateurs produire --sources kart --competences O1 --sortie donnees\candidats_o1
@@ -537,7 +749,7 @@ python -m usine.generateurs produire --sources kart --competences O1 --sortie do
 
 Le dossier de sortie est vidé puis rempli : ne pas viser `donnees\candidats`. Attendu : une ligne `observation O1  N tâches  M écartés`. Les 8 bugs modèles passent en premier (ils doivent tous donner une tâche), puis les mutants des scripts de gameplay jusqu'au plafond de 30. `donnees\candidats_o1\production.json` liste les écartés avec leur raison (`invisible_en_partie`, `jeu_casse`).
 
-### 21 c. Portillon sur une tâche (environ 10 minutes)
+### 29 c. Portillon sur une tâche (environ 10 minutes)
 
 ```bat
 python -m usine.portillon evaluer donnees\candidats_o1\O1\o1_kart_modele_palmier_sans_collision
@@ -545,7 +757,7 @@ python -m usine.portillon evaluer donnees\candidats_o1\O1\o1_kart_modele_palmier
 
 Attendu : acceptée. Le départ est rouge trois fois à l'étape `observation`, la référence verte trois fois, et les mutants de la ligne corrigée sont tués par l'observation.
 
-### 21 d. Un essai de Qwen sur une tâche O1 (llama-server lancé, environ 10 à 30 minutes)
+### 29 d. Un essai de Qwen sur une tâche O1 (llama-server lancé, environ 10 à 30 minutes)
 
 ```bat
 python -m usine.rft tour --taches donnees\candidats_o1 --sortie donnees\rft\o1_essai --competences O1 --limite 1 --n-essais 1 --harnais agent
@@ -554,6 +766,9 @@ python -m usine.rft tour --taches donnees\candidats_o1 --sortie donnees\rft\o1_e
 Attendu : la session enregistrée (`donnees\rft\o1_essai\sessions\…\essai_0.jsonl`) montre des appels à `play_sequence`, et son en-tête porte le verdict final. Réussite ou échec, c'est la première mesure de la difficulté d'O1 pour Qwen de base.
 
 ## Points que seul ce test sur ta machine peut confirmer
+
+- Base au format d'OpenCode (étape 28) : que PowerShell passe bien `++ --shot=…` à Godot (le rendu des exemples met les arguments de la visite après `++`, l'autre séparateur que donne la référence de `OS.get_cmdline_user_args`, parce que le traitement de `--` par PowerShell n'a pas été vérifié) ; et la forme des sorties de Godot dans OpenCode chez toi : lignes en CRLF et progression de l'import en français, que les exemples, produits sous Linux, n'ont pas.
+- Béquille : la capture fenêtrée sous Windows avec le rendu Forward+ de ta carte (vérifiée dans le cloud sous Xvfb, rendu de compatibilité) ; `capture_ecran` de ton `campagne_harnais.py` n'est pas dans le dépôt, il faut le brancher sur `usine.retour.capture` chez toi.
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.
 - Les journaux D1 versionnés ont été produits sous Linux. Sous Windows, les numéros de ligne et les catégories sont identiques ; seul le texte d'en-tête du moteur peut différer. Le test D1 ne lit que `reponse.json`, donc le verdict ne change pas.

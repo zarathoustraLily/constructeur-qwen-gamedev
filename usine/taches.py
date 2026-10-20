@@ -10,6 +10,16 @@ Champ optionnel `juge` de tache.json :
     etapes            sous-ensemble de import/check_script/load_scene/run_tests (défaut : toutes)
     patch_max_lignes  plafond de lignes +/- entre depart/ et le candidat (K3)
 
+    regles_cibles     règles salies (tâches « nettoyer », usine/generateurs/salissures.py) : le verdict,
+                      s'il passe, échoue encore à l'étape « regles » tant que le juge des règles
+                      (usine/regles) trouve un écart
+
+Champ optionnel `reference_retire` : fichiers du départ absents de la référence (script déplacé),
+retirés quand on compose la référence.
+
+Tout verdict d'un projet organisé (plan numéroté) porte `regles` : le résumé du juge des règles
+(violations, structure_ok, par_regle), qui sert au filtre de l'entraînement.
+
 Champ optionnel `mesure_efficience` (compétence E) : le verdict commun, s'il passe, est complété
 par l'étape « mesure_efficience » (usine/efficience/juge.py) : rendu intact, allocations,
 lots de dessin et temps, relatifs à la référence de la tâche.
@@ -21,6 +31,7 @@ candidat, avec le monde de vérité de tests_caches/observation/, et chaque règ
 
 from __future__ import annotations
 
+import contextlib
 import difflib
 import hashlib
 import json
@@ -132,18 +143,53 @@ def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None
             verdict["tache_id"] = tache["id"]
             return verdict
 
-    if repetition is not None:
-        from usine.juge import cache
-        verdict = cache.juger(source, superpositions, dossier / "tests_caches", etapes, repetition)
-    else:
-        verdict = juger_projet(source, f"res://{DOSSIER_TESTS_JUGE}", etapes, superpositions, dossier / "tests_caches")
-    if "mesure_efficience" in tache:
-        from usine.efficience.juge import completer
-        verdict = completer(verdict, dossier, tache, source, superpositions, repetition)
-    if "observation" in tache:
-        from usine.observation.juge import completer as completer_observation
-        verdict = completer_observation(verdict, dossier, tache, source, superpositions, repetition)
+    with contextlib.ExitStack() as pile:
+        retire = tache.get("reference_retire", []) if version == "reference" and candidat is None else []
+        if retire:
+            source, superpositions = composer(pile, source, superpositions, retire), []
+        if repetition is not None:
+            from usine.juge import cache
+            verdict = cache.juger(source, superpositions, dossier / "tests_caches", etapes, repetition)
+        else:
+            verdict = juger_projet(source, f"res://{DOSSIER_TESTS_JUGE}", etapes, superpositions,
+                                   dossier / "tests_caches")
+        if "mesure_efficience" in tache:
+            from usine.efficience.juge import completer
+            verdict = completer(verdict, dossier, tache, source, superpositions, repetition)
+        if "observation" in tache:
+            from usine.observation.juge import completer as completer_observation
+            verdict = completer_observation(verdict, dossier, tache, source, superpositions, repetition)
+        verdict = completer_regles(verdict, composer(pile, source, superpositions), regles.get("regles_cibles"))
     verdict["tache_id"] = tache["id"]
+    return verdict
+
+
+def composer(pile: contextlib.ExitStack, source: Path, superpositions: list[Path],
+             retire: list[str] | None = None) -> Path:
+    """Le projet tel qu'on le juge (source + superpositions − retirés) ; une copie seulement si besoin."""
+    if not superpositions and not retire:
+        return Path(source)
+    import tempfile
+    projet = Path(pile.enter_context(tempfile.TemporaryDirectory(prefix="usine_compose_"))) / "p"
+    shutil.copytree(source, projet, ignore=IGNORES_COPIE)
+    for sup in superpositions:
+        shutil.copytree(sup, projet, dirs_exist_ok=True, ignore=IGNORES_COPIE)
+    for rel in retire or []:
+        (projet / rel).unlink(missing_ok=True)
+    return projet
+
+
+def completer_regles(verdict: dict[str, Any], projet: Path, cibles: list[str] | None) -> dict[str, Any]:
+    """Ajoute le résumé du juge des règles ; avec des règles cibles, tout écart fait échouer le verdict."""
+    from usine.regles import resume, verifier_regles
+    regles = verifier_regles(projet)
+    if not regles["applicable"]:
+        return verdict
+    verdict["regles"] = resume(regles)
+    if cibles and verdict["ok"] and regles["erreurs"]:
+        verdict["ok"] = False
+        verdict["etape"] = "regles"
+        verdict["erreurs"] = verdict.get("erreurs", []) + regles["erreurs"]
     return verdict
 
 

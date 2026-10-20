@@ -1,0 +1,37 @@
+{
+ "id": "camera",
+ "genre": "besoin",
+ "titre": "Caméra",
+ "a_considerer": [
+  "la caméra d'un niveau vit dans level_base.tscn (vue de dessus, orthogonale)",
+  "suivre le joueur : le niveau lit la position du joueur, la caméra ne connaît pas les acteurs",
+  "convertir une position 3D en position d'écran : unproject_position"
+ ],
+ "ou_travailler": [
+  "2_sequence/levels/level_base/"
+ ],
+ "api": [
+  "Camera3D.current",
+  "Camera3D.projection",
+  "Camera3D.size",
+  "Camera3D.unproject_position",
+  "Node3D.look_at"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://2_sequence/levels/level_base/level_base.tscn",
+   "noeud": "Camera"
+  }
+ ],
+ "pieges": [
+  "deux caméras current = true : la dernière entrée dans l'arbre gagne",
+  "look_at vers un point à la verticale avec l'axe haut par défaut : erreur de base colinéaire"
+ ],
+ "voisins": [
+  "interface"
+ ],
+ "regles": [
+  "ARC-02",
+  "ARC-06"
+ ]
+}

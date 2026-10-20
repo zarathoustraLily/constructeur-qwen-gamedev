@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/levels/level_base/level_base.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://3_entities/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://4_ui/overlays/pause/pause_menu.tscn" id="4_pause"]
+[ext_resource type="PackedScene" path="res://4_ui/overlays/debug/debug_overlay.tscn" id="5_debug"]
+[ext_resource type="Material" path="res://6_assets/materials/floor.tres" id="6_floor"]
+[ext_resource type="Resource" path="res://5_data/game/game_rules.tres" id="7_rules"]
+[ext_resource type="PackedScene" path="res://3_entities/projectiles/bullet/bullet_player.tscn" id="8_bullet_player"]
+[ext_resource type="PackedScene" path="res://3_entities/projectiles/bullet/bullet_enemy.tscn" id="9_bullet_enemy"]
+[ext_resource type="PackedScene" path="res://3_entities/effects/impact/impact.tscn" id="10_impact"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = ExtResource("6_floor")
+size = Vector3(60, 1, 60)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="Environment" id="Environment_level"]
+background_mode = 1
+background_color = Color(0.03, 0.03, 0.05, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.55, 0.65, 1)
+
+[node name="LevelBase" type="Node"]
+script = ExtResource("1_level")
+rules = ExtResource("7_rules")
+player_projectile = ExtResource("8_bullet_player")
+enemy_projectile = ExtResource("9_bullet_enemy")
+hit_effect = ExtResource("10_impact")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Environment" type="WorldEnvironment" parent="World"]
+environment = SubResource("Environment_level")
+
+[node name="Sun" type="DirectionalLight3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866, 0, -0.866, 0.5, 0, 10, 0)
+
+[node name="Camera" type="Camera3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 30, 0)
+projection = 1
+size = 36.0
+current = true
+
+[node name="Floor" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="Shape" type="CollisionShape3D" parent="World/Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Player" parent="World" instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
+
+[node name="Enemies" type="Node3D" parent="World"]
+
+[node name="Projectiles" type="Node3D" parent="World"]
+
+[node name="Effects" type="Node3D" parent="World"]
+
+[node name="Hud" parent="." instance=ExtResource("3_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("4_pause")]
+
+[node name="DebugOverlay" parent="." instance=ExtResource("5_debug")]

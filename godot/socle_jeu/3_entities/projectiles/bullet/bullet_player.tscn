@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/projectiles/bullet/bullet.gd" id="1_bullet"]
+[ext_resource type="Material" path="res://6_assets/materials/bullet_player.tres" id="2_mat"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_shot"]
+material = ExtResource("2_mat")
+radius = 0.18
+height = 0.36
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_shot"]
+radius = 0.2
+
+[node name="Bullet" type="Area3D"]
+collision_layer = 8
+collision_mask = 65
+monitorable = false
+script = ExtResource("1_bullet")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_shot")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_shot")

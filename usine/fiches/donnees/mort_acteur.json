@@ -1,0 +1,43 @@
+{
+ "id": "mort_acteur",
+ "genre": "situation",
+ "titre": "Un acteur meurt",
+ "a_considerer": [
+  "quitter tout de suite le groupe « enemies » (fin de niveau)",
+  "couper collisions et zone de coups en différé",
+  "le niveau, qui écoute health.died, compte les points ; le _view joue la disparition",
+  "décompte de stats.death_duration dans l'état, puis queue_free"
+ ],
+ "ou_travailler": [
+  "3_entities/<acteur>/states/<acteur>_dead.gd"
+ ],
+ "api": [
+  "Node.remove_from_group",
+  "Object.set_deferred",
+  "Node.queue_free",
+  "Node.create_tween"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://3_entities/enemies/drone/states/drone_dead.gd"
+  },
+  {
+   "fichier": "res://3_entities/enemies/drone/drone_view.gd",
+   "fonction": "_on_died"
+  }
+ ],
+ "pieges": [
+  "queue_free immédiat : l'effet et le score n'ont pas lieu",
+  "rester dans le groupe pendant l'animation : le niveau ne finit pas"
+ ],
+ "voisins": [
+  "animation",
+  "effet_visuel",
+  "fin_de_niveau"
+ ],
+ "regles": [
+  "SIM-05",
+  "ARC-02",
+  "ARC-07"
+ ]
+}

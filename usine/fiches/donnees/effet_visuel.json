@@ -1,0 +1,45 @@
+{
+ "id": "effet_visuel",
+ "genre": "besoin",
+ "titre": "Effet visuel",
+ "a_considerer": [
+  "un effet = une scène dans 3_entities/effects/<effet>/ qui se détruit elle-même",
+  "c'est le script _view de l'acteur qui le joue, en écoutant un signal (damaged, died) ; la logique et les états n'en savent rien",
+  "la scène d'effet est un @export du niveau, transmise au _view par setup()",
+  "l'effet s'ajoute au conteneur World/Effects du niveau, pas à l'acteur (qui peut disparaître)"
+ ],
+ "ou_travailler": [
+  "3_entities/effects/<effet>/<effet>.tscn et <effet>.gd",
+  "6_assets/materials/ pour ses matériaux"
+ ],
+ "api": [
+  "CPUParticles3D.one_shot",
+  "CPUParticles3D.emitting",
+  "CPUParticles3D.finished",
+  "GPUParticles3D.restart",
+  "Node.queue_free"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://3_entities/enemies/drone/drone_view.gd",
+   "fonction": "_on_damaged"
+  },
+  {
+   "fichier": "res://3_entities/effects/impact/impact.gd"
+  }
+ ],
+ "pieges": [
+  "ajouter l'effet comme enfant d'un ennemi qui meurt : l'effet disparaît avec lui",
+  "particules jamais libérées : relier finished à queue_free"
+ ],
+ "voisins": [
+  "animation",
+  "son",
+  "collision"
+ ],
+ "regles": [
+  "ARC-02",
+  "ARC-03",
+  "SIM-09"
+ ]
+}

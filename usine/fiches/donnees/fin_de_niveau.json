@@ -1,0 +1,40 @@
+{
+ "id": "fin_de_niveau",
+ "genre": "situation",
+ "titre": "Fin d'un niveau",
+ "a_considerer": [
+  "une étape finit par finish(&\"done\" | &\"retry\" | &\"restart\")",
+  "GameFlow passe à l'étape suivante de sequence.tres",
+  "un délai avant de quitter laisse voir la fin : create_timer(rules.level_end_delay, false), qui s'arrête en pause"
+ ],
+ "ou_travailler": [
+  "2_sequence/levels/level_base/level_base.gd",
+  "2_sequence/sequence.tres"
+ ],
+ "api": [
+  "SceneTree.create_timer",
+  "Callable.bind"
+ ],
+ "exemples": [
+  {
+   "fichier": "res://2_sequence/levels/level_base/level_base.gd",
+   "fonction": "_end"
+  },
+  {
+   "fichier": "res://0_autoload/game_flow.gd",
+   "fonction": "_on_step_finished"
+  }
+ ],
+ "pieges": [
+  "changer de scène directement depuis le niveau : la séquence est contournée",
+  "finir deux fois (victoire et mort dans la même image) : garder un drapeau"
+ ],
+ "voisins": [
+  "apparition_ennemis",
+  "mort_acteur"
+ ],
+ "regles": [
+  "SIM-08",
+  "SIM-07"
+ ]
+}

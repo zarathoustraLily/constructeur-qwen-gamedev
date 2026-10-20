@@ -75,6 +75,9 @@ class Essai:
     longueur: int
     duree_s: float
     session: str          # chemin relatif au dossier des sessions
+    violations: int = 0       # écarts au juge des règles (projet) + règles de session QA-*
+    structure_ok: bool = True  # aucun écart de rangement (ORG-01, DOSSIERS)
+    session_ok: bool = True    # session saine (usine/structure/session.py)
 
 
 def longueur(messages: list[dict[str, Any]]) -> int:
@@ -145,9 +148,29 @@ def essayer(dossier: Path, n: int, r: ReglagesRft, sessions: Path,
         harnais = r.harnais
     duree = round(time.monotonic() - debut, 3)
     rel = Path(tache["id"]) / f"essai_{n}.jsonl"
+    tri = trier(verdict, messages, harnais)
     entete = {"tache_id": tache["id"], "competence": comp, "empreinte": tache["empreinte"],
               "verdict_final": _resume(verdict), "essai": n, "harnais": harnais, "graine": client.graine,
-              "temperature": client.temperature, "lora": r.lora, "fin": fin, "duree_s": duree, "tools": outils}
+              "temperature": client.temperature, "lora": r.lora, "fin": fin, "duree_s": duree, "tools": outils,
+              "tri": tri}
     ecrire_session(Path(sessions) / rel, entete, messages)
     return Essai(tache["id"], comp, n, bool(verdict["ok"]), str(verdict.get("etape")), longueur(messages), duree,
-                 rel.as_posix())
+                 rel.as_posix(), tri["violations"], tri["structure_ok"], tri["session_ok"])
+
+
+def trier(verdict: dict[str, Any], messages: list[dict[str, Any]], harnais: str) -> dict[str, Any]:
+    """Les trois contrôles du tri (section 9 du document de laurent) : structure et règles du projet
+    (verdict["regles"], posé par juger_tache), santé de la session ; et le nombre de violations qui
+    classe les sessions réussies. Une réponse en un appel n'a ni projet organisé ni session d'outils."""
+    regles = verdict.get("regles") or {}
+    tri: dict[str, Any] = {"violations": int(regles.get("violations", 0)),
+                           "structure_ok": bool(regles.get("structure_ok", True)), "session_ok": True,
+                           "par_regle": dict(regles.get("par_regle", {}))}
+    if harnais != "appel":
+        from usine.structure.session import verifier_session
+        session = verifier_session(messages)
+        tri["session_ok"] = bool(session["ok"])
+        tri["violations"] += sum(session["regles"].values())
+        for k, v in session["regles"].items():
+            tri["par_regle"][k] = tri["par_regle"].get(k, 0) + v
+    return tri
