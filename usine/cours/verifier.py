@@ -10,7 +10,8 @@ Pour chaque projet d'étape :
 
 Cours « de jeu » (usine/cours/jeu.py, le kart) : les tests de l'étape sont des suites GdUnit4 (7_tests/, lancées comme
 7_tests/lancer_tests.bat, cadence fixe) ; l'image vient de la partie elle-même, par l'autoload de capture de l'usine
-(usine/retour/capture.py), fenêtre hors de l'écran, à l'image 90. À l'import, l'éditeur sans fenêtre affiche une
+(usine/retour/capture.py), fenêtre hors de l'écran, à l'image 90, deux fois : avec le moteur de rendu du jeu, puis en
+Compatibilité (`<nom>_compatibilite.png`, règle 5.4). À l'import, l'éditeur sans fenêtre affiche une
 erreur de son moteur de rendu factice en chargeant sa disposition (« Parameter "material" is null », à
 material_get_instance_shader_parameters, servers/rendering/dummy/) : elle ne dépend pas du projet et n'est pas
 comptée (relevée le 2026-10-20 dès le premier import du kart, avant toute modification).
@@ -187,11 +188,18 @@ def verifier_projet(projet: Path, godot: Path | None = None, rendu: bool = True,
         from usine.retour.capture import capturer
         png = (Path(image) if image else projet / ".godot" / "verification.png").resolve()
         png.parent.mkdir(parents=True, exist_ok=True)
-        c = capturer(projet, [90], sortie=png.parent, colonnes=1, echelle=1.0, godot=godot, hors_ecran=True)
-        if c.get("grille"):
-            shutil.move(c["grille"], png)
-        bilan["rendu"] = {"code": 0 if c["ok"] else 1, "image": png.is_file(),
-                          "erreurs": c.get("erreurs", []) + ([c["erreur"]] if c.get("erreur") else [])}
+        # Deux images : avec le moteur de rendu du jeu, puis en Compatibilité (règle 5.4).
+        bilan["rendu"] = {"code": 0, "image": True, "erreurs": []}
+        for cible, compat in ((png, False), (png.with_name(png.stem + "_compatibilite.png"), True)):
+            c = capturer(projet, [90], sortie=png.parent, colonnes=1, echelle=1.0, godot=godot, hors_ecran=True,
+                         compatibilite=compat)
+            if c.get("grille"):
+                shutil.move(c["grille"], cible)
+            prefixe = "Compatibilité : " if compat else ""
+            bilan["rendu"]["code"] = max(bilan["rendu"]["code"], 0 if c["ok"] else 1)
+            bilan["rendu"]["image"] = bilan["rendu"]["image"] and cible.is_file()
+            bilan["rendu"]["erreurs"] += [prefixe + e for e in
+                                          c.get("erreurs", []) + ([c["erreur"]] if c.get("erreur") else [])]
     elif rendu:
         prefixe, env = prefixe_ecran()
         # Chemin absolu : avec --path, Godot travaille depuis le dossier du projet.

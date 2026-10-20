@@ -53,10 +53,11 @@ def _prefixe_ecran() -> tuple[list[str], list[str]]:
 
 def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touches: Iterable[str] = (),
              sortie: Path | None = None, colonnes: int = 4, echelle: float = 0.5, godot: Path | None = None,
-             delai_s: float = 180, hors_ecran: bool = False) -> dict[str, Any]:
+             delai_s: float = 180, hors_ecran: bool = False, compatibilite: bool = False) -> dict[str, Any]:
     """{ok, grille (chemin du PNG ou None), legende (texte), duree_s, erreurs (lignes d'erreur de la partie),
     erreur?}. `hors_ecran` : fenêtre placée hors de l'écran (même image, sans gêner : choix de laurent du
-    2026-10-20 pour les rendus de fabrication)."""
+    2026-10-20 pour les rendus de fabrication). `compatibilite` : rendu de compatibilité, quel que soit celui
+    du projet (règle 5.4 : un shader ne se compile qu'au rendu, l'image fait foi en Compatibilité)."""
     from usine.juge.godot import importer
     images = sorted({int(i) for i in images if int(i) > 0})
     touches = [t for t in touches if _TOUCHE.match(t)]
@@ -72,6 +73,8 @@ def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touc
         _poser_capture(copie)
         importer(copie, godot)
         prefixe, options = _prefixe_ecran()
+        if compatibilite and "gl_compatibility" not in options:
+            options = [*options, "--rendering-method", "gl_compatibility"]
         if hors_ecran and not prefixe:
             from usine.observation.visuel import POSITION_HORS_ECRAN
             options = [*options, "--position", POSITION_HORS_ECRAN]
