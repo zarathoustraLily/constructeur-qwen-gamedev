@@ -14,6 +14,11 @@ rejet est la catégorie de l'erreur : efficience_allocations, efficience_draw_ca
 efficience_temps ou rendu_degrade. Ces quatre raisons servent aussi au tri des essais de Qwen
 (session 5) : ce sont les catégories du verdict d'un candidat refusé.
 
+Compétence O1 (corriger en observant) : le juge ajoute l'étape « observation »
+(usine/observation/juge.py). Le matériel d'observation (tests_caches/observation/) tient lieu de
+tests cachés. Le départ doit échouer à cette étape précisément : un bug qui empêche déjà le jeu de
+se charger relève de K3, et la tâche est refusée (depart_hors_observation).
+
 Chaque rejet porte une raison (RAISONS) et un détail lisible.
 """
 
@@ -30,6 +35,7 @@ from usine.taches import calculer_empreinte, juger_tache, lire_tache
 RAISONS = {
     "format_invalide": "tache.json incomplet, empreinte fausse ou aucun test caché",
     "depart_pas_rouge": "le départ passe le juge (la tâche n'a rien à faire)",
+    "depart_hors_observation": "le départ échoue avant l'observation (le bug empêche le jeu de se charger)",
     "reference_pas_verte": "la référence échoue au juge",
     "instable": "verdicts différents d'une répétition à l'autre",
     "score_mutation_insuffisant": "les tests cachés tuent trop peu de mutants",
@@ -115,7 +121,13 @@ def evaluer(dossier: Path, reglages: Reglages) -> Decision:
     if tache["empreinte"] != calculer_empreinte(dossier, tache):
         d.raison, d.detail = "format_invalide", "empreinte fausse"
         return d
-    if not any((dossier / "tests_caches").glob("test_*.gd")):
+    observation = "observation" in tache
+    if observation:
+        from usine.observation.juge import materiel
+        if not all(f.is_file() for f in materiel(dossier)):
+            d.raison, d.detail = "format_invalide", "matériel d'observation absent (tests_caches/observation/)"
+            return d
+    elif not any((dossier / "tests_caches").glob("test_*.gd")):
         d.raison, d.detail = "format_invalide", "aucun test caché"
         return d
 
@@ -130,6 +142,12 @@ def evaluer(dossier: Path, reglages: Reglages) -> Decision:
         d.mesures[f"{version}_cache"] = sum(bool(v.get("depuis_cache")) for v in verdicts)
         if "metriques" in verdicts[-1]:
             d.mesures[f"{version}_efficience"] = _efficience(verdicts[-1])
+        if observation and version == "depart" and not verdicts[-1]["ok"] and verdicts[-1]["etape"] != "observation":
+            d.raison = "depart_hors_observation"
+            d.detail = f"départ : {', '.join(d.mesures[version])}"
+            if verdicts[-1]["erreurs"]:
+                d.detail += " — " + verdicts[-1]["erreurs"][0]["message"][:200]
+            return d
         if any(v["ok"] != attendu for v in verdicts):
             if len(verdicts) > 1:
                 d.raison = "instable"

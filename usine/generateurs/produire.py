@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from usine.generateurs import aller_retour, efficience, inverse, masquage, mutation
+from usine.generateurs import aller_retour, efficience, inverse, masquage, mutation, observation
 from usine.generateurs.commun import Production
 from usine.generateurs.sources import Source, par_nom
 
@@ -28,15 +28,19 @@ def _etapes(src: Source, sortie: Path, graine: int, nombre_f1: int, travailleurs
     """[(nom, compétences produites, étape)]."""
     s, p = src.chemin, src.plafond
     etapes = [
-        ("masquage K2", {"K2"}, lambda: masquage.generer_k2(s, sortie, p("k2"), graine, src.ciblee)),
-        ("masquage K1", {"K1"}, lambda: masquage.generer_k1(s, sortie, p("k1"), graine)),
-        ("aller-retour S1", {"S1"}, lambda: aller_retour.generer_s1(s, sortie, p("s1"), graine, src.scenes_generees)),
-        ("aller-retour S2", {"S2"}, lambda: aller_retour.generer_s2(s, sortie, p("s2"), graine, src.scenes_generees)),
+        ("k2", "masquage K2", {"K2"}, lambda: masquage.generer_k2(s, sortie, p("k2"), graine, src.ciblee)),
+        ("k1", "masquage K1", {"K1"}, lambda: masquage.generer_k1(s, sortie, p("k1"), graine)),
+        ("s1", "aller-retour S1", {"S1"}, lambda: aller_retour.generer_s1(s, sortie, p("s1"), graine, src.scenes_generees)),
+        ("s2", "aller-retour S2", {"S2"}, lambda: aller_retour.generer_s2(s, sortie, p("s2"), graine, src.scenes_generees)),
     ]
     if src.f1:
-        etapes.append(("inverse F1", {"F1"}, lambda: inverse.generer(s, sortie, graine, nombre_f1)))
-    etapes.append(("mutation K3/D1", {"K3", "D1"},
+        etapes.append(("f1", "inverse F1", {"F1"}, lambda: inverse.generer(s, sortie, graine, nombre_f1)))
+    etapes.append(("mutation", "mutation K3/D1", {"K3", "D1"},
                    lambda: mutation.generer(s, sortie, graine, travailleurs, p("mutation"), src.ciblee)))
+    etapes = [(nom, comps, e) for gen, nom, comps, e in etapes if src.permet(gen)]
+    if src.observation:
+        etapes.append(("observation O1", {observation.COMPETENCE},
+                       lambda: observation.generer(s, sortie, src.nom, src.observation, graine, p("observation"))))
     return etapes
 
 
@@ -59,6 +63,12 @@ def produire(sortie: Path, graine: int, nombre_f1: int = 40, travailleurs: int =
         total.etendre(p)
 
     for src in choisies:
+        if not src.disponible:
+            # Source hors du dépôt, non déclarée sur cette machine ([sources] de config.toml).
+            if sources:
+                raise FileNotFoundError(f"source {src.nom} introuvable : {src.chemin} (voir [sources] de config.toml)")
+            afficher(f"-- source {src.nom} absente de cette machine ({src.chemin}) : ignorée")
+            continue
         etapes = [(n, e) for n, comps, e in _etapes(src, sortie, graine, nombre_f1, travailleurs)
                   if voulues is None or comps & voulues]
         if etapes:

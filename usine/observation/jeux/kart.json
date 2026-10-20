@@ -1,0 +1,176 @@
+{
+  "jeu": "kart",
+  "description": "GDWaterKart (JorisAR, MIT), rangé selon la nomenclature 0_autoload … 7_tests.",
+  "scene": "",
+  "echauffement": 10,
+  "acteur": {
+    "classe": "Kart",
+    "capteur_eau": "WaterBuoyancySensor",
+    "visuels": {
+      "carrosserie": [
+        "Visual/Kart/Body"
+      ],
+      "roues": {
+        "classe": "Wheel",
+        "maillage": "WheelVisual/WheelMesh"
+      }
+    }
+  },
+  "commandes": {
+    "avancer": "move_forward",
+    "gauche": "move_left",
+    "droite": "move_right",
+    "frein": "move_brake",
+    "saut": "move_jump"
+  },
+  "obstacles": [
+    "rock.tscn",
+    "small_palm.tscn"
+  ],
+  "sequences": {
+    "virages": {
+      "description": "avance en zigzag : 45 images à gauche, 45 à droite, de la colline jusqu'à la mer",
+      "images": 360,
+      "tenir": [
+        {
+          "de": 30,
+          "actions": [
+            "avancer"
+          ]
+        }
+      ],
+      "alterner": {
+        "de": 30,
+        "periode": 45,
+        "actions": [
+          "gauche",
+          "droite"
+        ]
+      }
+    },
+    "saut": {
+      "description": "avance tout droit et saute trois fois (images 70, 130 et 200)",
+      "images": 300,
+      "tenir": [
+        {
+          "de": 30,
+          "actions": [
+            "avancer"
+          ]
+        }
+      ],
+      "evenements": [
+        {
+          "image": 70,
+          "action": "saut"
+        },
+        {
+          "image": 130,
+          "action": "saut"
+        },
+        {
+          "image": 200,
+          "action": "saut"
+        }
+      ]
+    },
+    "rocher": {
+      "description": "demi-tour sur place, puis fonce sur le rocher le plus proche",
+      "images": 420,
+      "pilote": {
+        "de": 30,
+        "vers": "rock.tscn",
+        "demi_tour": true
+      }
+    },
+    "palmier": {
+      "description": "demi-tour sur place, puis fonce sur le palmier le plus proche, par la route de la colline",
+      "images": 600,
+      "pilote": {
+        "de": 30,
+        "vers": "small_palm.tscn",
+        "demi_tour": true
+      }
+    }
+  },
+  "regles": {
+    "gravite_min": 4.905,
+    "hauteur_max": 6.0,
+    "sous_le_sol_max": 0.5,
+    "penetration_max": 0.15,
+    "enfouissement_max": {
+      "carrosserie": 0.15,
+      "roues": 0.15
+    },
+    "camera_debut": 60,
+    "camera_alignement_min": 0.0,
+    "camera_alignement_vitesse": 5.0,
+    "camera_alignement_debut": 120
+  },
+  "patch_max_lignes": 4,
+  "fichiers_bugs": [
+    "3_entities/kart/kart.gd",
+    "3_entities/kart/wheel.gd",
+    "3_entities/player/camera_controller.gd",
+    "3_entities/player/player.gd"
+  ],
+  "mutants_max": 40,
+  "bugs_modeles": [
+    {
+      "nom": "gravite nulle",
+      "symptome": "le kart vole",
+      "fichier": "3_entities/kart/kart.gd",
+      "avant": "var gravity_acceleration : Vector3 = 2.0 * Vector3(0, -9.81, 0)",
+      "apres": "var gravity_acceleration : Vector3 = 0.0 * Vector3(0, -9.81, 0)"
+    },
+    {
+      "nom": "saut trop fort",
+      "symptome": "le kart s'envole",
+      "fichier": "3_entities/kart/kart.gd",
+      "avant": "\t\t\tvelocity.y += 4\n",
+      "apres": "\t\t\tvelocity.y += 40\n"
+    },
+    {
+      "nom": "palmier sans collision",
+      "symptome": "le kart traverse un arbre",
+      "fichier": "3_entities/decor/palm/small_palm.tscn",
+      "avant": "collision_layer = 8\n",
+      "apres": "collision_layer = 0\n"
+    },
+    {
+      "nom": "rocher sans collision",
+      "symptome": "le kart traverse un rocher",
+      "fichier": "3_entities/decor/rock/rock.tscn",
+      "avant": "shape = SubResource(\"ConcavePolygonShape3D_7iovt\")\n",
+      "apres": "shape = SubResource(\"ConcavePolygonShape3D_7iovt\")\ndisabled = true\n"
+    },
+    {
+      "nom": "roulis excessif",
+      "symptome": "le kart s'enfonce à moitié dans la route quand il tourne",
+      "fichier": "3_entities/kart/kart.gd",
+      "avant": "visual_kart.rotation.z = steering * 0.5 * deg_to_rad(avg_steering_angle)",
+      "apres": "visual_kart.rotation.z = steering * 6.0 * deg_to_rad(avg_steering_angle)"
+    },
+    {
+      "nom": "modele trop bas",
+      "symptome": "le kart est enfoncé dans la route",
+      "fichier": "3_entities/kart/kart.tscn",
+      "avant": "transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)",
+      "apres": "transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, 0)"
+    },
+    {
+      "nom": "kart sans collision au sol",
+      "symptome": "le kart passe à travers la route",
+      "fichier": "3_entities/player/player.tscn",
+      "avant": "collision_mask = 63\n",
+      "apres": "collision_mask = 39\n"
+    },
+    {
+      "nom": "camera a contresens",
+      "symptome": "la caméra regarde le kart de face",
+      "fichier": "3_entities/player/camera_controller.gd",
+      "avant": "var wish_basis := kart.global_basis",
+      "apres": "var wish_basis := kart.global_basis.rotated(Vector3.UP, PI)"
+    }
+  ]
+}

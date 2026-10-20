@@ -29,23 +29,43 @@ MARQUEUR = ".usine_socle"
 # Fichiers recopiés dans chaque tâche (lisibles et modifiables par l'agent).
 EXTENSIONS_TEXTE = {".gd", ".tscn", ".tres", ".godot", ".json", ".txt", ".md", ".cfg", ".gdshader"}
 # Jamais copiés : caches du moteur et des outils.
-EXCLUS = {"addons", ".godot", "reports", "__pycache__", ".import", ".usine_rapports"}
+EXCLUS = {".godot", "reports", "__pycache__", ".import", ".usine_rapports"}
+# Extensions tierces que le juge injecte lui-même (usine/juge/projet.py) : jamais copiées. Les autres
+# (un personnage, un outil d'éditeur) font partie du jeu et suivent le projet.
+ADDONS_INJECTES = {"gdUnit4"}
 
 
 def est_texte(chemin: Path | str) -> bool:
     return Path(chemin).suffix in EXTENSIONS_TEXTE
 
 
-def fichiers_socle(source: Path) -> list[Path]:
-    """Fichiers non textuels du projet source, hors caches et addons, triés."""
+def dossiers_ignores(source: Path) -> set[Path]:
+    """Dossiers que Godot ignore (un fichier .gdignore à leur racine), relatifs à `source`."""
     source = Path(source)
+    return {g.parent.relative_to(source) for g in source.rglob(".gdignore")}
+
+
+def exclu(rel: Path, ignores: set[Path] | frozenset = frozenset()) -> bool:
+    """Caches, extensions injectées par le juge et dossiers ignorés par Godot : hors des tâches."""
+    parts = Path(rel).parts
+    if EXCLUS & set(parts):
+        return True
+    if len(parts) > 1 and parts[0] == "addons" and parts[1] in ADDONS_INJECTES:
+        return True
+    return any(parent in ignores for parent in Path(rel).parents)
+
+
+def fichiers_socle(source: Path) -> list[Path]:
+    """Fichiers non textuels du projet source, hors caches, GdUnit4 et dossiers ignorés, triés."""
+    source = Path(source)
+    ignores = dossiers_ignores(source)
     resultat = []
     # Tri par composants relatifs, sensible à la casse : même ordre sous Linux et Windows.
     for f in sorted(source.rglob("*"), key=lambda p: p.relative_to(source).parts):
         if not f.is_file():
             continue
         rel = f.relative_to(source)
-        if EXCLUS & set(rel.parts) or est_texte(f) or f.suffix == ".uid" or rel.as_posix() == MARQUEUR:
+        if exclu(rel, ignores) or est_texte(f) or f.suffix == ".uid" or rel.as_posix() == MARQUEUR:
             continue
         resultat.append(f)
     return resultat
@@ -59,22 +79,23 @@ def empreinte(racine: Path, fichiers: list[Path]) -> str:
     return h.hexdigest()
 
 
-def nom_socle(source: Path) -> str | None:
-    """Nom du socle de `source`, ou None si le projet n'a aucun fichier non textuel."""
+def nom_socle(source: Path, nom: str | None = None) -> str | None:
+    """Nom du socle de `source`, ou None si le projet n'a aucun fichier non textuel.
+    `nom` : nom de la source (par défaut, celui de son dossier, comme godot/<source>/)."""
     fichiers = fichiers_socle(source)
     if not fichiers:
         return None
-    return f"{Path(source).name}-{empreinte(Path(source), fichiers)[:12]}"
+    return f"{nom or Path(source).name}-{empreinte(Path(source), fichiers)[:12]}"
 
 
 def dossier_socles() -> Path:
     return cfg.dossier_donnees() / "socles"
 
 
-def construire(source: Path) -> str | None:
+def construire(source: Path, nom_source: str | None = None) -> str | None:
     """Écrit donnees/socles/<nom>/ depuis `source` (une seule fois) et renvoie le nom."""
     source = Path(source)
-    nom = nom_socle(source)
+    nom = nom_socle(source, nom_source)
     if nom is None:
         return None
     cible = dossier_socles() / nom
@@ -97,9 +118,10 @@ def chemin(nom: str) -> Path:
     """Dossier du socle `nom`, reconstruit depuis godot/<source>/ s'il manque ; empreinte vérifiée."""
     cible = dossier_socles() / nom
     if not cible.is_dir():
-        source = cfg.RACINE / "godot" / nom.rsplit("-", 1)[0]
-        if source.is_dir() and nom_socle(source) == nom:
-            construire(source)
+        base = nom.rsplit("-", 1)[0]
+        source = cfg.chemin_source(base) or cfg.RACINE / "godot" / base
+        if source.is_dir() and nom_socle(source, base) == nom:
+            construire(source, base)
     if not cible.is_dir():
         raise FileNotFoundError(f"socle {nom} introuvable (ni dans {dossier_socles()}, ni reconstructible "
                                 "depuis godot/)")

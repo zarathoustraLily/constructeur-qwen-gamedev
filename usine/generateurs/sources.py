@@ -10,6 +10,12 @@ Plafonds : un gros projet donnerait des centaines de candidates, jugées chacune
 fois. On en tire au plus tant par générateur (graine fixe), et `ciblee` écarte d'avance ce
 qu'aucun test ne peut voir (commun.fichiers_testes) ; le portillon reste le seul juge.
 F1 n'existe que pour le héros de godot/reference (mesure en frames de usine/generateurs/inverse.py).
+
+- kart : GDWaterKart de JorisAR (MIT), rangé selon la nomenclature 0_autoload … 7_tests. Il vit hors du
+  dépôt (environ 60 Mo de modèles et de textures) : son chemin est dans [sources] de config.toml. Il ne
+  donne que des tâches O1 (corriger en observant) ; sa description de partie est
+  usine/observation/jeux/kart.json. Ses tests sont dans 7_tests/, que les autres générateurs ne lisent
+  pas encore (ils cherchent tests/).
 """
 
 from __future__ import annotations
@@ -27,10 +33,21 @@ class Source:
     ciblee: bool = False
     scenes_generees: bool = False   # scènes générées de la session 2 (écrites pour godot/reference)
     f1: bool = False
+    # Générateurs classiques (k2, k1, s1, s2, mutation) permis ; None : tous.
+    generateurs: frozenset[str] | None = None
+    # Description de partie (usine/observation/jeux/<nom>.json) : la source donne des tâches O1.
+    observation: str | None = None
 
     @property
     def chemin(self) -> Path:
-        return cfg.RACINE / "godot" / self.nom
+        return cfg.chemin_source(self.nom) or cfg.RACINE / "godot" / self.nom
+
+    @property
+    def disponible(self) -> bool:
+        return (self.chemin / "project.godot").is_file()
+
+    def permet(self, generateur: str) -> bool:
+        return self.generateurs is None or generateur in self.generateurs
 
     def plafond(self, generateur: str) -> int | None:
         return self.plafonds.get(generateur)
@@ -41,6 +58,7 @@ SOURCES: tuple[Source, ...] = (
     Source("survivor", ciblee=True, plafonds={"k2": 40, "k1": 10, "s1": 8, "s2": 10, "mutation": 90}),
     Source("kenney_platformer", ciblee=True, plafonds={"k2": 25, "k1": 9, "s1": 8, "s2": 10, "mutation": 60}),
     Source("kenney_racing", ciblee=True, plafonds={"k2": 25, "k1": 3, "s1": 4, "s2": 10, "mutation": 60}),
+    Source("kart", generateurs=frozenset(), observation="kart", plafonds={"observation": 30}),
 )
 
 

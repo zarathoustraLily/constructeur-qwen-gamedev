@@ -44,19 +44,20 @@ OUTILS_FICHIERS: list[dict[str, Any]] = [
 ]
 
 
-@lru_cache(maxsize=1)
-def definitions_mcp() -> tuple[str, ...]:
-    """Définitions des outils du serveur MCP, au format « tools » d'OpenAI (JSON, une par outil)."""
+@lru_cache(maxsize=2)
+def definitions_mcp(observation: bool = False) -> tuple[str, ...]:
+    """Définitions des outils du serveur MCP, au format « tools » d'OpenAI (JSON, une par outil).
+    `observation` : avec play_sequence (tâches O1)."""
     from mcp_serveur.serveur import creer_serveur
-    serveur = creer_serveur(cfg.RACINE / "godot" / "reference")
+    serveur = creer_serveur(cfg.RACINE / "godot" / "reference", observation=Path(".") if observation else None)
     outils = asyncio.run(serveur.list_tools())
     return tuple(json.dumps({"type": "function", "function": {
         "name": t.name, "description": t.description or "", "parameters": t.inputSchema}}, ensure_ascii=False)
         for t in sorted(outils, key=lambda t: t.name))
 
 
-def definitions() -> list[dict[str, Any]]:
-    return [json.loads(d) for d in definitions_mcp()] + json.loads(json.dumps(OUTILS_FICHIERS))
+def definitions(observation: bool = False) -> list[dict[str, Any]]:
+    return [json.loads(d) for d in definitions_mcp(observation)] + json.loads(json.dumps(OUTILS_FICHIERS))
 
 
 def fiche(competence: str) -> str:
@@ -72,11 +73,11 @@ def fiche(competence: str) -> str:
 class Boite:
     """Exécute les appels d'outils sur un projet (la copie de travail de l'essai)."""
 
-    def __init__(self, projet: Path):
+    def __init__(self, projet: Path, observation: Path | None = None):
         from mcp_serveur.outils import Outils
         self.projet = Path(projet).resolve()
-        self.outils = Outils(self.projet)
-        self.noms_mcp = {json.loads(d)["function"]["name"] for d in definitions_mcp()}
+        self.outils = Outils(self.projet, observation=observation)
+        self.noms_mcp = {json.loads(d)["function"]["name"] for d in definitions_mcp(observation is not None)}
 
     def list_files(self) -> str:
         fichiers = sorted((p.relative_to(self.projet).as_posix() for p in self.projet.rglob("*")
@@ -117,6 +118,18 @@ class Boite:
         return texte if len(texte) <= MAX_CAR_RESULTAT else texte[:MAX_CAR_RESULTAT] + "\n[…tronqué]"
 
 
+def neutraliser_arguments(appel: dict[str, Any], exc: Exception) -> str:
+    """Arguments d'appel illisibles (souvent une réponse coupée au plafond de jetons) : les remplace dans
+    l'historique par un JSON valide, sinon llama-server refuse de relire l'historique (HTTP 500) et la
+    session meurt. Renvoie le message d'erreur à rendre au modèle."""
+    brut = appel["function"].get("arguments") or ""
+    appel["function"]["arguments"] = json.dumps({"arguments_illisibles": f"{len(brut)} caractères, coupés ou mal formés"},
+                                                ensure_ascii=False)
+    return (f"Erreur : arguments JSON invalides ({len(brut)} caractères) : {exc}. Si ta réponse a été coupée parce "
+            "qu'elle était trop longue, ne réécris pas le fichier entier : modifie-le par parties avec apply_edits "
+            "(replace_function : script, fonction, code), ou découpe-le en plusieurs fichiers.")
+
+
 def message_assistant(rep: Reponse) -> dict[str, Any]:
     """Message assistant normalisé (format chat OpenAI) : content, et tool_calls s'il y en a."""
     brut = rep.message or {}
@@ -135,13 +148,14 @@ def message_assistant(rep: Reponse) -> dict[str, Any]:
 
 def resoudre(projet: Path, consigne: str, competence: str, client: Reglages, lora: list[dict[str, Any]] | None = None,
              max_pas: int = 40, appeler: Callable[..., Reponse] = completer, exclure: tuple[str, ...] = (),
-             documentation: str | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]], str]:
+             documentation: str | None = None, observation: Path | None = None
+             ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], str]:
     """Une session agentique sur `projet`. Renvoie (messages, définitions d'outils, fin)
     avec fin ∈ {"termine", "budget", "erreur_appel"}.
     `exclure` : outils retirés (la mesure sans RAG retire search_docs) ; `documentation` : extraits
-    du RAG ajoutés à la tâche (mesure avec RAG)."""
-    outils = [d for d in definitions() if d["function"]["name"] not in exclure]
-    boite = Boite(projet)
+    du RAG ajoutés à la tâche (mesure avec RAG) ; `observation` : matériel d'une tâche O1 (play_sequence)."""
+    outils = [d for d in definitions(observation is not None) if d["function"]["name"] not in exclure]
+    boite = Boite(projet, observation)
     boite.noms_mcp -= set(exclure)
     systeme = SYSTEME + ("\n\nFiche de la compétence :\n" + fiche(competence) if fiche(competence) else "")
     tache = f"Tâche ({competence}) :\n{consigne}\n\nLe projet est ouvert ; ses fichiers :\n" + boite.list_files()
@@ -165,6 +179,6 @@ def resoudre(projet: Path, consigne: str, competence: str, client: Reglages, lor
                     raise ValueError("objet attendu")
                 resultat = boite.appeler(appel["function"]["name"], arguments)
             except (json.JSONDecodeError, ValueError) as exc:
-                resultat = f"Erreur : arguments JSON invalides : {exc}"
+                resultat = neutraliser_arguments(appel, exc)
             messages.append({"role": "tool", "tool_call_id": appel["id"], "content": resultat})
     return messages, outils, "budget"

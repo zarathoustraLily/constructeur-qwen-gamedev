@@ -13,6 +13,10 @@ Champ optionnel `juge` de tache.json :
 Champ optionnel `mesure_efficience` (compétence E) : le verdict commun, s'il passe, est complété
 par l'étape « mesure_efficience » (usine/efficience/juge.py) : rendu intact, allocations,
 lots de dessin et temps, relatifs à la référence de la tâche.
+
+Champ optionnel `observation` (compétence O1) : le verdict commun, s'il passe, est complété par
+l'étape « observation » (usine/observation/juge.py) : les séquences de la tâche sont jouées sur le
+candidat, avec le monde de vérité de tests_caches/observation/, et chaque règle de partie doit tenir.
 """
 
 from __future__ import annotations
@@ -136,6 +140,9 @@ def juger_tache(dossier: Path, version: str = "reference", candidat: Path | None
     if "mesure_efficience" in tache:
         from usine.efficience.juge import completer
         verdict = completer(verdict, dossier, tache, source, superpositions, repetition)
+    if "observation" in tache:
+        from usine.observation.juge import completer as completer_observation
+        verdict = completer_observation(verdict, dossier, tache, source, superpositions, repetition)
     verdict["tache_id"] = tache["id"]
     return verdict
 

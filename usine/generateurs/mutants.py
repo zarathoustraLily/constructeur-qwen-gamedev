@@ -92,8 +92,9 @@ def score_mutation_tache(dossier: Path, maximum: int | None = 8, graine: Any = 0
         if f.is_file() and rel.endswith((".gd", ".tscn")) and not rel.startswith("tests/"):
             cibles[rel] = lignes_changees(depart.get(rel), fichiers[rel])
     mutants = tirer(mutants_projet(fichiers, cibles), maximum, f"{graine}:{tache['id']}")
-    # Compétence E : un mutant qui casse l'efficience sans changer le comportement est tué aussi.
-    complet = dossier if "mesure_efficience" in tache else None
+    # Compétences E et O1 : un mutant qui casse l'efficience (E) ou une règle de partie (O1) est tué
+    # aussi, même si le jeu se charge et que ses tests passent.
+    complet = dossier if "mesure_efficience" in tache or "observation" in tache else None
     tues = [_juger(fichiers, m, dossier / "tests_caches", etapes, complet) for m in mutants]
     return _resultat(mutants, tues)
 

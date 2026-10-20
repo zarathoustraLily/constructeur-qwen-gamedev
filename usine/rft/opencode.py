@@ -42,8 +42,8 @@ def commande(cli: str | list[str], copie: Path, consigne: str, modele: str | Non
     return cmd + [consigne]
 
 
-def resoudre(copie: Path, consigne: str, competence: str, client: Reglages,
-             reglages: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], str]:
+def resoudre(copie: Path, consigne: str, competence: str, client: Reglages, reglages: dict[str, Any],
+             observation: Path | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]], str]:
     """Une session OpenCode sur `copie`. Renvoie (messages, définitions d'outils, fin)."""
     from usine.capture.enregistreur import lire_session
     from usine.capture.proxy import ProxyCapture
@@ -58,7 +58,8 @@ def resoudre(copie: Path, consigne: str, competence: str, client: Reglages,
         config_projet = copie / "opencode.json"
         try:
             fusion = _fusion()
-            donnees = fusion.fusionner({}, copie, proxy_url=f"http://127.0.0.1:{proxy.port}/v1", fournisseur=fournisseur)
+            donnees = fusion.fusionner({}, copie, proxy_url=f"http://127.0.0.1:{proxy.port}/v1", fournisseur=fournisseur,
+                                       observation=observation)
             config_projet.write_text(json.dumps(donnees, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             consigne_complete = (f"Tâche ({competence}) : {consigne}\n"
                                  "Le projet Godot est le dossier courant. Vérifie avec run_tests avant de finir.")

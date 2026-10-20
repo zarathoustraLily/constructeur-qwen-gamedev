@@ -12,6 +12,7 @@
 - [x] Avant la session 5 — compétence E « optimisation stricte » (gel en attente de Godot 4.8 stable)
 - [x] Session 5 — Boucle RFT (cloud : code et preuve ; vrai tour après le gel 4.8)
 - [x] Session 6 — Mesure (cloud : code et preuve simulée ; mesure réelle après le premier LoRA et le gel 4.8)
+- [x] Compétence O1 « corriger en observant » (2026-10-20, sur la machine : juge, générateur, outil play_sequence ; 10 tâches kart produites, portillon et premier essai de Qwen à lancer, étape 21)
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -994,6 +995,73 @@ SKIPPED [1] tests/test_rag.py:223: could not import 'sqlite_vec': No module name
 - **Un message assistant qui porte un texte et des appels d'outils** n'a pas d'équivalent dans le tour `function_call` de LLaMA-Factory.
 - **Le harnais OpenCode écrit un `opencode.json` dans la copie de travail** : il faut le retirer avant le jugement, sinon il entrerait dans la solution.
 - **Un CLI externe ne laisse pas choisir la graine** : en mode OpenCode, les N essais ne diffèrent que par l'aléa du serveur.
+
+### Compétence O1 « corriger en observant » — 2026-10-20 (machine de laurent, branche `main`, non commité)
+
+Demande de laurent : que Qwen apprenne à corriger un bug de gameplay en *regardant la partie*, comme on juge son propre jeu (« le kart vole, il traverse un arbre, il est à moitié enseveli dans la route quand il tourne »). Les tests unitaires vérifient des règles une par une ; personne ne regardait une partie entière. « Regarder » se fait ici par des mesures exactes, image par image, à cadence fixe, sans fenêtre et sans LLM (règle 2).
+
+**Fait**
+
+- `usine/observation/` (hors de `usine/juge`, comme E : le cache des verdicts communs reste valide) :
+  - `gd/jouer_partie.gd` : joue des séquences scriptées sur des parties neuves, dans un seul lancement de Godot (`--fixed-fps 60`). Commandes tenues, alternées, événements (le saut passe par `_input()` : un vrai `InputEventAction`), pilote automatique vers l'obstacle le plus proche (demi-tour sur place d'abord). Enregistre, image par image : position, appui (sol, eau, air), vitesses, hauteur au-dessus de la surface, profondeur sous le sol, pénétration dans les obstacles, enfouissement du bas visible (carrosserie, roues), caméra (dans le champ, sous le sol, regard dans le sens de la marche). Mode `monde` : écrit le **monde de vérité**, les formes de collision de la référence, posées ensuite en fantôme sur les calques 20 (sol) et 21 (obstacles). Une collision retirée par le bug reste donc visible pour le juge.
+  - `partie.py` : lancement, monde de vérité, **règles évaluées en Python** (gravité, hauteur, sous le sol, traversée, enfouissement, caméra, caméra derrière), marges, résumé en texte pour l'agent.
+  - `juge.py` : étape `observation` après le juge commun ; catégories `partie_<règle>` ; clé de cache propre (`partie.version_observation`).
+  - `jeux/kart.json` : description du kart (acteur, commandes, obstacles, 4 séquences, seuils réglés sur le jeu intact, 8 bugs modèles, 4 fichiers de gameplay pour les mutants).
+- Générateur `usine/generateurs/observation.py` : bugs modèles, puis mutants des scripts de gameplay (opérateurs de l'usine, un par ligne, 40 au plus) ; un candidat est gardé s'il casse au moins une règle de partie (vérité par construction). Écartés : `jeu_casse`, `invisible_en_partie`. Tâche : départ muté, référence = fichier d'origine, `tests_caches/observation/` (description et monde), juge = import, check_script, load_scene, puis observation ; patch plafonné à 4 lignes.
+- Source `kart` (`usine/generateurs/sources.py`) : le projet vit hors du dépôt, déclaré dans `[sources]` de `config.toml` (`config.chemin_source`) ; il ne donne que des tâches O1 (`generateurs=frozenset()`, `observation="kart"`). `produire` saute une source absente de la machine.
+- Socle (`usine/socle.py`, `commun.lire_projet`) : les extensions tierces suivent le projet (seul GdUnit4, injecté par le juge, reste exclu) ; les dossiers `.gdignore` sont exclus ; le socle prend le nom de la source. Les quatre sources du dépôt n'en sont pas changées (seul dossier `.gdignore` : dans GdUnit4, déjà exclu) : mêmes fichiers, mêmes empreintes.
+- Portillon : le matériel d'observation tient lieu de tests cachés ; un départ qui échoue avant l'étape observation est refusé (`depart_hors_observation`) ; les mutants de la zone corrigée sont jugés avec l'observation (`mutants.score_mutation_tache`).
+- Outil MCP `play_sequence` : déclaré seulement avec `--observation <dossier>` (tâches O1) ; transmis par `essais` à l'agent maison et à OpenCode (`opencode_fusion.commande_mcp`), et par la mesure. Fiche `skills/usine-o1-observation`. CLAUDE.md : 15 compétences, O1 décrite.
+- Projet kart (`D:\GODOT\PROJETS_DEMOS\PROJET_KART_RANGE`, son `ORGANISATION.md` à jour) : 19 fichiers cassés et inutilisés sortis dans `PROJET_KART_RANGE_hors_jeu/` ; trois scènes rendues sûres quand on les ouvre seules ; import sur un seul fil (voir pièges). 143 tests GdUnit4 verts, trajectoire de conduite identique à l'origine.
+
+**Preuve**
+
+Huit bugs injectés à la main dans une copie du kart, quatre séquences ; jeu intact : aucune faute.
+
+| Bug injecté | Ce que dit la trace |
+| --- | --- |
+| Gravité nulle (le kart vole) | `saut` : gravité dès l'image 74 ; hauteur : 19,1 m au-dessus de la surface |
+| Saut à 40 m/s (il s'envole) | `saut` : hauteur, 44,9 m au-dessus de la surface |
+| Palmier sans calque (il traverse un arbre) | `palmier` : traversée dès l'image 428, 0,98 m dans small_palm.tscn (52.9, 3.2, -44.9) |
+| Rocher sans collision | `rocher` : traversée dès l'image 239, 0,66 m dans rock.tscn (-14.5, 2.5, 4.0) |
+| Roulis × 12 (à moitié enseveli en tournant) | `rocher` : carrosserie 0,17 m sous le sol ; `palmier` : roues 0,48 m sous le sol |
+| Modèle 35 cm trop bas | `palmier` : roues 0,52 m sous le sol, 607 images |
+| Kart sans collision au sol | `palmier` : 8,36 m sous le sol ; caméra 4 m sous le sol |
+| Caméra à contresens | `virages` : la caméra regarde à contresens de la marche dès l'image 121 |
+
+Déterminisme : deux lots identiques ; chaque séquence seule = la même dans le lot (après un échauffement de 10 images et l'ajout de chaque partie à la fin d'une image). Quatre séquences : 13 s ; monde de vérité : 1,3 s.
+
+Juge de l'usine : `juger_tache` sur une tâche générée (palmier sans collision) : départ `FAIL@observation`, « séquence « palmier », traversée : 11 images, dès l'image 428 ; pire à l'image 433 : le kart entre de 0,98 m dans small_palm.tscn (52.9, 3.2, -44.9) », trois fois identique ; référence `PASS@observation` (42 s).
+
+```
+python -m pytest -q tests/test_observation.py        → 20 passed (dont l'intégration Godot : génération + juge)
+python -m pytest -q                                  → 346 passed, 1 skipped (sqlite_vec absent), 14 min 26
+```
+
+Production réelle (`python -m usine.generateurs produire --sources kart --competences O1 --sortie donnees/candidats_o1`, 943 s) : **10 tâches, 38 écartés**. Les 8 bugs modèles donnent tous une tâche ; sur 40 mutants des scripts de gameplay, 2 sont visibles en partie (`camera_controller.gd:78`, renommage : la caméra ne se replace plus derrière le kart ; `kart.gd:277`, opérateur : le kart monte trop haut), 34 sont invisibles dans les 4 séquences (dérapage, frein, marche arrière, figures : non joués), 4 cassent le jeu (relèvent de K3).
+
+```
+observation O1       10 tâches    38 écartés  (943 s)
+```
+
+**Reste à faire**
+
+1. Passer les candidates O1 au portillon (`python -m usine.portillon evaluer donnees/candidats_o1/O1/<id>`) : environ 10 min par tâche (3 + 3 jugements, puis 8 mutants), soit quelques heures ; puis geler un jeu O1 avec les autres, au moment du gel (Godot 4.8).
+2. Un premier essai de Qwen sur une tâche O1 avec l'agent maison (`play_sequence` déclaré), pour vérifier que l'outil est utilisable et que le juge est réussissable dans le budget de pas.
+3. Le juge ne lance pas encore les tests du kart (ils sont dans `7_tests/`, le juge commun cherche `res://tests_juge`) : un correctif qui casse une règle non observée peut passer. Le plafond de 4 lignes limite ce risque. À faire : copier les tests du jeu comme tests cachés.
+4. Séquences plus variées pour le kart (dérapage, frein, marche arrière, figures sur terre, plaque de boost, boîte à objets, bombe) : seuls 2 mutants sur 40 sont visibles avec les 4 séquences actuelles.
+5. Autres jeux : écrire leur `jeux/<jeu>.json` (acteur, séquences, seuils réglés sur la référence). Seuils relatifs à la référence plutôt qu'absolus si un jeu le demande.
+6. Shaders (décidé par laurent, après ce branchement) : Godot sans fenêtre compile les `.gdshader` et signale l'erreur avec sa ligne (vérifié) ; `.gdshaderinc` et `.glsl` sont aujourd'hui dans le socle (non modifiables par l'agent) et devront passer en texte.
+7. Hors de portée : l'aspect visuel, le son tel qu'on l'entend (le kart n'a d'ailleurs aucun son), le plaisir de jeu.
+
+**Pièges**
+
+- **Plantage de l'import (code 3221225477) : cause trouvée.** Godot importe en parallèle par défaut ; l'import d'un shader de calcul (`tire_marks_shader.glsl`) plante alors environ une fois sur onze. Avec `[editor] import/use_multiple_threads=false` dans `project.godot` : 0 plantage sur 40 imports (11 s → 16 s par import). Réglé dans le kart. Le plantage relevé sur `kenney_racing` le 2026-10-05 a sans doute la même cause : à essayer avant tout ajout de reprise dans le juge.
+- **Le juge charge chaque scène seule** (`load_scene`) : une scène qui suppose un parent (kart) ou une caméra plante. Pour une source, rendre ces scènes sûres quand elles sont ouvertes seules, sans changer le jeu.
+- **`Input.action_press` n'envoie pas d'événement** : un jeu qui lit une commande dans `_input()` (le saut du kart) ne la voit pas. `jouer_partie.gd` envoie un `InputEventAction` pressé puis relâché.
+- **Une touche relâchée puis pressée dans la même image** est à la fois « tout juste pressée » et « tout juste relâchée » : un test qui simule un dérapage doit attendre une image neuve.
+- **Ajouter une partie au milieu d'un pas de physique** lui donne un affichage de plus avant sa première physique : la trace diffère de celle d'une partie seule. `jouer_partie.gd` ajoute la partie suivante à la fin d'une image, et n'enregistre qu'après 10 images d'échauffement (la suspension se pose).
+- **Taille des tâches O1** : 18,7 Mo chacune (texte du kart et monde de vérité) ; les binaires sont dans le socle `kart-…`.
 
 ## Vérifications locales en attente
 

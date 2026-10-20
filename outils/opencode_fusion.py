@@ -100,8 +100,10 @@ def lire_jsonc(chemin: Path) -> dict[str, Any]:
         return {}
 
 
-def commande_mcp(projet: Path, python: str | None = None) -> list[str]:
-    return [python or sys.executable, str(RACINE / "mcp_serveur" / "serveur.py"), "--projet", str(projet)]
+def commande_mcp(projet: Path, python: str | None = None, observation: Path | None = None) -> list[str]:
+    cmd = [python or sys.executable, str(RACINE / "mcp_serveur" / "serveur.py"), "--projet", str(projet)]
+    # Tâche O1 : le matériel d'observation (hors du projet de l'agent) déclare l'outil play_sequence.
+    return cmd + (["--observation", str(observation)] if observation else [])
 
 
 def configs_globales(config: dict[str, Any]) -> list[Path]:
@@ -129,14 +131,16 @@ def detecter_fournisseur(globales: list[Path], url_llm: str) -> list[str]:
 
 
 def fusionner(donnees: dict[str, Any], projet: Path, proxy_url: str | None = None,
-              fournisseur: str | None = None, python: str | None = None) -> dict[str, Any]:
+              fournisseur: str | None = None, python: str | None = None,
+              observation: Path | None = None) -> dict[str, Any]:
     """Renvoie une copie de `donnees` avec les entrées de l'usine (le reste est inchangé)."""
     d = json.loads(json.dumps(donnees))
     d.setdefault("$schema", "https://opencode.ai/config.json")
     mcp = d.setdefault("mcp", {})
     if not isinstance(mcp, dict):
         raise ErreurFusion("« mcp » n'est pas un objet")
-    mcp[NOM_MCP] = {"type": "local", "enabled": True, "command": commande_mcp(projet, python), "timeout": DELAI_MCP_MS}
+    mcp[NOM_MCP] = {"type": "local", "enabled": True, "command": commande_mcp(projet, python, observation),
+                     "timeout": DELAI_MCP_MS}
     skills = d.setdefault("skills", {})
     if not isinstance(skills, dict):
         raise ErreurFusion("« skills » n'est pas un objet")

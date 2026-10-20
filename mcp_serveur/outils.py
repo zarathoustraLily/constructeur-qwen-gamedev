@@ -43,9 +43,12 @@ def _verdict_court(v: dict[str, Any]) -> dict[str, Any]:
 
 
 class Outils:
-    def __init__(self, projet: Path, godot: Path | None = None, index_docs: Path | None = None):
+    def __init__(self, projet: Path, godot: Path | None = None, index_docs: Path | None = None,
+                 observation: Path | None = None):
         self.projet = Path(projet).resolve()
         self.index_docs = index_docs  # None : index par défaut (donnees/rag)
+        # Matériel d'observation d'une tâche O1 (config.json, monde_verite.tscn), hors de l'espace de l'agent.
+        self.observation = Path(observation).resolve() if observation else None
         if not (self.projet / "project.godot").is_file():
             raise ErreurOutil(f"pas de project.godot dans {self.projet}")
         self.godot = godot
@@ -232,6 +235,27 @@ class Outils:
                        "elements": x["elements"]["nombre"]} for x in m["rendu"]],
             "temps_image_us_indicatif": t["temps_image_us"],
         })
+
+
+    def play_sequence(self, sequence: str | None = None) -> str:
+        """Compétence O1 : joue une séquence scriptée (ou toutes) sur une copie, sans fenêtre, et dit quelles
+        règles de partie cassent (image, valeur, objet en cause), puis le parcours de l'acteur."""
+        from usine.efficience.mesure import Copie, ErreurMesure
+        from usine.observation import partie
+        if self.observation is None:
+            raise ErreurOutil("aucune description de partie pour ce projet (outil des tâches O1)")
+        config, monde = self.observation / "config.json", self.observation / "monde_verite.tscn"
+        desc = partie.lire_config(config)
+        noms = [sequence] if sequence else list(desc["sequences"])
+        inconnues = [n for n in noms if n not in desc["sequences"]]
+        if inconnues:
+            raise ErreurOutil(f"séquence inconnue : {', '.join(inconnues)} (séquences : {', '.join(desc['sequences'])})")
+        try:
+            with Copie.ouvrir(self.projet) as c:
+                traces = partie.lancer(c.projet, config, noms, monde)
+        except (ErreurMesure, partie.ErreurObservation) as e:
+            return f"Partie impossible : {str(e)[:1500]}"
+        return "\n\n".join(partie.resume(n, traces[n], partie.evaluer(traces[n], desc["regles"]), desc) for n in noms)
 
 
 def _signature(m: dict[str, Any]) -> str:

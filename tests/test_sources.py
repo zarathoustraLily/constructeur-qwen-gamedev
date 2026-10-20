@@ -128,10 +128,18 @@ def test_k2_ciblee_et_plafonnee(tmp_path):
 def test_registre_des_sources():
     assert [s.nom for s in SOURCES][0] == "reference"
     for s in SOURCES:
+        if s.observation:
+            # Source de la machine (hors du dépôt), compétence O1 : sa description de partie porte
+            # son origine et sa licence ; le projet lui-même n'est vérifié que s'il est déclaré ici.
+            from usine.observation import partie
+            assert "MIT" in partie.lire_config(partie.config_jeu(s.observation))["description"]
+            if s.disponible:
+                assert (s.chemin / "project.godot").is_file()
+            continue
         assert (s.chemin / "project.godot").is_file()
         assert any((s.chemin / "tests").glob("test_*.gd"))
         assert (s.chemin / "SOURCE.md").is_file() or s.nom == "reference"
-    assert [s.f1 for s in SOURCES] == [True, False, False, False]
+    assert [s.f1 for s in SOURCES] == [True, False, False, False, False]
     with pytest.raises(ValueError, match="inconnues"):
         par_nom(["inexistant"])
 

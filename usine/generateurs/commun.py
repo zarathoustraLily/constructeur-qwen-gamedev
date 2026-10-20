@@ -25,7 +25,7 @@ from usine.processus import executer
 from usine.taches import calculer_empreinte
 
 SOURCE_REFERENCE = cfg.RACINE / "godot" / "reference"
-EXCLUS = {"addons", ".godot", "reports", "__pycache__", ".import", ".usine_rapports"}
+EXCLUS = socle.EXCLUS  # règle complète : socle.exclu (caches, GdUnit4 injecté, dossiers .gdignore)
 MARQUEUR = "@@USINE@@"
 
 
@@ -43,7 +43,7 @@ class Production:
         self.ecartes += autre.ecartes
 
 
-def lire_projet(source: Path) -> dict[str, str]:
+def lire_projet(source: Path, nom: str | None = None) -> dict[str, str]:
     """Fichiers texte du projet source (hors addons et caches) : {chemin relatif posix: texte}.
 
     Les fichiers .uid (non versionnés) sont ignorés. Les fichiers non textuels (sons, images,
@@ -51,18 +51,19 @@ def lire_projet(source: Path) -> dict[str, str]:
     alors son nom sous la clé `.usine_socle`, et toute copie de travail les retrouve.
     """
     source = Path(source)
+    ignores = socle.dossiers_ignores(source)
     fichiers = {}
     for f in sorted(source.rglob("*"), key=lambda p: p.relative_to(source).parts):
         if not f.is_file():
             continue
         rel = f.relative_to(source)
-        if EXCLUS & set(rel.parts) or f.suffix == ".uid":
+        if socle.exclu(rel, ignores) or f.suffix == ".uid":
             continue
         if rel.as_posix() != socle.MARQUEUR and not socle.est_texte(f):
             continue
         fichiers[rel.as_posix()] = f.read_text(encoding="utf-8")
     if socle.MARQUEUR not in fichiers:
-        nom = socle.construire(source)
+        nom = socle.construire(source, nom)
         if nom is not None:
             fichiers[socle.MARQUEUR] = nom + "\n"
     return fichiers

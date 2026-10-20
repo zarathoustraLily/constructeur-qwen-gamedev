@@ -129,12 +129,16 @@ def essayer(dossier: Path, n: int, r: ReglagesRft, sessions: Path,
         juger = juger_projet or (lambda d, copie: juger_tache(d, candidat=copie))
         with tempfile.TemporaryDirectory(prefix="usine_rft_") as tmp:
             copie = preparer_copie(dossier / "depart", Path(tmp) / "projet")
+            # Tâche O1 : l'agent observe ses parties avec play_sequence ; le matériel reste dans la tâche.
+            observation = dossier / "tests_caches" / "observation" if "observation" in tache else None
             if r.harnais == "agent":
                 from usine.rft import agent
-                messages, outils, fin = agent.resoudre(copie, tache["consigne"], comp, client, r.lora, r.max_pas, appeler)
+                messages, outils, fin = agent.resoudre(copie, tache["consigne"], comp, client, r.lora, r.max_pas, appeler,
+                                                       observation=observation)
             elif r.harnais == "opencode":
                 from usine.rft import opencode
-                messages, outils, fin = opencode.resoudre(copie, tache["consigne"], comp, client, r.opencode)
+                messages, outils, fin = opencode.resoudre(copie, tache["consigne"], comp, client, r.opencode,
+                                                          observation=observation)
             else:
                 raise ValueError(f"harnais inconnu : {r.harnais} (attendu : {', '.join(HARNAIS)})")
             verdict = juger(dossier, copie)

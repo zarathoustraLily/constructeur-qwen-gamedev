@@ -2,7 +2,7 @@
 
 ## Mission
 
-Construire une **usine** qui fabrique des données vérifiées pour entraîner un LoRA de **Qwen3.8-27B** sur **14 compétences étroites** de développement Godot, puis mesurer honnêtement le gain obtenu.
+Construire une **usine** qui fabrique des données vérifiées pour entraîner un LoRA de **Qwen3.8-27B** sur **15 compétences étroites** de développement Godot, puis mesurer honnêtement le gain obtenu.
 
 Qwen travaille dans **OpenCode**. L'usine l'équipe d'outils et trie ses sessions. On commence par Godot ; Unreal 5.8 réutilisera la même usine plus tard.
 
@@ -60,7 +60,7 @@ Conséquences :
 9. **Pas de réseau à l'exécution** et pas d'appel externe ; le seul serveur LLM est local. Exception : le script optionnel de référence frontière (session 6), jamais lancé automatiquement.
 10. **Langue** : commentaires, messages et documents en français ; identifiants cohérents dans chaque module.
 
-## Les 14 compétences
+## Les 15 compétences
 
 | ID | Entrée → sortie | Juge (sans LLM) | Mode |
 | --- | --- | --- | --- |
@@ -78,8 +78,11 @@ Conséquences :
 | F1 | Cible chiffrée → valeurs de réglage | Test en physique déterministe (mesures en frames) | Un appel |
 | F2 | Signal de jeu → widget mis à jour | Test headless qui lit le widget | Agentique |
 | E | Jeu 2D non optimisé → même jeu, plus efficace (optimisation stricte) | Comportement intact (tests), rendu intact (réglages et signature de l'affichage), 0 allocation après l'échauffement, lots de dessin ≤ référence × 1,05, temps ≤ référence × 1,15 | Agentique |
+| O1 | Jeu qui se comporte mal en partie → correctif minimal, trouvé en observant des parties | Séquences scriptées rejouées sans fenêtre à cadence fixe, monde de vérité de la référence : gravité, hauteur, sous le sol, traversée d'obstacle, enfouissement du bas visible, caméra (dans le champ, au-dessus du sol, derrière la marche) ; patch plafonné | Agentique |
 
 E (ajoutée le 2026-10-05, spécification de laurent) : la tâche contient un départ naïf et une référence optimisée, vérifiés identiques en comportement et en rendu à la génération. Les seuils sont relatifs à la référence, sauf les allocations (0). En headless, les draw calls valent 0 : les lots de dessin sont comptés dans l'arbre de la scène. Le temps est mesuré au moment de juger, sur la même machine, et seulement pour les tâches qui le déclarent. Détails : `usine/efficience/`.
+
+O1 (ajoutée le 2026-10-20, demande de laurent : « corriger en observant ») : un bug de gameplay injecté (le kart vole, traverse un arbre, s'enfonce à moitié dans la route en tournant, la caméra le filme de face) est trouvé en jouant. L'outil `play_sequence` joue une séquence scriptée et dit quelles règles de partie cassent, à quelle image et sur quel objet. « Regarder la partie » se fait par des mesures exactes, image par image. Le monde de vérité (formes de collision de la référence, posées en fantôme) rend visible une collision retirée. Les seuils sont réglés pour que la référence passe ; le portillon exige un départ rouge à l'étape observation. Première source : le kart (`[sources]` de config.toml). Détails : `usine/observation/`.
 
 Hors catalogue : le game design, le « fun », le rendu et l'animation n'ont pas de juge exact. Ils restent des décisions de l'utilisateur.
 
@@ -122,6 +125,7 @@ usine/            paquet Python
   rft/            essais, filtre, export SFT, conversion GGUF, lanceur multi-LoRA
   mesure/         4 configurations, GameDevBench, rapport
   efficience/     compétence E : mesure headless (allocations, lots, rendu, temps), rendu intact, juge
+  observation/    compétence O1 : parties scriptées sans fenêtre, monde de vérité, règles de partie, juge
   rag/            doc Godot 4.7 + démos officielles 4.7 qui compilent → SQLite FTS5 (+ sqlite-vec en option) ; search_docs
 mcp_serveur/      serveur MCP (stdio) qui expose les outils
 skills/           une fiche par compétence (SKILL.md)
@@ -140,7 +144,7 @@ ETAT.md           journal de reprise
 - **Victoire étroite** : les deux conditions à la fois.
   - LoRA + RAG dépasse base + RAG au-delà de l'intervalle.
   - LoRA + RAG atteint ou dépasse la référence frontière, mesurée sans adaptation et avec le même RAG.
-- **Après chaque tour**, on rejoue les 14 jeux gelés : aucune compétence ne doit reculer.
+- **Après chaque tour**, on rejoue les 15 jeux gelés : aucune compétence ne doit reculer.
 
 ## Manière de travailler dans une session
 

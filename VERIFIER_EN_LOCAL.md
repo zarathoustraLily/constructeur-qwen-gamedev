@@ -517,6 +517,42 @@ python -m usine.mesure rapport donnees\mesure\resultats_essai.jsonl donnees\mesu
 
 Attendu : les colonnes `frontière` et `frontière + RAG` sont remplies pour F1, et le verdict est calculé contre `frontière + RAG`.
 
+## 21. Compétence O1 — corriger en observant
+
+Préalable : `[sources] kart` renseigné dans `config.toml` (chemin du kart rangé, par exemple `D:\GODOT\PROJETS_DEMOS\PROJET_KART_RANGE`). Sans lui, les tests Godot d'O1 sont sautés et `produire` ignore la source.
+
+### 21 a. Tests (environ 3 minutes)
+
+```bat
+python -m pytest -q tests\test_observation.py
+```
+
+Attendu : `20 passed`. Le test marqué `godot` génère une vraie tâche (« gravité nulle ») et la fait juger : départ `FAIL@observation` avec une erreur `partie_gravite`, référence `PASS@observation`.
+
+### 21 b. Production des tâches O1 du kart (environ 15 minutes)
+
+```bat
+python -m usine.generateurs produire --sources kart --competences O1 --sortie donnees\candidats_o1
+```
+
+Le dossier de sortie est vidé puis rempli : ne pas viser `donnees\candidats`. Attendu : une ligne `observation O1  N tâches  M écartés`. Les 8 bugs modèles passent en premier (ils doivent tous donner une tâche), puis les mutants des scripts de gameplay jusqu'au plafond de 30. `donnees\candidats_o1\production.json` liste les écartés avec leur raison (`invisible_en_partie`, `jeu_casse`).
+
+### 21 c. Portillon sur une tâche (environ 10 minutes)
+
+```bat
+python -m usine.portillon evaluer donnees\candidats_o1\O1\o1_kart_modele_palmier_sans_collision
+```
+
+Attendu : acceptée. Le départ est rouge trois fois à l'étape `observation`, la référence verte trois fois, et les mutants de la ligne corrigée sont tués par l'observation.
+
+### 21 d. Un essai de Qwen sur une tâche O1 (llama-server lancé, environ 10 à 30 minutes)
+
+```bat
+python -m usine.rft tour --taches donnees\candidats_o1 --sortie donnees\rft\o1_essai --competences O1 --limite 1 --n-essais 1 --harnais agent
+```
+
+Attendu : la session enregistrée (`donnees\rft\o1_essai\sessions\…\essai_0.jsonl`) montre des appels à `play_sequence`, et son en-tête porte le verdict final. Réussite ou échec, c'est la première mesure de la difficulté d'O1 pour Qwen de base.
+
 ## Points que seul ce test sur ta machine peut confirmer
 
 - Le Godot **Windows** console se lance avec un chemin absolu Windows vers les scripts du juge (`-s D:\...\usine\juge\gd\charger_scene.gd`). C'est vérifié sur Linux uniquement.

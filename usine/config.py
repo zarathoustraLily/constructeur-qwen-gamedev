@@ -77,6 +77,12 @@ def godot_disponible(config: dict[str, Any] | None = None) -> bool:
     return True
 
 
+def chemin_source(nom: str, config: dict[str, Any] | None = None) -> Path | None:
+    """Projet source `nom` déclaré dans [sources] de config.toml (un projet de la machine, hors du dépôt)."""
+    valeur = _valeur(config if config is not None else charger_config(), "sources", nom)
+    return _chemin_machine(valeur) if valeur else None
+
+
 def dossier_donnees(config: dict[str, Any] | None = None) -> Path:
     config = charger_config() if config is None else config
     return _chemin_machine(_valeur(config, "chemins", "donnees") or "donnees")

@@ -94,7 +94,7 @@ def test_rapport_simule(tmp_path):
     assert lignes == simulation.simuler()                       # déterministe
     t = {l["competence"]: l for l in rapport.tableau(lignes, "t0")}
     assert [l["competence"] for l in rapport.tableau(lignes, "t0")][:3] == ["C1", "C2", "S1"]
-    assert len(t) == 14
+    assert len(t) == 15  # 14 compétences + O1 (corriger en observant, 2026-10-20)
     attendu = {"D1": VICTOIRE, "F1": EGALITE, "K1": EGALITE, "S1": EGALITE, "S2": DEFAITE,
                "C1": NON_MESURE, "E": EGALITE}
     assert {c: t[c]["verdict"] for c in attendu} == attendu

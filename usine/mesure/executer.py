@@ -34,7 +34,7 @@ from usine.generateurs.invention import COMPETENCES as _COMPETENCES_INVENTION
 from usine.mesure import reponses
 from usine.mesure.client import ErreurAppel, Reglages, Reponse, completer
 
-COMPETENCES = tuple(_COMPETENCES_INVENTION) + ("E",)
+COMPETENCES = tuple(_COMPETENCES_INVENTION) + ("E", "O1")
 CONFIGURATIONS: dict[str, tuple[bool, bool]] = {
     "base": (False, False), "base_rag": (False, True), "lora": (True, False), "lora_rag": (True, True)}
 FRONTIERES = ("frontiere", "frontiere_rag")
@@ -235,8 +235,11 @@ def essai_agentique(dossier: Path, tache: dict[str, Any], conf: str, r: Reglages
     debut = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="usine_mesure_") as tmp:
         copie = preparer_copie(dossier / "depart", Path(tmp) / "projet")
+        # Tâche O1 : même outil d'observation que pendant les essais (play_sequence).
+        observation = dossier / "tests_caches" / "observation" if "observation" in tache else None
         messages, outils, fin = agent.resoudre(copie, tache["consigne"], tache["competence"], r.client, lora,
-                                               r.max_pas, appeler, () if avec_rag else ("search_docs",), docs)
+                                               r.max_pas, appeler, () if avec_rag else ("search_docs",), docs,
+                                               observation=observation)
         duree_session = time.monotonic() - debut
         debut_juge = time.monotonic()
         verdict = juger(dossier, copie)

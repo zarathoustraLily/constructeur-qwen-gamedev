@@ -30,8 +30,9 @@ INSTRUCTIONS = ("Outils Godot 4.7 déterministes sur le projet ouvert. Chemins e
                 "Les écritures sont jugées sur une copie et appliquées seulement si le juge passe.")
 
 
-def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | None = None) -> FastMCP:
-    outils = Outils(projet, godot, index_docs)
+def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | None = None,
+                  observation: Path | None = None) -> FastMCP:
+    outils = Outils(projet, godot, index_docs, observation)
     mcp = FastMCP(NOM, instructions=INSTRUCTIONS)
     # Un seul fil d'exécution pour les outils : la boucle stdio reste disponible pendant qu'un
     # juge tourne, et les connexions SQLite (vocabulaire, index) restent dans le même fil.
@@ -85,6 +86,13 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def measure_efficiency(scene: str | None = None) -> str:
         return await executer(outils.measure_efficiency, scene)
 
+    if observation is not None:
+        # Déclaré pour les tâches O1 seulement : chaque outil déclaré coûte des jetons à chaque tour.
+        @outil("Joue une séquence scriptée du jeu (sans fenêtre ; défaut : toutes) : règles de partie cassées "
+               "(gravité, hauteur, sous le sol, traversée, enfouissement, caméra), à quelle image, et le parcours.")
+        async def play_sequence(sequence: str | None = None) -> str:
+            return await executer(outils.play_sequence, sequence)
+
     return mcp
 
 
@@ -93,8 +101,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--projet", type=Path, default=Path.cwd())
     parser.add_argument("--godot", type=Path, default=None, help="binaire Godot console (défaut : config.toml)")
     parser.add_argument("--index", type=Path, default=None, help="index de documentation (défaut : donnees/rag)")
+    parser.add_argument("--observation", type=Path, default=None,
+                        help="matériel d'observation d'une tâche O1 (config.json, monde_verite.tscn) : déclare play_sequence")
     args = parser.parse_args(argv)
-    creer_serveur(args.projet, args.godot, args.index).run("stdio")
+    creer_serveur(args.projet, args.godot, args.index, args.observation).run("stdio")
     return 0
 
 
