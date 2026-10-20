@@ -1450,6 +1450,35 @@ observation O1       10 tâches    38 écartés  (943 s)
 - **Ajouter une partie au milieu d'un pas de physique** lui donne un affichage de plus avant sa première physique : la trace diffère de celle d'une partie seule. `jouer_partie.gd` ajoute la partie suivante à la fin d'une image, et n'enregistre qu'après 10 images d'échauffement (la suspension se pose).
 - **Taille des tâches O1** : 18,7 Mo chacune (texte du kart et monde de vérité) ; les binaires sont dans le socle `kart-…`.
 
+### Kart en mode strict (règle 5.3) — 2026-10-20 (choix A de laurent)
+
+Question posée à laurent : la règle 5.3 (avertissements de GDScript = erreurs) vaut « pour les projets qui suivent le plan » ; le kart rangé suit le plan mais son code d'origine n'était pas typé (84 variables sans type dans 17 scripts). Réponse : « a », appliquer la règle.
+
+**Fait**
+
+- Projet kart : bloc `[debug]` de `godot/socle_jeu/project.godot` (28 avertissements à 2) ; 25 scripts typés, environ 170 corrections (la compilation stricte d'une copie en listait 172), sans changer aucun calcul (divisions entières voulues écrites `int(… / 8.0) + 1`, paramètre `position` renommé `point` dans `ProceduralFish._set_fin()`). `ORGANISATION.md` du kart : section « Code typé ».
+- `usine/observation/gd/jouer_partie.gd` typé lui aussi : un script lancé par `-s` hérite des réglages d'avertissements du projet observé ; sans cela, O1 ne pouvait pas observer un projet strict (12 erreurs de compilation).
+
+**Preuve** (projet rangé, après typage)
+
+```
+import : code 0 ; compilation stricte des 56 scripts : 0 erreur
+GdUnit4 (7_tests, --fixed-fps 60) : 143 test cases | 0 errors | 0 failures
+documentation ## : TOTAL 0 manque
+traces des 4 séquences, comparées à celles d'avant le typage : virages, rocher, palmier, saut identiques
+juge de l'usine (import, check_script, load_scene) : ok
+```
+
+Tâches O1 régénérées sur le kart strict : mêmes 10 tâches (8 bugs modèles, 2 mutants : `camera_controller.gd:79`, une ligne plus bas qu'avant le typage, et `kart.gd:277`), 38 écartés (34 invisibles en partie, 4 jeu cassé).
+
+```
+observation O1       10 tâches    38 écartés  (931 s)
+```
+
+**Piège**
+
+- **Un script `-s` hérite des avertissements du projet** : tout script d'outil de l'usine lancé sur un projet strict (socle, cours, kart) doit lui-même être typé, sinon il ne compile pas et l'outil échoue sans rapport avec le candidat.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.

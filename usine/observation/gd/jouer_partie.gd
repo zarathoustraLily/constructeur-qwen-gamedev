@@ -80,7 +80,7 @@ func _suivante() -> void:
 
 
 func _relacher_tout() -> void:
-	for nom in config["commandes"]:
+	for nom: String in config["commandes"]:
 		Input.action_release(config["commandes"][nom])
 
 
@@ -93,7 +93,7 @@ func _trouver_acteur() -> bool:
 	forme = acteur.find_children("*", "CollisionShape3D", false, false)[0]
 	var capteurs := acteur.find_children("*", a.get("capteur_eau", ""), true, false) if a.has("capteur_eau") else []
 	capteur_eau = capteurs[0] if not capteurs.is_empty() else null
-	for chemin in a["visuels"].get("carrosserie", []):
+	for chemin: String in a["visuels"].get("carrosserie", []):
 		var mi := acteur.get_node_or_null(chemin) as MeshInstance3D
 		if mi and mi.mesh:
 			maillages.append([mi, "carrosserie", mi.mesh.get_faces()])
@@ -146,15 +146,15 @@ func _presser(nom: String, force: float = 1.0) -> void:
 
 func _conduire() -> void:
 	_relacher_tout()
-	for t in seq.get("tenir", []):
+	for t: Dictionary in seq.get("tenir", []):
 		if image >= int(t["de"]) and image < int(t.get("a", 1 << 30)):
-			for nom in t["actions"]:
+			for nom: String in t["actions"]:
 				_presser(nom, float(t.get("force", 1.0)))
 	var alt: Dictionary = seq.get("alterner", {})
 	if alt and image >= int(alt["de"]):
 		var actions: Array = alt["actions"]
-		_presser(actions[(image / int(alt["periode"])) % actions.size()])
-	for e in seq.get("evenements", []):
+		_presser(actions[floori(image / float(alt["periode"])) % actions.size()])
+	for e: Dictionary in seq.get("evenements", []):
 		# Le jeu peut lire une commande dans _input() : un vrai événement, pressé puis relâché.
 		if image == int(e["image"]) or image == int(e["image"]) + 1:
 			var ev := InputEventAction.new()
@@ -199,7 +199,9 @@ func _sol(p: Vector3) -> float:
 
 
 func _arrondi(v: float) -> Variant:
-	return null if is_nan(v) else snappedf(v, 0.001)
+	if is_nan(v):
+		return null
+	return snappedf(v, 0.001)
 
 
 func _mesurer() -> Dictionary:
@@ -216,8 +218,11 @@ func _mesurer() -> Dictionary:
 	e["sol"] = _arrondi(sol)
 	e["haut"] = snappedf(p.y - (maxf(0.0, sol) if not is_nan(sol) else 0.0), 0.001)
 	var dessus := espace.intersect_ray(PhysicsRayQueryParameters3D.create(p + Vector3.UP * 60.0, p + Vector3.DOWN * 60.0, CALQUE_SOL))
-	e["sous"] = snappedf(dessus["position"].y - p.y, 0.001) if dessus else null
-	e["sous_obj"] = dessus["collider"].get_meta("origine", "?") if dessus else null
+	e["sous"] = null
+	e["sous_obj"] = null
+	if dessus:
+		e["sous"] = snappedf(dessus["position"].y - p.y, 0.001)
+		e["sous_obj"] = dessus["collider"].get_meta("origine", "?")
 	# Pénétration de la forme de l'acteur dans les obstacles de référence.
 	var q := PhysicsShapeQueryParameters3D.new()
 	q.shape = forme.shape
@@ -228,14 +233,16 @@ func _mesurer() -> Dictionary:
 	for k in range(0, points.size(), 2):
 		profondeur = maxf(profondeur, points[k].distance_to(points[k + 1]))
 	e["pen"] = snappedf(profondeur, 0.001)
-	e["pen_obj"] = ", ".join(espace.intersect_shape(q, 4).map(func(h: Dictionary) -> String: return h["collider"].get_meta("origine", "?"))) if profondeur > 0.0 else null
+	e["pen_obj"] = null
+	if profondeur > 0.0:
+		e["pen_obj"] = ", ".join(espace.intersect_shape(q, 4).map(func(h: Dictionary) -> String: return h["collider"].get_meta("origine", "?")))
 	# Enfouissement : de combien le bas visible de chaque partie du corps passe sous le sol de référence.
-	for partie_du_corps in ["carrosserie", "roues"]:
+	for partie_du_corps: String in ["carrosserie", "roues"]:
 		e["enf_" + partie_du_corps] = null
-	for m in maillages:
+	for m: Array in maillages:
 		var mi: MeshInstance3D = m[0]
 		var bas := Vector3(0, INF, 0)
-		for v in m[2]:
+		for v: Vector3 in m[2]:
 			var g: Vector3 = mi.global_transform * v
 			if g.y < bas.y:
 				bas = g
@@ -252,7 +259,9 @@ func _mesurer() -> Dictionary:
 		var sc := _sol(cam.global_position)
 		e["cam_sous"] = _arrondi(sc - cam.global_position.y) if not is_nan(sc) else null
 		var marche := vitesse * Vector3(1, 0, 1)
-		e["cam_al"] = snappedf((-cam.global_basis.z * Vector3(1, 0, 1)).normalized().dot(marche.normalized()), 0.01) if marche.length() > 0.001 else null
+		e["cam_al"] = null
+		if marche.length() > 0.001:
+			e["cam_al"] = snappedf((-cam.global_basis.z * Vector3(1, 0, 1)).normalized().dot(marche.normalized()), 0.01)
 	return e
 
 
