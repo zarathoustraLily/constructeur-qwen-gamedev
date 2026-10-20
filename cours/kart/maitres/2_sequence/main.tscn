@@ -2,7 +2,11 @@
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
 [ext_resource type="Resource" path="res://5_data/input/jump_rumble.tres" id="2_rumble"]
+;@ 1
 [ext_resource type="Script" path="res://3_entities/kart/kart_input.gd" id="3_input"]
+;@ 2+
+[ext_resource type="PackedScene" path="res://3_entities/kart/kart.tscn" id="3_kart"]
+;@ all
 [ext_resource type="PackedScene" path="res://4_ui/hud/input_display/input_display.tscn" id="4_display"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_main"]
@@ -15,16 +19,41 @@ background_mode = 2
 sky = SubResource("Sky_main")
 tonemap_mode = 2
 
+;@ 1
 [sub_resource type="PlaneMesh" id="PlaneMesh_sol"]
 size = Vector2(40, 40)
 
+;@ 2+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sol"]
+albedo_color = Color(0.45, 0.52, 0.42, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_sol"]
+material = SubResource("StandardMaterial3D_sol")
+size = Vector2(200, 200)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sol"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rampe"]
+albedo_color = Color(0.8, 0.55, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rampe"]
+material = SubResource("StandardMaterial3D_rampe")
+size = Vector3(4, 0.4, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rampe"]
+size = Vector3(4, 0.4, 6)
+
+;@ all
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
 jump_rumble = ExtResource("2_rumble")
 
+;@ 1
 [node name="KartInput" type="Node" parent="."]
 script = ExtResource("3_input")
 
+;@ all
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
 
@@ -32,10 +61,42 @@ environment = SubResource("Environment_main")
 transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 8, 0)
 shadow_enabled = true
 
+;@ 1
 [node name="Ground" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_sol")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 3, 8)
 
+;@ 2+
+[node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 8
+collision_mask = 15
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_sol")
+
+[node name="Shape" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_sol")
+
+[node name="Ramp" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0.6, -18)
+collision_layer = 8
+collision_mask = 15
+
+[node name="Mesh" type="MeshInstance3D" parent="Ramp"]
+mesh = SubResource("BoxMesh_rampe")
+
+[node name="Shape" type="CollisionShape3D" parent="Ramp"]
+shape = SubResource("BoxShape3D_rampe")
+
+[node name="Kart" parent="." instance=ExtResource("3_kart")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 12, 18)
+fov = 60.0
+
+;@ all
 [node name="InputDisplay" parent="." instance=ExtResource("4_display")]

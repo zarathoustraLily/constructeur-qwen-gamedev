@@ -1,6 +1,11 @@
 extends GdUnitTestSuite
+#@ 1
 ## Règles de la scène principale : elle montre à chaque image les commandes que l'adaptateur a lues, et la
 ## vibration du saut est réglée.
+#@ 2+
+## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
+## vibration du saut est réglée et branchée sur le saut du kart, et le kart se pose sur le sol.
+#@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
 
@@ -13,8 +18,10 @@ func test_la_scene_montre_les_commandes_lues() -> void:
 	var main: Node3D = auto_free(MAIN.instantiate())
 	add_child(main)
 	Input.action_press("move_forward")
-	await get_tree().physics_frame
-	await get_tree().physics_frame
+	# Le signal physics_frame part avant que les nœuds ne jouent leur image : trois images pour que la lecture
+	# des commandes, puis leur affichage, aient eu lieu.
+	for _frame: int in 3:
+		await get_tree().physics_frame
 	assert_float((main.get_node("InputDisplay/Panel/Rows/Throttle") as ProgressBar).value).is_equal_approx(1.0, 0.001)
 
 
@@ -24,3 +31,38 @@ func test_la_vibration_du_saut_est_reglee() -> void:
 	assert_object(rumble).is_not_null()
 	assert_float(rumble.duration).is_greater(0.0)
 	assert_float(maxf(rumble.weak_magnitude, rumble.strong_magnitude)).is_greater(0.0)
+#@ 2+
+
+
+func test_la_vibration_est_branchee_sur_le_saut_du_kart() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	assert_int(kart.jumped.get_connections().size()).is_equal(1)
+
+
+func test_le_kart_se_pose_sur_le_sol_de_l_aire_d_essai() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	for _frame: int in 60:
+		await get_tree().physics_frame
+	assert_bool(kart.is_on_ground()).is_true()
+	assert_float(kart.global_position.y).is_between(-0.5, 1.0)
+
+
+func test_en_foncant_sur_la_rampe_le_kart_decolle() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	kart.input = null
+	kart.commands.throttle = 1.0
+	var highest := kart.global_position.y
+	var airborne := false
+	for _frame: int in 240:
+		await get_tree().physics_frame
+		highest = maxf(highest, kart.global_position.y)
+		airborne = airborne or (kart.global_position.z < -18.0 and not kart.is_on_ground())
+	assert_bool(airborne).override_failure_message("le kart n'a pas quitté le sol après la rampe").is_true()
+	assert_float(highest).is_greater(1.0)
+#@ all

@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1]
+PRETES = [1, 2]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -53,6 +53,13 @@ FICHIERS = {
     "7_tests/2_sequence/test_main.gd": "1+",
     "7_tests/1_core/test_documentation.gd": "1+",
     "7_tests/lancer_tests.bat": "1+",
+    "1_core/vehicles/kart_settings.gd": "2+",
+    "5_data/kart/kart_settings.tres": "2+",
+    "3_entities/kart/kart_view.gd": "2+",
+    "3_entities/kart/wheel_view.gd": "2+",
+    "3_entities/kart/steering_wheel_view.gd": "2+",
+    "7_tests/3_entities/kart/test_kart_view.gd": "2+",
+    "6_assets/models/kart_basic/kart_material.tres": "2+",
     "0_autoload/game_flow.gd": "14+",
     "0_autoload/game_state.gd": "14+",
     "1_core/step/sequence.gd": "14+",
@@ -67,8 +74,6 @@ FICHIERS = {
     "project.godot": "1+",
     "3_entities/kart/kart.gd": "2+",
     "3_entities/kart/kart.tscn": "2+",
-    "3_entities/kart/steering_wheel.gd": "2+",
-    "3_entities/kart/wheel.gd": "2+",
     "3_entities/kart/wheel.tscn": "2+",
     "7_tests/3_entities/kart/test_kart.gd": "2+",
     "3_entities/player/camera_controller.gd": "3+",
