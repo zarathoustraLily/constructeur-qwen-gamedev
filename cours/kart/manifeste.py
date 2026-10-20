@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3]
+PRETES = [1, 2, 3, 4]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -67,6 +67,8 @@ FICHIERS = {
     "5_data/camera/follow_camera.tres": "3+",
     "7_tests/1_core/camera/test_follow_camera_view.gd": "3+",
     "7_tests/1_core/camera/test_camera_input.gd": "3+",
+    "2_sequence/levels/island/island.tscn": "4+",
+    "7_tests/2_sequence/levels/island/test_island.gd": "4+",
     "0_autoload/game_flow.gd": "14+",
     "0_autoload/game_state.gd": "14+",
     "1_core/step/sequence.gd": "14+",
@@ -92,9 +94,9 @@ FICHIERS = {
     "3_entities/decor/rock/rock.tscn": "5+",
     "6_assets/shaders/common/billboard.gdshaderinc": "5+",
     "6_assets/shaders/common/dither.gdshaderinc": "5+",
-    "6_assets/shaders/common/stylized_shader.gdshader": "5+",
+    "6_assets/shaders/common/stylized_shader.gdshader": "4+",
     "6_assets/shaders/common/stylized_shader_wind_affected.gdshader": "5+",
-    "6_assets/shaders/common/utils.gdshaderinc": "5+",
+    "6_assets/shaders/common/utils.gdshaderinc": "4+",
     "6_assets/shaders/common/wind_displacement.gdshaderinc": "5+",
     "6_assets/shaders/environment/clouds.gdshader": "5+",
     "6_assets/shaders/environment/palm.gdshader": "5+",

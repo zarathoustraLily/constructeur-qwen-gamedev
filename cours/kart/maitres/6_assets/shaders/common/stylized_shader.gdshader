@@ -4,7 +4,9 @@ shader_type spatial;
 
 #include "res://6_assets/shaders/common/utils.gdshaderinc"
 #include "res://6_assets/shaders/common/triplanar_sampling.gdshaderinc"
+//@ 11+
 #include "res://6_assets/shaders/effects/rain_ripples.gdshaderinc"
+//@ all
 
 uniform float specular : hint_range(0, 1) = 0.5f;
 uniform float roughness : hint_range(0, 1) = 0.5f;
@@ -19,6 +21,7 @@ uniform float normalScale = 0.15;
 
 uniform bool use_global_position = true;
 
+//@ 11+
 group_uniforms Rain;
 // 0 = ignore la pluie, 1 = la surface se mouille (activé sur la route)
 uniform float rain_receiver : hint_range(0.0, 1.0) = 0.0;
@@ -30,6 +33,7 @@ uniform float rain_puddle_darkening : hint_range(0.0, 1.0) = 0.35;
 uniform float rain_drops_per_meter = 2.5;
 uniform float rain_ripple_strength = 0.6;
 group_uniforms;
+//@ all
 
 varying vec3 global_position;
 
@@ -52,6 +56,7 @@ void fragment() {
 	global_normal = noiseNormalTransformer(global_normal, sampled_noise, normalScale);
 	ALBEDO = noiseColorTransformer(albedo.rgb * texture(albedo_texture, UV * uv_tiling).rgb, sampled_noise);
 
+//@ 11+
 	// Pluie : surface mouillée, flaques et impacts de gouttes (seulement sur les faces orientées vers le ciel)
 	float wet = rain_wetness * rain_receiver * smoothstep(0.6, 0.9, global_normal.y);
 	if (wet > 0.001) {
@@ -65,5 +70,6 @@ void fragment() {
 		float ripple = rain_ripple_strength * mix(0.35, 1.0, puddle) * wet;
 		global_normal = normalize(global_normal + vec3(rain.x, 0.0, rain.y) * ripple);
 	}
+//@ all
 	NORMAL = normalize((VIEW_MATRIX * vec4(global_normal, 0.0)).xyz);
 }

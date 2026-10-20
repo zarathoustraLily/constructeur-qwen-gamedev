@@ -1,4 +1,4 @@
-;@ 2-4
+;@ 2-3
 [gd_resource type="StandardMaterial3D" format=3 uid="uid://cwqmra1oal3pf"]
 
 [ext_resource type="Texture2D" uid="uid://brdf36qchf2hi" path="res://6_assets/textures/common/palette.png" id="2_n8ono"]
@@ -6,7 +6,7 @@
 [resource]
 albedo_texture = ExtResource("2_n8ono")
 roughness = 0.79
-;@ 5+
+;@ 4+
 [gd_resource type="ShaderMaterial" format=3 uid="uid://cwqmra1oal3pf"]
 
 [ext_resource type="Shader" uid="uid://bablkasr0bf4m" path="res://6_assets/shaders/common/stylized_shader.gdshader" id="1_x6dmk"]

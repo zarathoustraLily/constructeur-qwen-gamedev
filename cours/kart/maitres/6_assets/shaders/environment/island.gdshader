@@ -19,6 +19,7 @@ uniform float detail_noise_normal_strength = 0.5;
 uniform sampler2D detail_noise;
 uniform sampler2D terrain_material_map;
 
+//@ 10+
 group_uniforms Internal;
 
 uniform sampler2D tire_marks_texture;
@@ -46,6 +47,7 @@ vec3 compute_tire_marks_normal(vec3 global_pos) {
 	vec3 binormal = normalize(vec3(0.0, 1.0, f3 - f1));
 	return normalize(cross(binormal, tangent)) * 0.5 + 0.5;
 }
+//@ all
 
 
 void vertex() {
@@ -65,8 +67,10 @@ void fragment() {
 	vec4 terrain = texture(terrain_material_map, UV);
 
 
+//@ 10+
 	vec3 tire_mark_normal = scale_normal_strength(compute_tire_marks_normal(global_position), 0.5);
 	float tire_mark_strength = sample_water_tire_marks(global_position);
+//@ all
 
 	if (dot(WORLD_UP, global_normal)  > 0.85f) {
 		SPECULAR = 0.8;
@@ -78,14 +82,18 @@ void fragment() {
 			color = sand_color.rgb;
 			SPECULAR = 0.7;
 			ROUGHNESS = 0.7;
+//@ 10+
 
 			NORMAL_MAP = tire_mark_normal;
 			color = mix(color, wheel_sand_color.rgb, tire_mark_strength);
+//@ all
 
 		} else {
 			color = grass_color.rgb;
+//@ 10+
 			NORMAL_MAP = tire_mark_normal;
 			color = mix(color, dirt_color.rgb, clamp(tire_mark_strength, 0.0, 0.5));
+//@ all
 		}
 	}
 

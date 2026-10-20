@@ -1,9 +1,10 @@
 class_name FollowCameraView extends Node3D
 ## Caméra qui suit une cible en orbite. Ce nœud est le pivot : il se place au-dessus du modèle de la cible
 ## (`anchor`), et la caméra, au bout d'un bras à ressort (SpringArm3D, enfant), le regarde ; le bras se
-## raccourcit quand un obstacle passe entre les deux. La souris et le stick droit font tourner le pivot ;
-## après `reset_delay` secondes sans eux, il revient derrière la cible, si elle avance. La cible et les
-## réglages sont donnés par la scène qui l'emploie : ce mécanisme ne connaît aucun acteur du jeu.
+## raccourcit quand un obstacle passe entre les deux. Au départ, le pivot est derrière la cible ; la souris et
+## le stick droit le font tourner, et après `reset_delay` secondes sans eux, il revient derrière la cible, si
+## elle avance. La cible et les réglages sont donnés par la scène qui l'emploie : ce mécanisme ne connaît
+## aucun acteur du jeu.
 
 ## Réglages (5_data/camera/follow_camera.tres).
 @export var settings: FollowCameraSettings
@@ -24,6 +25,8 @@ func _ready() -> void:
 		set_process(false)
 		return
 	_last_target_position = target.global_position
+	# Au départ, la caméra est dans le dos de la cible.
+	global_basis = target.global_basis.orthonormalized()
 
 
 func _process(delta: float) -> void:

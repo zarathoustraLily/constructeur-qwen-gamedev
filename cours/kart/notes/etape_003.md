@@ -65,6 +65,9 @@ prend pas la souris de celui qui n'a pas encore commencé à jouer.
 
 ### 5. Revenir derrière le kart
 
+Au démarrage, le pivot prend l'orientation de la cible : la caméra part dans le dos du kart, quelle que soit
+la direction où il est posé.
+
 Après `reset_delay` (1,25 s) sans souris ni stick, si la cible avance (plus de 1 m/s), le pivot tourne en
 douceur vers l'orientation du kart : `global_basis.slerp(cible, 1 − exp(−reset_rate × delta))`. `slerp`
 interpole entre deux rotations sans déformer la base ; `orthonormalized()` corrige les petites erreurs qui

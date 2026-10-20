@@ -5,10 +5,14 @@ extends GdUnitTestSuite
 #@ 2
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, et le kart se pose sur le sol.
-#@ 3+
+#@ 3
 ## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
 ## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur le sol et décolle de
 ## la rampe, et la caméra le suit.
+#@ 4+
+## Règles de la scène principale : elle montre à chaque image les commandes que le kart a reçues, la
+## vibration du saut est réglée et branchée sur le saut du kart, le kart se pose sur l'île au départ, et la
+## caméra le suit.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -43,6 +47,7 @@ func test_la_vibration_est_branchee_sur_le_saut_du_kart() -> void:
 	add_child(main)
 	var kart := main.get_node("Kart") as Kart
 	assert_int(kart.jumped.get_connections().size()).is_equal(1)
+#@ 2-3
 
 
 func test_le_kart_se_pose_sur_le_sol_de_l_aire_d_essai() -> void:
@@ -69,6 +74,18 @@ func test_en_foncant_sur_la_rampe_le_kart_decolle() -> void:
 		airborne = airborne or (kart.global_position.z < -18.0 and not kart.is_on_ground())
 	assert_bool(airborne).override_failure_message("le kart n'a pas quitté le sol après la rampe").is_true()
 	assert_float(highest).is_greater(1.0)
+#@ 4+
+
+
+func test_le_kart_se_pose_sur_l_ile_au_depart() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	kart.input = null
+	for _frame: int in 120:
+		await get_tree().physics_frame
+	assert_bool(kart.is_on_ground()).is_true()
+	assert_float(kart.global_position.distance_to(Vector3(4.8399, 4.47262, -5.20099))).is_less(2.0)
 #@ 3+
 
 

@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
-## Règles de la caméra qui suit : elle se place au-dessus du point suivi ; le stick droit et la souris
-## capturée la font tourner, la souris libre non ; l'inclinaison est bornée ; sans entrée pendant le délai,
-## elle revient derrière une cible qui avance, mais pas derrière une cible arrêtée.
+## Règles de la caméra qui suit : au départ, elle est derrière la cible ; elle se place au-dessus du point
+## suivi ; le stick droit et la souris capturée la font tourner, la souris libre non ; l'inclinaison est
+## bornée ; sans entrée pendant le délai, elle revient derrière une cible qui avance, mais pas derrière une
+## cible arrêtée.
 
 const CAMERA := preload("res://1_core/camera/follow_camera.tscn")
 const SETTINGS := preload("res://5_data/camera/follow_camera.tres")
@@ -34,6 +35,17 @@ func _follow(speed: float, seconds: float) -> void:
 	for _frame: int in int(seconds / STEP):
 		_target.global_position += -_target.global_basis.z * speed * STEP
 		_camera._process(STEP)
+
+
+func test_au_depart_la_camera_est_derriere_la_cible() -> void:
+	var turned: Node3D = auto_free(Node3D.new())
+	turned.rotation.y = 2.0
+	add_child(turned)
+	var camera: FollowCameraView = auto_free(CAMERA.instantiate())
+	camera.settings = SETTINGS
+	camera.target = turned
+	add_child(camera)
+	assert_float(camera.global_basis.z.dot(turned.global_basis.z)).is_greater(0.999)
 
 
 func test_la_camera_se_place_au_dessus_du_point_suivi() -> void:
