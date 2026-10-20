@@ -11,12 +11,19 @@ extends Node3D
 ## Scène principale : l'île et le kart. À chaque image physique, l'affichage (InputDisplay) montre les
 ## commandes que le kart a reçues de son adaptateur d'entrées ; un saut fait vibrer la manette (jump_rumble).
 ## La scène fait le lien : le kart et l'affichage ne se connaissent pas.
-#@ 6+
+#@ 6-8
 ## Scène principale : l'île et le kart. À chaque image physique, l'affichage (InputDisplay) montre les
 ## commandes que le kart a reçues de son adaptateur d'entrées ; un saut fait vibrer la manette (jump_rumble) ;
 ## la position du kart est recopiée dans GameState.player_position, que GameState passe au paramètre global
 ## de shader du même nom : l'herbe le lit pour s'écarter sous le kart. La scène fait le lien : le kart,
 ## l'affichage et les shaders ne se connaissent pas.
+#@ 9+
+## Scène principale : l'île et le kart. À chaque image physique, l'affichage (InputDisplay) montre les
+## commandes que le kart a reçues de son adaptateur d'entrées ; un saut fait vibrer la manette (jump_rumble) ;
+## la position du kart est recopiée dans GameState.player_position, que GameState passe au paramètre global
+## de shader du même nom : l'herbe le lit pour s'écarter sous le kart ; l'océan recentre sur le kart ses
+## simulations d'ondulations, de vagues et d'écume. La scène fait le lien : le kart, l'affichage, l'océan et
+## les shaders ne se connaissent pas.
 #@ all
 
 ## Vibration jouée à chaque saut (5_data/input/jump_rumble.tres).
@@ -26,6 +33,8 @@ extends Node3D
 @onready var _input: KartInput = $KartInput
 #@ 2+
 @onready var _kart: Kart = $Kart
+#@ 9+
+@onready var _ocean: Ocean = $Island/Ocean
 #@ all
 @onready var _display: InputDisplay = $InputDisplay
 
@@ -50,6 +59,8 @@ func _physics_process(_delta: float) -> void:
 	_display.show_commands(_kart.commands, pads)
 #@ 6+
 	GameState.player_position = _kart.global_position
+#@ 9+
+	_ocean.set_player_position(_kart.global_position)
 #@ 2+
 
 

@@ -100,6 +100,17 @@ func test_la_position_du_kart_est_recopiee_pour_les_shaders() -> void:
 	for _frame: int in 3:
 		await get_tree().physics_frame
 	assert_float(GameState.player_position.distance_to(kart.global_position)).is_less(0.5)
+#@ 9+
+
+
+func test_l_ocean_suit_le_kart() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var kart := main.get_node("Kart") as Kart
+	for _frame: int in 3:
+		await get_tree().physics_frame
+	var ocean := main.get_node("Island/Ocean") as Ocean
+	assert_float(ocean.water_waves.texture_offset.distance_to(kart.global_position)).is_less(0.5)
 #@ 3+
 
 

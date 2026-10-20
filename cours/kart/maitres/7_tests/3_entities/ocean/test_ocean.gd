@@ -2,6 +2,9 @@ extends GdUnitTestSuite
 ## Règles de l'océan, sans fenêtre, donc sans RenderingDevice : la houle ne démarre pas, l'eau est plate à
 ## hauteur 0, et la mer calme remplace la surface de l'océan, dont aucun carré n'est construit. Le masque de
 ## l'île est faible sur l'île, vaut 1 au large, et garde la valeur de son bord au-delà du carré qu'il couvre.
+#@ 9+
+## Ondulations, vagues d'impact et écume vont chacune à sa simulation, et toutes suivent le joueur.
+#@ all
 
 const OCEAN := preload("res://3_entities/ocean/ocean.tscn")
 const START := Vector3(4.8399, 4.47262, -5.20099)
@@ -36,3 +39,22 @@ func test_au_dela_du_masque_la_valeur_de_son_bord() -> void:
 	assert_float(_ocean.get_island_mask(Vector3(3000.0, 0.0, 0.0))).is_equal_approx(
 		_ocean.get_island_mask(Vector3(479.0, 0.0, 0.0)), 0.001)
 	assert_float(_ocean.get_island_mask(Vector3(-3000.0, 0.0, 2000.0))).is_equal_approx(1.0, 0.01)
+#@ 9+
+
+
+func test_ondulations_vagues_et_ecume_vont_a_leur_simulation() -> void:
+	_ocean.add_ripple(Vector3(1.0, 0.0, 2.0), 0.1, 4.0)
+	_ocean.add_wave(Vector3(3.0, 0.0, 4.0), 0.2, 3.0)
+	_ocean.add_foam(Vector3(5.0, 0.0, 6.0), 0.5, 0.4)
+	assert_that(_ocean.water_ripples.ripple_origins).is_equal([Vector4(1.0, 2.0, 0.1, 4.0)])
+	assert_that(_ocean.water_waves.ripple_origins).is_equal([Vector4(3.0, 4.0, 0.2, 3.0)])
+	assert_that(_ocean.water_foam.foam_origins).is_equal([Vector4(5.0, 6.0, 0.5, 0.4)])
+
+
+func test_les_simulations_suivent_le_joueur() -> void:
+	var player := Vector3(12.0, 0.5, -7.0)
+	_ocean.set_player_position(player)
+	assert_vector(_ocean.water_ripples.texture_offset).is_equal(player)
+	assert_vector(_ocean.water_waves.texture_offset).is_equal(player)
+	assert_vector(_ocean.water_foam.texture_offset).is_equal(player)
+#@ all

@@ -13,6 +13,9 @@
 [ext_resource type="PackedScene" path="res://3_entities/kart/wheel.tscn" id="11_wheel"]
 ;@ 7+
 [ext_resource type="Script" path="res://1_core/water/buoyancy/water_buoyancy_sensor.gd" id="12_sensor"]
+;@ 9+
+[ext_resource type="Script" path="res://3_entities/kart/kart_wake.gd" id="13_wake"]
+[ext_resource type="Resource" path="res://5_data/kart/kart_wake.tres" id="14_wake_settings"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kart"]
@@ -45,6 +48,12 @@ shape = SubResource("CapsuleShape3D_kart")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4, 0)
 script = ExtResource("12_sensor")
 height = 0.8
+
+;@ 9+
+[node name="KartWake" type="Node" parent="." node_paths=PackedStringArray("kart")]
+script = ExtResource("13_wake")
+kart = NodePath("..")
+settings = ExtResource("14_wake_settings")
 
 ;@ all
 [node name="Visual" type="Node3D" parent="." node_paths=PackedStringArray("kart", "model", "steering_wheel", "wheels")]

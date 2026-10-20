@@ -14,7 +14,7 @@ class_name Ocean extends WaterSurface
 
 @onready var water_ripples: WaterWaves = $WaterRipples
 @onready var water_waves: WaterWaves = $WaterWaves
-@onready var water_foam: WaterFoam = $WaterFoam
+@onready var water_foam: WaterFoamView = $WaterFoam
 #@ all
 
 ## Masque de l'île : son canal rouge multiplie la hauteur de l'eau (0 sur l'île, 1 au large).

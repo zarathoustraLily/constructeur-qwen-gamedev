@@ -37,7 +37,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # Maîtres (cours/kart/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -138,9 +138,14 @@ FICHIERS = {
     "6_assets/materials/water/water_surface_material.tres": "8+",
     "6_assets/shaders/water/water_textures.gdshaderinc": "8+",
     "1_core/water/waves/accumulate_foam.glsl": "9+",
-    "1_core/water/waves/water_foam.gd": "9+",
+    "1_core/water/waves/water_foam_view.gd": "9+",
     "1_core/water/waves/water_waves.gd": "9+",
     "1_core/water/waves/water_waves_compute.glsl": "9+",
+    "1_core/vehicles/kart_wake_settings.gd": "9+",
+    "3_entities/kart/kart_wake.gd": "9+",
+    "5_data/kart/kart_wake.tres": "9+",
+    "7_tests/1_core/water/waves/test_water_waves.gd": "9+",
+    "7_tests/3_entities/kart/test_kart_wake.gd": "9+",
     "1_core/components/particle_manager3d.gd": "10+",
     "1_core/effects/tire_marks/tire_marks_manager.gd": "10+",
     "1_core/effects/tire_marks/tire_marks_shader.glsl": "10+",

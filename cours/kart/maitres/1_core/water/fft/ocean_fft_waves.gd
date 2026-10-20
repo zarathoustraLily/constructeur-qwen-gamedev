@@ -48,6 +48,9 @@ enum FFTResolution {
 
 @export_group("Simulation")
 
+## Graine du hasard de départ de la houle.
+@export var random_seed: int = 0
+
 ## Nombre d'appels à simulate() sautés entre deux simulations. Pour des vagues fluides, il faut au moins
 ## 30 simulations par seconde : images par seconde / (frameskip + 1) ≥ 30.
 ## 0 : aucune image sautée.
@@ -215,8 +218,9 @@ var _rng := RandomNumberGenerator.new()
 
 
 ## Prépare la simulation (sur le fil de rendu) ; `initialized` passe à vrai si une carte graphique de calcul existe.
+## Le hasard de départ vient de `random_seed` : la même graine redonne la même mer, image par image.
 func initialize_simulation() -> void:
-	_rng.randomize()
+	_rng.seed = random_seed
 	RenderingServer.call_on_render_thread(_initialize_simulation)
 
 
