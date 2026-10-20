@@ -1,0 +1,47 @@
+[gd_scene load_steps=6 format=3 uid="uid://d2rcslwgwftan"]
+
+[ext_resource type="Script" uid="uid://buuv5cuiuaxlg" path="res://1_core/water/buoyancy/buoyant_body3d.gd" id="1_miksy"]
+[ext_resource type="Material" uid="uid://dylmbfcmmn0vr" path="res://6_assets/models/buoy/buoy_material.tres" id="2_miksy"]
+[ext_resource type="ArrayMesh" uid="uid://bo5qky8crp2xp" path="res://6_assets/models/buoy/buoy.obj" id="3_h5kff"]
+[ext_resource type="Script" uid="uid://cq4einn6nftcp" path="res://1_core/water/buoyancy/water_buoyancy_sensor.gd" id="5_lv0ef"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lv0ef"]
+radius = 1.49847
+height = 5.11011
+
+[node name="Buoy" type="RigidBody3D"]
+collision_layer = 64
+collision_mask = 219
+mass = 500.0
+script = ExtResource("1_miksy")
+buoyancy_multiplier = 1000.0
+buoyancy_power = 2.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = ExtResource("2_miksy")
+mesh = ExtResource("3_h5kff")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0025599, 1.87452, 0.00233316)
+shape = SubResource("CapsuleShape3D_lv0ef")
+
+[node name="Sensor" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -4, -6)
+script = ExtResource("5_lv0ef")
+
+[node name="Sensor5" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.70145, 0)
+script = ExtResource("5_lv0ef")
+buoyancy_multiplier = 100.0
+
+[node name="Sensor2" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -4, -6)
+script = ExtResource("5_lv0ef")
+
+[node name="Sensor3" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -4, 6)
+script = ExtResource("5_lv0ef")
+
+[node name="Sensor4" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -4, 6)
+script = ExtResource("5_lv0ef")

@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/hud/input_display/input_display.gd" id="1_display"]
+
+[node name="InputDisplay" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 356.0
+offset_bottom = 196.0
+mouse_filter = 2
+script = ExtResource("1_display")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 340.0
+offset_bottom = 180.0
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/Rows"]
+layout_mode = 2
+text = "Commandes de conduite"
+
+[node name="ThrottleLabel" type="Label" parent="Panel/Rows"]
+layout_mode = 2
+text = "Gaz (gâchettes, W et S)"
+
+[node name="Throttle" type="ProgressBar" parent="Panel/Rows"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+step = 0.001
+show_percentage = false
+
+[node name="SteeringLabel" type="Label" parent="Panel/Rows"]
+layout_mode = 2
+text = "Direction (stick gauche, A et D)"
+
+[node name="Steering" type="ProgressBar" parent="Panel/Rows"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+step = 0.001
+show_percentage = false
+
+[node name="Buttons" type="Label" parent="Panel/Rows"]
+layout_mode = 2
+text = "Frein : non   Saut : non"
+
+[node name="Pads" type="Label" parent="Panel/Rows"]
+layout_mode = 2
+text = "Aucune manette branchée"

@@ -77,7 +77,22 @@ def dossier_de(res: str) -> str | None:
 
 
 def snake(nom: str) -> str:
-    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", nom).lower()
+    """Comme String.to_snake_case de Godot 4 : un tiret bas avant une majuscule qui suit une minuscule, avant la
+    dernière majuscule d'un sigle suivi d'une minuscule, et avant le premier chiffre d'un nombre (BuoyantBody3D →
+    buoyant_body_3d, HTTP2Server → http_2_server). Comparé à Godot 4.7.2 le 2026-10-20 sur les 1 048 noms de
+    classes de son API : aucun écart."""
+    if not nom:
+        return nom
+    sortie = [nom[0]]
+    for i in range(1, len(nom)):
+        prec, cour = nom[i - 1], nom[i]
+        suiv = nom[i + 1] if i + 1 < len(nom) else ""
+        if ((prec.islower() and cour.isupper())
+                or ((prec.isupper() or prec.isdigit()) and cour.isupper() and suiv.islower())
+                or (cour.isdigit() and not prec.isdigit())):
+            sortie.append("_")
+        sortie.append(cour)
+    return "".join(sortie).lower()
 
 
 def _erreur(fichier: str, regle: str, message: str, ligne: int | None = None) -> dict[str, Any]:

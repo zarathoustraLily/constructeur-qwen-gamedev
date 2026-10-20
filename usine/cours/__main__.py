@@ -3,6 +3,7 @@
     python -m usine.cours fabriquer batiments_proceduraux [--villes parisien …] [--etapes 1 2 …] [--sortie <dossier>]
     python -m usine.cours juger batiments_proceduraux [--sortie <dossier>]
     python -m usine.cours verifier batiments_proceduraux [--villes …] [--etapes …] [--sans-rendu] [--travailleurs 2]
+    python -m usine.cours fabriquer kart [--etapes 1 2 …]      (cours « de jeu » : usine/cours/jeu.py)
 
 `fabriquer` écrit un projet Godot par étape (défaut : donnees/cours/<cours>/projets/). `juger` passe le juge des
 règles sur les projets fabriqués. `verifier` lance en plus Godot sur chacun (import, analyse de chaque script,
@@ -23,6 +24,9 @@ from usine.cours.fabriquer import etapes_demandees, fabriquer_tout, lire_manifes
 
 def _projets(cours: str, sortie: Path, villes: list[str] | None, etapes: list[int] | None) -> list[Path]:
     manifeste = lire_manifeste(dossier_cours(cours))
+    if manifeste.get("GENRE") == "jeu":
+        from usine.cours import jeu
+        return [sortie / jeu.nom_projet(manifeste, n) for n in jeu.etapes_demandees(manifeste, etapes)]
     return [sortie / nom_projet(v, n) for v, n in etapes_demandees(manifeste, villes, etapes)]
 
 
@@ -45,6 +49,16 @@ def main(argv: list[str] | None = None) -> int:
     sortie = args.sortie or dossier_projets(args.cours)
 
     if args.commande == "fabriquer":
+        if lire_manifeste(dossier_cours(args.cours)).get("GENRE") == "jeu":
+            from usine.cours import jeu
+            for rapport in jeu.fabriquer_tout(dossier_cours(args.cours), sortie, args.etapes):
+                etats: dict[str, int] = {}
+                for entree in rapport["fichiers"]:
+                    etats[entree["etat"]] = etats.get(entree["etat"], 0) + 1
+                print(f"{rapport['nom']} : {len(rapport['fichiers'])} fichiers {etats}, "
+                      f"{len(rapport['ressources'])} ressources copiées")
+            print(f"Projets dans {sortie}")
+            return 0
         for rapport in fabriquer_tout(dossier_cours(args.cours), sortie, args.villes, args.etapes):
             etats: dict[str, int] = {}
             for entree in rapport["fichiers"]:

@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://da5oqnb43tfg6"]
+
+[ext_resource type="Material" uid="uid://cbrllkvbe30u3" path="res://6_assets/materials/environment/clouds_material.tres" id="1_oyymu"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ss1e7"]
+
+[node name="Clouds" type="MeshInstance3D"]
+transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
+material_override = ExtResource("1_oyymu")
+mesh = SubResource("PlaneMesh_ss1e7")

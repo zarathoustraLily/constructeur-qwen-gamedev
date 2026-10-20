@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="Rumble" format=3]
+
+[ext_resource type="Script" path="res://1_core/input/rumble.gd" id="1_rumble"]
+
+[resource]
+script = ExtResource("1_rumble")
+weak_magnitude = 0.4
+strong_magnitude = 0.8
+duration = 0.15

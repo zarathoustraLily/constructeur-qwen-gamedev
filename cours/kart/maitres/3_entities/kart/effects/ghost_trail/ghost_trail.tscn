@@ -1,0 +1,18 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://3_entities/kart/effects/ghost_trail/ghost_trail.gd" id="1_ghost"]
+[ext_resource type="Shader" path="res://6_assets/shaders/effects/ghost.gdshader" id="2_shader"]
+[ext_resource type="Shader" path="res://6_assets/shaders/effects/ghost_halo.gdshader" id="3_halo"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_halo"]
+render_priority = -1
+shader = ExtResource("3_halo")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ghost"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_halo")
+shader = ExtResource("2_shader")
+
+[node name="GhostTrail" type="Node3D"]
+script = ExtResource("1_ghost")
+ghost_material = SubResource("ShaderMaterial_ghost")

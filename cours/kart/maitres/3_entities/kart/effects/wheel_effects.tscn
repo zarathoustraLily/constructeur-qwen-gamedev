@@ -1,0 +1,198 @@
+[gd_scene load_steps=26 format=3]
+
+[ext_resource type="Script" path="res://3_entities/kart/effects/wheel_splash_effects.gd" id="1_fx"]
+[ext_resource type="Texture2D" path="res://6_assets/textures/effects/water_spray.png" id="2_spray"]
+[ext_resource type="Script" path="res://3_entities/kart/effects/trail/wheel_trail.gd" id="3_trail"]
+[ext_resource type="Shader" path="res://6_assets/shaders/effects/wheel_trail.gdshader" id="4_trailshader"]
+[ext_resource type="Texture2D" path="res://6_assets/textures/common/noise.png" id="5_noise"]
+
+[sub_resource type="Gradient" id="Gradient_dot"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.75, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_dot"]
+gradient = SubResource("Gradient_dot")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.8, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fade"]
+gradient = SubResource("Gradient_fade")
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.35), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_shrink"]
+curve = SubResource("Curve_shrink")
+
+[sub_resource type="Curve" id="Curve_puff"]
+_data = [Vector2(0, 0.2), 0.0, 3.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_puff"]
+curve = SubResource("Curve_puff")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_droplet"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9, 0.96, 1, 0.9)
+albedo_texture = SubResource("GradientTexture2D_dot")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_road_droplet"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.88, 0.92, 0.97, 0.75)
+albedo_texture = SubResource("GradientTexture2D_dot")
+
+[sub_resource type="QuadMesh" id="QuadMesh_droplet"]
+material = SubResource("StandardMaterial3D_droplet")
+size = Vector2(0.035, 0.11)
+
+[sub_resource type="QuadMesh" id="QuadMesh_road_droplet"]
+material = SubResource("StandardMaterial3D_road_droplet")
+size = Vector2(0.03, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spray"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.95, 0.98, 1, 0.7)
+albedo_texture = ExtResource("2_spray")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_spray"]
+material = SubResource("StandardMaterial3D_spray")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sea_droplets"]
+emission_shape = 1
+emission_sphere_radius = 0.18
+direction = Vector3(0.7, 1, 0.6)
+spread = 40.0
+initial_velocity_min = 2.5
+initial_velocity_max = 6.0
+gravity = Vector3(0, -14, 0)
+scale_min = 0.4
+scale_max = 1.0
+scale_curve = SubResource("CurveTexture_shrink")
+color_ramp = SubResource("GradientTexture1D_fade")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sea_spray"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0.25, 0.8, 1)
+spread = 18.0
+initial_velocity_min = 3.0
+initial_velocity_max = 7.0
+angular_velocity_min = -90.0
+angular_velocity_max = 90.0
+gravity = Vector3(0, -6, 0)
+scale_min = 0.25
+scale_max = 0.6
+scale_curve = SubResource("CurveTexture_puff")
+color_ramp = SubResource("GradientTexture1D_fade")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_road_droplets"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+direction = Vector3(0.35, 0.6, 1)
+spread = 30.0
+initial_velocity_min = 1.0
+initial_velocity_max = 3.0
+gravity = Vector3(0, -12, 0)
+scale_min = 0.5
+scale_max = 1.0
+scale_curve = SubResource("CurveTexture_shrink")
+color_ramp = SubResource("GradientTexture1D_fade")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sea_trail"]
+render_priority = 0
+shader = ExtResource("4_trailshader")
+shader_parameter/trail_color = Color(1, 1, 1, 0.75)
+shader_parameter/noise_texture = ExtResource("5_noise")
+shader_parameter/noise_scale = 0.45
+shader_parameter/edge_softness = 0.5
+shader_parameter/breakup = 0.9
+shader_parameter/roughness_value = 0.85
+shader_parameter/specular_value = 0.3
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_road_trail"]
+render_priority = 0
+shader = ExtResource("4_trailshader")
+shader_parameter/trail_color = Color(0.9, 0.93, 0.97, 0.85)
+shader_parameter/noise_texture = ExtResource("5_noise")
+shader_parameter/noise_scale = 0.6
+shader_parameter/edge_softness = 0.6
+shader_parameter/breakup = 0.5
+shader_parameter/roughness_value = 0.3
+shader_parameter/specular_value = 0.5
+
+[node name="WheelEffects" type="Node3D"]
+script = ExtResource("1_fx")
+
+[node name="SeaDroplets" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+emitting = false
+amount = 90
+lifetime = 0.7
+randomness = 0.3
+visibility_aabb = AABB(-6, -3, -6, 12, 8, 12)
+transform_align = 3
+process_material = SubResource("ParticleProcessMaterial_sea_droplets")
+draw_pass_1 = SubResource("QuadMesh_droplet")
+
+[node name="SeaSpray" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+emitting = false
+amount = 44
+lifetime = 0.6
+randomness = 0.3
+visibility_aabb = AABB(-6, -3, -6, 12, 8, 12)
+process_material = SubResource("ParticleProcessMaterial_sea_spray")
+draw_pass_1 = SubResource("QuadMesh_spray")
+
+[node name="RoadDroplets" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+emitting = false
+amount = 40
+lifetime = 0.35
+randomness = 0.3
+visibility_aabb = AABB(-4, -2, -4, 8, 4, 8)
+transform_align = 3
+process_material = SubResource("ParticleProcessMaterial_road_droplets")
+draw_pass_1 = SubResource("QuadMesh_road_droplet")
+
+[node name="SeaTrail" type="MeshInstance3D" parent="."]
+script = ExtResource("3_trail")
+lifetime = 1.3
+width = 0.35
+width_growth = 1.7
+min_distance = 0.25
+height_offset = 0.06
+trail_material = SubResource("ShaderMaterial_sea_trail")
+
+[node name="RoadTrail" type="MeshInstance3D" parent="."]
+script = ExtResource("3_trail")
+lifetime = 0.7
+width = 0.25
+width_growth = 1.4
+min_distance = 0.2
+height_offset = 0.02
+trail_material = SubResource("ShaderMaterial_road_trail")

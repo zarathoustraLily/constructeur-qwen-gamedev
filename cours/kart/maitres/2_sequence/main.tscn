@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
+[ext_resource type="Resource" path="res://5_data/input/jump_rumble.tres" id="2_rumble"]
+[ext_resource type="Script" path="res://3_entities/kart/kart_input.gd" id="3_input"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/input_display/input_display.tscn" id="4_display"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_main"]
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_main")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+tonemap_mode = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_sol"]
+size = Vector2(40, 40)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+jump_rumble = ExtResource("2_rumble")
+
+[node name="KartInput" type="Node" parent="."]
+script = ExtResource("3_input")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 8, 0)
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_sol")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 3, 8)
+
+[node name="InputDisplay" parent="." instance=ExtResource("4_display")]

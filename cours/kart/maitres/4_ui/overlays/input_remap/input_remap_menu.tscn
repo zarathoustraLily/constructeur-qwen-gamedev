@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8xq2m4r7k1fa"]
+
+[ext_resource type="Script" path="res://4_ui/overlays/input_remap/input_remap_menu.gd" id="1_remap"]
+
+[node name="InputRemapMenu" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_remap")

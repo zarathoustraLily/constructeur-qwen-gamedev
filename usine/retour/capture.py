@@ -53,8 +53,10 @@ def _prefixe_ecran() -> tuple[list[str], list[str]]:
 
 def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touches: Iterable[str] = (),
              sortie: Path | None = None, colonnes: int = 4, echelle: float = 0.5, godot: Path | None = None,
-             delai_s: float = 180) -> dict[str, Any]:
-    """{ok, grille (chemin du PNG ou None), legende (texte), duree_s, erreur?}."""
+             delai_s: float = 180, hors_ecran: bool = False) -> dict[str, Any]:
+    """{ok, grille (chemin du PNG ou None), legende (texte), duree_s, erreurs (lignes d'erreur de la partie),
+    erreur?}. `hors_ecran` : fenêtre placée hors de l'écran (même image, sans gêner : choix de laurent du
+    2026-10-20 pour les rendus de fabrication)."""
     from usine.juge.godot import importer
     images = sorted({int(i) for i in images if int(i) > 0})
     touches = [t for t in touches if _TOUCHE.match(t)]
@@ -70,6 +72,9 @@ def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touc
         _poser_capture(copie)
         importer(copie, godot)
         prefixe, options = _prefixe_ecran()
+        if hors_ecran and not prefixe:
+            from usine.observation.visuel import POSITION_HORS_ECRAN
+            options = [*options, "--position", POSITION_HORS_ECRAN]
         commande = [*prefixe, godot, "--path", copie, *options, "--fixed-fps", "60",
                     *([scene] if scene else []), "--", f"--capture={png}",
                     "--capture-frames=" + ",".join(map(str, images)), f"--capture-cols={max(1, colonnes)}",
@@ -77,8 +82,9 @@ def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touc
         res = executer(commande, delai_s=delai_s)
     legende_f = Path(str(png) + ".txt")
     legende = legende_f.read_text(encoding="utf-8") if legende_f.is_file() else ""
+    from usine.observation.visuel import erreurs_sortie
     resultat = {"ok": bool(legende), "grille": str(png) if png.is_file() else None, "legende": legende,
-                "duree_s": res.duree_s}
+                "duree_s": res.duree_s, "erreurs": erreurs_sortie(res.sortie)}
     if not legende:
         erreurs = [l for l in res.sortie.splitlines() if "ERROR" in l or "SCRIPT ERROR" in l][:5]
         resultat["erreur"] = ("délai dépassé" if res.expire else "aucune légende écrite") + \
