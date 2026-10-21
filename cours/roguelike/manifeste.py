@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -48,15 +48,15 @@ FICHIERS = {
     "1_core/input/player_commands.gd": "1+",
     "1_core/input/rumble.gd": "1+",
     "3_entities/player/player_input.gd": "1+",
-    "4_ui/hud/input_display/input_display.gd": "1+",
-    "4_ui/hud/input_display/input_display.tscn": "1+",
-    "2_sequence/main.gd": "1+",
-    "2_sequence/main.tscn": "1+",
+    "4_ui/hud/input_display/input_display.gd": "1-10",
+    "4_ui/hud/input_display/input_display.tscn": "1-10",
+    "2_sequence/main.gd": "1-10",
+    "2_sequence/main.tscn": "1-10",
     "5_data/input/attack_rumble.tres": "1+",
     "7_tests/1_core/test_documentation.gd": "1+",
-    "7_tests/2_sequence/test_main.gd": "1+",
+    "7_tests/2_sequence/test_main.gd": "1-10",
     "7_tests/3_entities/player/test_player_input.gd": "1+",
-    "7_tests/4_ui/hud/input_display/test_input_display.gd": "1+",
+    "7_tests/4_ui/hud/input_display/test_input_display.gd": "1-10",
     "7_tests/lancer_tests.bat": "1+",
     "1_core/state_machine/state.gd": "2+",
     "1_core/state_machine/state_machine.gd": "2+",
@@ -147,4 +147,10 @@ FICHIERS = {
     "3_entities/interactables/exit_point/exit_point.tscn": "10+",
     "7_tests/2_sequence/levels/test_wave_objective.gd": "10+",
     "7_tests/3_entities/interactables/exit_point/test_exit_point.gd": "10+",
+    "2_sequence/levels/level_template.gd": "11+",
+    "2_sequence/levels/level_template.tscn": "11+",
+    "2_sequence/levels/level_1/level_1.tscn": "11+",
+    "2_sequence/levels/level_2/level_2.tscn": "11+",
+    "2_sequence/levels/level_3/level_3.tscn": "11+",
+    "7_tests/2_sequence/levels/test_levels.gd": "11+",
 }

@@ -12,7 +12,11 @@ config_version=5
 
 config/name="Roguelike · étape {STEP}"
 config/description="{TITLE}"
+;@ 1-10
 run/main_scene="res://2_sequence/main.tscn"
+;@ 11+
+run/main_scene="res://2_sequence/levels/level_1/level_1.tscn"
+;@ all
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 

@@ -5,6 +5,8 @@ extends GdUnitTestSuite
 ## Quand l'épée touche une cible, la caméra tremble.
 #@ 9+
 ## Touché, l'écran rougit puis s'éclaircit, la caméra tremble et le son du coup reçu joue.
+#@ 11+
+## Le départ d'un coup (slash) est écouté pour faire vibrer la manette.
 #@ all
 
 const PLAYER := preload("res://3_entities/player/player.tscn")
@@ -69,4 +71,16 @@ func test_touche_l_ecran_rougit_la_camera_tremble_et_le_son_joue() -> void:
 	for _frame: int in 30:
 		await get_tree().process_frame
 	assert_float(tint.color.a).is_equal_approx(0.0, 0.001)
+#@ all
+#@ 11+
+
+
+func test_le_depart_d_un_coup_est_ecoute_pour_la_vibration() -> void:
+	await get_tree().process_frame
+	var slot := _player.get_node("Mannequin/Rig_Medium/Skeleton3D/WeaponSlot") as WeaponSlot
+	var listeners: Array[Object] = []
+	for connection: Variant in slot.slash.get_connections():
+		listeners.append((connection.get("callable") as Callable).get_object())
+	assert_array(listeners).contains([_player.get_node("View")])
+	slot.slash.emit()
 #@ all

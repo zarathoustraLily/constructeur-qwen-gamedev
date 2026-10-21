@@ -7,6 +7,8 @@ class_name PlayerView extends Node
 #@ 9+
 ## Touché (damage_taken de sa santé), le joueur voit l'écran rougir un instant, la caméra trembler, entend le coup,
 ## et la manette vibre.
+#@ 11+
+## Quand l'épée part (slash de l'emplacement de l'arme), la manette vibre légèrement.
 #@ all
 
 ## Le joueur montré.
@@ -27,6 +29,11 @@ class_name PlayerView extends Node
 @export var damage_audio: AudioStreamPlayer3D
 ## Vibration d'un coup reçu (5_data/input/hit_rumble.tres).
 @export var hit_rumble: Rumble
+#@ 11+
+## L'emplacement de l'arme, dont le signal slash marque le départ d'un coup.
+@export var weapon_slot: WeaponSlot
+## Vibration d'un coup donné (5_data/input/attack_rumble.tres).
+@export var attack_rumble: Rumble
 #@ all
 
 
@@ -44,6 +51,9 @@ func _ready() -> void:
 	if not player.is_node_ready():
 		await player.ready
 	player.health_component.damage_taken.connect(_on_damage_taken)
+#@ 11+
+	if weapon_slot != null:
+		weapon_slot.slash.connect(_on_slash)
 #@ all
 
 
@@ -71,4 +81,11 @@ func _on_damage_taken(_amount: float) -> void:
 		damage_audio.play()
 	if hit_rumble != null and player.input != null:
 		player.input.vibrate(hit_rumble)
+#@ all
+#@ 11+
+
+
+func _on_slash() -> void:
+	if attack_rumble != null and player.input != null:
+		player.input.vibrate(attack_rumble)
 #@ all

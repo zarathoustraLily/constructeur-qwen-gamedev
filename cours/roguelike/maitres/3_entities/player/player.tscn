@@ -28,6 +28,8 @@
 ;@ 9+
 [ext_resource type="AudioStream" path="res://6_assets/audio/metal-hit.ogg" id="19_damage_audio"]
 [ext_resource type="Resource" path="res://5_data/input/hit_rumble.tres" id="20_hit_rumble"]
+;@ 11+
+[ext_resource type="Resource" path="res://5_data/input/attack_rumble.tres" id="21_attack_rumble"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
@@ -245,8 +247,10 @@ autoplay = &"RESET"
 [node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio")]
 ;@ 6-8
 [node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio", "sword")]
-;@ 9+
+;@ 9-10
 [node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio", "sword", "damage_tint", "damage_audio")]
+;@ 11+
+[node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio", "sword", "damage_tint", "damage_audio", "weapon_slot")]
 ;@ 5+
 script = ExtResource("10_view")
 player = NodePath("..")
@@ -259,6 +263,10 @@ sword = NodePath("../Mannequin/Rig_Medium/Skeleton3D/WeaponSlot/ShapeCast3D/Atta
 damage_tint = NodePath("../DamageTint")
 damage_audio = NodePath("../DamageAudio")
 hit_rumble = ExtResource("20_hit_rumble")
+;@ 11+
+weapon_slot = NodePath("../Mannequin/Rig_Medium/Skeleton3D/WeaponSlot")
+attack_rumble = ExtResource("21_attack_rumble")
+;@ 9+
 
 [node name="DamageTint" type="ColorRect" parent="."]
 anchors_preset = 15
