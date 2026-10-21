@@ -15,4 +15,9 @@ class_name PlayerSettings extends Resource
 @export_custom(PROPERTY_HINT_NONE, "suffix:s") var dash_duration: float = 0.0
 ## Délai avant de pouvoir esquiver à nouveau, compté dès le début de l'esquive, en secondes.
 @export_custom(PROPERTY_HINT_NONE, "suffix:s") var dash_cooldown: float = 0.0
+#@ 6+
+## Statistique de dégâts au départ, en % des dégâts de base des coups (100 : tels quels).
+@export var damage_stat: float = 0.0
+## Force de la secousse de la caméra quand l'épée touche (le trauma de ShakeCamera3D, de 0 à 1).
+@export_range(0.0, 1.0) var hit_shake: float = 0.0
 #@ all

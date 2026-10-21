@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5]
+PRETES = [1, 2, 3, 4, 5, 6]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -83,4 +83,19 @@ FICHIERS = {
     "3_entities/player/player_view.gd": "5+",
     "6_assets/shaders/dash.gdshader": "5+",
     "7_tests/3_entities/player/test_player_view.gd": "5+",
+    "1_core/components/health_component.gd": "6+",
+    "1_core/components/knockback_component.gd": "6+",
+    "1_core/components/attack_component.gd": "6+",
+    "1_core/combat/damage.gd": "6+",
+    "1_core/combat/attack_settings.gd": "6+",
+    "5_data/player/attacks/slash.tres": "6+",
+    "5_data/player/attacks/stab.tres": "6+",
+    "5_data/player/attacks/spin.tres": "6+",
+    "3_entities/player/states/player_attack.gd": "6+",
+    "3_entities/player/effects/slash_effect.gd": "6+",
+    "7_tests/1_core/components/test_health_component.gd": "6+",
+    "7_tests/1_core/components/test_knockback_component.gd": "6+",
+    "7_tests/1_core/components/test_attack_component.gd": "6+",
+    "7_tests/1_core/combat/test_damage.gd": "6+",
+    "7_tests/3_entities/player/effects/test_slash_effect.gd": "6+",
 }

@@ -9,6 +9,11 @@ extends GdUnitTestSuite
 ## Esquive : à l'arrêt, pas d'esquive ; l'esquive le lance vite dans la direction de la marche, le temps de sa
 ## durée, puis la course reprend ; elle est signalée avec sa direction ; la recharge empêche une seconde
 ## esquive aussitôt, puis la permet.
+#@ 6+
+## Combat : un coup lance la taille ; sans autre demande, la course reprend à la fin de l'animation ; un coup
+## demandé pendant la taille enchaîne l'estoc, puis le tourbillon ; l'esquive interrompt la taille, pas le
+## tourbillon ; l'épée blesse et repousse une cible devant le joueur ; la visée prend la visée, à défaut la
+## marche ; repoussé, le joueur suit son recul.
 #@ all
 
 const PLAYER := preload("res://3_entities/player/player.tscn")
@@ -188,4 +193,101 @@ func test_la_recharge_empeche_une_seconde_esquive_aussitot_puis_la_permet() -> v
 	await _frames(int(_player.settings.dash_cooldown * 60.0))
 	assert_bool(_player.can_dash()).is_true()
 #@ all
+#@ 6+
 
+
+## Demande un coup pendant une image.
+func _attack() -> void:
+	_player.commands.attack = true
+	await get_tree().physics_frame
+	_player.commands.attack = false
+
+
+## Une cible sur la couche des ennemis, avec santé et recul, à `distance` m devant le modèle du joueur.
+func _target(distance: float) -> CharacterBody3D:
+	var target: CharacterBody3D = auto_free(CharacterBody3D.new())
+	target.collision_layer = 2
+	var shape := CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	shape.shape = capsule
+	target.add_child(shape)
+	var health := HealthComponent.new()
+	health.name = "HealthComponent"
+	target.add_child(health)
+	var knockback := KnockbackComponent.new()
+	knockback.name = "KnockbackComponent"
+	target.add_child(knockback)
+	add_child(target)
+	target.global_position = _player.global_position + _player.model.global_basis.z.normalized() * distance
+	return target
+
+
+func test_un_coup_lance_la_taille_puis_la_course_reprend() -> void:
+	await _frames(10)
+	await _attack()
+	await _frames(2)
+	assert_str(_state()).is_equal("PlayerAttack")
+	assert_str(str(_player.animation_tree.current_state())).is_equal("SlashAttack")
+	await _frames(90)
+	assert_str(_state()).is_equal("PlayerRun")
+
+
+func test_un_coup_demande_pendant_la_taille_enchaine_l_estoc_puis_le_tourbillon() -> void:
+	await _frames(10)
+	var states: Array[String] = []
+	(_player.get_node("StateMachine") as StateMachine).state_changed.connect(
+		func(_from: StringName, to: StringName) -> void: states.append(str(to)))
+	await _attack()
+	await _frames(10)
+	await _attack()
+	await _frames(40)
+	await _attack()
+	# Le tourbillon dure 2,4 s, joué une fois et demie plus vite : 96 images.
+	await _frames(120)
+	assert_array(states).contains_exactly(["PlayerAttack", "PlayerAttack2", "PlayerAttack3", "PlayerRun"])
+
+
+func test_l_esquive_interrompt_la_taille_mais_pas_le_tourbillon() -> void:
+	_player.commands.move = Vector2.RIGHT
+	await _frames(10)
+	await _attack()
+	await _frames(3)
+	await _dash()
+	await _frames(2)
+	assert_str(_state()).is_equal("PlayerDash")
+	await _frames(30)
+	var machine := _player.get_node("StateMachine") as StateMachine
+	machine.transition_to(&"PlayerAttack3")
+	await _frames(3)
+	await _dash()
+	await _frames(2)
+	assert_str(_state()).is_equal("PlayerAttack3")
+
+
+func test_l_epee_blesse_et_repousse_une_cible_devant_le_joueur() -> void:
+	await _frames(10)
+	var target := _target(1.5)
+	var health := target.get_node("HealthComponent") as HealthComponent
+	await _attack()
+	await _frames(60)
+	assert_float(health.current_health).is_less(health.max_health)
+	var knockback := target.get_node("KnockbackComponent") as KnockbackComponent
+	assert_float(knockback.magnitude.length() + health.max_health - health.current_health).is_greater(0.0)
+
+
+func test_la_visee_prend_la_visee_a_defaut_la_marche() -> void:
+	var yaw := _player.camera.global_rotation.y
+	_player.commands.aim = Vector2(0.0, -3.0)
+	_player.commands.move = Vector2.RIGHT
+	assert_vector(_player.get_aim_direction()).is_equal_approx(Vector3.FORWARD.rotated(Vector3.UP, yaw), Vector3.ONE * 0.001)
+	_player.commands.aim = Vector2.ZERO
+	assert_vector(_player.get_aim_direction()).is_equal_approx(Vector3.RIGHT.rotated(Vector3.UP, yaw), Vector3.ONE * 0.001)
+
+
+func test_repousse_le_joueur_suit_son_recul() -> void:
+	await _frames(10)
+	var start := _player.global_position
+	_player.knockback_component.add_knockback(Vector3(20.0, 0.0, 0.0))
+	await _frames(10)
+	assert_float(_player.global_position.x - start.x).is_greater(1.0)
+#@ all

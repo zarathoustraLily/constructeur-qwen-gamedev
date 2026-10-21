@@ -5,10 +5,14 @@ extends GdUnitTestSuite
 #@ 2-3
 ## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur
 ## l'estrade ; la vibration du coup est réglée.
-#@ 4+
+#@ 4-5
 ## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur le
 ## sol du niveau ; tombé sous la limite du monde, il revient à son point de départ et sa caméra tremble ; la
 ## vibration du coup est réglée.
+#@ 6+
+## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur le
+## sol du niveau ; tombé sous la limite du monde, il est vaincu, puis revient à son point de départ, visible,
+## avec toute sa santé, et sa caméra tremble ; la vibration du coup est réglée.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -74,6 +78,8 @@ func test_le_joueur_se_tient_sur_le_sol_du_niveau() -> void:
 	assert_bool(player.is_on_floor()).is_true()
 	assert_float(player.global_position.y).is_between(0.5, 1.5)
 
+#@ 4-5
+
 
 func test_tombe_sous_la_limite_le_joueur_revient_au_depart_et_la_camera_tremble() -> void:
 	var main: Node3D = auto_free(MAIN.instantiate())
@@ -84,6 +90,24 @@ func test_tombe_sous_la_limite_le_joueur_revient_au_depart_et_la_camera_tremble(
 	player.global_position = Vector3(0.0, -6.0, 0.0)
 	await _frames()
 	assert_vector(player.global_position).is_equal_approx(start, Vector3.ONE * 0.2)
+	assert_float(player.camera.trauma).is_greater(0.0)
+#@ 6+
+
+
+func test_vaincu_le_joueur_revient_au_depart_visible_avec_toute_sa_sante() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var player := main.get_node("Player") as Player
+	var start := player.global_position
+	var defeats: Array[int] = [0]
+	player.health_component.defeated.connect(func() -> void: defeats[0] += 1)
+	await _frames()
+	player.global_position = Vector3(0.0, -6.0, 0.0)
+	await _frames()
+	assert_int(defeats[0]).is_equal(1)
+	assert_vector(player.global_position).is_equal_approx(start, Vector3.ONE * 0.2)
+	assert_bool(player.visible).is_true()
+	assert_float(player.health_component.current_health).is_equal(player.health_component.max_health)
 	assert_float(player.camera.trauma).is_greater(0.0)
 #@ all
 

@@ -10,4 +10,7 @@ turn_rate = 12.0
 dash_speed = 50.0
 dash_duration = 0.1
 dash_cooldown = 0.3
+;@ 6+
+damage_stat = 100.0
+hit_shake = 0.75
 ;@ all

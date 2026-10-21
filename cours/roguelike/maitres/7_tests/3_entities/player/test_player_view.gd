@@ -1,6 +1,9 @@
 extends GdUnitTestSuite
 ## Règles de la vue du joueur : une esquive tourne la traînée vers sa direction, la fait apparaître puis
 ## s'effacer, et joue le son de l'esquive ; sans esquive, la traînée est effacée.
+#@ 6+
+## Quand l'épée touche une cible, la caméra tremble.
+#@ all
 
 const PLAYER := preload("res://3_entities/player/player.tscn")
 
@@ -36,3 +39,16 @@ func test_une_esquive_tourne_la_trainee_et_joue_l_effet_et_le_son() -> void:
 	for _frame: int in 40:
 		await get_tree().process_frame
 	assert_float(_threshold()).is_equal_approx(1.0, 0.001)
+#@ 6+
+
+
+func test_quand_l_epee_touche_la_camera_tremble() -> void:
+	var sword := _player.get_node("Mannequin/Rig_Medium/Skeleton3D/WeaponSlot/ShapeCast3D/AttackComponent") as AttackComponent
+	assert_bool(sword.shake_on_damage).is_true()
+	assert_float(_player.camera.trauma).is_equal(0.0)
+	sword.struck.emit(auto_free(Node.new()))
+	# Le signal physics_frame part avant que les Tween ne jouent leur image : deux images.
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_float(_player.camera.trauma).is_greater(0.0)
+#@ all

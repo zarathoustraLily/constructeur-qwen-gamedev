@@ -137,6 +137,14 @@ dash={
 ]
 }
 
+;@ 6+
+[layer_names]
+
+3d_physics/layer_1="corps"
+3d_physics/layer_2="ennemis"
+3d_physics/layer_5="joueur"
+
+;@ all
 [physics]
 
 3d/physics_engine="Jolt Physics"

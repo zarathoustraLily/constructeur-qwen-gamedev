@@ -9,6 +9,14 @@
 [ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Spawn_Ground.res" id="7_spawn"]
 ;@ 5+
 [ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Dodge_Forward.res" id="8_dodge"]
+;@ 6+
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Melee_1H_Attack_Slice_Horizontal.res" id="9_slash"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Melee_1H_Attack_Stab.res" id="10_stab"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Melee_2H_Attack_Spin.res" id="11_spin"]
+[ext_resource type="Script" path="res://1_core/components/attack_component.gd" id="12_attack"]
+[ext_resource type="Script" path="res://3_entities/player/effects/slash_effect.gd" id="13_slash_effect"]
+[ext_resource type="Shader" path="res://6_assets/shaders/dash.gdshader" id="14_trail_shader"]
+[ext_resource type="AudioStream" path="res://6_assets/audio/fire-slash.ogg" id="15_slash_audio"]
 ;@ all
 [ext_resource type="AudioStream" path="res://6_assets/audio/footstep-01.ogg" id="20_step1"]
 [ext_resource type="AudioStream" path="res://6_assets/audio/footstep-02.ogg" id="21_step2"]
@@ -65,6 +73,11 @@ _data = {
 &"Dodge_Forward": ExtResource("8_dodge"),
 ;@ all
 &"Idle_A": ExtResource("5_idle"),
+;@ 6+
+&"Melee_1H_Attack_Slice_Horizontal": ExtResource("9_slash"),
+&"Melee_1H_Attack_Stab": ExtResource("10_stab"),
+&"Melee_2H_Attack_Spin": ExtResource("11_spin"),
+;@ all
 &"Running_B": ExtResource("6_run"),
 &"Spawn_Ground": ExtResource("7_spawn")
 }
@@ -103,6 +116,67 @@ xfade_time = 0.05
 switch_mode = 2
 advance_mode = 2
 
+;@ 6+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_slash"]
+animation = &"PlayerAnimations/Melee_1H_Attack_Slice_Horizontal"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_slash"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_slash"]
+nodes/output/position = Vector2(680, 120)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_slash")
+nodes/Animation/position = Vector2(-40, 120)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_slash")
+nodes/TimeScale/position = Vector2(400, 120)
+node_connections = [&"output", 0, &"TimeScale", &"TimeScale", 0, &"Animation"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_slash"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_slash_walk"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_stab"]
+animation = &"PlayerAnimations/Melee_1H_Attack_Stab"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_stab"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_stab"]
+nodes/output/position = Vector2(680, 120)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_stab")
+nodes/Animation/position = Vector2(-40, 120)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_stab")
+nodes/TimeScale/position = Vector2(400, 120)
+node_connections = [&"output", 0, &"TimeScale", &"TimeScale", 0, &"Animation"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_stab"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_stab_walk"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_spin"]
+animation = &"PlayerAnimations/Melee_2H_Attack_Spin"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_spin"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_spin"]
+nodes/output/position = Vector2(680, 120)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_spin")
+nodes/Animation/position = Vector2(-40, 120)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_spin")
+nodes/TimeScale/position = Vector2(400, 120)
+node_connections = [&"output", 0, &"TimeScale", &"TimeScale", 0, &"Animation"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_spin"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_spin_walk"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
 ;@ all
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_player"]
 states/Spawn/node = SubResource("AnimationNodeAnimation_spawn")
@@ -112,10 +186,19 @@ states/WalkSpace/position = Vector2(606, 40)
 ;@ 5+
 states/DodgeForward/node = SubResource("AnimationNodeAnimation_dodge")
 states/DodgeForward/position = Vector2(606, -150)
+;@ 6+
+states/SlashAttack/node = SubResource("AnimationNodeBlendTree_slash")
+states/SlashAttack/position = Vector2(900, -150)
+states/StabAttack/node = SubResource("AnimationNodeBlendTree_stab")
+states/StabAttack/position = Vector2(900, 40)
+states/SpinAttack/node = SubResource("AnimationNodeBlendTree_spin")
+states/SpinAttack/position = Vector2(900, 230)
 ;@ 3-4
 transitions = ["Start", "Spawn", SubResource("AnimationNodeStateMachineTransition_start_spawn"), "Spawn", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_spawn_walk")]
-;@ 5+
+;@ 5
 transitions = ["Start", "Spawn", SubResource("AnimationNodeStateMachineTransition_start_spawn"), "Spawn", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_spawn_walk"), "WalkSpace", "DodgeForward", SubResource("AnimationNodeStateMachineTransition_walk_dodge"), "DodgeForward", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_dodge_walk")]
+;@ 6+
+transitions = ["Start", "Spawn", SubResource("AnimationNodeStateMachineTransition_start_spawn"), "Spawn", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_spawn_walk"), "WalkSpace", "DodgeForward", SubResource("AnimationNodeStateMachineTransition_walk_dodge"), "DodgeForward", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_dodge_walk"), "WalkSpace", "SlashAttack", SubResource("AnimationNodeStateMachineTransition_walk_slash"), "SlashAttack", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_slash_walk"), "WalkSpace", "StabAttack", SubResource("AnimationNodeStateMachineTransition_walk_stab"), "StabAttack", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_stab_walk"), "WalkSpace", "SpinAttack", SubResource("AnimationNodeStateMachineTransition_walk_spin"), "SpinAttack", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_spin_walk")]
 ;@ all
 
 [sub_resource type="Gradient" id="Gradient_sword"]
@@ -148,13 +231,51 @@ stream_0/stream = ExtResource("20_step1")
 stream_1/stream = ExtResource("21_step2")
 stream_2/stream = ExtResource("22_step3")
 stream_3/stream = ExtResource("23_step4")
+;@ 6+
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_slash"]
+noise_type = 2
+frequency = 0.005
+fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_slash"]
+noise = SubResource("FastNoiseLite_slash")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_slash"]
+offsets = PackedFloat32Array(0, 0.8019802, 1)
+colors = PackedColorArray(1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_slash"]
+gradient = SubResource("Gradient_slash")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_slash"]
+render_priority = 0
+shader = ExtResource("14_trail_shader")
+shader_parameter/speed = 3.0
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_slash")
+shader_parameter/gradient_texture = SubResource("GradientTexture1D_slash")
+shader_parameter/threshold = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_slash"]
+size = Vector2(4, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sword"]
+;@ all
 
 [node name="Mannequin" instance=ExtResource("1_model")]
 
+;@ 3-5
 [node name="WeaponSlot" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D"]
+;@ 6+
+[node name="WeaponSlot" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D" node_paths=PackedStringArray("shapecast")]
+;@ all
 bone_name = "hand.r"
 bone_idx = 12
 script = ExtResource("2_slot")
+;@ 6+
+shapecast = NodePath("ShapeCast3D")
+;@ all
 vfx_threshold = 1.0
 
 [node name="LazerSword" type="MeshInstance3D" parent="Rig_Medium/Skeleton3D/WeaponSlot"]
@@ -162,11 +283,43 @@ transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -1.2
 material_override = SubResource("StandardMaterial3D_sword")
 gi_mode = 0
 mesh = SubResource("CylinderMesh_sword")
+;@ 6+
+
+[node name="SlashVFX" type="MeshInstance3D" parent="Rig_Medium/Skeleton3D/WeaponSlot/LazerSword" node_paths=PackedStringArray("weapon_slot")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -2, 0, 0)
+visible = false
+material_override = SubResource("ShaderMaterial_slash")
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("QuadMesh_slash")
+script = ExtResource("13_slash_effect")
+weapon_slot = NodePath("../..")
+attack_type = 1
+;@ all
 
 [node name="Handle" type="MeshInstance3D" parent="Rig_Medium/Skeleton3D/WeaponSlot"]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
 gi_mode = 0
 mesh = SubResource("CylinderMesh_handle")
+;@ 6+
+
+[node name="ShapeCast3D" type="ShapeCast3D" parent="Rig_Medium/Skeleton3D/WeaponSlot"]
+enabled = false
+shape = SubResource("BoxShape3D_sword")
+target_position = Vector3(-2, 0, 0)
+max_results = 8
+collision_mask = 2
+
+[node name="AttackComponent" type="Node" parent="Rig_Medium/Skeleton3D/WeaponSlot/ShapeCast3D"]
+script = ExtResource("12_attack")
+shake_on_damage = true
+
+[node name="AttackAudio" type="AudioStreamPlayer3D" parent="Rig_Medium/Skeleton3D/WeaponSlot"]
+stream = ExtResource("15_slash_audio")
+volume_db = 10.0
+max_db = 5.0
+bus = &"SFX"
+;@ all
 
 [node name="RightFootBone" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D"]
 bone_name = "foot.r"
@@ -198,6 +351,14 @@ libraries/PlayerAnimations = SubResource("AnimationLibrary_player")
 tree_root = SubResource("AnimationNodeStateMachine_player")
 anim_player = NodePath("../AnimationPlayer")
 script = ExtResource("4_tree")
+;@ 6+
+parameters/SlashAttack/TimeScale/scale = 1.5
+parameters/SpinAttack/TimeScale/scale = 1.5
+parameters/StabAttack/TimeScale/scale = 1.5
+;@ all
 
 [connection signal="footstep" from="Rig_Medium/Skeleton3D/RightFootBone" to="Rig_Medium/Skeleton3D/RightFootBone/FootstepAudio" method="play"]
 [connection signal="footstep" from="Rig_Medium/Skeleton3D/LeftFootBone" to="Rig_Medium/Skeleton3D/LeftFootBone/FootstepAudio" method="play"]
+;@ 6+
+[connection signal="slash" from="Rig_Medium/Skeleton3D/WeaponSlot" to="Rig_Medium/Skeleton3D/WeaponSlot/AttackAudio" method="play"]
+;@ all

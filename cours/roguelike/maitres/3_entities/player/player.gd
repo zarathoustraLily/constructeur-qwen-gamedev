@@ -3,9 +3,13 @@ class_name Player extends CharacterBody3D
 ## d'entrées (PlayerInput ; sans adaptateur, un test les écrit lui-même), puis sa machine à états le déplace
 #@ 2-4
 ## (course, chute). Les directions de l'écran deviennent des directions du sol, tournées comme sa caméra.
-#@ 5+
+#@ 5
 ## (course, chute, esquive). Les directions de l'écran deviennent des directions du sol, tournées comme sa
 ## caméra. Il signale ce qui se voit (dashed) : sa vue (PlayerView) en joue les effets et les sons.
+#@ 6+
+## (course, chute, esquive, coups). Les directions de l'écran deviennent des directions du sol, tournées comme
+## sa caméra. Il signale ce qui se voit (dashed) : sa vue (PlayerView) en joue les effets et les sons. Sa santé
+## et son recul sont des composants (HealthComponent, KnockbackComponent), ses coups des états.
 #@ all
 #@ 3+
 ## Les états choisissent aussi l'animation du modèle (animation_tree) : dans ce jeu, la durée d'un coup ou
@@ -24,6 +28,10 @@ signal dashed(direction: Vector3)
 
 ## Les commandes de l'image en cours.
 var commands: PlayerCommands = PlayerCommands.new()
+#@ 6+
+## Statistique de dégâts, en % des dégâts de base : elle part des réglages, la boutique l'augmente.
+var damage_stat: float = 0.0
+#@ all
 
 @onready var model: Node3D = $Mannequin
 #@ 3+
@@ -35,6 +43,9 @@ var commands: PlayerCommands = PlayerCommands.new()
 @onready var camera: ShakeCamera3D = $CameraRoot/Camera3D
 #@ 5+
 @onready var dash_cooldown: Timer = $DashCooldown
+#@ 6+
+@onready var health_component: HealthComponent = $HealthComponent
+@onready var knockback_component: KnockbackComponent = $KnockbackComponent
 #@ all
 
 
@@ -44,6 +55,8 @@ func _ready() -> void:
 #@ 5+
 		return
 	dash_cooldown.wait_time = settings.dash_cooldown
+#@ 6+
+	damage_stat = settings.damage_stat
 #@ all
 
 
@@ -85,4 +98,17 @@ func start_dash(direction: Vector3) -> void:
 	velocity = direction * settings.dash_speed
 	dash_cooldown.start()
 	dashed.emit(direction)
+#@ all
+#@ 6+
+
+
+## Direction de la visée, au sol, de longueur 1 : la visée des commandes ; à défaut, la marche ; à défaut, le
+## devant du modèle.
+func get_aim_direction() -> Vector3:
+	var aim := to_ground(commands.aim)
+	if aim.is_zero_approx():
+		aim = get_movement_direction()
+	if aim.is_zero_approx():
+		aim = model.global_basis.z
+	return Vector3(aim.x, 0.0, aim.z).normalized()
 #@ all

@@ -10,7 +10,12 @@ extends Node3D
 ## fait le lien : le joueur et l'affichage ne se connaissent pas.
 #@ 4+
 ## Scène principale : le niveau de test du jeu d'origine, en tuiles (GridMap), avec un trou ; sous le niveau, la
+#@ 4-5
 ## limite du monde (WorldBoundary). Le joueur qui y tombe revient à son point de départ, et sa caméra tremble.
+#@ 6+
+## limite du monde (WorldBoundary), qui vide la santé de qui y tombe. Vaincu, le joueur revient à son point de
+## départ avec toute sa santé, et sa caméra tremble : pas encore de chef d'orchestre pour recharger le niveau.
+#@ 4+
 ## À chaque image physique, la scène montre les commandes du joueur (InputDisplay), et un coup fait vibrer la
 ## manette (attack_rumble). La scène fait le lien : le joueur, la limite et l'affichage ne se connaissent pas.
 #@ all
@@ -22,7 +27,7 @@ extends Node3D
 @onready var _input: PlayerInput = $PlayerInput
 #@ 2+
 @onready var _player: Player = $Player
-#@ 4+
+#@ 4-5
 @onready var _boundary: WorldBoundary = $WorldBoundary
 #@ all
 @onready var _display: InputDisplay = $InputDisplay
@@ -40,7 +45,10 @@ func _ready() -> void:
 		push_error("Main : la vibration du coup (attack_rumble) manque")
 #@ 4+
 	_player_start = _player.global_position
+#@ 4-5
 	_boundary.body_fell.connect(_on_body_fell)
+#@ 6+
+	_player.health_component.defeated.connect(_respawn)
 #@ all
 
 
@@ -63,7 +71,7 @@ func _physics_process(_delta: float) -> void:
 		_player.input.vibrate(attack_rumble)
 	_display.show_commands(commands, _player.input.joypad_names())
 #@ all
-#@ 4+
+#@ 4-5
 
 
 # Pas encore de santé : le joueur tombé revient à son point de départ, et la caméra tremble.
@@ -72,5 +80,16 @@ func _on_body_fell(body: Node3D) -> void:
 		return
 	_player.global_position = _player_start
 	_player.velocity = Vector3.ZERO
+	_player.camera.quick_shake(1.0)
+#@ all
+#@ 6+
+
+
+# Vaincu, le joueur revient à son point de départ, visible et avec toute sa santé, et la caméra tremble.
+func _respawn() -> void:
+	_player.global_position = _player_start
+	_player.velocity = Vector3.ZERO
+	_player.visible = true
+	_player.health_component.restore()
 	_player.camera.quick_shake(1.0)
 #@ all
