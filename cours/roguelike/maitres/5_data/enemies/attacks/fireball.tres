@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ProjectileSettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/combat/projectile_settings.gd" id="1_projectile"]
+
+[resource]
+script = ExtResource("1_projectile")
+speed = 8.0
+damage = 5.0
+knockback = 15.0
+lifetime = 10.0

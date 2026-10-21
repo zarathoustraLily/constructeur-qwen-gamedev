@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/enemy/fireball/fireball.gd" id="1_fireball"]
+[ext_resource type="Resource" path="res://5_data/enemies/attacks/fireball.tres" id="2_settings"]
+[ext_resource type="PackedScene" path="res://3_entities/enemy/fireball/fireball_impact.tscn" id="3_impact"]
+[ext_resource type="Script" path="res://1_core/components/attack_component.gd" id="4_attack"]
+[ext_resource type="AudioStream" path="res://6_assets/audio/fire.ogg" id="5_audio"]
+[ext_resource type="Shader" path="res://6_assets/shaders/fire.gdshader" id="6_fire"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_fireball"]
+radius = 0.25
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fire"]
+noise_type = 2
+frequency = 0.005
+fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_fire"]
+noise = SubResource("FastNoiseLite_fire")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_fire"]
+colors = PackedColorArray(1, 0, 0, 1, 1, 1, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fire"]
+gradient = SubResource("Gradient_fire")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fire"]
+render_priority = 0
+shader = ExtResource("6_fire")
+shader_parameter/speed = 2.0
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_fire")
+shader_parameter/gradient_texture = SubResource("GradientTexture1D_fire")
+shader_parameter/threshold = 0.1
+
+[sub_resource type="Curve" id="Curve_flame"]
+_data = [Vector2(0, 1), 0.0, 1.367732, 0, 0, Vector2(1, 0.5), -1.520548, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_flame"]
+curve = SubResource("Curve_flame")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_flame"]
+emission_shape = 1
+emission_sphere_radius = 0.25
+angle_min = -180.0
+angle_max = 180.0
+gravity = Vector3(0, 1, 0)
+scale_min = 0.5
+scale_max = 1.0
+scale_curve = SubResource("CurveTexture_flame")
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+material = SubResource("ShaderMaterial_fire")
+
+[node name="Fireball" type="ShapeCast3D"]
+top_level = true
+shape = SubResource("SphereShape3D_fireball")
+target_position = Vector3(0, 0, 0)
+script = ExtResource("1_fireball")
+settings = ExtResource("2_settings")
+impact_scene = ExtResource("3_impact")
+
+[node name="FireAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("5_audio")
+autoplay = true
+bus = &"SFX"
+
+[node name="Lifetime" type="Timer" parent="."]
+one_shot = true
+
+[node name="AttackComponent" type="Node" parent="."]
+script = ExtResource("4_attack")
+
+[node name="Flames" type="GPUParticles3D" parent="."]
+amount = 16
+lifetime = 0.25
+use_fixed_seed = true
+process_material = SubResource("ParticleProcessMaterial_flame")
+draw_pass_1 = SubResource("QuadMesh_flame")

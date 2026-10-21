@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -116,4 +116,17 @@ FICHIERS = {
     "3_entities/enemy/states/enemy_fall.gd": "7+",
     "7_tests/3_entities/enemy/test_enemy.gd": "7+",
     "7_tests/3_entities/enemy/test_enemy_view.gd": "7+",
+    "6_assets/shaders/fire.gdshader": "8+",
+    "1_core/combat/projectile_settings.gd": "8+",
+    "5_data/enemies/attacks/fireball.tres": "8+",
+    "5_data/enemies/attacks/ranged_cast.tres": "8+",
+    "5_data/enemies/ranged_enemy.tres": "8+",
+    "3_entities/enemy/fireball/fireball.gd": "8+",
+    "3_entities/enemy/fireball/fireball.tscn": "8+",
+    "3_entities/enemy/fireball/fireball_impact.tscn": "8+",
+    "3_entities/enemy/ranged_enemy.gd": "8+",
+    "3_entities/enemy/ranged_enemy.tscn": "8+",
+    "3_entities/enemy/states/enemy_meander.gd": "8+",
+    "7_tests/3_entities/enemy/fireball/test_fireball.gd": "8+",
+    "7_tests/3_entities/enemy/test_ranged_enemy.gd": "8+",
 }

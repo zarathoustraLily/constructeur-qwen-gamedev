@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AttackSettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/combat/attack_settings.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+animation = &"RangedAttack"

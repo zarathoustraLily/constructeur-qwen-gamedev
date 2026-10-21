@@ -15,6 +15,8 @@ extends GdUnitTestSuite
 ## avec toute sa santé, et sa caméra tremble ; la vibration du coup est réglée.
 #@ 7+
 ## Les ennemis poursuivent le joueur en suivant la navigation du niveau.
+#@ 8+
+## L'ennemi à distance finit par lancer une boule de feu.
 #@ 4+
 #@ all
 
@@ -133,5 +135,20 @@ func test_les_ennemis_poursuivent_le_joueur() -> void:
 	for _frame: int in 60:
 		await get_tree().physics_frame
 	assert_float(enemy.distance_to_target()).is_less(start_distance - 1.0)
+#@ all
+#@ 8+
+
+
+func test_l_ennemi_a_distance_finit_par_lancer_une_boule_de_feu() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var ranged := main.get_node("RangedEnemy") as RangedEnemy
+	var shots: Array[int] = [0]
+	ranged.attack_bone.ranged_attack.connect(func() -> void: shots[0] += 1)
+	for _frame: int in 600:
+		await get_tree().physics_frame
+		if shots[0] > 0:
+			break
+	assert_int(shots[0]).is_greater(0)
 #@ all
 

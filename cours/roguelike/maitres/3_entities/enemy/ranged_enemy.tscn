@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://3_entities/enemy/enemy.tscn" id="1_enemy"]
+[ext_resource type="Script" path="res://3_entities/enemy/ranged_enemy.gd" id="2_ranged"]
+[ext_resource type="Resource" path="res://5_data/enemies/ranged_enemy.tres" id="3_settings"]
+[ext_resource type="PackedScene" path="res://3_entities/enemy/fireball/fireball.tscn" id="4_fireball"]
+[ext_resource type="Script" path="res://3_entities/enemy/states/enemy_attack.gd" id="5_attack"]
+[ext_resource type="Resource" path="res://5_data/enemies/attacks/ranged_cast.tres" id="6_cast"]
+[ext_resource type="Script" path="res://3_entities/enemy/states/enemy_meander.gd" id="7_meander"]
+
+[node name="RangedEnemy" node_paths=PackedStringArray("attack_bone") instance=ExtResource("1_enemy")]
+script = ExtResource("2_ranged")
+settings = ExtResource("3_settings")
+projectile_scene = ExtResource("4_fireball")
+attack_bone = NodePath("AnimationAnchor/EnemyModel/Rig_Medium/Skeleton3D/WeaponSlot")
+
+[node name="StateMachine" parent="." node_paths=PackedStringArray("initial_state")]
+initial_state = NodePath("EnemyMeander")
+
+[node name="EnemyWait" parent="StateMachine" node_paths=PackedStringArray("next_state")]
+next_state = NodePath("../EnemyAttack")
+
+[node name="EnemyAttack" type="Node" parent="StateMachine" node_paths=PackedStringArray("next_states", "enemy", "fall_state")]
+script = ExtResource("5_attack")
+attack = ExtResource("6_cast")
+next_states = [NodePath("../EnemyWait"), NodePath("../EnemyMeander")]
+enemy = NodePath("../..")
+fall_state = NodePath("../EnemyFall")
+
+[node name="EnemyMeander" type="Node" parent="StateMachine" node_paths=PackedStringArray("attack_state", "enemy", "fall_state")]
+script = ExtResource("7_meander")
+attack_state = NodePath("../EnemyAttack")
+enemy = NodePath("../..")
+fall_state = NodePath("../EnemyFall")
+
+[editable path="AnimationAnchor/EnemyModel"]
