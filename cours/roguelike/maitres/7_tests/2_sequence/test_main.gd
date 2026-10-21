@@ -1,6 +1,11 @@
 extends GdUnitTestSuite
+#@ 1
 ## Règles de la scène principale : elle montre à chaque image les commandes que l'adaptateur a lues ; la flèche
 ## de visée suit la marche quand on ne vise pas, tournée comme la caméra ; la vibration du coup est réglée.
+#@ 2+
+## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur
+## l'estrade ; la vibration du coup est réglée.
+#@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
 
@@ -22,6 +27,7 @@ func test_la_scene_montre_les_commandes_lues() -> void:
 	Input.action_press("move_right")
 	await _frames()
 	assert_float((main.get_node("InputDisplay/Panel/Rows/MoveX") as ProgressBar).value).is_equal_approx(1.0, 0.001)
+#@ 1
 
 
 func test_sans_visee_la_fleche_suit_la_marche_tournee_comme_la_camera() -> void:
@@ -40,6 +46,19 @@ func test_sans_visee_la_fleche_suit_la_marche_tournee_comme_la_camera() -> void:
 	var pivot := main.get_node("Hero/AimPivot") as Node3D
 	assert_bool(pivot.visible).is_true()
 	assert_vector(-pivot.global_basis.z).is_equal_approx(expected, Vector3.ONE * 0.01)
+#@ 2+
+
+
+func test_le_joueur_se_tient_sur_l_estrade() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	for _frame: int in 30:
+		await get_tree().physics_frame
+	var player := main.get_node("Player") as Player
+	assert_bool(player.is_on_floor()).is_true()
+	# Le haut de l'estrade est à 1 m ; le centre du joueur, 1 m au-dessus de ses pieds.
+	assert_float(player.global_position.y).is_equal_approx(2.0, 0.05)
+#@ all
 
 
 func test_la_vibration_du_coup_est_reglee() -> void:

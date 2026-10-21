@@ -1,0 +1,48 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/player/player.gd" id="1_player"]
+[ext_resource type="Resource" path="res://5_data/player/player_settings.tres" id="2_settings"]
+[ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="3_input"]
+[ext_resource type="PackedScene" path="res://6_assets/models/kaykit/KayKit_GameDevTV_Free_Sample_Pack_1.0/Character/GamedevTV_Mannequin_Medium.glb" id="4_model"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="5_machine"]
+[ext_resource type="Script" path="res://3_entities/player/states/player_run.gd" id="6_run"]
+[ext_resource type="Script" path="res://3_entities/player/states/player_fall.gd" id="7_fall"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("input") groups=["player"]]
+collision_layer = 17
+script = ExtResource("1_player")
+settings = ExtResource("2_settings")
+input = NodePath("PlayerInput")
+
+[node name="PlayerInput" type="Node" parent="." node_paths=PackedStringArray("body")]
+script = ExtResource("3_input")
+body = NodePath("..")
+
+[node name="Mannequin" parent="." instance=ExtResource("4_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="CameraRoot" type="Node3D" parent="."]
+transform = Transform3D(-0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, 0.5416752, -0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+fov = 65.0
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("5_machine")
+initial_state = NodePath("PlayerRun")
+
+[node name="PlayerRun" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "fall_state")]
+script = ExtResource("6_run")
+player = NodePath("../..")
+fall_state = NodePath("../PlayerFall")
+
+[node name="PlayerFall" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "run_state")]
+script = ExtResource("7_fall")
+player = NodePath("../..")
+run_state = NodePath("../PlayerRun")

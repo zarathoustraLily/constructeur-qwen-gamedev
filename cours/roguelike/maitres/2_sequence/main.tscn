@@ -2,7 +2,11 @@
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
 [ext_resource type="Resource" path="res://5_data/input/attack_rumble.tres" id="2_rumble"]
+;@ 1
 [ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="3_input"]
+;@ 2+
+[ext_resource type="PackedScene" path="res://3_entities/player/player.tscn" id="3_player"]
+;@ all
 [ext_resource type="PackedScene" path="res://4_ui/hud/input_display/input_display.tscn" id="4_display"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_main"]
@@ -17,6 +21,7 @@ tonemap_mode = 2
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
 size = Vector2(40, 40)
+;@ 1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hero"]
 albedo_color = Color(0.25, 0.45, 0.85, 1)
@@ -30,14 +35,31 @@ albedo_color = Color(1, 0.55, 0.1, 1)
 [sub_resource type="PrismMesh" id="PrismMesh_arrow"]
 material = SubResource("StandardMaterial3D_arrow")
 size = Vector3(0.5, 0.8, 0.1)
+;@ 2+
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(40, 1, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_platform"]
+albedo_color = Color(0.55, 0.5, 0.45, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_platform"]
+material = SubResource("StandardMaterial3D_platform")
+size = Vector3(6, 1, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_platform"]
+size = Vector3(6, 1, 6)
+;@ all
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
 attack_rumble = ExtResource("2_rumble")
+;@ 1
 
 [node name="PlayerInput" type="Node" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_input")
 body = NodePath("../Hero")
+;@ all
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
@@ -45,6 +67,7 @@ environment = SubResource("Environment_main")
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 8, 0)
 shadow_enabled = true
+;@ 1
 
 [node name="Ground" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_ground")
@@ -67,5 +90,28 @@ transform = Transform3D(-0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76
 [node name="Camera3D" type="Camera3D" parent="Hero/CameraRoot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 fov = 65.0
+;@ 2+
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="Platform" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Platform"]
+mesh = SubResource("BoxMesh_platform")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Platform"]
+shape = SubResource("BoxShape3D_platform")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+;@ all
 
 [node name="InputDisplay" parent="." instance=ExtResource("4_display")]

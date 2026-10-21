@@ -1,0 +1,10 @@
+class_name PlayerSettings extends Resource
+## Les réglages du joueur : ses vitesses et ses durées. Ils vivent dans 5_data/player/player_settings.tres,
+## jamais dans un script (règle DAT-01). Les taux sont par seconde : le même réglage donne le même jeu à 30
+## ou à 144 images par seconde.
+
+## Vitesse de course, en m/s (stick poussé à fond).
+@export_custom(PROPERTY_HINT_NONE, "suffix:m/s") var movement_speed: float = 0.0
+## Vivacité avec laquelle le personnage se tourne vers sa course : à chaque image, il fait la part
+## 1 - exp(-turn_rate × durée de l'image) du chemin restant.
+@export_custom(PROPERTY_HINT_NONE, "suffix:/s") var turn_rate: float = 0.0
