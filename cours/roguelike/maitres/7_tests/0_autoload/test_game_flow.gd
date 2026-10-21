@@ -4,6 +4,10 @@ extends GdUnitTestSuite
 ## joueur est gardé de côté pendant un changement, et l'étape suivante le reprend, mais pas sur un « retry » ; une
 ## même graine tire un même ordre ; une séquence vide ne charge rien. La séquence du jeu tire l'ordre de ses trois
 ## niveaux, et la scène de démarrage la remet à GameFlow.
+#@ 13+
+## Après un niveau vient l'intermède, avec le joueur gardé, puis le niveau suivant ; la séquence du jeu a pour
+## intermède la boutique.
+#@ all
 
 const STEP_A := preload("res://7_tests/0_autoload/step_a.tscn")
 const STEP_B := preload("res://7_tests/0_autoload/step_b.tscn")
@@ -144,3 +148,28 @@ func test_la_scene_de_demarrage_remet_la_sequence_du_jeu() -> void:
 	var boot := BOOT.instantiate()
 	assert_object(boot.get("sequence")).is_same(GAME_SEQUENCE)
 	boot.free()
+#@ 13+
+
+
+func test_apres_un_niveau_l_intermede_puis_le_niveau_suivant() -> void:
+	var sequence := _sequence(false)
+	sequence.steps = [STEP_A]
+	sequence.interlude = STEP_B
+	GameFlow.start(sequence)
+	var player: Node3D = Node3D.new()
+	player.add_to_group(&"player")
+	GameFlow.current_step.add_child(player)
+	GameFlow.current_step.finish()
+	await _transition()
+	assert_str(await _current_name()).is_equal("StepB")
+	assert_object(GameFlow.carried_player()).is_same(player)
+	GameFlow.current_step.finish()
+	await _transition()
+	assert_str(await _current_name()).is_equal("StepA")
+	assert_object(GameFlow.take_player()).is_same(player)
+	player.free()
+
+
+func test_la_sequence_du_jeu_a_pour_intermede_la_boutique() -> void:
+	assert_str(GAME_SEQUENCE.interlude.resource_path).is_equal("res://2_sequence/menus/upgrade_shop/upgrade_shop.tscn")
+#@ all

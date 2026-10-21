@@ -10,7 +10,11 @@ func physics_update(delta: float) -> void:
 	if player.is_on_floor():
 		finished.emit(run_state.name)
 		return
+#@ 2-12
 	core_movement(delta, player.settings.movement_speed)
+#@ 13+
+	core_movement(delta, player.movement_speed)
+#@ all
 	# Comme dans le jeu d'origine, la gravité (9,8 m/s²) sert de vitesse de chute : on tombe à vitesse
 	# constante, sans accélérer.
 	player.velocity += player.get_gravity()

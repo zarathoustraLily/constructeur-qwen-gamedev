@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -166,4 +166,18 @@ FICHIERS = {
     "7_tests/0_autoload/test_game_flow.gd": "12+",
     "7_tests/0_autoload/test_game_state.gd": "12+",
     "7_tests/1_core/step/test_step.gd": "12+",
+    "6_assets/shaders/background_material.gdshader": "13+",
+    "1_core/upgrades/upgrade.gd": "13+",
+    "1_core/upgrades/health_upgrade.gd": "13+",
+    "5_data/upgrades/damage.tres": "13+",
+    "5_data/upgrades/health.tres": "13+",
+    "5_data/upgrades/speed.tres": "13+",
+    "4_ui/components/upgrade_icon/upgrade_icon.gd": "13+",
+    "4_ui/components/upgrade_icon/upgrade_icon.tscn": "13+",
+    "2_sequence/menus/upgrade_shop/upgrade_shop.gd": "13+",
+    "2_sequence/menus/upgrade_shop/upgrade_shop.tscn": "13+",
+    "7_tests/1_core/upgrades/cible_temoin.gd": "13+",
+    "7_tests/1_core/upgrades/test_upgrade.gd": "13+",
+    "7_tests/4_ui/components/upgrade_icon/test_upgrade_icon.gd": "13+",
+    "7_tests/2_sequence/menus/upgrade_shop/test_upgrade_shop.gd": "13+",
 }

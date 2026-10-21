@@ -45,6 +45,14 @@ func start(new_sequence: Sequence) -> void:
 	create_tween().tween_property(_veil, "color:a", 0.0, fade_time).from(1.0)
 
 
+#@ 13+
+## Le joueur gardé de côté, sans le prendre : l'intermède (la boutique) l'améliore, et le niveau suivant le
+## reprendra.
+func carried_player() -> Node3D:
+	return _carried_player
+
+
+#@ all
 ## Le joueur gardé de côté pendant le dernier changement, ou null ; l'étape qui le reprend l'enlève d'ici.
 func take_player() -> Node3D:
 	var player := _carried_player

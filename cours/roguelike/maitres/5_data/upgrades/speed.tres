@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Upgrade" format=3]
+
+[ext_resource type="Script" path="res://1_core/upgrades/upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+title = "Vitesse"
+description_template = "%.1f → [color=\"7fffd4\"]%.1f[/color] m/s"
+stat = &"movement_speed"
+bonus = 1.5

@@ -42,7 +42,11 @@ func physics_update(delta: float) -> void:
 		finished.emit(attack_state.name)
 		return
 #@ all
+#@ 2-12
 	core_movement(delta, player.settings.movement_speed)
+#@ 13+
+	core_movement(delta, player.movement_speed)
+#@ all
 #@ 3+
 	# L'animation mêle le repos (-1) et la course (1).
 	player.animation_tree.blend_target = -1.0 if player.get_movement_direction().is_zero_approx() else 1.0

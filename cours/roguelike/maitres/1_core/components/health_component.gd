@@ -35,3 +35,12 @@ func take_damage(amount: float) -> void:
 func restore() -> void:
 	current_health = max_health
 	health_changed.emit(current_health)
+#@ 13+
+
+
+## Augmente la santé maximale de `amount`, et la santé actuelle d'autant.
+func raise_max_health(amount: float) -> void:
+	max_health += amount
+	current_health += amount
+	health_changed.emit(current_health)
+#@ all

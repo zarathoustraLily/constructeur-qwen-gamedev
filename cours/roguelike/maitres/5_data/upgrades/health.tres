@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HealthUpgrade" format=3]
+
+[ext_resource type="Script" path="res://1_core/upgrades/health_upgrade.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+title = "Santé max"
+description_template = "%d → [color=\"7fffd4\"]%d[/color] PV"
+stat = &""
+bonus = 20.0

@@ -31,6 +31,10 @@ var commands: PlayerCommands = PlayerCommands.new()
 #@ 6+
 ## Statistique de dégâts, en % des dégâts de base : elle part des réglages, la boutique l'augmente.
 var damage_stat: float = 0.0
+#@ 13+
+## Vitesse de course, en m/s : elle part des réglages, la boutique l'augmente (on n'écrit jamais dans les
+## réglages, une ressource partagée : règle DAT-04).
+var movement_speed: float = 0.0
 #@ all
 
 @onready var model: Node3D = $Mannequin
@@ -57,6 +61,8 @@ func _ready() -> void:
 	dash_cooldown.wait_time = settings.dash_cooldown
 #@ 6+
 	damage_stat = settings.damage_stat
+#@ 13+
+	movement_speed = settings.movement_speed
 #@ all
 
 

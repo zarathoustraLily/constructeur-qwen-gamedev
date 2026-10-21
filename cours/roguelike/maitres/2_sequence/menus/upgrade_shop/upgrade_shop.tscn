@@ -1,0 +1,75 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/menus/upgrade_shop/upgrade_shop.gd" id="1_shop"]
+[ext_resource type="Shader" path="res://6_assets/shaders/background_material.gdshader" id="2_background"]
+[ext_resource type="PackedScene" path="res://4_ui/components/upgrade_icon/upgrade_icon.tscn" id="3_icon"]
+[ext_resource type="Resource" path="res://5_data/upgrades/damage.tres" id="4_damage"]
+[ext_resource type="Resource" path="res://5_data/upgrades/health.tres" id="5_health"]
+[ext_resource type="Resource" path="res://5_data/upgrades/speed.tres" id="6_speed"]
+
+[sub_resource type="Gradient" id="Gradient_background"]
+offsets = PackedFloat32Array(0.31683168, 0.6188119, 0.75247526, 0.85148513)
+colors = PackedColorArray(0.019607844, 0.15686275, 0.2509804, 1, 0.19607843, 0.46666667, 0.65882355, 1, 0.61960787, 0.8039216, 0.9490196, 1, 0.19607843, 0.46666667, 0.65882355, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_background"]
+gradient = SubResource("Gradient_background")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_background"]
+noise_type = 2
+fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_background"]
+noise = SubResource("FastNoiseLite_background")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_background"]
+shader = ExtResource("2_background")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_background")
+shader_parameter/gradient_texture = SubResource("GradientTexture1D_background")
+
+[node name="UpgradeShop" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+upgrades = [ExtResource("4_damage"), ExtResource("5_health"), ExtResource("6_speed")]
+offer_count = 2
+icon_scene = ExtResource("3_icon")
+
+[node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_background")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 128
+theme_override_constants/margin_top = 128
+theme_override_constants/margin_right = 128
+theme_override_constants/margin_bottom = 128
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Title" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 36
+bbcode_enabled = true
+text = "[center][wave]Boutique[/wave][/center]"
+fit_content = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6

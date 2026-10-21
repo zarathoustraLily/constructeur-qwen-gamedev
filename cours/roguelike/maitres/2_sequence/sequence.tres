@@ -4,9 +4,15 @@
 [ext_resource type="PackedScene" path="res://2_sequence/levels/level_1/level_1.tscn" id="2_level_1"]
 [ext_resource type="PackedScene" path="res://2_sequence/levels/level_2/level_2.tscn" id="3_level_2"]
 [ext_resource type="PackedScene" path="res://2_sequence/levels/level_3/level_3.tscn" id="4_level_3"]
+;@ 13+
+[ext_resource type="PackedScene" path="res://2_sequence/menus/upgrade_shop/upgrade_shop.tscn" id="5_shop"]
+;@ all
 
 [resource]
 script = ExtResource("1_sequence")
 steps = Array[PackedScene]([ExtResource("2_level_1"), ExtResource("3_level_2"), ExtResource("4_level_3")])
 shuffle = true
 random_seed = 0
+;@ 13+
+interlude = ExtResource("5_shop")
+;@ all
