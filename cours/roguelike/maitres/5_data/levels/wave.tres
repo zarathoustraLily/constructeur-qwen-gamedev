@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="WaveSettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/levels/wave_settings.gd" id="1_wave"]
+
+[sub_resource type="Curve" id="Curve_difficulty"]
+_limits = [3.0, 20.0, 0.0, 10.0]
+_data = [Vector2(0, 3), 0.0, 0.0, 0, 0, Vector2(10, 20), 2.38, 0.0, 0, 0]
+point_count = 2
+
+[resource]
+script = ExtResource("1_wave")
+difficulty = SubResource("Curve_difficulty")
+first_delay = 2.5
+interval = 1.0
+spawn_extent = 7.0
+spawn_height = 1.0
+random_seed = 0

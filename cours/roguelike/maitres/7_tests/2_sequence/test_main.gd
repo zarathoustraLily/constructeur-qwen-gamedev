@@ -13,12 +13,16 @@ extends GdUnitTestSuite
 ## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur le
 ## sol du niveau ; tombé sous la limite du monde, il est vaincu, puis revient à son point de départ, visible,
 ## avec toute sa santé, et sa caméra tremble ; la vibration du coup est réglée.
-#@ 7+
+#@ 7-9
 ## Les ennemis poursuivent le joueur en suivant la navigation du niveau.
-#@ 8+
+#@ 8-9
 ## L'ennemi à distance finit par lancer une boule de feu.
-#@ 9+
+#@ 9
 ## Chaque personnage a sa barre de santé ; un coup reçu affiche ses dégâts à l'écran.
+#@ 10+
+## La vague fait apparaître ses ennemis un à un, chacun avec sa barre ; un coup reçu affiche ses dégâts ;
+## vaincue, elle ouvre la sortie ; la sortie atteinte, le joueur revient au départ et une vague plus nombreuse
+## commence.
 #@ 4+
 #@ all
 
@@ -125,7 +129,7 @@ func test_la_vibration_du_coup_est_reglee() -> void:
 	assert_object(rumble).is_not_null()
 	assert_float(rumble.duration).is_greater(0.0)
 	assert_float(maxf(rumble.weak_magnitude, rumble.strong_magnitude)).is_greater(0.0)
-#@ 7+
+#@ 7-9
 
 
 func test_les_ennemis_poursuivent_le_joueur() -> void:
@@ -138,7 +142,7 @@ func test_les_ennemis_poursuivent_le_joueur() -> void:
 		await get_tree().physics_frame
 	assert_float(enemy.distance_to_target()).is_less(start_distance - 1.0)
 #@ all
-#@ 8+
+#@ 8-9
 
 
 func test_l_ennemi_a_distance_finit_par_lancer_une_boule_de_feu() -> void:
@@ -153,7 +157,7 @@ func test_l_ennemi_a_distance_finit_par_lancer_une_boule_de_feu() -> void:
 			break
 	assert_int(shots[0]).is_greater(0)
 #@ all
-#@ 9+
+#@ 9
 
 
 func test_chaque_personnage_a_sa_barre_de_sante() -> void:
@@ -172,4 +176,52 @@ func test_un_coup_recu_affiche_ses_degats() -> void:
 	var numbers := main.get_node("DamageNumbers").find_children("*", "DamageNumber", false, false)
 	assert_int(numbers.size()).is_equal(1)
 	assert_str((numbers[0] as DamageNumber).label.text).is_equal("7.0")
+#@ 10+
+
+
+## Attend les images physiques des apparitions de toute la vague.
+func _wait_for_wave(main: Node3D) -> WaveObjective:
+	var wave := main.get_node("WaveObjective") as WaveObjective
+	var frames := int((wave.settings.first_delay + wave.settings.interval * wave.remaining()) * 60.0) + 10
+	for _frame: int in frames:
+		await get_tree().physics_frame
+	return wave
+
+
+func test_la_vague_fait_apparaitre_ses_ennemis_chacun_avec_sa_barre() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var wave := main.get_node("WaveObjective") as WaveObjective
+	assert_int(wave.remaining()).is_equal(wave.settings.enemy_count(1))
+	assert_array(wave.find_children("*", "Enemy", false, false)).is_empty()
+	await _wait_for_wave(main)
+	var enemies := wave.find_children("*", "Enemy", false, false)
+	assert_int(enemies.size()).is_equal(wave.settings.enemy_count(1))
+	for enemy: Node in enemies:
+		assert_int(enemy.find_children("*", "HealthBar", false, false).size()).is_equal(1)
+	enemies[0].get("health_component").call(&"take_damage", 7.0)
+	# Le dernier chiffre posé : le joueur a pu être touché pendant l'attente.
+	var numbers := main.get_node("DamageNumbers").find_children("*", "DamageNumber", false, false)
+	assert_str((numbers[-1] as DamageNumber).label.text).is_equal("7.0")
+
+
+func test_vaincue_la_vague_ouvre_la_sortie_atteinte_une_vague_plus_nombreuse_commence() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var wave := await _wait_for_wave(main)
+	var exit := main.get_node("ExitPoint") as ExitPoint
+	assert_bool(exit.locked).is_true()
+	for enemy: Node in wave.find_children("*", "Enemy", false, false):
+		var health := enemy.get("health_component") as HealthComponent
+		health.take_damage(health.max_health)
+	assert_bool(exit.locked).is_false()
+	assert_bool(exit.visible).is_true()
+	var player := main.get_node("Player") as Player
+	player.global_position = exit.global_position + Vector3.UP
+	for _frame: int in 3:
+		await get_tree().physics_frame
+	assert_int(main.get("level_rank")).is_equal(2)
+	assert_vector(player.global_position).is_not_equal(exit.global_position + Vector3.UP)
+	assert_int(wave.remaining()).is_equal(wave.settings.enemy_count(2))
+	assert_int(wave.settings.enemy_count(2)).is_greater(wave.settings.enemy_count(1))
 #@ all

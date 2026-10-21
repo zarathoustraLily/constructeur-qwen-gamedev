@@ -18,9 +18,14 @@ extends Node3D
 #@ 7
 ## Deux ennemis au corps à corps l'y attendent ; ils suivent la navigation du niveau (NavigationRegion3D, son
 ## maillage de navigation précalculé).
-#@ 8+
+#@ 8-9
 ## Deux ennemis au corps à corps et un ennemi à distance l'y attendent ; ils suivent la navigation du niveau
 ## (NavigationRegion3D, son maillage de navigation précalculé).
+#@ 10+
+## Une vague d'ennemis (WaveObjective) y apparaît, d'autant plus nombreuse que le rang du niveau est haut ;
+## ils suivent la navigation du niveau (NavigationRegion3D). Vaincue, la vague ouvre la sortie (ExitPoint) ; la
+## sortie atteinte, le joueur revient au départ et une vague du rang suivant commence : pas encore de chef
+## d'orchestre pour charger un autre niveau.
 #@ 9+
 ## La scène pose une barre de santé au-dessus de chaque personnage et envoie leurs dégâts à la couche des
 ## chiffres (DamageNumbers) : les personnages ne connaissent pas l'interface (règle des dossiers).
@@ -54,6 +59,9 @@ extends Node3D
 @onready var _display: InputDisplay = $InputDisplay
 #@ 9+
 @onready var _damage_numbers: DamageNumbers = $DamageNumbers
+#@ 10+
+@onready var _wave: WaveObjective = $WaveObjective
+@onready var _exit: ExitPoint = $ExitPoint
 #@ all
 #@ 1
 @onready var _aim_pivot: Node3D = $Hero/AimPivot
@@ -61,6 +69,9 @@ extends Node3D
 #@ 4+
 
 var _player_start: Vector3
+#@ 10+
+## Rang du niveau en cours, à partir de 1 : il fixe la taille de la vague.
+var level_rank: int = 1
 #@ all
 
 
@@ -75,8 +86,15 @@ func _ready() -> void:
 	_player.health_component.defeated.connect(_respawn)
 #@ 9+
 	_decorate(_player, _player.health_component, player_bar_color, player_bar_offset)
+#@ 9
 	for enemy: Node in find_children("*", "Enemy", true, false):
 		_decorate(enemy as Enemy, (enemy as Enemy).health_component, enemy_bar_color, enemy_bar_offset)
+#@ 10+
+	_wave.enemy_spawned.connect(func(enemy: Enemy) -> void:
+		_decorate(enemy, enemy.health_component, enemy_bar_color, enemy_bar_offset))
+	_wave.cleared.connect(_exit.unlock)
+	_exit.reached.connect(_on_exit_reached)
+	_wave.start(level_rank)
 #@ all
 
 
@@ -132,4 +150,14 @@ func _decorate(character: Node3D, health: HealthComponent, color: Color, offset:
 	bar.position = offset
 	character.add_child(bar)
 	health.damage_taken.connect(func(amount: float) -> void: _damage_numbers.show_damage(character.global_position, amount))
+#@ all
+#@ 10+
+
+
+# La sortie atteinte : le joueur revient au départ, et une vague du rang suivant commence.
+func _on_exit_reached() -> void:
+	level_rank += 1
+	_player.global_position = _player_start
+	_player.velocity = Vector3.ZERO
+	_wave.start(level_rank)
 #@ all

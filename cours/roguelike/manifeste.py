@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -139,4 +139,12 @@ FICHIERS = {
     "7_tests/4_ui/hud/damage_number/test_damage_number.gd": "9+",
     "7_tests/4_ui/hud/damage_numbers/test_damage_numbers.gd": "9+",
     "7_tests/4_ui/components/health_bar/test_health_bar.gd": "9+",
+    "6_assets/shaders/spawn_point.gdshader": "10+",
+    "1_core/levels/wave_settings.gd": "10+",
+    "5_data/levels/wave.tres": "10+",
+    "2_sequence/levels/wave_objective.gd": "10+",
+    "3_entities/interactables/exit_point/exit_point.gd": "10+",
+    "3_entities/interactables/exit_point/exit_point.tscn": "10+",
+    "7_tests/2_sequence/levels/test_wave_objective.gd": "10+",
+    "7_tests/3_entities/interactables/exit_point/test_exit_point.gd": "10+",
 }
