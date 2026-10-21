@@ -2,6 +2,10 @@ class_name Player extends CharacterBody3D
 ## Le héros. Il ne lit jamais les touches : à chaque image physique, il prend les commandes de son adaptateur
 ## d'entrées (PlayerInput ; sans adaptateur, un test les écrit lui-même), puis sa machine à états le déplace
 ## (course, chute). Les directions de l'écran deviennent des directions du sol, tournées comme sa caméra.
+#@ 3+
+## Les états choisissent aussi l'animation du modèle (animation_tree) : dans ce jeu, la durée d'un coup ou
+## d'une esquive est celle de son animation.
+#@ all
 
 ## Réglages du joueur (5_data/player/player_settings.tres).
 @export var settings: PlayerSettings
@@ -12,6 +16,9 @@ class_name Player extends CharacterBody3D
 var commands: PlayerCommands = PlayerCommands.new()
 
 @onready var model: Node3D = $Mannequin
+#@ 3+
+@onready var animation_tree: AnimationTreeView = $Mannequin/AnimationTree
+#@ all
 @onready var camera: Camera3D = $CameraRoot/Camera3D
 
 

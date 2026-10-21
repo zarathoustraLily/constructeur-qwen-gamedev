@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2]
+PRETES = [1, 2, 3]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -70,4 +70,9 @@ FICHIERS = {
     "7_tests/1_core/state_machine/etat_temoin.gd": "2+",
     "7_tests/1_core/state_machine/test_state_machine.gd": "2+",
     "7_tests/3_entities/player/test_player.gd": "2+",
+    "1_core/animation/weapon_slot.gd": "3+",
+    "1_core/animation/foot_bone.gd": "3+",
+    "1_core/animation/animation_tree_view.gd": "3+",
+    "3_entities/player/animated_player.tscn": "3+",
+    "5_data/audio/default_bus_layout.tres": "3+",
 }

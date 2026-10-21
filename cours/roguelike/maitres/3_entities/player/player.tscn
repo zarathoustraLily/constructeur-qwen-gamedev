@@ -3,7 +3,11 @@
 [ext_resource type="Script" path="res://3_entities/player/player.gd" id="1_player"]
 [ext_resource type="Resource" path="res://5_data/player/player_settings.tres" id="2_settings"]
 [ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="3_input"]
+;@ 2
 [ext_resource type="PackedScene" path="res://6_assets/models/kaykit/KayKit_GameDevTV_Free_Sample_Pack_1.0/Character/GamedevTV_Mannequin_Medium.glb" id="4_model"]
+;@ 3+
+[ext_resource type="PackedScene" path="res://3_entities/player/animated_player.tscn" id="4_model"]
+;@ all
 [ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="5_machine"]
 [ext_resource type="Script" path="res://3_entities/player/states/player_run.gd" id="6_run"]
 [ext_resource type="Script" path="res://3_entities/player/states/player_fall.gd" id="7_fall"]

@@ -2,6 +2,10 @@ extends GdUnitTestSuite
 ## Règles du joueur : sans commande il reste sur place ; il marche dans la direction voulue, tournée comme sa
 ## caméra, à la vitesse de ses réglages, et un stick à moitié le fait marcher à moitié vitesse ; son modèle
 ## se tourne vers sa marche ; sans sol il tombe, puis reprend sa course en touchant le sol.
+#@ 3+
+## Animation : il apparaît en sortant du sol ; en marche l'animation passe à la course, à l'arrêt au repos ;
+## ses pieds font entendre ses pas ; il tient son épée dans la main droite.
+#@ all
 
 const PLAYER := preload("res://3_entities/player/player.tscn")
 
@@ -86,3 +90,42 @@ func test_les_reglages_sont_poses() -> void:
 	assert_object(_player.settings).is_not_null()
 	assert_float(_player.settings.movement_speed).is_greater(0.0)
 	assert_float(_player.settings.turn_rate).is_greater(0.0)
+#@ 3+
+
+
+func test_il_apparait_en_sortant_du_sol() -> void:
+	await _frames(2)
+	assert_str(str(_player.animation_tree.current_state())).is_equal("Spawn")
+
+
+func test_en_marche_l_animation_passe_a_la_course_puis_au_repos() -> void:
+	var tree := _player.animation_tree
+	_player.commands.move = Vector2.RIGHT
+	await _frames(40)
+	assert_float(tree.get(tree.blend_parameter) as float).is_greater(0.9)
+	_player.commands.move = Vector2.ZERO
+	await _frames(40)
+	assert_float(tree.get(tree.blend_parameter) as float).is_less(-0.9)
+
+
+func test_ses_pieds_font_entendre_ses_pas() -> void:
+	var feet := _player.model.find_children("*", "FootBone", true, false)
+	assert_int(feet.size()).is_equal(2)
+	var steps: Array[String] = []
+	for foot: Node in feet:
+		var audio := foot.get_node("FootstepAudio") as AudioStreamPlayer3D
+		assert_bool((foot as FootBone).footstep.is_connected(audio.play)).is_true()
+		(foot as FootBone).footstep.connect(func() -> void: steps.append(str(foot.name)))
+	_player.animation_tree.change_immediate(&"WalkSpace")
+	_player.commands.move = Vector2.RIGHT
+	await _frames(120)
+	# La course fait poser chaque pied, tour à tour.
+	assert_array(steps).contains(["RightFootBone", "LeftFootBone"])
+
+
+func test_il_tient_son_epee_dans_la_main_droite() -> void:
+	var slots := _player.model.find_children("*", "WeaponSlot", true, false)
+	assert_int(slots.size()).is_equal(1)
+	assert_str((slots[0] as WeaponSlot).bone_name).is_equal("hand.r")
+	assert_object(slots[0].get_node_or_null("LazerSword")).is_not_null()
+#@ all
