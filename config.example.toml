@@ -103,3 +103,4 @@ modele_gguf = 'A_RENSEIGNER'    # Qwen3.8-27B GGUF Q4
 [sources]
 # Projets sources de la machine, hors du dépôt (nom = chemin) : ils s'ajoutent à ceux de godot/.
 kart = 'A_RENSEIGNER'  # GDWaterKart rangé selon la nomenclature 0_autoload … 7_tests (compétence O1)
+roguelike = 'A_RENSEIGNER'  # GDTV-Roguelike (GameDev.tv) rangé selon la nomenclature (cours par étapes)

@@ -1,5 +1,5 @@
 """Cours « de jeu » (usine/cours/jeu.py) : balises, ressources de proche en proche, refus d'une étape incohérente,
-paramètres de matériau orphelins ; les étapes prêtes du kart passent le juge des règles."""
+paramètres de matériau orphelins ; les étapes prêtes des cours de jeu (kart, roguelike) passent le juge des règles."""
 
 from __future__ import annotations
 
@@ -92,24 +92,26 @@ def test_un_parametre_sans_uniform_est_signale(tmp_path):
     assert parametres_orphelins(tmp_path) == ["herbe.tres : tire_marks_texture_size absent de res://herbe.gdshader"]
 
 
-KART = dossier_cours("kart")
+COURS_DE_JEU = ["kart", "roguelike"]
 
 
-def _source_kart() -> Path:
+def _source(cours: Path) -> Path:
     try:
-        source = cfg.chemin_source(lire_manifeste(KART)["SOURCE"])
+        source = cfg.chemin_source(lire_manifeste(cours)["SOURCE"])
     except Exception:  # config.toml absent ou sans [sources]
         source = None
     if source is None or not (Path(source) / "project.godot").is_file():
-        pytest.skip("jeu source du kart absent ([sources] de config.toml)")
+        pytest.skip(f"jeu source du cours {cours.name} absent ([sources] de config.toml)")
     return Path(source)
 
 
-def test_les_etapes_pretes_du_kart_passent_le_juge_et_leurs_materiaux_sont_coherents(tmp_path):
-    source = _source_kart()
-    manifeste = lire_manifeste(KART)
+@pytest.mark.parametrize("nom", COURS_DE_JEU)
+def test_les_etapes_pretes_passent_le_juge_et_leurs_materiaux_sont_coherents(nom, tmp_path):
+    cours = dossier_cours(nom)
+    source = _source(cours)
+    manifeste = lire_manifeste(cours)
     for etape in manifeste["PRETES"]:
-        rapport = fabriquer(KART, etape, tmp_path, manifeste, source)
+        rapport = fabriquer(cours, etape, tmp_path, manifeste, source)
         projet = tmp_path / rapport["nom"]
         verdict = verifier_regles(projet)
         assert verdict["ok"], (rapport["nom"], verdict["erreurs"][:5])

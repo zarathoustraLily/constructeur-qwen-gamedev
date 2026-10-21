@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
+[ext_resource type="Resource" path="res://5_data/input/attack_rumble.tres" id="2_rumble"]
+[ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="3_input"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/input_display/input_display.tscn" id="4_display"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_main"]
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_main")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+tonemap_mode = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(40, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hero"]
+albedo_color = Color(0.25, 0.45, 0.85, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_hero"]
+material = SubResource("StandardMaterial3D_hero")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_arrow"]
+albedo_color = Color(1, 0.55, 0.1, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_arrow"]
+material = SubResource("StandardMaterial3D_arrow")
+size = Vector3(0.5, 0.8, 0.1)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+attack_rumble = ExtResource("2_rumble")
+
+[node name="PlayerInput" type="Node" parent="." node_paths=PackedStringArray("body")]
+script = ExtResource("3_input")
+body = NodePath("../Hero")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 8, 0)
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="Hero" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Body" type="MeshInstance3D" parent="Hero"]
+mesh = SubResource("CapsuleMesh_hero")
+
+[node name="AimPivot" type="Node3D" parent="Hero"]
+
+[node name="Arrow" type="MeshInstance3D" parent="Hero/AimPivot"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, -0.95, -1.5)
+mesh = SubResource("PrismMesh_arrow")
+
+[node name="CameraRoot" type="Node3D" parent="Hero"]
+transform = Transform3D(-0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, 0.5416752, -0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Hero/CameraRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+fov = 65.0
+
+[node name="InputDisplay" parent="." instance=ExtResource("4_display")]
