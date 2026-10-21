@@ -13,4 +13,6 @@ dash_cooldown = 0.3
 ;@ 6+
 damage_stat = 100.0
 hit_shake = 0.75
+;@ 9+
+damage_shake = 1.0
 ;@ all

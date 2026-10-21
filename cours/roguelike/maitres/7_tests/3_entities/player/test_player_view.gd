@@ -3,6 +3,8 @@ extends GdUnitTestSuite
 ## s'effacer, et joue le son de l'esquive ; sans esquive, la traînée est effacée.
 #@ 6+
 ## Quand l'épée touche une cible, la caméra tremble.
+#@ 9+
+## Touché, l'écran rougit puis s'éclaircit, la caméra tremble et le son du coup reçu joue.
 #@ all
 
 const PLAYER := preload("res://3_entities/player/player.tscn")
@@ -51,4 +53,20 @@ func test_quand_l_epee_touche_la_camera_tremble() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_float(_player.camera.trauma).is_greater(0.0)
+#@ all
+#@ 9+
+
+
+func test_touche_l_ecran_rougit_la_camera_tremble_et_le_son_joue() -> void:
+	await get_tree().process_frame
+	var tint := _player.get_node("DamageTint") as ColorRect
+	_player.health_component.take_damage(5.0)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_float(_player.camera.trauma).is_greater(0.0)
+	assert_float(tint.color.a).is_greater(0.1)
+	assert_bool((_player.get_node("DamageAudio") as AudioStreamPlayer3D).playing).is_true()
+	for _frame: int in 30:
+		await get_tree().process_frame
+	assert_float(tint.color.a).is_equal_approx(0.0, 0.001)
 #@ all

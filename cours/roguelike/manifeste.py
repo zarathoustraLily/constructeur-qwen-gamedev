@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -129,4 +129,14 @@ FICHIERS = {
     "3_entities/enemy/states/enemy_meander.gd": "8+",
     "7_tests/3_entities/enemy/fireball/test_fireball.gd": "8+",
     "7_tests/3_entities/enemy/test_ranged_enemy.gd": "8+",
+    "4_ui/hud/damage_number/damage_number.gd": "9+",
+    "4_ui/hud/damage_number/damage_number.tscn": "9+",
+    "4_ui/hud/damage_numbers/damage_numbers.gd": "9+",
+    "4_ui/hud/damage_numbers/damage_numbers.tscn": "9+",
+    "4_ui/components/health_bar/health_bar.gd": "9+",
+    "4_ui/components/health_bar/health_bar.tscn": "9+",
+    "5_data/input/hit_rumble.tres": "9+",
+    "7_tests/4_ui/hud/damage_number/test_damage_number.gd": "9+",
+    "7_tests/4_ui/hud/damage_numbers/test_damage_numbers.gd": "9+",
+    "7_tests/4_ui/components/health_bar/test_health_bar.gd": "9+",
 }

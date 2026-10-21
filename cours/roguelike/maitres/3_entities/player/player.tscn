@@ -25,6 +25,9 @@
 [ext_resource type="Resource" path="res://5_data/player/attacks/slash.tres" id="16_slash"]
 [ext_resource type="Resource" path="res://5_data/player/attacks/stab.tres" id="17_stab"]
 [ext_resource type="Resource" path="res://5_data/player/attacks/spin.tres" id="18_spin"]
+;@ 9+
+[ext_resource type="AudioStream" path="res://6_assets/audio/metal-hit.ogg" id="19_damage_audio"]
+[ext_resource type="Resource" path="res://5_data/input/hit_rumble.tres" id="20_hit_rumble"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
@@ -240,8 +243,10 @@ autoplay = &"RESET"
 
 ;@ 5
 [node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio")]
-;@ 6+
+;@ 6-8
 [node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio", "sword")]
+;@ 9+
+[node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio", "sword", "damage_tint", "damage_audio")]
 ;@ 5+
 script = ExtResource("10_view")
 player = NodePath("..")
@@ -250,4 +255,21 @@ dash_animation = NodePath("../DashRoot/AnimationPlayer")
 dash_audio = NodePath("../DashAudio")
 ;@ 6+
 sword = NodePath("../Mannequin/Rig_Medium/Skeleton3D/WeaponSlot/ShapeCast3D/AttackComponent")
+;@ 9+
+damage_tint = NodePath("../DamageTint")
+damage_audio = NodePath("../DamageAudio")
+hit_rumble = ExtResource("20_hit_rumble")
+
+[node name="DamageTint" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 0)
+
+[node name="DamageAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("19_damage_audio")
+bus = &"SFX"
 ;@ all

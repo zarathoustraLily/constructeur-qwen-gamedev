@@ -17,6 +17,8 @@ extends GdUnitTestSuite
 ## Les ennemis poursuivent le joueur en suivant la navigation du niveau.
 #@ 8+
 ## L'ennemi à distance finit par lancer une boule de feu.
+#@ 9+
+## Chaque personnage a sa barre de santé ; un coup reçu affiche ses dégâts à l'écran.
 #@ 4+
 #@ all
 
@@ -151,4 +153,23 @@ func test_l_ennemi_a_distance_finit_par_lancer_une_boule_de_feu() -> void:
 			break
 	assert_int(shots[0]).is_greater(0)
 #@ all
+#@ 9+
 
+
+func test_chaque_personnage_a_sa_barre_de_sante() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	for character: String in ["Player", "MeleeEnemy", "MeleeEnemy2", "RangedEnemy"]:
+		var bars := main.get_node(character).find_children("*", "HealthBar", false, false)
+		assert_int(bars.size()).override_failure_message(character + " : pas de barre").is_equal(1)
+
+
+func test_un_coup_recu_affiche_ses_degats() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var enemy := main.get_node("MeleeEnemy") as Enemy
+	enemy.health_component.take_damage(7.0)
+	var numbers := main.get_node("DamageNumbers").find_children("*", "DamageNumber", false, false)
+	assert_int(numbers.size()).is_equal(1)
+	assert_str((numbers[0] as DamageNumber).label.text).is_equal("7.0")
+#@ all

@@ -20,4 +20,7 @@ class_name PlayerSettings extends Resource
 @export var damage_stat: float = 0.0
 ## Force de la secousse de la caméra quand l'épée touche (le trauma de ShakeCamera3D, de 0 à 1).
 @export_range(0.0, 1.0) var hit_shake: float = 0.0
+#@ 9+
+## Force de la secousse de la caméra quand le joueur est touché.
+@export_range(0.0, 1.0) var damage_shake: float = 0.0
 #@ all

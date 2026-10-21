@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/components/health_bar/health_bar.gd" id="1_bar"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_background"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_back"]
+bg_color = Color(0.8666667, 0.8666667, 0.8666667, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_front"]
+resource_local_to_scene = true
+bg_color = Color(0.8901961, 0.2901961, 0.25882354, 1)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_bar"]
+viewport_path = NodePath("SubViewport")
+
+[node name="HealthBar" type="Node3D"]
+script = ExtResource("1_bar")
+health_color = Color(0, 1, 1, 1)
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(128, 16)
+
+[node name="HealthProgressBar" type="ProgressBar" parent="SubViewport"]
+custom_minimum_size = Vector2(128, 16)
+offset_right = 128.0
+offset_bottom = 27.0
+theme_override_styles/background = SubResource("StyleBoxEmpty_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_back")
+value = 75.0
+show_percentage = false
+
+[node name="FrontProgressBar" type="ProgressBar" parent="SubViewport"]
+custom_minimum_size = Vector2(128, 16)
+offset_right = 4.0
+offset_bottom = 27.0
+theme_override_styles/background = SubResource("StyleBoxEmpty_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_front")
+value = 50.0
+show_percentage = false
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+billboard = 1
+texture = SubResource("ViewportTexture_bar")
