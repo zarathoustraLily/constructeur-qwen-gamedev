@@ -24,7 +24,7 @@
 - [x] Générateur de la base « bâtiments procéduraux » dans le dépôt (création en plusieurs tours, règle 7.2) ; socle aux avertissements en erreurs (règle 5.3) (2026-10-14) : étape 27
 - [x] Base convertie au format d'OpenCode, harnais d'usage (décision 14), jetons comptés avec le tokenizer de Qwen 3.8 (2026-10-15) : étape 28
 - [x] Compétence O1 « corriger en observant » (2026-10-20, sur la machine : juge, générateur, outil play_sequence ; 10 tâches kart produites, portillon et premier essai de Qwen à lancer : étape 29)
-- [ ] Cours « kart » en 14 étapes de création, aux règles d'architecture (découpage accepté par laurent le 2026-10-20) : étapes 1 à 8 faites et vérifiées, 9 à 14 à faire
+- [x] Cours « kart » en 14 étapes de création, aux règles d'architecture (découpage accepté par laurent le 2026-10-20) : 14 étapes faites et vérifiées (2026-10-21)
 - [ ] Cours « roguelike » en étapes, même démarche (après le kart)
 
 ## Bilan des 6 sessions (2026-10-05)
@@ -1525,7 +1525,7 @@ Demande de laurent : « pour qwen tu restructures le projet de kart en étapes d
 
 **Fait**
 - `usine/cours/jeu.py` : fabricant des cours « de jeu ». Les maîtres ont la forme du projet, balisés `#@`, `//@` ou `;@` selon le fichier. Les ressources viennent du jeu source rangé (`[sources]` de config.toml), de proche en proche (res://, uid://, .mtl, .gltf). Une étape qui désigne un maître absent est refusée. `tests/test_cours_jeu.py` (6 tests).
-- `cours/kart/` : manifeste (14 étapes, `PRETES` = 1 à 8), maîtres, notes `etape_001.md` à `etape_008.md` (README de chaque projet). Étapes :
+- `cours/kart/` : manifeste (14 étapes, `PRETES` = 1 à 14), maîtres, notes `etape_001.md` à `etape_014.md` (README de chaque projet). Étapes :
   1. contrôles clavier et manette (adaptateur `KartInput`, vibration) ;
   2. le kart (réglages en taux par seconde dans `5_data`) ;
   3. la caméra qui suit ;
@@ -1533,44 +1533,60 @@ Demande de laurent : « pour qwen tu restructures le projet de kart en étapes d
   5. le décor stylisé et le vent global ;
   6. l'herbe (semis en blocs MultiMesh, `GameState`) ;
   7. flotter (mer calme, capteurs, corps flottants, kart sur l'eau) ;
-  8. la mer FFT, avec repli en mer calme sans RenderingDevice.
+  8. la mer FFT, avec repli en mer calme sans RenderingDevice ;
+  9. vagues d'impact et écume (`WaterWaves`, sillage du kart réglé dans `5_data`) ;
+  10. dérapage, turbo et figures, puis leurs effets : étincelles, traînées, marques de pneus, gerbes d'eau, fantôme ;
+  11. pluie et éclair (`Weather` à graine, paramètres globaux `rain_intensity` et `rain_wetness`) ;
+  12. poissons procéduraux (bancs à graine) ;
+  13. objets : boîte à objets, réserve à poids, inventaire et son affichage, bombe et explosion, plaque de boost ;
+  14. le chef d'orchestre, l'autoload `GameFlow`, seul à charger les scènes (contrat `Step`, `sequence.tres`, `boot.tscn` qui lui remet la séquence) ; pause et remappage des contrôles.
 - Corrections du kart d'origine, toutes vues ou mesurées :
   - lecture d'image hors de l'image (`ImageSampling`) ;
   - capteur d'eau qui croyait le kart dans l'eau sur tout sol à hauteur 0 ;
   - masque de l'île lu en noir au-delà de 480 m (la physique disait « eau plate », le shader montrait la houle) ;
   - rampe orientée à l'envers, caméra de travers au départ ;
-  - paramètres de matériau sans uniform (traces, pluie) dans les étapes où leur shader ne les a pas encore.
+  - paramètres de matériau sans uniform (traces, pluie) dans les étapes où leur shader ne les a pas encore ;
+  - marques de pneus invisibles : le rayon des roues, long comme la suspension au repos (0,5 m), ne touchait plus le sol quand elle se détendait ; 0,7 m dès l'étape 2 (vu par des rendus A/B et des traces des rayons) ;
+  - houle FFT, météo, éclair, poissons et objets tirés sans graine : graines exposées, pour que deux rendus soient identiques (juge visuel) ;
+  - fantôme : ses paramètres d'instance dépassaient la réserve en Compatibilité ; un matériau par fantôme ;
+  - réserve d'objets dont tous les poids sont nuls : elle tirait le dernier objet ; elle ne rend plus rien ;
+  - `GameFlow` qui rejouait une étape : la nouvelle était posée avant le départ de l'ancienne, et Godot la renommait (`@StepA@9`) ; l'ancienne quitte l'arbre d'abord ;
+  - l'autoload préchargeait `2_sequence/sequence.tres` (refusé par le juge des règles : 0_autoload ne connaît que 1_core) ; c'est `2_sequence/boot.tscn` qui lui remet la séquence, comme dans le socle.
 - `usine/cours/verifier.py` :
   - contrôle `parametres_orphelins` (paramètre de matériau sans uniform dans son shader : 0 sur les 39 projets des bâtiments) ;
   - pour les cours de jeu, une seconde image en Compatibilité (règle 5.4), par `capturer(..., compatibilite=True)`.
 
-**Preuve** (machine de laurent, Windows 11, Godot 4.7.2 ; `python -m usine.cours verifier kart --etapes …`, deux passes : 1 à 5, puis 6 à 8)
+**Preuve** (machine de laurent, Windows 11, Godot 4.7.2 ; 2026-10-21, une passe : `python -m usine.cours verifier kart --etapes 1 2 3 4 5 6 7 8 9 10 11 12 13 14 --travailleurs 1`, environ 14 min ; bilan dans `donnees/cours/kart/verification.json`)
 
 ```
 kart_etape_001 : ok   18 test cases | 0 errors | 0 failures   rendu Forward+ et Compatibilité sans erreur
-kart_etape_002 : ok   44 test cases | 0 errors | 0 failures   idem
-kart_etape_003 : ok   59 test cases | 0 errors | 0 failures   idem
-kart_etape_004 : ok   64 test cases | 0 errors | 0 failures   idem
-kart_etape_005 : ok   69 test cases | 0 errors | 0 failures   idem
-kart_etape_006 : ok   85 test cases | 0 errors | 0 failures   idem
-kart_etape_007 : ok  115 test cases | 0 errors | 0 failures   idem
-kart_etape_008 : ok  121 test cases | 0 errors | 0 failures   idem
-juge des règles : 0 écart à chaque étape ; matériaux : 0 paramètre orphelin
+kart_etape_002 : ok   46 test cases | 0 errors | 0 failures   idem
+kart_etape_003 : ok   61 test cases | 0 errors | 0 failures   idem
+kart_etape_004 : ok   66 test cases | 0 errors | 0 failures   idem
+kart_etape_005 : ok   71 test cases | 0 errors | 0 failures   idem
+kart_etape_006 : ok   87 test cases | 0 errors | 0 failures   idem
+kart_etape_007 : ok  117 test cases | 0 errors | 0 failures   idem
+kart_etape_008 : ok  123 test cases | 0 errors | 0 failures   idem
+kart_etape_009 : ok  135 test cases | 0 errors | 0 failures   idem
+kart_etape_010 : ok  163 test cases | 0 errors | 0 failures   idem
+kart_etape_011 : ok  177 test cases | 0 errors | 0 failures   idem
+kart_etape_012 : ok  187 test cases | 0 errors | 0 failures   idem
+kart_etape_013 : ok  210 test cases | 0 errors | 0 failures   idem
+kart_etape_014 : ok  234 test cases | 0 errors | 0 failures   idem (jeu lancé par boot.tscn : GameFlow charge l'île)
+14/14 projets vérifiés sans erreur
+juge des règles : 0 écart à chaque étape ; matériaux : 0 paramètre orphelin ; GdUnit : 0 flaky, 0 skipped, 0 orphans
 python -m pytest -q tests/test_cours_jeu.py tests/test_cours.py : 13 passed
 ```
 
+Vu au rendu (images A/B hors de l'écran, `usine.retour.capture.capturer`) : l'herbe qui s'écarte sous le kart ; le reflet de la mer calme ; la houle FFT et son repli ; l'écume du sillage ; étincelles de dérapage, fantôme, marques de pneus ; pluie, ronds dans l'eau, éclair ; bancs de poissons ; ramassage d'une boîte, case d'inventaire, lancer de bombe, explosion ; jeu complet lancé par `boot.tscn`.
+
 **Reste à faire**
-- Étapes 9 à 14 du kart :
-  - 9 : vagues d'impact et écume ;
-  - 10 : traînées, marques de pneus, gerbes, fantôme, dérapage et turbo ;
-  - 11 : pluie et éclair ;
-  - 12 : poissons ;
-  - 13 : objets ;
-  - 14 : pause et remappage.
-- Ensuite, le roguelike, même démarche.
+- Le roguelike, même démarche.
 - O1 par l'image pour les étapes du kart. Défauts vus pendant la fabrication, candidats au générateur :
   - herbe sans `player_position` : l'herbe traverse le kart ;
-  - normale de la mer calme sans `VIEW_MATRIX` : plus de reflet, mer uniforme.
+  - normale de la mer calme sans `VIEW_MATRIX` : plus de reflet, mer uniforme ;
+  - marques de pneus à `mark_strength` nulle ;
+  - écume à `foam_amount` nulle.
 - Base d'entraînement du cours du kart (création et débogage), au format d'OpenCode.
 
 **Pièges**
@@ -1579,6 +1595,10 @@ python -m pytest -q tests/test_cours_jeu.py tests/test_cours.py : 13 passed
 - En Compatibilité, 341 instances à paramètres d'instance dépassent la réserve du moteur de rendu (« Maximum items supported by this hardware is: 4096 »).
 - Un `metadata/_custom_type_script = "uid://…"` dans un .tres ou un .tscn fait recopier le script d'origine par le fabricant : après un renommage, l'écrire en chemin res://.
 - Le chemin de sortie de `capturer` doit être absolu : Godot travaille depuis le dossier du projet.
+- Balises des maîtres : un bloc (`;@ 14+`) court jusqu'à la balise suivante et avale les lignes communes placées avant elle ; une balise `all` mal placée fait fuir une ligne dans les étapes antérieures. Le fabricant refuse une étape qui désigne un fichier absent, mais une variable en trop passe sans bruit : comparer les étapes refabriquées aux étapes vérifiées.
+- `physics_frame` part avant que les nœuds ne jouent leur image physique : attendre trois images avant de lire un capteur (bombe dans l'eau).
+- Dans un test GdUnit, une variable nommée `before` masque une fonction de `GdUnitTestSuite` (avertissement `shadowed_*`, donc erreur).
+- Un test qui change la scène courante (GameFlow) pose une scène jetable avant et rend la scène d'origine après.
 
 ## Vérifications locales en attente
 
