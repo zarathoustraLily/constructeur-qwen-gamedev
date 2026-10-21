@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -153,4 +153,17 @@ FICHIERS = {
     "2_sequence/levels/level_2/level_2.tscn": "11+",
     "2_sequence/levels/level_3/level_3.tscn": "11+",
     "7_tests/2_sequence/levels/test_levels.gd": "11+",
+    "1_core/step/step.gd": "12+",
+    "1_core/step/sequence.gd": "12+",
+    "0_autoload/game_state.gd": "12+",
+    "0_autoload/game_flow.gd": "12+",
+    "0_autoload/game_flow.tscn": "12+",
+    "2_sequence/boot.gd": "12+",
+    "2_sequence/boot.tscn": "12+",
+    "2_sequence/sequence.tres": "12+",
+    "7_tests/0_autoload/step_a.tscn": "12+",
+    "7_tests/0_autoload/step_b.tscn": "12+",
+    "7_tests/0_autoload/test_game_flow.gd": "12+",
+    "7_tests/0_autoload/test_game_state.gd": "12+",
+    "7_tests/1_core/step/test_step.gd": "12+",
 }
