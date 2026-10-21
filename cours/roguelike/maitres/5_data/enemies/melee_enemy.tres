@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnemySettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/characters/enemy_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+speed = 3.5
+attack_range = 3.0
+wait_time = 2.0
+random_seed = 0

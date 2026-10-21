@@ -13,6 +13,9 @@ extends GdUnitTestSuite
 ## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur le
 ## sol du niveau ; tombé sous la limite du monde, il est vaincu, puis revient à son point de départ, visible,
 ## avec toute sa santé, et sa caméra tremble ; la vibration du coup est réglée.
+#@ 7+
+## Les ennemis poursuivent le joueur en suivant la navigation du niveau.
+#@ 4+
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -118,3 +121,17 @@ func test_la_vibration_du_coup_est_reglee() -> void:
 	assert_object(rumble).is_not_null()
 	assert_float(rumble.duration).is_greater(0.0)
 	assert_float(maxf(rumble.weak_magnitude, rumble.strong_magnitude)).is_greater(0.0)
+#@ 7+
+
+
+func test_les_ennemis_poursuivent_le_joueur() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	await _frames()
+	var enemy := main.get_node("MeleeEnemy") as Enemy
+	var start_distance := enemy.distance_to_target()
+	for _frame: int in 60:
+		await get_tree().physics_frame
+	assert_float(enemy.distance_to_target()).is_less(start_distance - 1.0)
+#@ all
+

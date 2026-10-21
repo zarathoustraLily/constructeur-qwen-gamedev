@@ -1,0 +1,116 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://6_assets/models/kaykit/KayKit_GameDevTV_Enemies_Character_Pack_1.0/Characters/gltf/Enemy_Medium.glb" id="1_model"]
+[ext_resource type="Script" path="res://1_core/animation/weapon_slot.gd" id="2_slot"]
+[ext_resource type="Script" path="res://1_core/animation/foot_bone.gd" id="3_foot"]
+[ext_resource type="Script" path="res://1_core/animation/animation_tree_view.gd" id="4_tree"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Idle_A.res" id="5_idle"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Running_B.res" id="6_run"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Hit_A.res" id="7_hit"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Death_A.res" id="8_death"]
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Melee_2H_Attack_Chop.res" id="9_chop"]
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Rig_Medium/Skeleton3D/WeaponSlot:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_reset"]
+_data = {
+&"RESET": SubResource("Animation_reset")
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_enemy"]
+_data = {
+&"Death_A": ExtResource("8_death"),
+&"Hit_A": ExtResource("7_hit"),
+&"Idle_A": ExtResource("5_idle"),
+&"Melee_2H_Attack_Chop": ExtResource("9_chop"),
+&"Running_B": ExtResource("6_run")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_idle"]
+animation = &"EnemyAnimations/Idle_A"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_run"]
+animation = &"EnemyAnimations/Running_B"
+
+[sub_resource type="AnimationNodeBlendSpace1D" id="AnimationNodeBlendSpace1D_walk"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_idle")
+blend_point_0/pos = -1.0
+blend_point_1/node = SubResource("AnimationNodeAnimation_run")
+blend_point_1/pos = 1.0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hit"]
+animation = &"EnemyAnimations/Hit_A"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_death"]
+animation = &"EnemyAnimations/Death_A"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_chop"]
+animation = &"EnemyAnimations/Melee_2H_Attack_Chop"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_stun"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_stun_walk"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_defeat"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_melee"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_melee_walk"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_enemy"]
+states/WalkSpace/node = SubResource("AnimationNodeBlendSpace1D_walk")
+states/WalkSpace/position = Vector2(600, 100)
+states/Stun/node = SubResource("AnimationNodeAnimation_hit")
+states/Stun/position = Vector2(800, 180)
+states/Defeat/node = SubResource("AnimationNodeAnimation_death")
+states/Defeat/position = Vector2(800, 30)
+states/MeleeAttack/node = SubResource("AnimationNodeAnimation_chop")
+states/MeleeAttack/position = Vector2(400, -30)
+transitions = ["WalkSpace", "Stun", SubResource("AnimationNodeStateMachineTransition_walk_stun"), "Stun", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_stun_walk"), "WalkSpace", "Defeat", SubResource("AnimationNodeStateMachineTransition_walk_defeat"), "WalkSpace", "MeleeAttack", SubResource("AnimationNodeStateMachineTransition_walk_melee"), "MeleeAttack", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_melee_walk")]
+
+[node name="EnemyModel" instance=ExtResource("1_model")]
+
+[node name="WeaponSlot" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D"]
+bone_name = "hand.r"
+bone_idx = 12
+script = ExtResource("2_slot")
+attack_mode = 1
+vfx_threshold = 1.0
+
+[node name="RightFootBone" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D"]
+bone_name = "foot.r"
+bone_idx = 21
+script = ExtResource("3_foot")
+
+[node name="LeftFootBone" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D"]
+bone_name = "foot.l"
+bone_idx = 17
+script = ExtResource("3_foot")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_reset")
+libraries/EnemyAnimations = SubResource("AnimationLibrary_enemy")
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeStateMachine_enemy")
+anim_player = NodePath("../AnimationPlayer")
+script = ExtResource("4_tree")

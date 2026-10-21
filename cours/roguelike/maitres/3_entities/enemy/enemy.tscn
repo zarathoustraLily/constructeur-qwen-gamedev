@@ -1,0 +1,89 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/enemy/enemy.gd" id="1_enemy"]
+[ext_resource type="PackedScene" path="res://3_entities/enemy/animated_enemy.tscn" id="2_model"]
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://1_core/components/knockback_component.gd" id="4_knockback"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="5_machine"]
+[ext_resource type="Script" path="res://3_entities/enemy/states/enemy_wait.gd" id="6_wait"]
+[ext_resource type="Script" path="res://3_entities/enemy/states/enemy_stun.gd" id="7_stun"]
+[ext_resource type="Script" path="res://3_entities/enemy/states/enemy_defeat.gd" id="8_defeat"]
+[ext_resource type="Script" path="res://3_entities/enemy/states/enemy_fall.gd" id="9_fall"]
+[ext_resource type="Script" path="res://3_entities/enemy/enemy_view.gd" id="10_view"]
+[ext_resource type="AudioStream" path="res://6_assets/audio/hit.ogg" id="11_hit"]
+[ext_resource type="Shader" path="res://6_assets/shaders/defeat_echo.gdshader" id="12_echo"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_echo"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_echo"]
+noise = SubResource("FastNoiseLite_echo")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_echo"]
+render_priority = 0
+shader = ExtResource("12_echo")
+shader_parameter/dissolve_amount = 0.0
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_echo")
+
+[node name="Enemy" type="CharacterBody3D" node_paths=PackedStringArray("stun_state", "defeat_state", "mesh_mount")]
+collision_layer = 3
+script = ExtResource("1_enemy")
+stun_state = NodePath("StateMachine/EnemyStun")
+defeat_state = NodePath("StateMachine/EnemyDefeat")
+mesh_mount = NodePath("AnimationAnchor")
+
+[node name="AnimationAnchor" type="Node3D" parent="."]
+
+[node name="EnemyModel" parent="AnimationAnchor" instance=ExtResource("2_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_enemy")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_health = 40.0
+
+[node name="KnockbackComponent" type="Node" parent="."]
+script = ExtResource("4_knockback")
+
+[node name="HitAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("11_hit")
+bus = &"SFX"
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("5_machine")
+initial_state = NodePath("EnemyWait")
+
+[node name="EnemyWait" type="Node" parent="StateMachine" node_paths=PackedStringArray("enemy", "fall_state")]
+script = ExtResource("6_wait")
+enemy = NodePath("../..")
+fall_state = NodePath("../EnemyFall")
+
+[node name="EnemyStun" type="Node" parent="StateMachine" node_paths=PackedStringArray("next_state", "enemy", "fall_state")]
+script = ExtResource("7_stun")
+next_state = NodePath("../EnemyWait")
+enemy = NodePath("../..")
+fall_state = NodePath("../EnemyFall")
+
+[node name="EnemyDefeat" type="Node" parent="StateMachine" node_paths=PackedStringArray("enemy", "fall_state")]
+script = ExtResource("8_defeat")
+enemy = NodePath("../..")
+fall_state = NodePath("../EnemyFall")
+
+[node name="EnemyFall" type="Node" parent="StateMachine" node_paths=PackedStringArray("land_state", "enemy", "fall_state")]
+script = ExtResource("9_fall")
+land_state = NodePath("../EnemyStun")
+enemy = NodePath("../..")
+fall_state = NodePath(".")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+
+[node name="View" type="Node" parent="." node_paths=PackedStringArray("enemy", "hit_audio", "model")]
+script = ExtResource("10_view")
+enemy = NodePath("..")
+hit_audio = NodePath("../HitAudio")
+model = NodePath("../AnimationAnchor/EnemyModel")
+echo_material = SubResource("ShaderMaterial_echo")

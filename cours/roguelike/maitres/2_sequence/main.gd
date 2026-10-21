@@ -15,6 +15,9 @@ extends Node3D
 #@ 6+
 ## limite du monde (WorldBoundary), qui vide la santé de qui y tombe. Vaincu, le joueur revient à son point de
 ## départ avec toute sa santé, et sa caméra tremble : pas encore de chef d'orchestre pour recharger le niveau.
+#@ 7+
+## Deux ennemis au corps à corps l'y attendent ; ils suivent la navigation du niveau (NavigationRegion3D, son
+## maillage de navigation précalculé).
 #@ 4+
 ## À chaque image physique, la scène montre les commandes du joueur (InputDisplay), et un coup fait vibrer la
 ## manette (attack_rumble). La scène fait le lien : le joueur, la limite et l'affichage ne se connaissent pas.

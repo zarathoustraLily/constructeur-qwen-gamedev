@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## manette ; sous la zone morte rien ne bouge, au-delà la course est remise à l'échelle ; le coup et l'esquive
 ## sont signalés à l'image où on appuie ; la visée suit le dernier appareil touché : à la souris, du personnage
 ## vers le pointeur ; à la manette, le stick droit, rien au repos ; un stick à peine touché ne change pas
-## d'appareil.
+## d'appareil ; tant que la souris n'a pas bougé sur la fenêtre, pas de visée.
 
 const MOVES: Array[String] = ["move_forward", "move_back", "move_left", "move_right"]
 const AIMS: Array[String] = ["aim_left", "aim_right", "aim_up", "aim_down"]
@@ -153,3 +153,18 @@ func test_les_noms_des_manettes_sont_ceux_des_manettes_branchees() -> void:
 	rumble.strong_magnitude = 1.0
 	rumble.duration = 0.1
 	_input.vibrate(rumble)
+
+
+func test_tant_que_la_souris_n_a_pas_bouge_pas_de_visee() -> void:
+	assert_vector(_input.read().aim).is_equal(Vector2.ZERO)
+	# Le mouvement que Godot envoie au démarrage n'a pas de déplacement : il ne compte pas.
+	var still := InputEventMouseMotion.new()
+	still.position = Vector2(10.0, 10.0)
+	await _send(still)
+	assert_vector(_input.read().aim).is_equal(Vector2.ZERO)
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(12.0, 10.0)
+	motion.relative = Vector2(2.0, 0.0)
+	await _send(motion)
+	assert_bool(_input.read().aim.is_zero_approx()).is_false()
+

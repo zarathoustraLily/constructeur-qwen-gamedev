@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6]
+PRETES = [1, 2, 3, 4, 5, 6, 7]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -98,4 +98,22 @@ FICHIERS = {
     "7_tests/1_core/components/test_attack_component.gd": "6+",
     "7_tests/1_core/combat/test_damage.gd": "6+",
     "7_tests/3_entities/player/effects/test_slash_effect.gd": "6+",
+    "6_assets/shaders/defeat_echo.gdshader": "7+",
+    "1_core/characters/enemy_settings.gd": "7+",
+    "5_data/enemies/melee_enemy.tres": "7+",
+    "5_data/enemies/attacks/melee_chop.tres": "7+",
+    "3_entities/enemy/enemy.gd": "7+",
+    "3_entities/enemy/enemy.tscn": "7+",
+    "3_entities/enemy/enemy_view.gd": "7+",
+    "3_entities/enemy/animated_enemy.tscn": "7+",
+    "3_entities/enemy/melee_enemy.tscn": "7+",
+    "3_entities/enemy/states/enemy_state.gd": "7+",
+    "3_entities/enemy/states/enemy_wait.gd": "7+",
+    "3_entities/enemy/states/enemy_pursue.gd": "7+",
+    "3_entities/enemy/states/enemy_attack.gd": "7+",
+    "3_entities/enemy/states/enemy_stun.gd": "7+",
+    "3_entities/enemy/states/enemy_defeat.gd": "7+",
+    "3_entities/enemy/states/enemy_fall.gd": "7+",
+    "7_tests/3_entities/enemy/test_enemy.gd": "7+",
+    "7_tests/3_entities/enemy/test_enemy_view.gd": "7+",
 }

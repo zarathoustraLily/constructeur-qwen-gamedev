@@ -86,6 +86,12 @@ de manette, ou un stick poussé au-delà de `PAD_MOTION_THRESHOLD` (0,5), fait p
 la souris ou le clavier la rendent à la souris. Un stick à peine touché ne change rien : sans ce seuil, le
 bruit d'une manette posée sur la table volerait la visée à la souris.
 
+Tant que la souris n'a pas bougé sur la fenêtre, elle ne vise pas : la visée reste nulle et le joueur frappera
+vers où il marche. Sans cette règle, une fenêtre ouverte hors de l'écran (les rendus de vérification du cours)
+viserait vers le pointeur posé ailleurs sur le bureau, et deux parties identiques ne viseraient pas pareil.
+Seul compte un vrai déplacement (`relative` non nul) : au démarrage, Godot envoie à la fenêtre un mouvement de
+souris sans déplacement, et une fenêtre hors de l'écran lit quand même un pointeur au milieu de son image.
+
 ### 5. Tourner selon la caméra
 
 La caméra regarde le personnage en biais, tournée autour de la verticale (son angle vient du jeu d'origine).
