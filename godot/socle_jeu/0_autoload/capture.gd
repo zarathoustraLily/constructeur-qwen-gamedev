@@ -30,6 +30,10 @@ class Press:
 const GAP := 4
 const BACKDROP := Color(0.08, 0.08, 0.11, 1.0)
 const DEFAULT_FRAMES: Array[int] = [30, 60, 90, 120, 150, 180, 210, 240]
+## Avant de quitter, nombre d'attentes pour que le fil audio relâche les sons arrêtés.
+const SILENCE_WAITS := 3
+## Durée de chacune de ces attentes, en millisecondes de temps réel.
+const SILENCE_WAIT_MS := 30
 
 var capturing: bool = false
 var _frame: int = 0
@@ -102,7 +106,21 @@ func _ready() -> void:
 		f.store_string("\n".join(legend) + "\n")
 		f.close()
 	print("[capture] %s" % legend[0])
+	# Un son encore en lecture quand le jeu quitte garde sa lecture en mémoire (Godot 4.7.2 : « resources still in
+	# use at exit ») : on retire leur flux aux lecteurs (ce qui arrête les sons, et ceux qui suivraient), puis on
+	# laisse au fil audio le temps de relâcher les lectures. Avec --fixed-fps, les images ne suivent pas l'horloge :
+	# l'attente est en temps réel, entre deux images.
+	_silence()
+	for _wait: int in SILENCE_WAITS:
+		OS.delay_msec(SILENCE_WAIT_MS)
+		await get_tree().process_frame
 	get_tree().quit()
+
+
+func _silence() -> void:
+	for kind: String in ["AudioStreamPlayer", "AudioStreamPlayer2D", "AudioStreamPlayer3D"]:
+		for player: Node in get_tree().root.find_children("*", kind, true, false):
+			player.set(&"stream", null)
 
 
 func _journal(trace: Node) -> PackedStringArray:
