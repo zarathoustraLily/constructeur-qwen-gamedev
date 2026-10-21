@@ -80,7 +80,7 @@ extends Step
 @export var inventory_capacity: int = 0
 ## Graine du hasard des objets.
 @export var item_seed: int = 0
-#@ all
+#@ 11+
 
 ## La météo de la partie.
 var weather: Weather
