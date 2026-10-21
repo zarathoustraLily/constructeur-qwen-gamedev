@@ -11,8 +11,17 @@
 [ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="5_machine"]
 [ext_resource type="Script" path="res://3_entities/player/states/player_run.gd" id="6_run"]
 [ext_resource type="Script" path="res://3_entities/player/states/player_fall.gd" id="7_fall"]
+;@ 4+
+[ext_resource type="Script" path="res://1_core/camera/shake_camera_3d.gd" id="8_shake"]
+;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+;@ 4+
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_shake"]
+noise_type = 2
+fractal_type = 0
+;@ all
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("input") groups=["player"]]
 collision_layer = 17
@@ -36,6 +45,11 @@ transform = Transform3D(-0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76
 [node name="Camera3D" type="Camera3D" parent="CameraRoot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 fov = 65.0
+;@ 4+
+script = ExtResource("8_shake")
+noise = SubResource("FastNoiseLite_shake")
+offset_scale = 3.0
+;@ all
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("5_machine")

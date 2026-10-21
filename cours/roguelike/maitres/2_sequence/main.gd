@@ -4,10 +4,15 @@ extends Node3D
 ## souris et la manette en commandes, et l'affichage (InputDisplay) les montre ; la flèche au pied du
 ## personnage montre la visée (à défaut, la marche), tournée selon la caméra ; un coup fait vibrer la manette
 ## (attack_rumble). La scène fait le lien : l'adaptateur et l'affichage ne se connaissent pas.
-#@ 2+
+#@ 2-3
 ## Scène principale : le joueur sur une estrade, au milieu d'un grand sol. À chaque image physique, la scène
 ## montre les commandes du joueur (InputDisplay), et un coup fait vibrer la manette (attack_rumble). La scène
 ## fait le lien : le joueur et l'affichage ne se connaissent pas.
+#@ 4+
+## Scène principale : le niveau de test du jeu d'origine, en tuiles (GridMap), avec un trou ; sous le niveau, la
+## limite du monde (WorldBoundary). Le joueur qui y tombe revient à son point de départ, et sa caméra tremble.
+## À chaque image physique, la scène montre les commandes du joueur (InputDisplay), et un coup fait vibrer la
+## manette (attack_rumble). La scène fait le lien : le joueur, la limite et l'affichage ne se connaissent pas.
 #@ all
 
 ## Vibration jouée à chaque coup (5_data/input/attack_rumble.tres).
@@ -17,17 +22,26 @@ extends Node3D
 @onready var _input: PlayerInput = $PlayerInput
 #@ 2+
 @onready var _player: Player = $Player
+#@ 4+
+@onready var _boundary: WorldBoundary = $WorldBoundary
 #@ all
 @onready var _display: InputDisplay = $InputDisplay
 #@ 1
 @onready var _aim_pivot: Node3D = $Hero/AimPivot
 @onready var _camera: Camera3D = $Hero/CameraRoot/Camera3D
+#@ 4+
+
+var _player_start: Vector3
 #@ all
 
 
 func _ready() -> void:
 	if attack_rumble == null:
 		push_error("Main : la vibration du coup (attack_rumble) manque")
+#@ 4+
+	_player_start = _player.global_position
+	_boundary.body_fell.connect(_on_body_fell)
+#@ all
 
 
 func _physics_process(_delta: float) -> void:
@@ -48,4 +62,15 @@ func _physics_process(_delta: float) -> void:
 	if commands.attack and attack_rumble != null:
 		_player.input.vibrate(attack_rumble)
 	_display.show_commands(commands, _player.input.joypad_names())
+#@ all
+#@ 4+
+
+
+# Pas encore de santé : le joueur tombé revient à son point de départ, et la caméra tremble.
+func _on_body_fell(body: Node3D) -> void:
+	if body != _player:
+		return
+	_player.global_position = _player_start
+	_player.velocity = Vector3.ZERO
+	_player.camera.quick_shake(1.0)
 #@ all

@@ -19,7 +19,11 @@ var commands: PlayerCommands = PlayerCommands.new()
 #@ 3+
 @onready var animation_tree: AnimationTreeView = $Mannequin/AnimationTree
 #@ all
+#@ 2-3
 @onready var camera: Camera3D = $CameraRoot/Camera3D
+#@ 4+
+@onready var camera: ShakeCamera3D = $CameraRoot/Camera3D
+#@ all
 
 
 func _ready() -> void:

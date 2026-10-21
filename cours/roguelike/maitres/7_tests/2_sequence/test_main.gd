@@ -2,9 +2,13 @@ extends GdUnitTestSuite
 #@ 1
 ## Règles de la scène principale : elle montre à chaque image les commandes que l'adaptateur a lues ; la flèche
 ## de visée suit la marche quand on ne vise pas, tournée comme la caméra ; la vibration du coup est réglée.
-#@ 2+
+#@ 2-3
 ## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur
 ## l'estrade ; la vibration du coup est réglée.
+#@ 4+
+## Règles de la scène principale : elle montre les commandes que le joueur a lues ; le joueur se tient sur le
+## sol du niveau ; tombé sous la limite du monde, il revient à son point de départ et sa caméra tremble ; la
+## vibration du coup est réglée.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -46,7 +50,7 @@ func test_sans_visee_la_fleche_suit_la_marche_tournee_comme_la_camera() -> void:
 	var pivot := main.get_node("Hero/AimPivot") as Node3D
 	assert_bool(pivot.visible).is_true()
 	assert_vector(-pivot.global_basis.z).is_equal_approx(expected, Vector3.ONE * 0.01)
-#@ 2+
+#@ 2-3
 
 
 func test_le_joueur_se_tient_sur_l_estrade() -> void:
@@ -58,6 +62,29 @@ func test_le_joueur_se_tient_sur_l_estrade() -> void:
 	assert_bool(player.is_on_floor()).is_true()
 	# Le haut de l'estrade est à 1 m ; le centre du joueur, 1 m au-dessus de ses pieds.
 	assert_float(player.global_position.y).is_equal_approx(2.0, 0.05)
+#@ 4+
+
+
+func test_le_joueur_se_tient_sur_le_sol_du_niveau() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	for _frame: int in 30:
+		await get_tree().physics_frame
+	var player := main.get_node("Player") as Player
+	assert_bool(player.is_on_floor()).is_true()
+	assert_float(player.global_position.y).is_between(0.5, 1.5)
+
+
+func test_tombe_sous_la_limite_le_joueur_revient_au_depart_et_la_camera_tremble() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate())
+	add_child(main)
+	var player := main.get_node("Player") as Player
+	var start := player.global_position
+	await _frames()
+	player.global_position = Vector3(0.0, -6.0, 0.0)
+	await _frames()
+	assert_vector(player.global_position).is_equal_approx(start, Vector3.ONE * 0.2)
+	assert_float(player.camera.trauma).is_greater(0.0)
 #@ all
 
 
