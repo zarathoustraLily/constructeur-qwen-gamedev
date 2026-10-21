@@ -8,3 +8,11 @@ class_name PlayerSettings extends Resource
 ## Vivacité avec laquelle le personnage se tourne vers sa course : à chaque image, il fait la part
 ## 1 - exp(-turn_rate × durée de l'image) du chemin restant.
 @export_custom(PROPERTY_HINT_NONE, "suffix:/s") var turn_rate: float = 0.0
+#@ 5+
+## Vitesse de l'esquive, en m/s.
+@export_custom(PROPERTY_HINT_NONE, "suffix:m/s") var dash_speed: float = 0.0
+## Durée de l'esquive, en secondes.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var dash_duration: float = 0.0
+## Délai avant de pouvoir esquiver à nouveau, compté dès le début de l'esquive, en secondes.
+@export_custom(PROPERTY_HINT_NONE, "suffix:s") var dash_cooldown: float = 0.0
+#@ all

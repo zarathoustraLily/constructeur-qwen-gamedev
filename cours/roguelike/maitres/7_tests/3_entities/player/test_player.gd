@@ -5,6 +5,10 @@ extends GdUnitTestSuite
 #@ 3+
 ## Animation : il apparaît en sortant du sol ; en marche l'animation passe à la course, à l'arrêt au repos ;
 ## ses pieds font entendre ses pas ; il tient son épée dans la main droite.
+#@ 5+
+## Esquive : à l'arrêt, pas d'esquive ; l'esquive le lance vite dans la direction de la marche, le temps de sa
+## durée, puis la course reprend ; elle est signalée avec sa direction ; la recharge empêche une seconde
+## esquive aussitôt, puis la permet.
 #@ all
 
 const PLAYER := preload("res://3_entities/player/player.tscn")
@@ -129,3 +133,59 @@ func test_il_tient_son_epee_dans_la_main_droite() -> void:
 	assert_str((slots[0] as WeaponSlot).bone_name).is_equal("hand.r")
 	assert_object(slots[0].get_node_or_null("LazerSword")).is_not_null()
 #@ all
+#@ 5+
+
+
+## Demande une esquive pendant une image, comme l'adaptateur (« vient d'être enfoncée »).
+func _dash() -> void:
+	_player.commands.dash = true
+	await get_tree().physics_frame
+	_player.commands.dash = false
+
+
+func test_a_l_arret_il_ne_peut_pas_esquiver() -> void:
+	await _frames(10)
+	assert_bool(_player.can_dash()).is_false()
+	await _dash()
+	await _frames(2)
+	assert_str(_state()).is_equal("PlayerRun")
+
+
+func test_l_esquive_le_lance_vite_dans_la_direction_de_la_marche_puis_la_course_reprend() -> void:
+	_player.commands.move = Vector2.RIGHT
+	await _frames(10)
+	var start := _player.global_position
+	await _dash()
+	await _frames(2)
+	assert_str(_state()).is_equal("PlayerDash")
+	await _frames(12)
+	assert_str(_state()).is_equal("PlayerRun")
+	var expected := Vector3.RIGHT.rotated(Vector3.UP, _player.camera.global_rotation.y)
+	var moved := _flat(_player.global_position - start)
+	# Sans esquive, 15 images de marche feraient 2 m ; l'esquive en ajoute 5 (50 m/s pendant 0,1 s).
+	assert_float(moved.dot(expected)).is_greater(_player.settings.dash_speed * _player.settings.dash_duration)
+
+
+func test_l_esquive_est_signalee_avec_sa_direction() -> void:
+	var directions: Array[Vector3] = []
+	_player.dashed.connect(func(direction: Vector3) -> void: directions.append(direction))
+	_player.commands.move = Vector2(0.0, 0.5)
+	await _frames(10)
+	await _dash()
+	await _frames(2)
+	assert_int(directions.size()).is_equal(1)
+	var expected := Vector3.BACK.rotated(Vector3.UP, _player.camera.global_rotation.y)
+	# Un stick à moitié : la direction de l'esquive garde une longueur de 1.
+	assert_vector(directions[0]).is_equal_approx(expected, Vector3.ONE * 0.001)
+
+
+func test_la_recharge_empeche_une_seconde_esquive_aussitot_puis_la_permet() -> void:
+	_player.commands.move = Vector2.RIGHT
+	await _frames(10)
+	await _dash()
+	await _frames(10)
+	assert_bool(_player.can_dash()).is_false()
+	await _frames(int(_player.settings.dash_cooldown * 60.0))
+	assert_bool(_player.can_dash()).is_true()
+#@ all
+

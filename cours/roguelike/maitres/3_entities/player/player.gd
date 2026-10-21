@@ -1,10 +1,20 @@
 class_name Player extends CharacterBody3D
 ## Le héros. Il ne lit jamais les touches : à chaque image physique, il prend les commandes de son adaptateur
 ## d'entrées (PlayerInput ; sans adaptateur, un test les écrit lui-même), puis sa machine à états le déplace
+#@ 2-4
 ## (course, chute). Les directions de l'écran deviennent des directions du sol, tournées comme sa caméra.
+#@ 5+
+## (course, chute, esquive). Les directions de l'écran deviennent des directions du sol, tournées comme sa
+## caméra. Il signale ce qui se voit (dashed) : sa vue (PlayerView) en joue les effets et les sons.
+#@ all
 #@ 3+
 ## Les états choisissent aussi l'animation du modèle (animation_tree) : dans ce jeu, la durée d'un coup ou
 ## d'une esquive est celle de son animation.
+#@ all
+#@ 5+
+
+## Émis au début d'une esquive, avec sa direction au sol (de longueur 1).
+signal dashed(direction: Vector3)
 #@ all
 
 ## Réglages du joueur (5_data/player/player_settings.tres).
@@ -23,12 +33,18 @@ var commands: PlayerCommands = PlayerCommands.new()
 @onready var camera: Camera3D = $CameraRoot/Camera3D
 #@ 4+
 @onready var camera: ShakeCamera3D = $CameraRoot/Camera3D
+#@ 5+
+@onready var dash_cooldown: Timer = $DashCooldown
 #@ all
 
 
 func _ready() -> void:
 	if settings == null:
 		push_error("Player : les réglages (settings) manquent")
+#@ 5+
+		return
+	dash_cooldown.wait_time = settings.dash_cooldown
+#@ all
 
 
 # Le joueur passe avant ses enfants : sa machine à états trouve les commandes de cette image.
@@ -55,3 +71,18 @@ func look_toward_direction(direction: Vector3, delta: float) -> void:
 		return
 	var target := model.global_transform.looking_at(model.global_position + direction, Vector3.UP, true)
 	model.global_transform = model.global_transform.interpolate_with(target, 1.0 - exp(-settings.turn_rate * delta))
+#@ 5+
+
+
+## Vrai si le joueur peut esquiver : il marche, et la recharge de la dernière esquive est finie.
+func can_dash() -> bool:
+	return not get_movement_direction().is_zero_approx() and dash_cooldown.is_stopped()
+
+
+## Lance une esquive vers `direction` (au sol, de longueur 1) : la vitesse d'esquive, la recharge, et le signal
+## dashed. L'état d'esquive l'appelle en entrant.
+func start_dash(direction: Vector3) -> void:
+	velocity = direction * settings.dash_speed
+	dash_cooldown.start()
+	dashed.emit(direction)
+#@ all

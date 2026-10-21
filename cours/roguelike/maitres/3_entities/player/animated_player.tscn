@@ -7,6 +7,9 @@
 [ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Idle_A.res" id="5_idle"]
 [ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Running_B.res" id="6_run"]
 [ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Spawn_Ground.res" id="7_spawn"]
+;@ 5+
+[ext_resource type="Animation" path="res://6_assets/models/kaykit/KayKit_Character_Animations_1.0/Animations/gltf/Rig_Medium/Animations/Dodge_Forward.res" id="8_dodge"]
+;@ all
 [ext_resource type="AudioStream" path="res://6_assets/audio/footstep-01.ogg" id="20_step1"]
 [ext_resource type="AudioStream" path="res://6_assets/audio/footstep-02.ogg" id="21_step2"]
 [ext_resource type="AudioStream" path="res://6_assets/audio/footstep-03.ogg" id="22_step3"]
@@ -58,6 +61,9 @@ _data = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_player"]
 _data = {
+;@ 5+
+&"Dodge_Forward": ExtResource("8_dodge"),
+;@ all
 &"Idle_A": ExtResource("5_idle"),
 &"Running_B": ExtResource("6_run"),
 &"Spawn_Ground": ExtResource("7_spawn")
@@ -86,12 +92,31 @@ xfade_time = 0.1
 switch_mode = 2
 advance_mode = 2
 
+;@ 5+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_dodge"]
+animation = &"PlayerAnimations/Dodge_Forward"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_dodge"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_dodge_walk"]
+xfade_time = 0.05
+switch_mode = 2
+advance_mode = 2
+
+;@ all
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_player"]
 states/Spawn/node = SubResource("AnimationNodeAnimation_spawn")
 states/Spawn/position = Vector2(256, 40)
 states/WalkSpace/node = SubResource("AnimationNodeBlendSpace1D_walk")
 states/WalkSpace/position = Vector2(606, 40)
+;@ 5+
+states/DodgeForward/node = SubResource("AnimationNodeAnimation_dodge")
+states/DodgeForward/position = Vector2(606, -150)
+;@ 3-4
 transitions = ["Start", "Spawn", SubResource("AnimationNodeStateMachineTransition_start_spawn"), "Spawn", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_spawn_walk")]
+;@ 5+
+transitions = ["Start", "Spawn", SubResource("AnimationNodeStateMachineTransition_start_spawn"), "Spawn", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_spawn_walk"), "WalkSpace", "DodgeForward", SubResource("AnimationNodeStateMachineTransition_walk_dodge"), "DodgeForward", "WalkSpace", SubResource("AnimationNodeStateMachineTransition_dodge_walk")]
+;@ all
 
 [sub_resource type="Gradient" id="Gradient_sword"]
 offsets = PackedFloat32Array(0, 0.25247526, 0.7574257)

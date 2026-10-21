@@ -13,6 +13,11 @@
 [ext_resource type="Script" path="res://3_entities/player/states/player_fall.gd" id="7_fall"]
 ;@ 4+
 [ext_resource type="Script" path="res://1_core/camera/shake_camera_3d.gd" id="8_shake"]
+;@ 5+
+[ext_resource type="Script" path="res://3_entities/player/states/player_dash.gd" id="9_dash"]
+[ext_resource type="Script" path="res://3_entities/player/player_view.gd" id="10_view"]
+[ext_resource type="Shader" path="res://6_assets/shaders/dash.gdshader" id="11_dash_shader"]
+[ext_resource type="AudioStream" path="res://6_assets/audio/dash.ogg" id="12_dash_audio"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
@@ -21,6 +26,74 @@
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_shake"]
 noise_type = 2
 fractal_type = 0
+;@ 5+
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_dash"]
+noise_type = 2
+frequency = 0.005
+fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_dash"]
+noise = SubResource("FastNoiseLite_dash")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_dash"]
+offsets = PackedFloat32Array(0, 0.5)
+colors = PackedColorArray(0.47843137, 0.8745098, 0.8235294, 1, 0.17254902, 0.44313726, 0.4117647, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dash"]
+gradient = SubResource("Gradient_dash")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dash"]
+render_priority = 0
+shader = ExtResource("11_dash_shader")
+shader_parameter/speed = 2.0
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_dash")
+shader_parameter/gradient_texture = SubResource("GradientTexture1D_dash")
+shader_parameter/threshold = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_vertical_trail"]
+size = Vector2(3, 2)
+
+[sub_resource type="QuadMesh" id="QuadMesh_ground_trail"]
+size = Vector2(5, 1)
+
+[sub_resource type="Animation" id="Animation_dash_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("VerticalTrail:material_override:shader_parameter/threshold")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_dash"]
+resource_name = "dash"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("VerticalTrail:material_override:shader_parameter/threshold")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(2, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dash"]
+_data = {
+&"RESET": SubResource("Animation_dash_reset"),
+&"dash": SubResource("Animation_dash")
+}
 ;@ all
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("input") groups=["player"]]
@@ -28,6 +101,11 @@ collision_layer = 17
 script = ExtResource("1_player")
 settings = ExtResource("2_settings")
 input = NodePath("PlayerInput")
+;@ 5+
+
+[node name="DashCooldown" type="Timer" parent="."]
+one_shot = true
+;@ all
 
 [node name="PlayerInput" type="Node" parent="." node_paths=PackedStringArray("body")]
 script = ExtResource("3_input")
@@ -55,12 +133,60 @@ offset_scale = 3.0
 script = ExtResource("5_machine")
 initial_state = NodePath("PlayerRun")
 
+;@ 2-4
 [node name="PlayerRun" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "fall_state")]
+;@ 5+
+[node name="PlayerRun" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "fall_state", "dash_state")]
+;@ all
 script = ExtResource("6_run")
 player = NodePath("../..")
 fall_state = NodePath("../PlayerFall")
+;@ 5+
+dash_state = NodePath("../PlayerDash")
+;@ all
 
 [node name="PlayerFall" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "run_state")]
 script = ExtResource("7_fall")
 player = NodePath("../..")
 run_state = NodePath("../PlayerRun")
+;@ 5+
+
+[node name="PlayerDash" type="Node" parent="StateMachine" node_paths=PackedStringArray("player", "run_state")]
+script = ExtResource("9_dash")
+player = NodePath("../..")
+run_state = NodePath("../PlayerRun")
+
+[node name="DashDuration" type="Timer" parent="StateMachine/PlayerDash"]
+one_shot = true
+
+[node name="DashAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("12_dash_audio")
+bus = &"SFX"
+
+[node name="DashRoot" type="Node3D" parent="."]
+
+[node name="VerticalTrail" type="MeshInstance3D" parent="DashRoot"]
+transform = Transform3D(-4.371139e-08, 0, 1, -8.742278e-08, -1, -3.821371e-15, 1, -8.742278e-08, 4.371139e-08, 0, 0, 1.5)
+material_override = SubResource("ShaderMaterial_dash")
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("QuadMesh_vertical_trail")
+
+[node name="GroundTrail" type="MeshInstance3D" parent="DashRoot"]
+transform = Transform3D(-8.742278e-08, -1, -4.3711392e-08, 4.3711392e-08, 4.371139e-08, -1, 1, -8.742278e-08, 4.371139e-08, 0, 0, 2.5)
+material_override = SubResource("ShaderMaterial_dash")
+cast_shadow = 0
+gi_mode = 0
+mesh = SubResource("QuadMesh_ground_trail")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="DashRoot"]
+libraries/ = SubResource("AnimationLibrary_dash")
+autoplay = &"RESET"
+
+[node name="View" type="Node" parent="." node_paths=PackedStringArray("player", "dash_root", "dash_animation", "dash_audio")]
+script = ExtResource("10_view")
+player = NodePath("..")
+dash_root = NodePath("../DashRoot")
+dash_animation = NodePath("../DashRoot/AnimationPlayer")
+dash_audio = NodePath("../DashAudio")
+;@ all

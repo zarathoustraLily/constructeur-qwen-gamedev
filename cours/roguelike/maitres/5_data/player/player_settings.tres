@@ -6,3 +6,8 @@
 script = ExtResource("1_settings")
 movement_speed = 8.0
 turn_rate = 12.0
+;@ 5+
+dash_speed = 50.0
+dash_duration = 0.1
+dash_cooldown = 0.3
+;@ all

@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4]
+PRETES = [1, 2, 3, 4, 5]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -79,4 +79,8 @@ FICHIERS = {
     "1_core/camera/shake_camera_3d.gd": "4+",
     "7_tests/1_core/zones/test_world_boundary.gd": "4+",
     "7_tests/1_core/camera/test_shake_camera_3d.gd": "4+",
+    "3_entities/player/states/player_dash.gd": "5+",
+    "3_entities/player/player_view.gd": "5+",
+    "6_assets/shaders/dash.gdshader": "5+",
+    "7_tests/3_entities/player/test_player_view.gd": "5+",
 }
