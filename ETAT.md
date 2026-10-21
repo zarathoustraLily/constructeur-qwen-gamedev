@@ -25,7 +25,8 @@
 - [x] Base convertie au format d'OpenCode, harnais d'usage (décision 14), jetons comptés avec le tokenizer de Qwen 3.8 (2026-10-15) : étape 28
 - [x] Compétence O1 « corriger en observant » (2026-10-20, sur la machine : juge, générateur, outil play_sequence ; 10 tâches kart produites, portillon et premier essai de Qwen à lancer : étape 29)
 - [x] Cours « kart » en 14 étapes de création, aux règles d'architecture (découpage accepté par laurent le 2026-10-20) : 14 étapes faites et vérifiées (2026-10-21)
-- [ ] Cours « roguelike » en étapes, même démarche (après le kart)
+- [x] Cours « roguelike » en 14 étapes de création, même démarche (découpage validé par laurent le 2026-10-21) : 14 étapes faites et vérifiées (2026-10-21)
+- [ ] Apprendre à Qwen à chercher des références, tester le rendu et le gameplay, utiliser le RAG (priorité de laurent, « après le roguelike »)
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1581,7 +1582,7 @@ python -m pytest -q tests/test_cours_jeu.py tests/test_cours.py : 13 passed
 Vu au rendu (images A/B hors de l'écran, `usine.retour.capture.capturer`) : l'herbe qui s'écarte sous le kart ; le reflet de la mer calme ; la houle FFT et son repli ; l'écume du sillage ; étincelles de dérapage, fantôme, marques de pneus ; pluie, ronds dans l'eau, éclair ; bancs de poissons ; ramassage d'une boîte, case d'inventaire, lancer de bombe, explosion ; jeu complet lancé par `boot.tscn`.
 
 **Reste à faire**
-- Le roguelike, même démarche.
+- Le roguelike, même démarche : fait (entrée suivante).
 - O1 par l'image pour les étapes du kart. Défauts vus pendant la fabrication, candidats au générateur :
   - herbe sans `player_position` : l'herbe traverse le kart ;
   - normale de la mer calme sans `VIEW_MATRIX` : plus de reflet, mer uniforme ;
@@ -1599,6 +1600,80 @@ Vu au rendu (images A/B hors de l'écran, `usine.retour.capture.capturer`) : l'h
 - `physics_frame` part avant que les nœuds ne jouent leur image physique : attendre trois images avant de lire un capteur (bombe dans l'eau).
 - Dans un test GdUnit, une variable nommée `before` masque une fonction de `GdUnitTestSuite` (avertissement `shadowed_*`, donc erreur).
 - Un test qui change la scène courante (GameFlow) pose une scène jetable avant et rend la scène d'origine après.
+
+### Cours « roguelike » par étapes — 2026-10-21 (branche `claude/observation-visuelle`)
+
+Demande de laurent : « tu fais exactement la même chose avec le jeu rogue like » que pour le kart. Découpage en 14 étapes validé le 2026-10-21 (« Oui, vas-y »), avec trois choix : les cinq VisualShader deviennent du code (« Oui, en .gdshader ») ; le jeu démarre sur le premier niveau de l'ordre tiré (« Oui, premier niveau tiré ») ; à la manette, on vise au stick droit, et au repos vers où l'on marche (« Stick droit, sinon direction de marche »).
+
+**Fait**
+- `cours/roguelike/` : manifeste (14 étapes, `PRETES` = 1 à 14), maîtres, notes `etape_001.md` à `etape_014.md`. Source : le roguelike GameDev.tv rangé (`[sources]` roguelike de config.toml). Étapes :
+  1. contrôles clavier, souris et manette (adaptateur `PlayerInput`, vibration) ;
+  2. le joueur : machine à états (`State`, `StateMachine`), course et chute ;
+  3. l'animation : arbre d'animation, pas, arme en main ;
+  4. le niveau de test : GridMap, limite du monde, caméra qui tremble ;
+  5. l'esquive : état, recharge, shader de traînée (`dash.gdshader`), son ;
+  6. le combat : coups enchaînés, santé, recul, effet de lame ;
+  7. ennemis au corps à corps : états, navigation, écho de défaite (`defeat_echo.gdshader`) ;
+  8. ennemis à distance : boule de feu, impact, `fire.gdshader` ;
+  9. retour des coups : chiffres de dégâts, barres de santé, teinte rouge ;
+  10. la vague : apparitions à graine, courbe de difficulté, sortie (`spawn_point.gdshader`) ;
+  11. trois niveaux sur un modèle commun, éclairage VoxelGI ;
+  12. le chef d'orchestre `GameFlow` (ordre tiré à graine, fondus, héros gardé hors de l'arbre) et `GameState` ;
+  13. la boutique d'améliorations entre deux niveaux (`background_material.gdshader`) ;
+  14. la pause et le menu des contrôles : liaisons par appareil, sauvegardées en codes avec une version, remises au démarrage.
+- Les cinq shaders réécrits en code donnent les mêmes pixels que les VisualShader d'origine (rendus A/B : 0 pixel d'écart ; le feu sur des quads fixes, les particules GPU ne se rejouant pas au pixel près ; le fond de la boutique de 0,5 à 20 s).
+- Écarts avec le jeu d'origine, vus ou mesurés :
+  - hasard sans graine (vague, errance par `map_get_random_point`, ordre des niveaux, boutique) : graines exposées, pour que deux parties et deux rendus soient identiques ;
+  - le jeu démarrait toujours sur `level_2`, hors de l'ordre tiré ;
+  - à la manette, la boutique ne se choisissait pas : aucun focus, et `ui_accept` n'a aucun bouton de manette dans Godot 4.7.2 ;
+  - l'autoload connaissait la séquence, les améliorations et la courbe de difficulté (refusé par le juge des règles) : `boot.tscn` remet la séquence, le reste est rangé dans `2_sequence` et `5_data` ;
+  - ni pause ni menu des contrôles : ajoutés à l'étape 14, sur le modèle du kart.
+- Règle ajoutée pour les rendus : la souris ne vise qu'après un vrai déplacement (`relative` non nul) ; une fenêtre hors de l'écran reçoit au démarrage un mouvement à déplacement nul.
+- `godot/socle_jeu/0_autoload/capture.gd` : avant de quitter, les lecteurs audio sont vidés (`stream = null`) et la capture attend 3 × 30 ms de temps réel ; sans cela, un son joué à la sortie fuyait (« resources still in use at exit »).
+- `config.toml`, `config.example.toml` : `roguelike` dans `[sources]` ; `tests/test_cours_jeu.py` porte sur les deux cours.
+
+**Preuve** (machine de laurent, Windows 11, Godot 4.7.2 ; 2026-10-21, une passe : `python -m usine.cours verifier roguelike --travailleurs 1` ; bilan dans `donnees/cours/roguelike/verification.json`)
+
+```
+roguelike_etape_001 : ok    24 test cases | 0 errors | 0 failures   rendu Forward+ et Compatibilité sans erreur
+roguelike_etape_002 : ok    35 test cases | 0 errors | 0 failures   idem
+roguelike_etape_003 : ok    39 test cases | 0 errors | 0 failures   idem
+roguelike_etape_004 : ok    45 test cases | 0 errors | 0 failures   idem
+roguelike_etape_005 : ok    51 test cases | 0 errors | 0 failures   idem
+roguelike_etape_006 : ok    76 test cases | 0 errors | 0 failures   idem
+roguelike_etape_007 : ok    84 test cases | 0 errors | 0 failures   idem
+roguelike_etape_008 : ok    92 test cases | 0 errors | 0 failures   idem
+roguelike_etape_009 : ok   103 test cases | 0 errors | 0 failures   idem
+roguelike_etape_010 : ok   110 test cases | 0 errors | 0 failures   idem
+roguelike_etape_011 : ok   107 test cases | 0 errors | 0 failures   idem (main.tscn et ses tests s'arrêtent à l'étape 10 : les niveaux prennent le relais)
+roguelike_etape_012 : ok   123 test cases | 0 errors | 0 failures   idem
+roguelike_etape_013 : ok   137 test cases | 0 errors | 0 failures   idem
+roguelike_etape_014 : ok   166 test cases | 0 errors | 0 failures   idem (jeu lancé par boot.tscn)
+14/14 projets vérifiés sans erreur
+juge des règles : 0 écart à chaque étape ; matériaux : 0 paramètre orphelin ; GdUnit : 0 flaky, 0 skipped, 0 orphans
+sortie brute de GdUnit, étape 14 : seules lignes ERROR, le débogueur distant du vérificateur (port 0) et trois push_error attendus par leurs tests
+python -m pytest -q tests/test_cours_jeu.py tests/test_cours.py : 14 passed
+```
+
+Vu au rendu (hors de l'écran, `usine.retour.capture.capturer`) : contrôles, course et chute, animation, niveau et fosse, traînée de l'esquive (Forward+ et Compatibilité), enchaînement avec l'effet de lame, combat et écho de défaite, boules de feu, barres de santé et chiffres de dégâts avec la teinte, la vague, les trois niveaux (VoxelGI : 465 602 pixels changent avec et sans), le fondu depuis `boot.tscn`, la boutique, le menu de pause et le menu des commandes (sur la machine de laurent, les places W A S D s'affichent Z Q S D : clavier AZERTY).
+
+**Reste à faire**
+- La priorité de laurent, choisie « après le roguelike » : apprendre à Qwen à chercher des références, tester le rendu et le gameplay comme pendant cette fabrication (rendus A/B, captures, parties rejouées) et utiliser le RAG. Point ouvert : avec ou sans bibliothèque locale de photos.
+- L'outil de capture appuie par `Input.action_press`, qui ne crée aucun événement : un menu qui écoute `_input` (la pause) ne s'ouvre pas en capture. Le changer en `Input.parse_input_event` touche au socle : à proposer à laurent.
+- O1 par l'image pour les étapes du kart et du roguelike ; bases d'entraînement des deux cours, au format d'OpenCode.
+
+**Pièges**
+- Une référence de classe croisée (`Enemy` ↔ `EnemyState`) fait fuir des ressources à l'import de l'éditeur (« resources still in use at exit ») : typer l'un des deux côtés par la classe mère.
+- Un enfant est prêt avant son parent : une vue (`_view.gd`) attend `owner.ready` avant de lire les composants `@onready` du personnage.
+- Hors de l'arbre, `free()` et pas `queue_free()` : GdUnit compte un orphelin par nœud laissé jusqu'à la fin de l'image.
+- Les particules GPU ne se rejouent pas au pixel près, même à graine fixe : comparer un shader de particules sur des quads fixes.
+- La carte de navigation ne répond pas avant sa première synchronisation (« navigation map query failed because it was made before first map synchronization ») : attendre `map_get_iteration_id() > 0`.
+- Un nœud hors de l'arbre n'est dans aucun groupe que l'arbre connaisse (`get_first_node_in_group`).
+- Navigation au stick : l'interface ne bouge le focus qu'à l'image où `Input` voit l'action s'enfoncer ; dans un test, un stick passe par `Input.parse_input_event` puis `Input.flush_buffered_events`, un bouton peut passer par `Viewport.push_input`.
+- Sans fenêtre, `DisplayServer.keyboard_get_keycode_from_physical` lève une erreur (aucune disposition de clavier) : tester `keyboard_get_layout_count() > 0` d'abord.
+- `4_ui` ne connaît pas `5_data` (juge des règles) : un menu reçoit ses réglages de la scène qui le pose.
+- Dans les tests, des variables locales nommées `before` ou `name` masquent `GdUnitTestSuite` et `Node` : la suite ne compile plus (erreur revenue trois fois).
+- Un `await` devant `assert_error(...)` est redondant (`redundant_await`, donc erreur).
 
 ## Vérifications locales en attente
 

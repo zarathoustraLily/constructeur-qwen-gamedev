@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/overlays/input_remap/input_remap_menu.gd" id="1_menu"]
+[ext_resource type="PackedScene" path="res://4_ui/overlays/input_remap/binding_row.tscn" id="3_row"]
+
+[node name="InputRemapMenu" type="PanelContainer"]
+custom_minimum_size = Vector2(920, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+row_scene = ExtResource("3_row")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Commandes"
+horizontal_alignment = 1
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Action" type="Label" parent="VBoxContainer/Header"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Action"
+
+[node name="Keyboard" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Clavier et souris"
+horizontal_alignment = 1
+
+[node name="Pad" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Manette"
+horizontal_alignment = 1
+
+[node name="Rows" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Status" type="Label" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="Reset" type="Button" parent="VBoxContainer/Buttons"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+text = "Par défaut"
+
+[node name="Back" type="Button" parent="VBoxContainer/Buttons"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+text = "Retour"

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BindingSettings" format=3]
+
+[ext_resource type="Script" path="res://1_core/input/binding_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+titles = Dictionary[StringName, String]({
+&"move_forward": "Haut",
+&"move_back": "Bas",
+&"move_left": "Gauche",
+&"move_right": "Droite",
+&"attack": "Frapper",
+&"dash": "Esquiver"
+})
+save_path = "user://input_bindings.cfg"

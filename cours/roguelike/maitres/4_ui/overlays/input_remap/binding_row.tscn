@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/overlays/input_remap/binding_row.gd" id="1_row"]
+
+[node name="BindingRow" type="HBoxContainer"]
+theme_override_constants/separation = 16
+script = ExtResource("1_row")
+
+[node name="Title" type="Label" parent="."]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Action"
+
+[node name="Keyboard" type="Button" parent="."]
+custom_minimum_size = Vector2(340, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Pad" type="Button" parent="."]
+custom_minimum_size = Vector2(340, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true

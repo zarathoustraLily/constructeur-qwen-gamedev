@@ -2,7 +2,13 @@
 
 [ext_resource type="Script" path="res://2_sequence/boot.gd" id="1_boot"]
 [ext_resource type="Resource" path="res://2_sequence/sequence.tres" id="2_sequence"]
+;@ 14+
+[ext_resource type="Resource" path="res://5_data/input/bindings.tres" id="3_bindings"]
+;@ all
 
 [node name="Boot" type="Node"]
 script = ExtResource("1_boot")
 sequence = ExtResource("2_sequence")
+;@ 14+
+bindings = ExtResource("3_bindings")
+;@ all

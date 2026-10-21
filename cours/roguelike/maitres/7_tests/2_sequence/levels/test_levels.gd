@@ -185,5 +185,13 @@ func test_le_joueur_garde_par_game_flow_remplace_celui_du_niveau() -> void:
 	assert_object(player).is_same(carried)
 	assert_float(player.damage_stat).is_equal(150.0)
 	assert_object(GameFlow.take_player()).is_null()
-#@ all
+#@ 14+
 
+
+func test_chaque_niveau_a_son_menu_de_pause() -> void:
+	for scene: PackedScene in LEVELS:
+		var level: Node3D = auto_free(scene.instantiate())
+		var pause := level.get_node_or_null("PauseMenu") as PauseMenu
+		assert_object(pause).is_not_null()
+		assert_str(pause.bindings.resource_path).is_equal("res://5_data/input/bindings.tres")
+#@ all

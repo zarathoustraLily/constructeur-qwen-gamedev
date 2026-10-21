@@ -13,6 +13,10 @@
 [ext_resource type="Resource" path="res://5_data/levels/wave.tres" id="13_wave_settings"]
 [ext_resource type="PackedScene" path="res://3_entities/interactables/exit_point/exit_point.tscn" id="14_exit"]
 [ext_resource type="VoxelGIData" path="res://2_sequence/levels/level_template_voxel_gi_data.tres" id="15_gi"]
+;@ 14+
+[ext_resource type="PackedScene" path="res://4_ui/overlays/pause_menu/pause_menu.tscn" id="16_pause"]
+[ext_resource type="Resource" path="res://5_data/input/bindings.tres" id="17_bindings"]
+;@ all
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.19607843, 0.46666667, 0.65882355, 1, 0.61960787, 0.8039216, 0.9490196, 1)
@@ -122,3 +126,8 @@ size = Vector3(23.092651, 20, 33.434814)
 data = ExtResource("15_gi")
 
 [node name="DamageNumbers" parent="." instance=ExtResource("11_numbers")]
+;@ 14+
+
+[node name="PauseMenu" parent="." instance=ExtResource("16_pause")]
+bindings = ExtResource("17_bindings")
+;@ all

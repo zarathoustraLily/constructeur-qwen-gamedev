@@ -40,7 +40,7 @@ EXTENSIONS = {
 }
 
 # Étapes écrites aux règles et vérifiées : seules elles sont fabriquées par défaut.
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
 # Maîtres (cours/roguelike/maitres/<chemin>) et leur plage de présence.
 FICHIERS = {
@@ -180,4 +180,19 @@ FICHIERS = {
     "7_tests/1_core/upgrades/test_upgrade.gd": "13+",
     "7_tests/4_ui/components/upgrade_icon/test_upgrade_icon.gd": "13+",
     "7_tests/2_sequence/menus/upgrade_shop/test_upgrade_shop.gd": "13+",
+    "1_core/input/input_bindings.gd": "14+",
+    "1_core/input/binding_settings.gd": "14+",
+    "5_data/input/bindings.tres": "14+",
+    "4_ui/overlays/input_remap/binding_names.gd": "14+",
+    "4_ui/overlays/input_remap/binding_row.gd": "14+",
+    "4_ui/overlays/input_remap/binding_row.tscn": "14+",
+    "4_ui/overlays/input_remap/input_remap_menu.gd": "14+",
+    "4_ui/overlays/input_remap/input_remap_menu.tscn": "14+",
+    "4_ui/overlays/pause_menu/pause_menu.gd": "14+",
+    "4_ui/overlays/pause_menu/pause_menu.tscn": "14+",
+    "7_tests/1_core/input/test_input_bindings.gd": "14+",
+    "7_tests/4_ui/overlays/input_remap/test_binding_names.gd": "14+",
+    "7_tests/4_ui/overlays/input_remap/test_input_remap_menu.gd": "14+",
+    "7_tests/4_ui/overlays/pause_menu/test_pause_menu.gd": "14+",
+    "7_tests/2_sequence/test_boot.gd": "14+",
 }
