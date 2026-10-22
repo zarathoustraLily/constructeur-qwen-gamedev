@@ -1,0 +1,15 @@
+# Plugins conseillés par le RAG (décision 9 de laurent). Un bloc par plugin ; l'archive est téléchargée dans
+# donnees/plugins/archives/<id>/<fichier> et vérifiée par son SHA-256. Les autoloads sont ceux que le plugin pose
+# quand on l'active dans l'éditeur (_enable_plugin) ; le projet de vérification les déclare directement.
+# Vérification : python -m usine.rag.plugins verifier [id …]
+
+[phantom_camera]
+nom = "Phantom Camera"
+depot = "ramokz/phantom-camera"
+version = "v0.11.0.3"
+licence = "MIT"
+url = "https://codeload.github.com/ramokz/phantom-camera/zip/refs/tags/v0.11.0.3"
+fichier = "v0.11.0.3.zip"
+sha256 = "42b4bbd7ce6efa726abc6e927328d349887c9343fe53900a5083860c1848749b"
+addons = ["phantom-camera-0.11.0.3/addons/phantom_camera"]
+autoloads = { PhantomCameraManager = "*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd" }
