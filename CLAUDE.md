@@ -35,6 +35,15 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 12. Godot 4.7.2 (2026-10-06). Ordre de la béquille (2026-10-09) : retour des outils, socle et plan, déclaration d'action, mesure par campagnes, entraînement.
 13. Position du 2026-10-08 : ne pas raccourcir les résultats d'outils ni découper les sessions longues sans en reparler avec lui ; le LoRA apprend un cheminement.
 14. Le harnais d'usage est OpenCode (2026-10-14, réponse à « Quel harnais retenez-vous pour l'usage ? » : « open code »). Les données d'entraînement prennent ses outils et son format (section 7, règle 4).
+15. Un seul LoRA pour Godot 4.7.2 et Godot 4.8 (2026-10-22 : « un lora pour les deux version alors ») ; il ne doit pas oublier de coder en 4.7.2. Godot 4.8 n'existe alors qu'en 4.8-beta1, installé dans `D:\GODOT\Godot_v4.8-beta1_win64.exe\`.
+16. Aucun exemple mis de côté pour tester : tous vont à l'entraînement du LoRA ; les tests se font sur le vrai banc et en conditions réelles (2026-10-22 : « on ne conserve aucune paire pour les tests, les test se font sur le veribtales bench et ur la realite, je prefere les ocnserveiorer le lora »).
+17. Combler les trous de la grille (audio, optimisation, gestion de la mémoire, plugins) par du débogage (2026-10-22 : « je veux qu'on comble ces trous avec debuggage »).
+18. Protocole d'entraînement, tiré des travaux lus le 2026-10-22 (VisCoder, distil labs, IChart2Code, Preply 2610.10827, Sub-Billion 2606.22606, PAG-Health-LLM) (accord du 2026-10-22 : « oui accord donne ») :
+    1. la vérification déterministe de chaque exemple reste une règle absolue ; jamais relâchée pour gagner du volume ;
+    2. le RAG au même rang que le LoRA : chaque mesure compare LoRA avec et sans RAG ; les données montrent l'appel au RAG puis l'usage vérifié de ce qu'il rend ;
+    3. viser de l'ordre de 10 000 exemples : découpe point par point des cours, les 138 démos officielles, puis les trajectoires réussies du LoRA lui-même (RFT) ;
+    4. des retours d'outils structurés ; un jeu se juge en le jouant (`play_sequence`), pas seulement par une image ; ordre : imitation (SFT), puis RFT, puis RLVR seulement sur les tâches que le LoRA réussit parfois mais pas toujours.
+    Les seuils de réussite des campagnes Starfox restent **proposés** (écritures identiques sous 5 %, RAG appelé avant chaque création, captures commentées, 0 modification non testée).
 
 ### 3. Pièges et interdits (décidé)
 

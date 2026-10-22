@@ -43,6 +43,13 @@ de 7 m de demi-côté autour d'elle, posée sur la navigation (`map_get_closest_
 (le centre de la capsule). La vague donne aussi à chaque ennemi sa propre graine (`rng.randi()`) : deux ennemis
 de la même sorte n'errent pas pareil, et une partie rejouée refait la même vague.
 
+Avant sa première synchronisation, la carte de navigation ne répond pas : `map_get_closest_point` écrit alors
+« navigation map query failed because it was made before first map synchronization ». Dans le jeu, le premier
+ennemi arrive après le délai, quand la carte est prête ; dans les tests, la vague est posée seule, sans navigation.
+La vague vérifie donc `map_get_iteration_id()` et garde la place tirée telle quelle tant que la carte ne répond
+pas. Cette erreur passait inaperçue : les tests finissaient « 0 errors | 0 failures ». Il faut lire chaque ligne de
+sortie, pas seulement le résumé.
+
 Les ennemis pas encore apparus n'ont pas de parent : si la vague disparaît avant la fin (le niveau quitté),
 elle les libère elle-même (`NOTIFICATION_PREDELETE`). Le jeu d'origine avait cette fuite ; son rangement l'avait
 déjà corrigée.

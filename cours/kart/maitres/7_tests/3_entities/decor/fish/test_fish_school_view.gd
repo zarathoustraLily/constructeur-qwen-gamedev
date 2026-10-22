@@ -69,9 +69,15 @@ func test_ils_fuient_la_menace_plus_vite() -> void:
 
 func test_sans_eau_assez_profonde_pas_de_banc() -> void:
 	_floor(10.0)
-	var school := _school()
-	await _frames(5)
-	assert_int(school.fish_in_water()).is_equal(0)
+	var schools: Array[FishSchoolView] = []
+	# Sans eau assez profonde, le banc le dit (un avertissement) et ne pose aucun poisson. L'analyseur ne voit que la
+	# signature de l'interface de GdUnit4, sans attente ; l'assertion attend pourtant le code qu'on lui donne.
+	@warning_ignore("redundant_await")
+	await assert_error(func() -> void:
+		schools.append(_school())
+		await _frames(5)
+	).is_push_warning("Poissons : aucune eau entre 1.0 et 4.5 m de profondeur dans un rayon de 40 m")
+	assert_int(schools[0].fish_in_water()).is_equal(0)
 
 
 func test_une_meme_graine_les_memes_bancs() -> void:

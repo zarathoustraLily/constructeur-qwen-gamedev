@@ -65,7 +65,8 @@ OUTILS_FIN = (
 REFLEXION_VIDE = "<think>\n\n</think>\n\n"
 
 # Sorties de Godot : ce que la règle 5.1 permet de retirer (couleurs à part).
-COULEURS = re.compile(r"\x1b\[[0-9;]*m")
+# Codes de couleur et autres séquences de contrôle du terminal (GdUnit4 efface l'écran : « ESC[2J ESC[H »).
+COULEURS = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 MACHINE = re.compile(r"V-Sync mode|gl_manager_x11|^OpenGL API|^Vulkan \d|^Using present mode"
                      r"|Failed to load cached shader|_load_from_cache|^\[\s*\d+% \]|^\[ DONE \]")
 _ALNUM = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -142,7 +143,10 @@ def sortie_godot(brut: str, projet_local: str, dossier: str) -> str:
         gardees.append(sans)
     texte = "\n".join(gardees)
     absolu = str(Path(projet_local).resolve())
-    return texte.replace(absolu + "/", dossier.replace("\\", "/") + "/").replace(absolu, dossier.replace("\\", "/"))
+    # Sous Windows, Godot écrit les chemins avec « / » : les deux formes deviennent le dossier du projet chez laurent.
+    for forme in (absolu, absolu.replace("\\", "/")):
+        texte = texte.replace(forme + "/", dossier.replace("\\", "/") + "/").replace(forme, dossier.replace("\\", "/"))
+    return texte
 
 
 def retour_shell(sortie: str, code: int) -> str:

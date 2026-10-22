@@ -18,6 +18,11 @@ ENTETE = re.compile(r"^\s*(##|//) Étape \d{3} · .*$")
 
 
 def nom(ville: str, etape: int) -> str:
+    """Le nom du projet d'une étape. Un cours « de jeu » n'a qu'une suite d'étapes : `ville` y est son préfixe."""
+    ch = chemins.actuels()
+    if ch.jeu:
+        from usine.cours import jeu
+        return jeu.nom_projet(ch.manifeste, etape)
     return nom_projet(ville, etape)
 
 
@@ -26,8 +31,17 @@ def dossier(ville: str, etape: int) -> str:
 
 
 def renommer(texte: str, ville: str, de: int, vers: int) -> str:
-    """Ramène les noms d'une étape à ceux d'une autre (fichiers, chemins res://)."""
-    return texte.replace(nom(ville, de), nom(ville, vers))
+    """Ramène les noms d'une étape à ceux d'une autre (fichiers, chemins res://). Dans un cours de jeu, le nom et la
+    description du projet (`config/name`, `config/description` de project.godot) disent l'étape : ramenés eux aussi,
+    ils ne comptent pas comme un changement de l'étape."""
+    texte = texte.replace(nom(ville, de), nom(ville, vers))
+    ch = chemins.actuels()
+    if ch.jeu and de != vers and texte.startswith("; Engine configuration file."):
+        etapes = ch.manifeste["ETAPES"]
+        texte = re.sub(r'^(config/name="[^"]*étape )\d{3}"', rf'\g<1>{vers:03d}"', texte, flags=re.M)
+        texte = texte.replace(f'config/description="{etapes[de - 1]["titre"]}"',
+                              f'config/description="{etapes[vers - 1]["titre"]}"')
+    return texte
 
 
 def nettoyer(texte: str) -> str:
@@ -44,12 +58,15 @@ def nettoyer(texte: str) -> str:
 
 
 def lire(ville: str, etape: int, vers: int | None = None, code_seul: bool = False) -> dict[str, str]:
-    """Fichiers texte du projet (hors .godot/, .uid, .import), chemins relatifs ramenés à `vers`."""
+    """Fichiers texte du projet (hors .godot/, .uid, .import), chemins relatifs ramenés à `vers`. Dans un cours
+    « de jeu », les extensions (addons/, GdUnit4) ne sont pas lues : elles ne sont pas enseignées, le projet
+    matérialisé les reçoit telles quelles (godot.materialiser)."""
     vers = etape if vers is None else vers
     racine = dossier(ville, etape)
+    jeu = chemins.actuels().jeu
     fichiers: dict[str, str] = {}
     for dp, dn, fn in os.walk(racine):
-        dn[:] = [d for d in dn if d != ".godot"]
+        dn[:] = [d for d in dn if d != ".godot" and not (jeu and dp == racine and d == "addons")]
         for f in fn:
             if not f.endswith(CODE if code_seul else TEXTE):
                 continue
@@ -105,10 +122,13 @@ def _diff_git(a: list[str], n: list[str]) -> list[tuple[int, int, int, int]]:
 
 
 def morceaux(avant: dict[str, str], apres: dict[str, str]) -> list[Morceau]:
-    """Différences par fichier de code, en morceaux contigus (lignes)."""
+    """Différences par fichier enseigné (le code ; dans un cours « de jeu », aussi les scènes et ressources texte),
+    en morceaux contigus (lignes)."""
+    from usine.cours.base.profil import enseignables
     sortie: list[Morceau] = []
+    ext = enseignables()
     for rel in sorted(set(avant) | set(apres)):
-        if not rel.endswith(CODE):
+        if not rel.endswith(ext):
             continue
         a = avant[rel].split("\n") if rel in avant else []
         n = apres[rel].split("\n") if rel in apres else []

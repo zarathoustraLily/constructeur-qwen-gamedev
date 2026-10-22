@@ -248,6 +248,48 @@ def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], ra
                 if r.id != i.id and r.fichier == i.fichier and declarations(r.anciennes) & amenees:
                     dep[i.id].add(r.id)
                     dep[r.id].add(i.id)
+    # Une scène, une ressource ou project.godot (cours de jeu) ne se charge pas à moitié écrite : une sous-ressource
+    # citée avant d'être déclarée fait échouer l'import (« Can't load cached ext-resource », roguelike 005 et 006).
+    # Tous les morceaux d'un tel fichier vont dans la même partie.
+    par_ressource: dict[str, list[int]] = {}
+    for m in tous:
+        if m.fichier.endswith((".tscn", ".tres", ".godot")):
+            par_ressource.setdefault(m.fichier, []).append(m.id)
+    for ids in par_ressource.values():
+        for x in ids:
+            dep[x] |= set(ids) - {x}
+    # Un script qui cherche un nœud par son nom ($Nom, %Nom, get_node("Nom")) passe après le morceau de scène qui
+    # déclare ce nœud (cours de jeu, roguelike 006 : `player.gd` cherchait $HealthComponent dans une partie où la
+    # scène ne l'avait pas encore : « Node not found » pendant des tests qui passaient).
+    noeuds_declares = {m.id: set(re.findall(r'^\[node name="([^"]+)"', "\n".join(m.nouvelles), re.M))
+                       for m in tous if m.fichier.endswith(".tscn")}
+    for a in tous:
+        if not a.fichier.endswith(".gd"):
+            continue
+        code = "\n".join(l.split("#", 1)[0] for l in a.nouvelles)
+        noms = set()
+        for chemin in re.findall(r'\$"([^"]+)"|\$([A-Za-z_][\w/]*)|%([A-Za-z_]\w*)|get_node(?:_or_null)?\(\s*\^?"([^"]+)"', code):
+            for morceau in chemin:
+                noms |= {s for s in morceau.split("/") if s and s not in ("..", ".")}
+        for b_id, declares in noeuds_declares.items():
+            if b_id != a.id and noms & declares:
+                dep[a.id].add(b_id)
+    # Une classe globale nouvelle (`class_name X` qu'aucun fichier n'avait avant l'étape) : le morceau qui l'emploie
+    # (type, `X.new()`, `is X`) passe après celui qui la déclare (roguelike 006 : `player_view.gd` typait une variable
+    # `AttackComponent` dans une partie où `attack_component.gd` n'existait pas encore).
+    existantes = {mm.group(1) for t in avant.values() for mm in re.finditer(r"^class_name\s+(\w+)", t, re.M)}
+    nouvelles_classes: dict[str, int] = {}
+    for m in tous:
+        for l in m.nouvelles:
+            mm = re.match(r"^class_name\s+(\w+)", l)
+            if mm and mm.group(1) not in existantes:
+                nouvelles_classes[mm.group(1)] = m.id
+    for a in tous:
+        if not a.fichier.endswith(".gd"):
+            continue
+        for classe, b_id in nouvelles_classes.items():
+            if b_id != a.id and classe in employes[a.id]:
+                dep[a.id].add(b_id)
     # Un fichier nouveau doit exister avant qu'on le charge (preload, load, chemin dans une chaîne).
     nouveaux_fichiers: dict[str, list[int]] = {}
     for m in tous:

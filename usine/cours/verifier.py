@@ -121,16 +121,27 @@ def suites_gdunit(projet: Path) -> list[str]:
 
 def lancer_gdunit(projet: Path, godot: Path, delai_s: float = 1200) -> dict[str, Any]:
     """Toutes les suites de 7_tests, sans fenêtre, à cadence fixe : {code, resume, sortie}."""
-    r = executer([godot, "--headless", "--path", projet, "--fixed-fps", "60", "-s", "-d", "--remote-debug",
-                  "tcp://127.0.0.1:0", "res://addons/gdUnit4/bin/GdUnitCmdTool.gd", "--ignoreHeadlessMode", "-c",
+    # Sans débogueur (-d) : les suites passent sans lui, assertions sur push_error comprises, et la sortie n'a plus
+    # les deux lignes ERROR d'un débogueur distant injoignable (relevé le 2026-10-22).
+    # « -rc 1 » : un seul rapport (avec l'historique, sa rotation échoue sous Windows, voir base/profil.py).
+    r = executer([godot, "--headless", "--path", projet, "--fixed-fps", "60", "-s",
+                  "res://addons/gdUnit4/bin/GdUnitCmdTool.gd", "--ignoreHeadlessMode", "-c", "-rc", "1",
                   "-rd", ".godot/rapports_tests", "-a", "res://7_tests", "++", "cadence_fixe"], delai_s=delai_s)
+    texte_suites = {f.relative_to(projet).as_posix(): f.read_text(encoding="utf-8")
+                    for f in (Path(projet) / "7_tests").rglob("*.gd")} if (Path(projet) / "7_tests").is_dir() else {}
     texte = re.sub(r"\x1b\[[0-9;]*m", "", nettoyer_sortie(r.sortie, projet))
     resume = next((l.strip() for l in texte.splitlines() if l.strip().startswith("Overall Summary")), "")
-    return {"code": r.code, "resume": resume, "sortie": texte}
+    from usine.cours.base.profil import messages_attendus
+    return {"code": r.code, "resume": resume, "sortie": texte, "attendus": sorted(messages_attendus(texte_suites))}
 
 
 def gdunit_reussi(t: dict[str, Any]) -> bool:
-    return t["code"] == 0 and bool(t["resume"]) and "SCRIPT ERROR" not in t["sortie"]
+    """Code 0, résumé présent, aucune « SCRIPT ERROR », et aucune ligne ERROR ou WARNING qu'un cas n'attendait (règle
+    5.5 : GdUnit4 ne fait échouer un cas que sur ses assertions ; le menu des contrôles du kart écrivait 78 erreurs
+    « Not supported by this display server » par passage, relevé le 2026-10-22)."""
+    from usine.cours.base.profil import erreurs_inattendues
+    return (t["code"] == 0 and bool(t["resume"]) and "SCRIPT ERROR" not in t["sortie"]
+            and not erreurs_inattendues(t["sortie"], set(t.get("attendus", []))))
 
 
 def test_reussi(code: int | None, texte: str) -> bool:
@@ -178,11 +189,13 @@ def verifier_projet(projet: Path, godot: Path | None = None, rendu: bool = True,
         r = executer([godot, "--headless", "--path", projet, "-s", res], delai_s=delai_s)
         bilan["tests"][res] = {"code": r.code, "sortie": nettoyer_sortie(r.sortie, projet)}
     gdunit = None
+    from usine.cours.base.profil import erreurs_inattendues
     if suites_gdunit(projet):
         gdunit = lancer_gdunit(projet, godot)
         bilan["gdunit"] = {"code": gdunit["code"], "resume": gdunit["resume"],
-                           "erreurs": [l for l in gdunit["sortie"].splitlines()
-                                       if "FAILED" in l or "SCRIPT ERROR" in l][:20]}
+                           "erreurs": ([l for l in gdunit["sortie"].splitlines()
+                                        if "FAILED" in l or "SCRIPT ERROR" in l]
+                                       + erreurs_inattendues(gdunit["sortie"], set(gdunit["attendus"])))[:20]}
     jeu = not (projet / "2_sequence/step_viewer/step_viewer.gd").is_file()
     if rendu and jeu:
         from usine.retour.capture import capturer

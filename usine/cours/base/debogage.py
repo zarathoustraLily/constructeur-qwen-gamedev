@@ -77,8 +77,8 @@ def explication(m: mutations.Mutation) -> list[str]:
         lignes = []
         table = preuves.renommage_de(d["ancien"])
         if m.genre == "godot3_nom" and d.get("sorte") == "méthode":
-            absent = all(api.membre(c, d["ancien"]) is None for c in ("RandomNumberGenerator", "Object", "Node", "Array", "String", "ShaderMaterial", "PackedScene"))
-            sig = next((api.membre(c, d["neuf"])[0] for c in ("RandomNumberGenerator", "Array", "String", "ShaderMaterial", "PackedScene")
+            absent = all(api.membre(c, d["ancien"]) is None for c in CLASSES_METHODES + ("Object",))
+            sig = next((api.membre(c, d["neuf"])[0] for c in CLASSES_METHODES
                         if api.membre(c, d["neuf"])), None) or api.utilitaire(d["neuf"])
             lignes.append(f"`{d['ancien']}` n'existe pas dans l'API de Godot 4.7.2" + (" (aucune classe ne l'a)" if absent else "")
                           + f" ; le nom actuel est `{d['neuf']}`" + (f" : `{sig}`." if sig else "."))
@@ -99,12 +99,24 @@ def explication(m: mutations.Mutation) -> list[str]:
         return [f"La variable `{d['nom']}` n'a pas de type. Le projet traite l'avertissement `UNTYPED_DECLARATION` comme une "
                 "erreur : toute déclaration doit dire son type.",
                 "- " + preuves.citation(preuves.DOC_UNTYPED)]
+    if m.genre == "parametre":
+        return [f"Le paramètre `{d['nom']}` de `{d['fonction']}()` n'a plus de type. Le projet traite l'avertissement "
+                f"`UNTYPED_DECLARATION` comme une erreur : un paramètre doit dire son type (ici `{d['type']}`).",
+                "- " + preuves.citation_reference(preuves.REF_UNTYPED)]
+    if m.genre == "retour":
+        return [f"La fonction `{d['nom']}()` ne dit plus ce qu'elle rend. Le projet traite l'avertissement "
+                f"`UNTYPED_DECLARATION` comme une erreur : une fonction doit dire son type de retour (ici `{d['type']}`).",
+                "- " + preuves.citation_reference(preuves.REF_UNTYPED)]
     if m.genre == "type":
         return [f"`{d['nom']}` est déclarée `int`, mais reçoit une valeur `float` : la partie décimale serait perdue. Le projet "
                 "traite cet avertissement (`NARROWING_CONVERSION`) comme une erreur. La valeur doit rester un `float`."]
     if m.genre == "appel":
         return [f"Le script n'a aucune fonction `{d['ancien']}` : celle qui existe s'appelle `{d['neuf']}`. C'est une faute de nom, "
                 "pas un problème d'API de Godot."]
+    if m.genre == "shader_type":
+        return [f"`{d['nom']}` est déclarée `int`, mais reçoit une valeur décimale : le langage des shaders de Godot ne "
+                "convertit pas de lui-même un `float` en `int`. La déclaration doit rester `float`.",
+                "- " + preuves.citation(preuves.DOC_CAST)]
     if m.genre == "shader_litteral":
         return [f"`{d['entier']}` est un entier ; l'opération attend un `float`. Le langage des shaders de Godot ne convertit pas "
                 f"de lui-même : il faut écrire `{d['litteral']}`.",
@@ -121,9 +133,15 @@ def motif_faute(m: mutations.Mutation) -> str | None:
         return rf"\b{d['ancien']}\b"
     if m.genre == "non_type":
         return r"^\s*var \w+ = "
+    if m.genre == "retour":
+        return r"^\s*(static\s+)?func\s+\w+\([^)]*\)\s*:"
     if m.genre == "appel":
         return rf"\b{d['ancien']}\("
     return None
 
 
-GENRES = ["godot3_nom", "godot3_annotation", "godot3_shader", "shader_litteral", "type", "appel", "non_type"]
+GENRES = ["godot3_nom", "godot3_annotation", "godot3_shader", "shader_litteral", "type", "appel", "non_type",
+          "parametre", "retour", "shader_type"]
+# Les classes où chercher une méthode renommée (son nom de Godot 3 absent, sa signature de Godot 4).
+CLASSES_METHODES = ("RandomNumberGenerator", "Array", "String", "ShaderMaterial", "PackedScene", "Node", "Node3D",
+                    "SceneTree", "Vector2", "Vector3", "CharacterBody3D")

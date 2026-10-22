@@ -57,6 +57,7 @@ FICHIERS = {
     "7_tests/2_sequence/test_main.gd": "1-10",
     "7_tests/3_entities/player/test_player_input.gd": "1+",
     "7_tests/4_ui/hud/input_display/test_input_display.gd": "1-10",
+    "7_tests/1_core/silence_audio.gd": "1+",
     "7_tests/lancer_tests.bat": "1+",
     "1_core/state_machine/state.gd": "2+",
     "1_core/state_machine/state_machine.gd": "2+",

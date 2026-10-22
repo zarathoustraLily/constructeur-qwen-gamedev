@@ -37,12 +37,28 @@ NOMS_GENRES = {
     "type": "`int` qui reçoit un `float` (conversion avec perte)",
     "appel": "appel à une fonction du script qui n'existe pas (faute de nom)",
     "non_type": "variable sans type (avertissement `UNTYPED_DECLARATION` traité en erreur)",
+    "parametre": "paramètre sans type (`UNTYPED_DECLARATION`)",
+    "retour": "fonction sans type de retour (`UNTYPED_DECLARATION`)",
+    "shader_type": "déclaration `int` qui reçoit une valeur décimale dans un shader",
 }
 NOMS_VUES = {"analyse": "à l'analyse du script", "rendu": "au rendu des shaders", "test": "à l'exécution du test",
              "recherche": "par la recherche finale (`grep`)"}
 
 
+# Ce qui change d'un cours de jeu à l'autre dans le LISEZMOI.
+JEUX = {
+    "kart": ("un jeu de kart sous Godot 4.7.2", "le kart : contrôles au clavier et à la manette, île, eau, herbe, "
+             "effets, météo, poissons et objets"),
+    "roguelike": ("un roguelike d'action sous Godot 4.7.2", "le roguelike : contrôles au clavier, à la souris et à la "
+                  "manette, machine à états, combat, ennemis, vagues, niveaux, boutique, pause et commandes"),
+}
+
+
 def texte(c: dict) -> str:
+    from usine.cours.base import chemins
+    ch = chemins.actuels()
+    if ch.jeu:
+        return texte_jeu(c, ch.nom_cours, ch.manifeste, ch.dossier_windows or "")
     st = c["statistiques"]
     j = st["jetons"]
     jt = j["par_type"]
@@ -225,6 +241,122 @@ par défaut : la perte porte sur chaque réponse, pas seulement la dernière), `
   capturée : OpenCode ne l'avait pas chargé. Les exemples n'ont donc pas de `plan.md`.
 """
     return t
+
+
+def texte_jeu(c: dict, cours: str, manifeste: dict, dossier: str) -> str:
+    """Le LISEZMOI d'une base de cours de jeu : mêmes chiffres, mêmes contrôles ; tests GdUnit4, rendu sans image."""
+    st = c["statistiques"]
+    j = st["jetons"]
+    jt = j["par_type"]
+    se = st["sessions"]
+    cr = st["creations"]
+    roc = st["editions_opencode_rejouees"]
+    eq = st["equilibre_par_etape"]
+    titre, contenu = JEUX[cours]
+    nom = f"base_{cours}"
+    part_deb = 1 - j["part_creation_reponses"]
+    crea_nb = st["par_type"].get("creation", 0)
+    parties = cr["etapes_en_plusieurs_parties"]
+    appels = ", ".join(f"`{k}` {nb(v)}" for k, v in st["appels_d_outils"].items())
+    repartition = ", ".join(f"{v} à {k} erreur{'s' if int(k) > 1 else ''}" for k, v in se["par_nombre_d_erreurs"].items())
+    n_etapes = len(manifeste.get("PRETES", range(1, manifeste["DERNIERE"] + 1)))
+    return f"""# Base d'entraînement : {titre}, au format d'OpenCode
+
+Une série de prompts d'entraînement, avec leurs réponses, pour apprendre à Qwen 3.8 à construire {contenu}, étape
+par étape, et à déboguer ce qu'il écrit, **dans OpenCode, son harnais d'usage** (décision 14 de laurent). Chaque
+exemple montre le cheminement : lire le code, chercher, coder, tester, vérifier, corriger, puis un compte rendu, avec
+les outils d'OpenCode. Produite par `python -m usine.cours.base tout --cours {cours}` à partir du cours `cours/{cours}/`
+du dépôt (demande de laurent du 2026-10-22 : la même base que les bâtiments, pour les deux cours de jeu).
+
+## Contenu
+
+- **{nb(st['total'])} exemples** : {crea_nb} de création ({aucun(parties, "étape découpée", "étapes découpées", "aucune")} en
+  parties qui se compilent chacune) et {nb(se['nombre'])} sessions de débogage, où {nb(se['erreurs'])} erreurs sont
+  corrigées en tout.
+- **{n_etapes} étapes**, celles du cours, chacune vérifiée par Godot 4.7.2 avant d'en tirer des exemples.
+- **Moitié création, moitié débogage, sur ce que le modèle apprend** : dans les réponses, la création pèse
+  {pc(j['part_creation_reponses'])} des jetons, le débogage {pc(part_deb)} ({nb(jt['creation']['reponses'])} et
+  {nb(jt['debogage']['reponses'])} jetons). Étape par étape, le débogage pèse de {virgule(eq['plus_bas'][0][0])} à
+  {virgule(eq['plus_haut'][-1][0])} fois la création (médiane {virgule(eq['median'])}) : les étapes faites presque
+  seulement de shaders offrent moins de places où poser une erreur.
+- **Appels d'outils** : {appels}.
+- **Taille, en jetons de Qwen 3.8, gabarit de chat compris** : {nb(j['total'])} en tout, dont {nb(j['prompt_et_outils'])} par
+  exemple pour le prompt système d'OpenCode et la définition de ses outils. Le plus long exemple en compte {nb(j['max'])}
+  (`{j['plus_long']}`), soit {nb(j['marge_plus_long'])} de moins que les 32 768 de l'entraînement : aucun exemple n'est
+  tronqué. Création : {nb(jt['creation']['moyenne'])} jetons en moyenne ; débogage : {nb(jt['debogage']['moyenne'])}.
+- **Jetons** comptés avec le tokenizer de Qwen 3.8 ({j['tokenizer']}) et le gabarit de chat de son GGUF ; le bloc de
+  réflexion vide devant chaque réponse compte dans le total, pas dans les jetons de réponse (`enable_thinking: false`).
+
+## Le format d'OpenCode
+
+Le même que la base des bâtiments (voir son LISEZMOI) : prompt système et 12 outils d'OpenCode 2.0.6 relevés dans une
+session réelle de laurent ; dossier de travail : le projet de l'étape dans `{dossier}` ; Godot lancé par son chemin
+complet ; sorties de Godot entières (décision 13), sans leurs couleurs, séquences de terminal, progression de l'import
+ni lignes propres à la machine (règle 5.1) ; texte des réponses gardé devant chaque appel.
+
+Ce qui change avec un jeu :
+- **Les tests** sont les suites GdUnit4 que l'étape crée ou modifie, lancées comme `7_tests/lancer_tests.bat` (sans
+  `-d --remote-debug` : les suites passent sans débogueur, assertions sur `push_error` comprises). La réponse lit
+  chaque cas : leurs noms disent les règles du jeu.
+- **L'analyse** (`--check-only`) ne charge pas les autoloads : sur un script juste qui emploie `GameFlow`, elle
+  répondrait « Identifier not found ». Un tel script n'est pas analysé seul ; la réponse le dit, et les tests le
+  vérifient.
+- **Le rendu** : la scène principale, ou la scène qui charge le shader, {60} images en Compatibilité, fenêtre hors de
+  l'écran. Une faute de shader s'y signale (« SHADER ERROR ») ; aucune image n'est enregistrée. Les avertissements
+  « … only available when using the Forward+ renderer » (réglages du projet faits pour Forward+) sont lus et expliqués.
+- **L'import** de l'éditeur sans fenêtre peut afficher « Parameter "material" is null » depuis
+  `servers/rendering/dummy/` : une erreur du moteur de rendu factice, pas du projet ; la réponse la reconnaît.
+- **On enseigne** le code (GDScript, shaders), les scènes et ressources texte et `project.godot` (`write`, `edit`).
+  Les très gros fichiers (formes de collision, données VoxelGI, cellules de GridMap) sont donnés tels quels ; un
+  fichier que l'étape retire part avant elle.
+
+### Création ({crea_nb} exemples)
+
+La demande dit ce qu'on doit obtenir et pouvoir essayer, et liste les scripts et shaders du projet ; la réponse lit le
+code (`read`), cherche (API 4.7.2 et sa référence, documentation, sources de la note), code (`write`, `edit`), lance
+l'import, l'analyse de chaque script modifié, les suites de l'étape et le rendu si un shader change, puis vérifie et
+rend compte. {cr['tours_moyens']} messages en moyenne, {cr['tours_max']} au plus.
+
+### Débogage ({nb(se['nombre'])} sessions)
+
+Des erreurs sont posées dans le code juste de l'étape ; Qwen lance lui-même les commandes, lit chaque erreur, lit le
+code autour (`read`), cherche la cause avec une preuve (API, référence des classes 4.7.2, table des renommages du
+moteur, documentation), corrige ligne par ligne (`edit`) et relance. {un_chiffre(se['tours_moyens'])} messages en
+moyenne, {se['tours_max']} au plus. Répartition : {repartition}. Les erreurs :
+""" + "\n".join(f"- {NOMS_GENRES[k]} : {nb(v)}" for k, v in se["genres"].items()) + """
+
+Où Godot les voit : """ + ", ".join(f"{NOMS_VUES[k]} ({nb(v)})" for k, v in se["vues"].items()) + f""".
+
+## Fichiers
+
+| Fichier | Contenu |
+| --- | --- |
+| `{nom}.jsonl` | Format chat d'OpenAI (messages et outils, `tache_id`, `competence`, `sujet`, `type`, `etape`), pour Unsloth ou tout entraîneur qui applique le gabarit de Qwen 3.8. |
+| `{nom}_sharegpt.jsonl` | Pour LLaMA-Factory : appels d'outils écrits dans la réponse comme le gabarit les écrit ; texte identique, jeton pour jeton, à celui du gabarit (contrôlé). |
+| `dataset_info.json` | Déclaration du jeu pour LLaMA-Factory (`dataset: {nom}`). |
+| `echantillon.md` | {len(st['echantillon'])} exemples en version lisible. |
+| `controles.json` | Les chiffres ci-dessus et les problèmes trouvés par les contrôles ({len(c['problemes'])}). |
+
+**Réglages d'entraînement** : ceux de la base des bâtiments (`template: qwen3_8`, `enable_thinking: false`,
+`cutoff_len: 32768`, `train_on_prompt: false`, `packing: false`).
+
+## Contrôles
+
+- Toutes les sorties citées sont réelles : Godot 4.7.2 a tourné pour chacune, `grep` aussi.
+- Les appels `edit` et `write`, rejoués comme OpenCode les applique : les parties de création de chacune des
+  {roc['etapes']} étapes redonnent son code, scènes et ressources comprises, et chacune des {nb(roc['sessions'])}
+  sessions redonne le code juste ({aucun(roc['differences'], 'différence', 'différences', 'aucune')}).
+- Les preuves citées sont relues dans leur source : `extension_api.json` du binaire 4.7.2, référence des classes du
+  dépôt de Godot à l'étiquette `4.7.2-stable` (commit ed1daf0bf, celui du binaire de laurent), `godot-docs`, table
+  des renommages du moteur.
+
+## Limites
+
+- Les explications de « Coder » reprennent le texte des notes du cours.
+- Les erreurs des sessions sont posées par programme : syntaxe, noms de Godot 3, types, appels, shaders. Pas d'erreur
+  de logique de jeu (une collision mal réglée, un état oublié) : celles-là relèvent de la compétence O1.
+- Les sorties de Godot viennent de la machine de laurent (Windows 11, RTX 5090).
+"""
 
 
 def ecrire(controles: dict, chemin: Path) -> Path:

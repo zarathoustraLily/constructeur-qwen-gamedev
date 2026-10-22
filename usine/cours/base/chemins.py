@@ -9,6 +9,10 @@
   définitions des outils d'OpenCode) ; `[opencode].dossier_cours` : le dossier Windows des projets du cours chez
   laurent ; Godot y est lancé par `[godot].console` (chaînes Windows, jamais ouvertes ici) ;
 - l'API de Godot vient de donnees/vocab (extraite du binaire par `python -m usine.vocab construire`).
+
+Le cours vient de `configurer(cours=…)` : « batiments_proceduraux » par défaut, ou un cours « de jeu » (manifeste
+GENRE = "jeu" : le kart, le roguelike). Son dossier Windows chez laurent est `[opencode].dossier_cours` pour les
+bâtiments, `[opencode].dossier_<cours>` pour les autres (choix de laurent du 2026-10-22 : « 002_Kart et 003_Roguelike »).
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from typing import Any
 
 from usine import config as cfg
 from usine.cours import dossier_cours, dossier_projets
+from usine.cours.fabriquer import lire_manifeste
 
 COURS = "batiments_proceduraux"
 
@@ -39,6 +44,13 @@ class Chemins:
     session_opencode: Path | None = None
     godot_windows: str | None = None
     dossier_windows: str | None = None
+    nom_cours: str = COURS
+    manifeste: dict[str, Any] | None = None
+
+    @property
+    def jeu(self) -> bool:
+        """Un cours « de jeu » (usine/cours/jeu.py) : le kart, le roguelike."""
+        return bool(self.manifeste) and self.manifeste.get("GENRE") == "jeu"
 
     def _exige(self, chemin: Path | None, cle: str) -> Path:
         if chemin is None or not chemin.exists():
@@ -116,17 +128,20 @@ def _texte(valeur: Any) -> str | None:
 def configurer(docs: Path | str | None = None, source_godot: Path | str | None = None,
                vocab: Path | str | None = None,
                session_opencode: Path | str | None = None, godot_windows: str | None = None,
-               dossier_windows: str | None = None, config: dict[str, Any] | None = None) -> Chemins:
+               dossier_windows: str | None = None, config: dict[str, Any] | None = None,
+               cours: str | None = None) -> Chemins:
     """Fixe les chemins : ceux passés ici, sinon ceux de config.toml."""
     global _ACTUELS, _HARNAIS
     from usine.vocab.construire import chemin_json
     config = cfg.charger_config() if config is None else config
     chem = config.get("chemins", {})
     entr = config.get("entrainement", {})
-    base = cfg.dossier_donnees(config) / "cours" / COURS / "base"
+    cours = cours or COURS
+    base = cfg.dossier_donnees(config) / "cours" / cours / "base"
+    cle_dossier = "dossier_cours" if cours == COURS else f"dossier_{cours}"
     _ACTUELS = Chemins(
-        cours=dossier_cours(COURS),
-        projets=dossier_projets(COURS, config),
+        cours=dossier_cours(cours),
+        projets=dossier_projets(cours, config),
         base=base,
         docs=_chemin(docs) or _chemin(chem.get("docs_godot")),
         source_godot=_chemin(source_godot) or _chemin(chem.get("source_godot")),
@@ -134,7 +149,9 @@ def configurer(docs: Path | str | None = None, source_godot: Path | str | None =
         api=chemin_json(config),
         session_opencode=_chemin(session_opencode) or _chemin(config.get("opencode", {}).get("session_reference")),
         godot_windows=godot_windows or _texte(config.get("godot", {}).get("console")),
-        dossier_windows=dossier_windows or _texte(config.get("opencode", {}).get("dossier_cours")),
+        dossier_windows=dossier_windows or _texte(config.get("opencode", {}).get(cle_dossier)),
+        nom_cours=cours,
+        manifeste=lire_manifeste(dossier_cours(cours)),
     )
     _HARNAIS = None
     return _ACTUELS

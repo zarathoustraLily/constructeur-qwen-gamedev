@@ -11,8 +11,9 @@ import random
 import re
 import shutil
 from collections import OrderedDict
+from pathlib import Path
 
-from usine.cours.base import composer, creation, debogage, etat, godot, jetons, mutations, opencode, textes
+from usine.cours.base import composer, creation, debogage, etat, godot, jetons, mutations, opencode, profil, textes
 from usine.cours.base.chemins import actuels
 from usine.cours.base.etat import CODE
 from usine.processus import executer
@@ -20,7 +21,8 @@ from usine.processus import executer
 CAUSES = {"godot3_annotation": "syntaxe de Godot 3", "godot3_nom": "nom de Godot 3",
           "godot3_shader": "nom de Godot 3 dans un shader", "non_type": "déclaration sans type",
           "type": "type entier pour une valeur décimale", "appel": "appel à une fonction qui n’existe pas",
-          "shader_litteral": "entier là où le shader attend un float"}
+          "shader_litteral": "entier là où le shader attend un float", "parametre": "paramètre sans type",
+          "retour": "fonction sans type de retour", "shader_type": "int là où le shader calcule un float"}
 AT = re.compile(r"^\s*at: .*\(res://([^():]+):(\d+)\)\s*$")
 MESSAGE = re.compile(r"^(SCRIPT ERROR|SHADER ERROR|ERROR|USER ERROR|SCRIPT WARNING|WARNING): ")
 NOMS_PHASE = {"analyse": "analyse du script", "rendu": "rendu en Compatibilité", "test": "test de l'étape",
@@ -44,13 +46,23 @@ def quoi(m: mutations.Mutation) -> tuple[str, int]:
 class Projet:
     """Un projet Godot matérialisé une fois par étape ; chaque session y pose ses erreurs puis les corrige."""
 
-    def __init__(self, ville: str, n: int, apres: dict[str, str]):
+    def __init__(self, ville: str, n: int, apres: dict[str, str], touchees: set[str] | None = None):
         self.ville, self.n, self.apres = ville, n, apres
-        self.chemin = godot.materialiser(dict(apres), f"sess_{ville}_{n:03d}")
+        self.jeu = actuels().jeu
+        self.chemin = godot.materialiser(dict(apres), f"sess_{ville}_{n:03d}", etat.dossier(ville, n) if self.jeu else None)
         godot.oublier(self.chemin)      # les sessions modifient le projet : aucune sortie gardée
         godot.importer(self.chemin)
         self.code = {k: v for k, v in apres.items() if k.endswith(CODE)}
         self.png = actuels().rendus / f"sess_{ville}_{n:03d}.png"
+        # Cours de jeu : les suites GdUnit4 que l'étape crée ou modifie ; le code des extensions (addons/), que la
+        # recherche d'OpenCode parcourt aussi (motifs_utiles).
+        self.suites = ["res://" + rel for rel in profil.suites(apres, touchees)] if self.jeu else []
+        self.extensions: dict[str, str] = {}
+        if self.jeu:
+            racine = Path(self.chemin)
+            for f in (racine / "addons").rglob("*"):
+                if f.is_file() and f.name.endswith(CODE):
+                    self.extensions[f.relative_to(racine).as_posix()] = f.read_text(encoding="utf-8", errors="replace")
 
     def ecrire(self, rel: str, texte: str) -> None:
         self.code[rel] = texte
@@ -75,8 +87,10 @@ class Projet:
         if phase == "analyse":
             return godot.verifier_script(self.chemin, "res://" + cible)
         if phase == "rendu":
-            return godot.rendre(self.chemin, self.png)
+            return godot.rendre_jeu(self.chemin, cible) if self.jeu else godot.rendre(self.chemin, self.png)
         if phase == "test":
+            if self.jeu:
+                return godot.tester_gdunit(self.chemin, self.suites)
             return godot.tester(self.chemin, "res://" + creation.TEST.format(nom=etat.nom(self.ville, self.n)))
         raise ValueError(phase)
 
@@ -109,18 +123,34 @@ def erreurs(texte: str) -> "OrderedDict[tuple[str, int], str]":
     return vus
 
 
-def propre(phase: str, s: godot.Sortie) -> bool:
+def propre(phase: str, s: godot.Sortie, attendus: set[str] | frozenset[str] = frozenset()) -> bool:
+    jeu = actuels().jeu
     if phase == "analyse":
         return not s.texte.strip()
     if phase == "rendu":
+        if jeu:
+            return profil.rendu_propre(s.code, s.texte)
         return not any("ERROR" in l for l in s.texte.splitlines()) and godot.image_enregistree(s) is not None
     if phase == "test":
+        if jeu:
+            return profil.test_reussi(s.code, s.texte, attendus)
         return s.code == 0 and " 0 échec" in s.texte and "SCRIPT ERROR" not in s.texte and "ÉCHEC" not in s.texte
     return not s.texte.strip()
 
 
 def lignes_ok(s: godot.Sortie) -> list[str]:
+    if actuels().jeu:
+        return profil.cas_passes(s.texte)
     return [l for l in s.texte.splitlines() if l.startswith("ok")]
+
+
+def test_passe(s: godot.Sortie) -> str:
+    """Ce que la réponse dit d'un test qui passe."""
+    if actuels().jeu:
+        cas = (profil.resume_gdunit(s.texte) or (0,))[0]
+        return f"Les tests passent : {cas} cas, 0 échec, aucune « SCRIPT ERROR »"
+    nb = len(lignes_ok(s))
+    return f"Le test passe : {nb} ligne{'s' if nb > 1 else ''} « ok », aucune « SCRIPT ERROR »"
 
 
 # --------------------------------------------------------------------------------------------- écrire les tours
@@ -254,7 +284,8 @@ def motifs_utiles(projet: Projet, muts: list[mutations.Mutation]) -> list[tuple[
         if not motif or any(motif == x for x, _ in sortie):
             continue
         shader = m.genre == "godot3_shader"
-        juste = sum(len(re.findall(motif, t, re.M)) for rel, t in projet.apres.items()
+        textes_projet = list(projet.apres.items()) + list(projet.extensions.items())
+        juste = sum(len(re.findall(motif, t, re.M)) for rel, t in textes_projet
                     if rel.endswith((".gdshader", ".gdshaderinc") if shader else ".gd"))
         if juste == 0:
             sortie.append((motif, m.genre))
@@ -263,13 +294,18 @@ def motifs_utiles(projet: Projet, muts: list[mutations.Mutation]) -> list[tuple[
 
 def intro_initiale(phase: str, cible: str | None) -> str:
     """La première commande d'une session au format d'OpenCode, que Qwen lance lui-même."""
+    if actuels().jeu and phase != "analyse":
+        return {"rendu": "Un shader a changé, et un shader ne se compile qu'au rendu : je lance "
+                         + (f"la scène `{cible}`" if cible else "le jeu") + " en Compatibilité :",
+                "test": "Je lance les suites GdUnit4 de l'étape :"}[phase]
     return {"analyse": f"Je lance l'analyse de `res://{cible}`, avertissements traités en erreurs (typage compris) :",
             "rendu": "Un shader a changé, et un shader ne se compile qu'au rendu : je lance une image en Compatibilité :",
             "test": "Je lance le test de l'étape, pour vérifier que tout se construit :"}[phase]
 
 
-def transition(precedente: str, suivante: str, cible: str | None, initial: bool) -> str:
-    """La commande d'après, quand la précédente passe (`initial` : elle passait déjà, rien n'a été corrigé)."""
+def transition(precedente: str, suivante: str, cible: str | None, initial: bool, sortie: str = "") -> str:
+    """La commande d'après, quand la précédente passe (`initial` : elle passait déjà, rien n'a été corrigé).
+    `sortie` : celle de la commande précédente (un rendu peut avertir de réglages faits pour Forward+)."""
     if suivante == "analyse":
         return f"Ce script passe l'analyse. Je lance celle de `res://{cible}` :"
     if suivante == "rendu":
@@ -277,8 +313,11 @@ def transition(precedente: str, suivante: str, cible: str | None, initial: bool)
             "Un shader a changé lui aussi, et un shader ne se compile qu'au rendu : je lance une image en "
             "Compatibilité :")
     rendu = "Le rendu ne signale aucune erreur." if initial else "Le rendu ne signale plus d'erreur."
-    return ({"analyse": "L'analyse du script passe.", "rendu": rendu}[precedente]
-            + " Je lance le test de l'étape, pour vérifier que tout se construit :")
+    if precedente == "rendu" and profil.note_rendu(sortie):
+        rendu += " " + profil.note_rendu(sortie)
+    test = (" Je lance les suites GdUnit4 de l'étape :" if actuels().jeu else
+            " Je lance le test de l'étape, pour vérifier que tout se construit :")
+    return {"analyse": "L'analyse du script passe.", "rendu": rendu}[precedente] + test
 
 
 def corriger_oc(oc: opencode.Conversation, projet: Projet, phase: str, s: godot.Sortie, vus: dict,
@@ -324,13 +363,19 @@ def jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str)
 
 def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str) -> dict:
     projet.remettre()
+    # Les erreurs que les suites provoquent exprès (assert_error) ne sont pas des fautes du jeu.
+    att = profil.messages_attendus(projet.apres) if projet.jeu else frozenset()
     for m in muts:
         projet.poser(m, True)
     depart = {m.fichier: projet.code[m.fichier] for m in muts}
     restantes = list(muts)
     gd = sorted({m.fichier for m in muts if m.fichier.endswith(".gd")})
     shaders = sorted({m.fichier for m in muts if not m.fichier.endswith(".gd")})
-    phases: list[tuple[str, str | None]] = [("analyse", f) for f in gd] + ([("rendu", None)] if shaders else []) + [("test", None)]
+    # Cours de jeu : un script qui emploie un autoload n'est pas analysé seul (profil.analysables) ; le rendu lance
+    # la scène qui charge le shader.
+    seuls, avec_autoloads = profil.analysables(gd, projet.apres)
+    scene = profil.scene_de_rendu(projet.apres, shaders) if projet.jeu and shaders else None
+    phases: list[tuple[str, str | None]] = [("analyse", f) for f in seuls] + ([("rendu", scene)] if shaders else []) + [("test", None)]
     traces: list[dict] = []
     vues: list[str] = []
 
@@ -345,7 +390,7 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
         inconnues = [k for k in vus if not any(quoi(m) == k for m in restantes)]
         if inconnues:
             raise SessionInvalide(f"erreur imprévue {inconnues[:2]} ({phase})", [])
-        if not propre(phase, s) and not liees:
+        if not propre(phase, s, att) and not liees:
             raise SessionInvalide(f"sortie en échec sans erreur reconnue ({phase}) : {s.texte[-300:]!r}", [])
         liees.sort(key=lambda m: list(vus).index(quoi(m)))
         return vus, liees
@@ -355,7 +400,7 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
     s = lancer(0)
     passees = []
     initiales = [(phases[0], s)]
-    while propre(phases[i][0], s):
+    while propre(phases[i][0], s, att):
         passees.append(phases[i][0])
         i += 1
         if i == len(phases):
@@ -372,18 +417,28 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
     premier = (f"Projet Godot 4.7.2 : {desc}. Je travaille à l'étape {projet.n:03d} ({titre}). J'ai modifié "
                + (" et ".join(fichiers) if len(fichiers) <= 2 else ", ".join(fichiers[:-1]) + " et " + fichiers[-1]) + ".\n\n"
                + deja + intro + "\n" + tour_sortie(projet, phases[i][0], s, liees) + "\n\n"
-               "Corrige jusqu'à ce que tout passe : l'analyse du script, le rendu si un shader a changé, et le test de l'étape.")
-    messages = [{"role": "system", "content": textes.SYSTEME}, {"role": "user", "content": premier}]
+               + ("Corrige jusqu'à ce que tout passe : l'analyse des scripts, le rendu si un shader a changé, et les "
+                  "tests de l'étape (GdUnit4)." if projet.jeu else
+                  "Corrige jusqu'à ce que tout passe : l'analyse du script, le rendu si un shader a changé, et le test de l'étape."))
+    messages = [{"role": "system", "content": textes.systeme()}, {"role": "user", "content": premier}]
     # Au format d'OpenCode : Qwen lance lui-même les commandes, lit le code par plages, corrige par `edit`.
     graine = f"{projet.ville}-{projet.n:03d}-" + "-".join(f"{m.fichier}:{m.ligne}:{m.genre}" for m in muts)
     oc = opencode.Conversation(actuels().harnais(), etat.nom(projet.ville, projet.n), graine)
     oc.utilisateur(f"Projet Godot 4.7.2 : {desc}. Je travaille à l'étape {projet.n:03d} ({titre}). J'ai modifié "
                    + (" et ".join(fichiers) if len(fichiers) <= 2 else ", ".join(fichiers[:-1]) + " et " + fichiers[-1])
                    + ".\n\nVérifie que tout passe : l'analyse des scripts modifiés, le rendu si un shader a changé, et "
-                     "le test de l'étape. Corrige ce qui ne va pas.")
+                   + ("les tests de l'étape (GdUnit4)." if projet.jeu else "le test de l'étape.")
+                   + " Corrige ce qui ne va pas.")
+    # Pourquoi des scripts n'ont pas leur analyse : dit une fois, devant la première commande qui n'en est plus une.
+    autoloads = [profil.phrase_autoloads(avec_autoloads)] if avec_autoloads else []
+
+    def expliquer(texte: str, ph: str) -> str:
+        return autoloads.pop() + " " + texte if autoloads and ph != "analyse" else texte
+
     for k, ((ph, cible), sk) in enumerate(initiales):
-        texte = intro_initiale(ph, cible) if k == 0 else transition(initiales[k - 1][0][0], ph, cible, initial=True)
-        oc.shell(texte, sk.commande, sk.brut, sk.code, projet.chemin)
+        texte = intro_initiale(ph, cible) if k == 0 else transition(initiales[k - 1][0][0], ph, cible, initial=True,
+                                                                    sortie=initiales[k - 1][1].texte)
+        oc.shell(expliquer(texte, ph), sk.commande, sk.brut, sk.code, projet.chemin)
     premier_test_en_echec: godot.Sortie | None = s if phases[i][0] == "test" else None
     corriges: list[mutations.Mutation] = []
     lancees = {"analyse": 0, "rendu": 0, "test": 0, "grep": 0}
@@ -393,7 +448,7 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
 
     while True:
         phase = phases[i][0]
-        if not propre(phase, s):
+        if not propre(phase, s, att):
             vues += [phase] * len(liees)
             messages.append({"role": "assistant", "content": tour_correction(projet, phase, s, vus, liees, s.commande)})
             corriger_oc(oc, projet, phase, s, vus, liees)
@@ -410,12 +465,12 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
         # La commande passe : on va à la suivante.
         if i + 1 < len(phases):
             suivante = phases[i + 1][0]
-            texte = transition(phase, suivante, phases[i + 1][1], initial=False)
+            texte = expliquer(transition(phase, suivante, phases[i + 1][1], initial=False, sortie=s.texte), suivante)
             i += 1
             s = lancer(i)
             lancees[suivante] += 1
             vus, liees = lier(suivante, s)
-            if suivante == "test" and not propre("test", s) and premier_test_en_echec is None:
+            if suivante == "test" and not propre("test", s, att) and premier_test_en_echec is None:
                 premier_test_en_echec = s
             messages.append({"role": "assistant", "content": texte + f"\n```\n$ {s.commande}\n```"})
             messages.append({"role": "user", "content": tour_sortie(projet, suivante, s, liees)})
@@ -434,10 +489,8 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
             globs.append("*.gd")
         if any(g == "godot3_shader" for _, g in motifs):
             globs += ["*.gdshader", "*.gdshaderinc"]
-        nb = len(lignes_ok(test_final))
-        intro_grep = (f"Le test passe : {nb} ligne{'s' if nb > 1 else ''} « ok », aucune « SCRIPT ERROR ». Je cherche "
-                      "encore les mêmes fautes ailleurs dans le projet, au cas où une ligne que le test n'exécute pas en "
-                      "contiendrait une :")
+        intro_grep = (f"{test_passe(test_final)}. Je cherche encore les mêmes fautes ailleurs dans le projet, au cas où "
+                      "une ligne que le test n'exécute pas en contiendrait une :")
         g = projet.grep(motif, globs)
         traces.append({"commande": g.commande, "sortie": g.texte, "code": g.code})
         lancees["grep"] += 1
@@ -489,13 +542,23 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
 
     # Dernier tour : vérifier, compte rendu.
     nb = len(lignes_ok(test_final))
-    passees_fin = [x for x in ["l'analyse du script" if gd else None, "le rendu en Compatibilité" if shaders else None,
-                               f"le test de l'étape ({nb} ligne{'s' if nb > 1 else ''} « ok », aucune « SCRIPT ERROR »)"] if x]
+    if projet.jeu:
+        cas = (profil.resume_gdunit(test_final.texte) or (0,))[0]
+        dernier_test = f"les tests de l'étape ({cas} cas, 0 échec, aucune « SCRIPT ERROR »)"
+    else:
+        dernier_test = f"le test de l'étape ({nb} ligne{'s' if nb > 1 else ''} « ok », aucune « SCRIPT ERROR »)"
+    passees_fin = [x for x in ["l'analyse du script" if seuls else None, "le rendu en Compatibilité" if shaders else None,
+                               dernier_test] if x]
     liste = passees_fin[0] if len(passees_fin) == 1 else ", ".join(passees_fin[:-1]) + " et " + passees_fin[-1]
     r = [f"**Vérifier.** Tout passe : {liste}."
          + ((" La recherche ne trouve plus cette faute ailleurs." if len(corriges) == 1 else
              " La recherche ne trouve plus aucune de ces fautes.") if recherche else "")]
-    if premier_test_en_echec is not None:
+    if premier_test_en_echec is not None and projet.jeu:
+        repares = [c for c in lignes_ok(test_final) if c not in set(lignes_ok(premier_test_en_echec))]
+        if repares:
+            r += ["Ces cas échouaient et passent maintenant :"] + [f"- `{c.split(' > ')[1]}` (`res://{c.split(' > ')[0]}`)."
+                                                                   for c in repares]
+    elif premier_test_en_echec is not None:
         avant_ok, apres_ok = lignes_ok(premier_test_en_echec), lignes_ok(test_final)
         changes = [(a, b) for a, b in zip(avant_ok, apres_ok) if a != b]
         if changes:
@@ -513,8 +576,9 @@ def _jouer(projet: Projet, muts: list[mutations.Mutation], desc: str, titre: str
     else:
         r.append(f"- Erreurs corrigées : {len(corriges)} — " + " ; ".join(
             f"ligne {m.ligne} de `{os.path.basename(m.fichier)}`, {CAUSES[m.genre]}" for m in corriges) + ".")
+    noms = dict(NOMS_PHASE, test="tests GdUnit4 de l'étape") if projet.jeu else NOMS_PHASE
     r.append("- Commandes lancées : " + ", ".join(
-        f"{NOMS_PHASE[p]} ({k} fois)" if k > 1 else NOMS_PHASE[p] for p, k in lancees.items() if k) + ".")
+        f"{noms[p]} ({k} fois)" if k > 1 else noms[p] for p, k in lancees.items() if k) + ".")
     r.append("- Problèmes non résolus : aucun.")
     messages.append({"role": "assistant", "content": "\n".join(r)})
     oc.repondre("\n".join(r))
@@ -551,9 +615,24 @@ def candidats(apres: dict[str, str], tous: list[etat.Morceau]) -> tuple[list, li
     return neufs, autres
 
 
+def candidats_ailleurs(apres: dict[str, str], touches: set[str]) -> list:
+    """Les erreurs possibles dans les autres scripts et shaders du projet (cours de jeu) : quand les fichiers de
+    l'étape n'en offrent plus assez pour équilibrer son débogage, on corrige un fichier plus ancien."""
+    sortie = []
+    for rel, texte in sorted(apres.items()):
+        if rel in touches or rel.startswith(("7_tests/", "addons/")) or not rel.endswith(CODE):
+            continue
+        toutes = set(range(1, len(texte.split("\n")) + 1))
+        sortie += mutations.candidates(rel, texte, toutes)
+        if rel.endswith(".gd"):
+            sortie += mutations.appels_internes(rel, texte, toutes)
+    return sortie
+
+
 def tirer(hasard: random.Random, dispo: list, lignes_prises: set, exclus_fichiers: set) -> list:
     """Une combinaison : un script (2 à 4 erreurs de genres variés, une seule faute de syntaxe au plus) et, s'il y
-    en a, un shader rendu dans la scène (0 à 2 erreurs)."""
+    en a, un shader rendu dans la scène (0 à 2 erreurs). Quand aucun script n'en porte plus deux, un shader seul (2 ou
+    3 erreurs : il s'arrête à la première, chaque relance montre la suivante)."""
     libres = [c for c in dispo if (c.fichier, c.ligne) not in lignes_prises and c.fichier not in exclus_fichiers]
     par_fichier: dict[str, list] = {}
     for c in libres:
@@ -561,7 +640,18 @@ def tirer(hasard: random.Random, dispo: list, lignes_prises: set, exclus_fichier
     scripts = [f for f, cs in par_fichier.items() if f.endswith(".gd") and len({c.ligne for c in cs}) >= 2]
     shaders = [f for f, cs in par_fichier.items() if not f.endswith(".gd")]
     if not scripts:
-        return []
+        seuls = [f for f in shaders if len({c.ligne for c in par_fichier[f]}) >= 2]
+        if not seuls:
+            return []
+        sf = hasard.choice(sorted(seuls))
+        pris = list(par_fichier[sf])
+        hasard.shuffle(pris)
+        k = hasard.choice([2, 3])
+        choisis_sh: list = []
+        for c in pris:
+            if len(choisis_sh) < k and c.ligne not in {x.ligne for x in choisis_sh}:
+                choisis_sh.append(c)
+        return choisis_sh
     f = hasard.choice(sorted(scripts))
     k_gd = hasard.choice([2, 3, 3, 4])
     genres = sorted({c.genre for c in par_fichier[f]})

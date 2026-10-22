@@ -8,7 +8,9 @@ from usine.cours.base import api, textes
 from usine.cours.base.etat import CODE, Morceau
 from usine.cours.base.notes import Note, deplier, puces
 
-LANGAGE = {".gd": "gdscript", ".gdshader": "glsl", ".gdshaderinc": "glsl"}
+# Scènes, ressources et project.godot (cours de jeu) : le format texte de Godot, proche de l'INI.
+LANGAGE = {".gd": "gdscript", ".gdshader": "glsl", ".gdshaderinc": "glsl", ".tscn": "ini", ".tres": "ini",
+           ".godot": "ini"}
 
 
 def langage(rel: str) -> str:
@@ -70,7 +72,15 @@ def ancre(avant_lignes: list[str], position: int) -> str | None:
     return None
 
 
+# Cours de jeu : ce dont les autres dépendent d'abord (réglages du projet, contrats, données), les tests à la fin.
+ORDRE_JEU = ("project.godot", "1_core", "5_data", "6_assets", "0_autoload", "3_entities", "4_ui", "2_sequence",
+             "7_tests")
+
+
 def ordre_fichier(rel: str) -> tuple[int, str]:
+    from usine.cours.base.chemins import actuels
+    if actuels().jeu:
+        return next((i for i, d in enumerate(ORDRE_JEU) if rel.startswith(d)), len(ORDRE_JEU)), rel
     rang = 0 if rel.startswith("5_data") else 1 if rel.startswith("1_core") else 2 if rel.startswith("2_seq") else \
         3 if "/Mesh/" in rel and not rel.startswith("7_tests") else 4 if "/Shader/" in rel else 5 if rel.startswith("7_tests") else 6
     return rang, rel
@@ -186,7 +196,7 @@ def _remplacement(rel: str, cur: list[str] | None, m: Morceau, nouvelles: list[s
 def consigne(note: Note, ville: str, avant: dict[str, str], morceaux: list[Morceau], points: list[int],
              partie: tuple[int, int] = (1, 1), extraits: bool = True) -> str:
     """La demande de l'étape. Sans `extraits` (format d'OpenCode), le code actuel n'est pas cité : la réponse le lit."""
-    projet, _ = textes.VILLES[ville]
+    projet, _ = textes.projet(ville)
     n = note.etape
     titre = note.titre.split("·")[-1].strip()
     lignes = [f"Projet Godot 4.7.2 : {projet}. Les étapes 001 à {n - 1:03d} sont faites ; on fait l'étape {n:03d}." if n > 2
@@ -214,7 +224,9 @@ def consigne(note: Note, ville: str, avant: dict[str, str], morceaux: list[Morce
 def verifications_api(apres: dict[str, str], morceaux: list[Morceau]) -> list[str]:
     par_fichier: "OrderedDict[str, list[str]]" = OrderedDict()
     for m in morceaux:
-        par_fichier.setdefault(m.fichier, []).extend(m.nouvelles)
+        # L'API se vérifie dans le code ; une scène ou une ressource ne fait qu'en nommer les types.
+        if m.fichier.endswith(CODE):
+            par_fichier.setdefault(m.fichier, []).extend(m.nouvelles)
     vus: "OrderedDict[str, str]" = OrderedDict()
     for rel, nouvelles in par_fichier.items():
         trouves = api.usages_shader(nouvelles) if rel.endswith((".gdshader", ".gdshaderinc")) else \

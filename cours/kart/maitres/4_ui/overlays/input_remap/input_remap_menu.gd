@@ -574,8 +574,11 @@ func _dict_to_event(d: Variant) -> InputEvent:
 func _describe_key(e: InputEventKey) -> String:
 	var kc := e.keycode
 	if e.physical_keycode != KEY_NONE:
-		# Nom selon la disposition du clavier (AZERTY : la touche physique W s'affiche « Z »)
-		kc = DisplayServer.keyboard_get_keycode_from_physical(e.physical_keycode)
+		kc = e.physical_keycode
+		# Nom selon la disposition du clavier (AZERTY : la touche physique W s'affiche « Z »). Sans fenêtre, Godot
+		# ne connaît aucune disposition et cette traduction écrit une erreur : on garde le nom de la place.
+		if DisplayServer.keyboard_get_layout_count() > 0:
+			kc = DisplayServer.keyboard_get_keycode_from_physical(e.physical_keycode)
 	if KEY_NAMES_FR.has(kc):
 		return KEY_NAMES_FR[kc]
 	var s := OS.get_keycode_string(kc)

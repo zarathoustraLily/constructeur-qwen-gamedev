@@ -68,10 +68,15 @@ func _spawn_next() -> void:
 
 
 # Une place tirée dans le carré de la vague, posée sur la navigation (le point le plus proche), à hauteur d'ennemi.
+# Avant sa première synchronisation, la carte ne répond pas (« query failed […] before first map synchronization ») :
+# la place tirée reste alors telle quelle.
 func _spawn_position() -> Vector3:
 	var extent := settings.spawn_extent
 	var candidate := global_position + Vector3(_rng.randf_range(-extent, extent), 0.0, _rng.randf_range(-extent, extent))
-	var point := NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map, candidate)
+	var map := get_world_3d().navigation_map
+	var point := candidate
+	if NavigationServer3D.map_get_iteration_id(map) > 0:
+		point = NavigationServer3D.map_get_closest_point(map, candidate)
 	return to_local(Vector3(point.x, global_position.y + settings.spawn_height, point.z))
 
 

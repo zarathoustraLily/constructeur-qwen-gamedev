@@ -1,8 +1,8 @@
-"""CLI de la base « bâtiments procéduraux ».
+"""CLI de la base d'un cours : « bâtiments procéduraux » par défaut, ou un cours de jeu (--cours kart, roguelike).
 
-    python -m usine.cours.base generer [--villes parisien …] [--etapes 1 2 …] [--travailleurs 2] [--refaire]
-    python -m usine.cours.base assembler
-    python -m usine.cours.base tout [--travailleurs 2]
+    python -m usine.cours.base generer [--cours kart] [--villes parisien …] [--etapes 1 2 …] [--travailleurs 2] [--refaire]
+    python -m usine.cours.base assembler [--cours kart]
+    python -m usine.cours.base tout [--cours kart] [--travailleurs 2]
 
 Chemins (sinon lus dans config.toml) : --docs (godot-docs), --source-godot (godot à l'étiquette 4.7.2-stable),
 --vocab (GGUF de Qwen 3.8 : le modèle ou son vocabulaire seul), --opencode-session (session OpenCode capturée par
@@ -24,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
                       ("assembler", "contrôles, statistiques, fichiers d'entraînement"),
                       ("tout", "generer, puis assembler")):
         p = sous.add_parser(nom, help=aide)
+        p.add_argument("--cours", default=None, help="batiments_proceduraux (défaut), kart, roguelike")
         p.add_argument("--docs")
         p.add_argument("--source-godot")
         p.add_argument("--vocab")
@@ -36,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--travailleurs", type=int, default=1)
             p.add_argument("--refaire", action="store_true", help="refaire les étapes déjà générées")
     args = parser.parse_args(argv)
-    reglages = {"docs": args.docs, "source_godot": args.source_godot, "vocab": args.vocab,
+    reglages = {"cours": args.cours, "docs": args.docs, "source_godot": args.source_godot, "vocab": args.vocab,
                 "session_opencode": args.opencode_session,
                 "godot_windows": args.opencode_godot, "dossier_windows": args.opencode_dossier}
 

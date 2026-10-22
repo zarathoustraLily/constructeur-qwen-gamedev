@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from collections import OrderedDict
 
-from usine.cours.base import composer, etat, godot, jetons, opencode, ordonner, rattacher, sources, textes
+from usine.cours.base import composer, etat, godot, jetons, opencode, ordonner, profil, rattacher, sources, textes
 from usine.cours.base import notes as notes_mod
 from usine.cours.base.chemins import actuels
 from usine.cours.base.etat import CODE
@@ -63,9 +63,19 @@ def bloc_commande(commande: str) -> str:
 
 def etats(ville: str, n: int) -> tuple[dict[str, str], dict[str, str]]:
     """(avant, après) de l'étape, tous fichiers texte. L'outillage est donné tel qu'à l'étape n ; les outils
-    communs aussi, sauf à Paris où ils sont écrits."""
+    communs aussi, sauf à Paris où ils sont écrits. Dans un cours de jeu, rien n'est donné que les très gros
+    fichiers (profil.raisonnable) et ce qui n'est ni code, ni scène, ni ressource ; un fichier que l'étape retire
+    part avant elle (OpenCode n'a pas d'outil pour retirer un fichier)."""
     apres = etat.lire(ville, n)
     avant = etat.lire(ville, n - 1, n) if n > 1 else {}
+    if actuels().jeu:
+        for rel in list(set(avant) | set(apres)):
+            if rel not in apres:
+                avant.pop(rel, None)
+            elif not (rel.endswith(CODE) or (rel.endswith(profil.RESSOURCES)
+                                             and profil.raisonnable(avant.get(rel), apres[rel]))):
+                avant[rel] = apres[rel]
+        return avant, apres
     figes = OUTILLAGE + (COMMUN if ville != "parisien" else ())
     for rel in list(set(avant) | set(apres)):
         if rel.startswith(figes) or not rel.endswith(CODE):
@@ -138,30 +148,55 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
     faits = depuis | ids
     etat_debut = etat.appliquer(avant, apres, depuis, tous)
     etat_fin = apres if derniere else etat.appliquer(avant, apres, faits, tous)
+    jeu = actuels().jeu
     if derniere:
         fichiers = dict(apres)
+    elif jeu:
+        # Les fichiers donnés sont déjà dans l'état de la partie, à leur version de l'étape.
+        fichiers = dict(etat_fin)
     else:
         fichiers = {k: v for k, v in etat.lire(ville, n - 1, n).items() if not k.endswith(CODE)}
         fichiers.update({k: v for k, v in etat_fin.items() if k.endswith(CODE)})
     nom_travail = f"{ville}_{n:03d}_p{partie[0]}"
-    projet = godot.materialiser(fichiers, nom_travail)
+    projet = godot.materialiser(fichiers, nom_travail, etat.dossier(ville, n) if jeu else None)
 
     # Les commandes, dans l'ordre : import, analyse de chaque script modifié, test de l'étape, rendu.
     imp = godot.importer(projet)
     modifies = sorted({m.fichier for m in choisis if m.fichier.endswith(".gd")})
-    analyses = [(rel, godot.verifier_script(projet, "res://" + rel)) for rel in modifies]
-    test_rel = TEST.format(nom=etat.nom(ville, n))
-    test = godot.tester(projet, "res://" + test_rel, 90 if derniere else 40) if test_rel in fichiers else None
+    # Un script qui emploie un autoload n'est pas analysé seul : les tests le vérifient (profil.analysables).
+    seuls, avec_autoloads = profil.analysables(modifies, fichiers)
+    analyses = [(rel, godot.verifier_script(projet, "res://" + rel)) for rel in seuls]
+    if jeu:
+        test = suites_test(tous, avant, fichiers, derniere, projet)
+    else:
+        test_rel = TEST.format(nom=etat.nom(ville, n))
+        test = godot.tester(projet, "res://" + test_rel, 90 if derniere else 40) if test_rel in fichiers else None
     shaders = sorted({m.fichier for m in choisis if m.fichier.endswith((".gdshader", ".gdshaderinc"))})
     image = actuels().rendus / f"{nom_travail}.png"
-    rendu = godot.rendre(projet, image) if shaders else None
-    erreurs_rendu = rendu is not None and any("ERROR" in l for l in rendu.texte.splitlines())
-    taille_image = godot.image_enregistree(rendu) if rendu is not None else None
-    test_ok = test is None or (test.code == 0 and " 0 échec" in test.texte and "SCRIPT ERROR" not in test.texte)
-    tout_ok = (not imp.texte.strip() and all(not s.texte.strip() for _, s in analyses) and test_ok
-               and not erreurs_rendu and (rendu is None or taille_image is not None))
+    scene = profil.scene_de_rendu(fichiers, shaders) if jeu and shaders else None
+    if not shaders:
+        rendu = None
+    else:
+        rendu = godot.rendre_jeu(projet, scene) if jeu else godot.rendre(projet, image)
+    if jeu:
+        erreurs_rendu = rendu is not None and not profil.rendu_propre(rendu.code, rendu.texte)
+        taille_image = None
+    else:
+        erreurs_rendu = rendu is not None and any("ERROR" in l for l in rendu.texte.splitlines())
+        taille_image = godot.image_enregistree(rendu) if rendu is not None else None
+    test_ok = test is None or test_reussi(test, fichiers)
+    tout_ok = (profil.import_propre(imp.texte) and all(not s.texte.strip() for _, s in analyses) and test_ok
+               and not erreurs_rendu and (rendu is None or jeu or taille_image is not None))
     if not tout_ok and not derniere:
-        raise EchecPartie(f"{ville} {n} partie {partie}: import={imp.texte[:200]!r} "
+        # La raison d'abord (le journal coupe le message) : ce qui a échoué, puis les sorties.
+        raisons = [x for x, ko in (("import", not profil.import_propre(imp.texte)),
+                                   ("analyse", any(s.texte.strip() for _, s in analyses)),
+                                   ("test", not test_ok), ("rendu", erreurs_rendu)) if ko]
+        detail_test = ""
+        if test is not None and jeu:
+            detail_test = (f" résumé={profil.resume_gdunit(test.texte)} "
+                           f"inattendues={profil.erreurs_inattendues(test.texte, profil.messages_attendus(fichiers))[:3]}")
+        raise EchecPartie(f"{ville} {n} partie {partie}: échec {raisons}{detail_test} ; import={imp.texte[:200]!r} "
                           f"analyses={[s.texte[:200] for _, s in analyses if s.texte.strip()]} "
                           f"test={(test.texte[-300:] if test else None)!r}")
 
@@ -169,11 +204,12 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
         m.fichier for m in sorted(choisis, key=lambda m: composer.ordre_fichier(m.fichier))))
     # Les changements de la partie entre ses deux états : les places de `choisis` sont celles de l'étape entière,
     # fausses dans l'état intermédiaire d'une partie (consignes d'édition, extraits de code).
-    propres = etat.morceaux({k: v for k, v in etat_debut.items() if k.endswith(CODE)},
-                            {k: v for k, v in etat_fin.items() if k.endswith(CODE)})
+    enseignes = profil.enseignables()
+    propres = etat.morceaux({k: v for k, v in etat_debut.items() if k.endswith(enseignes)},
+                            {k: v for k, v in etat_fin.items() if k.endswith(enseignes)})
     consigne = composer.consigne(note, ville, etat_debut, propres, [p for p in points if p not in suites] or points,
                                  partie)
-    messages = [{"role": "system", "content": textes.SYSTEME}, {"role": "user", "content": consigne},
+    messages = [{"role": "system", "content": textes.systeme()}, {"role": "user", "content": consigne},
                 {"role": "assistant", "content": "\n".join(_premier_tour(note, ville, n, partie, choisis, propres,
                                                                          points, suites, apres, etat_debut, etat_fin,
                                                                          fichiers_touches))}]
@@ -183,10 +219,13 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
         messages.append({"role": "user", "content": bloc_sortie(sortie)})
         messages.append({"role": "assistant", "content": suite})
 
-    lu = "L'import est propre." if not imp.texte.strip() else "L'import signale des erreurs : je les lis avant de continuer."
+    lu = profil.lecture_import(imp.texte) if profil.import_propre(imp.texte) else \
+        "L'import signale des erreurs : je les lis avant de continuer."
+    autoloads = profil.phrase_autoloads(avec_autoloads)
     if analyses:
-        tour(imp, lu + " J'analyse ensuite chaque script modifié, avec les avertissements traités en erreurs (typage "
-                       f"compris), en commençant par `res://{analyses[0][0]}` :\n" + bloc_commande(analyses[0][1].commande))
+        tour(imp, lu + (" " + autoloads if autoloads else "")
+             + " J'analyse ensuite chaque script modifié, avec les avertissements traités en erreurs (typage "
+               f"compris), en commençant par `res://{analyses[0][0]}` :\n" + bloc_commande(analyses[0][1].commande))
         for k, (rel, s) in enumerate(analyses[1:], 1):
             lu = f"`res://{analyses[k - 1][0]}` passe l'analyse." if not analyses[k - 1][1].texte.strip() else \
                 f"`res://{analyses[k - 1][0]}` ne passe pas l'analyse."
@@ -198,30 +237,49 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
             lu = f"`res://{analyses[-1][0]}` passe aussi : tous les scripts modifiés passent l'analyse."
     else:
         derniere_sortie = imp
+        if autoloads:
+            lu += " " + autoloads
     suivantes: list[tuple[str, godot.Sortie]] = []
     if test:
-        quoi = ("Je lance le test de l'étape, pour vérifier que tout se construit :" if derniere else
-                "Je lance le test de l'étape précédente : il garde ce qui marchait déjà.")
+        if jeu:
+            quoi = ("Je lance les suites GdUnit4 de l'étape, pour vérifier son comportement :" if derniere else
+                    "Je lance les suites de l'étape précédente que cette partie ne change pas : elles gardent ce qui "
+                    "marchait déjà.")
+        else:
+            quoi = ("Je lance le test de l'étape, pour vérifier que tout se construit :" if derniere else
+                    "Je lance le test de l'étape précédente : il garde ce qui marchait déjà.")
         suivantes.append((quoi, test))
     if rendu is not None:
-        quoi = ("Un shader a changé, et un shader ne se compile qu'au rendu : je lance une image en Compatibilité "
-                "(OpenGL 3) :")
+        if jeu:
+            quoi = ("Un shader a changé, et un shader ne se compile qu'au rendu : je lance "
+                    + (f"la scène `{scene}`" if scene else "le jeu")
+                    + f" en Compatibilité (OpenGL 3), {profil.IMAGES_RENDU} images, fenêtre hors de l'écran :")
+        else:
+            quoi = ("Un shader a changé, et un shader ne se compile qu'au rendu : je lance une image en Compatibilité "
+                    "(OpenGL 3) :")
         suivantes.append((quoi, rendu))
     for quoi, s in suivantes:
         tour(derniere_sortie, f"{lu} {quoi}\n" + bloc_commande(s.commande))
         derniere_sortie = s
         if s is test:
-            nb = len([l for l in test.texte.splitlines() if l.startswith("ok")])
-            lu = (f"Le test passe : {nb} ligne{'s' if nb > 1 else ''} « ok », code de sortie 0, aucune « SCRIPT ERROR »."
-                  if test_ok else "Le test ne passe pas.")
+            lu = lecture_test(test, test_ok)
     messages.append({"role": "user", "content": bloc_sortie(derniere_sortie)})
 
     # Dernier tour : vérifier, corriger, rendre compte.
     r = ["### 4. Vérifier", ""]
-    if test:
+    if test and jeu:
+        r += ["Ce que confirment les tests, cas par cas (le nom de chaque cas dit sa règle) :"] + puces_cas(test.texte)
+    elif test:
         lignes_ok = [l for l in test.texte.splitlines() if l.startswith("ok")]
         r += ["Ce que confirme la sortie du test :"] + [f"- {lire_ligne_test(l)}" for l in lignes_ok]
-    if rendu is not None:
+    if rendu is not None and jeu:
+        r += ([""] if test else []) + [
+            ("Le jeu tourne" if scene is None else f"La scène `{scene}` tourne")
+            + f" {profil.IMAGES_RENDU} images en Compatibilité "
+            + ("sans aucune erreur : chaque shader chargé se compile." if not erreurs_rendu else
+               "avec des erreurs : voir sa sortie.")
+            + (" " + profil.note_rendu(rendu.texte) if profil.note_rendu(rendu.texte) else "")]
+    elif rendu is not None:
         # Le rendu a sa propre sortie : sa lecture ne se range pas sous celle du test.
         r += ([""] if test else []) + [
             f"Le rendu {'ne signale aucune erreur de shader' if not erreurs_rendu else 'signale des erreurs : voir sa sortie'}"
@@ -237,28 +295,44 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
     r += ["", "### 5. Corriger", ""]
     if tout_ok:
         r += ["Rien à corriger : l'import est propre, chaque script passe l'analyse"
-              + (", le test passe sans échec" if test else "")
+              + ((", les tests passent sans échec" if jeu else ", le test passe sans échec") if test else "")
               + (", et le rendu compile les shaders sans erreur." if rendu is not None else ".")]
     else:
         r += ["À reprendre : voir les sorties."]
     nb_ok = len([l for l in (test.texte.splitlines() if test else []) if l.startswith("ok")])
+    if jeu and test:
+        resume = profil.resume_gdunit(test.texte) or (0, 0, 0)
+        bilan_test = (f", tests GdUnit4 ({resume[0]} cas, {resume[1]} erreur{'s' if resume[1] > 1 else ''}, "
+                      f"{resume[2]} échec{'s' if resume[2] > 1 else ''}, code de sortie {test.code})")
+    else:
+        bilan_test = (f", test ({nb_ok} vérification{'s' if nb_ok > 1 else ''} « ok », code de sortie {test.code})"
+                      if test else "")
     r += ["", "**Compte rendu**",
           "- Fichiers créés ou modifiés : " + ", ".join(f"`res://{f}`" for f in fichiers_touches) + ".",
           f"- Tests lancés : import ({'0 erreur' if not imp.texte.strip() else 'erreurs'})"
           + ((f", analyse de {len(analyses)} scripts ({sum(1 for _, s in analyses if not s.texte.strip())} sans erreur)"
               if len(analyses) > 1 else ", analyse de 1 script (" + ("sans erreur" if not analyses[0][1].texte.strip()
                                                                       else "erreurs") + ")") if analyses else "")
-          + (f", test ({nb_ok} vérification{'s' if nb_ok > 1 else ''} « ok », code de sortie {test.code})" if test else "")
+          + bilan_test
           + (", rendu en Compatibilité (" + ("0 erreur de shader" if not erreurs_rendu else "erreurs") + ")"
              if rendu is not None else "") + ".",
           "- Problèmes non résolus : " + ("aucun." if tout_ok else "voir « Corriger »."),
           "- Règles concernées : " + " ".join(regles(choisis))]
     messages.append({"role": "assistant", "content": "\n".join(r)})
+    if avec_autoloads:
+        r.insert(r.index("**Compte rendu**") + 3, "- Vérifiés par les tests seulement (autoloads) : "
+                 + ", ".join(f"`res://{rel}`" for rel in avec_autoloads) + ".")
     sorties = [imp] + [s for _, s in analyses] + ([test] if test else []) + ([rendu] if rendu is not None else [])
     consigne_oc = composer.consigne(note, ville, etat_debut, choisis,
                                     [p for p in points if p not in suites] or points, partie, extraits=False)
-    oc = _opencode(f"{ville}-{n:03d}-creation-p{partie[0]}-{partie[1]}", etat.nom(ville, n), consigne_oc, messages,
-                   sorties, etat_debut, etat_fin, fichiers_touches, projet)
+    try:
+        oc = _opencode(f"{ville}-{n:03d}-creation-p{partie[0]}-{partie[1]}", etat.nom(ville, n), consigne_oc, messages,
+                       sorties, etat_debut, etat_fin, fichiers_touches, projet)
+    except opencode.FormatInconnu as exc:
+        # Une sortie qu'OpenCode ne rendrait qu'en aperçu : une partie intermédiaire rejoint la suivante.
+        if derniere:
+            raise
+        raise EchecPartie(f"{ville} {n} partie {partie}: {exc}") from exc
     return {
         "id": f"{ville}-{n:03d}-creation" + (f"-p{partie[0]}" if partie[1] > 1 else ""),
         "ville": ville, "etape": n, "partie": list(partie), "type": "creation",
@@ -269,6 +343,48 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
                     "rendu": rendu.texte if rendu else None, "ok": tout_ok,
                     "image": str(image) if rendu is not None else None},
     }
+
+
+def suites_test(tous: list[etat.Morceau], avant: dict[str, str], fichiers: dict[str, str], derniere: bool,
+                projet: str) -> godot.Sortie | None:
+    """Le test d'une partie, dans un cours de jeu : les suites GdUnit4 que l'étape crée ou modifie ; dans une partie
+    qui n'est pas la dernière, seulement celles que la partie n'a pas encore changées (les suites de l'étape
+    précédente, qui gardent ce qui marchait déjà)."""
+    touchees = {m.fichier for m in tous}
+    if derniere:
+        choisies = profil.suites(fichiers, touchees)
+    else:
+        choisies = [rel for rel in profil.suites(fichiers, touchees) if avant.get(rel) == fichiers[rel]]
+    if not choisies:
+        return None
+    return godot.tester_gdunit(projet, ["res://" + rel for rel in choisies])
+
+
+def test_reussi(test: godot.Sortie, fichiers: dict[str, str] | None = None) -> bool:
+    if actuels().jeu:
+        return profil.test_reussi(test.code, test.texte, profil.messages_attendus(fichiers or {}))
+    return test.code == 0 and " 0 échec" in test.texte and "SCRIPT ERROR" not in test.texte
+
+
+def lecture_test(test: godot.Sortie, test_ok: bool) -> str:
+    if not test_ok:
+        return "Les tests ne passent pas." if actuels().jeu else "Le test ne passe pas."
+    if actuels().jeu:
+        cas = (profil.resume_gdunit(test.texte) or (0,))[0]
+        return (f"Les tests passent : {cas} cas, 0 erreur, 0 échec, code de sortie 0, aucune « SCRIPT ERROR »."
+                + (" Les lignes ERROR qui précèdent des cas réussis sont celles que ces cas provoquent exprès "
+                   "(`assert_error(…).is_push_error(…)`)." if "ERROR: " in test.texte else ""))
+    nb = len([l for l in test.texte.splitlines() if l.startswith("ok")])
+    return f"Le test passe : {nb} ligne{'s' if nb > 1 else ''} « ok », code de sortie 0, aucune « SCRIPT ERROR »."
+
+
+def puces_cas(texte: str) -> list[str]:
+    """Les cas réussis, groupés par suite : « - `suite` : `test_a`, `test_b` »."""
+    par_suite: "OrderedDict[str, list[str]]" = OrderedDict()
+    for cas in profil.cas_passes(texte):
+        suite, nom = cas.split(" > ")
+        par_suite.setdefault(suite, []).append(nom)
+    return [f"- `res://{s}` : " + ", ".join(f"`{n}`" for n in noms) + "." for s, noms in par_suite.items()]
 
 
 COMMANDE = re.compile(r"\n```\n\$ (.+)\n```\s*$")
@@ -374,16 +490,24 @@ def points_des_parties(note, parties: list[list[int]], affect: dict[int, int],
 def sorties_types(ville: str, n: int, apres: dict[str, str], tous: list[etat.Morceau]) -> dict[str, tuple[str, int, str]]:
     """Les sorties de Godot sur l'état final de l'étape : les sorties types de l'estimation (`godot.simulation`). La
     dernière partie de chaque découpe repasse par cet état : ses sorties sont alors déjà gardées."""
-    projet = godot.materialiser(dict(apres), f"{ville}_{n:03d}_final")
+    jeu = actuels().jeu
+    projet = godot.materialiser(dict(apres), f"{ville}_{n:03d}_final", etat.dossier(ville, n) if jeu else None)
     types = {"import": godot.sortie_type(godot.importer(projet), projet)}
-    scripts = sorted({m.fichier for m in tous if m.fichier.endswith(".gd")})
+    scripts = profil.analysables(sorted({m.fichier for m in tous if m.fichier.endswith(".gd")}), apres)[0]
     if scripts:
         types["analyse"] = godot.sortie_type(godot.verifier_script(projet, "res://" + scripts[0]), projet)
-    test_rel = TEST.format(nom=etat.nom(ville, n))
-    if test_rel in apres:
-        types["test"] = godot.sortie_type(godot.tester(projet, "res://" + test_rel, 90), projet)
-    if any(m.fichier.endswith((".gdshader", ".gdshaderinc")) for m in tous):
-        types["rendu"] = godot.sortie_type(godot.rendre(projet), projet)
+    if jeu:
+        test = suites_test(tous, apres, apres, True, projet)
+        if test is not None:
+            types["test"] = godot.sortie_type(test, projet)
+    else:
+        test_rel = TEST.format(nom=etat.nom(ville, n))
+        if test_rel in apres:
+            types["test"] = godot.sortie_type(godot.tester(projet, "res://" + test_rel, 90), projet)
+    shaders = sorted({m.fichier for m in tous if m.fichier.endswith((".gdshader", ".gdshaderinc"))})
+    if shaders:
+        rendu = godot.rendre_jeu(projet, profil.scene_de_rendu(apres, shaders)) if jeu else godot.rendre(projet)
+        types["rendu"] = godot.sortie_type(rendu, projet)
     return types
 
 
@@ -495,7 +619,8 @@ def exemples(ville: str, n: int, journal=print) -> list[dict]:
         yield [[v for g in groupes for v in g]]
         try:
             gloutonne = _glouton(ville, n, groupes, types, avant, apres, tous, affect, note, LIMITE_JETONS - MARGE)
-        except KeyError:
+        except (KeyError, EchecPartie):
+            # Une partie estimée qui échoue : on passe aux découpes suivantes, sans arrêter l'étape.
             gloutonne = None
         if gloutonne:
             yield gloutonne

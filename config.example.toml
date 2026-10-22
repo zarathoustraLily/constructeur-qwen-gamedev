@@ -27,6 +27,10 @@ delai_s = 1800              # délai d'un essai OpenCode (production de données
 # proxy de l'usine (prompt système et outils d'OpenCode), et le dossier des projets du cours sur ta machine.
 session_reference = 'A_RENSEIGNER'   # par ex. donnees\sessions\20261004-190325_13780ad518f3.jsonl
 dossier_cours = 'D:\GODOT\projet_enseingement\001_Batiments proceduraux'
+# Bases des cours de jeu (python -m usine.cours.base tout --cours kart / roguelike) : le dossier de leurs projets
+# sur ta machine, un par cours (clé dossier_<cours> ; choix de laurent du 2026-10-22).
+dossier_kart = 'D:\GODOT\projet_enseingement\002_Kart'
+dossier_roguelike = 'D:\GODOT\projet_enseingement\003_Roguelike'
 
 [chemins]
 donnees = "donnees"
@@ -35,6 +39,10 @@ docs_godot = 'A_RENSEIGNER'  # copie locale du dépôt godot-docs (branche 4.7)
 demos_godot = 'A_RENSEIGNER' # copie locale de godot-demo-projects (tag 4.7-6ad6167)
 # Base « bâtiments procéduraux » (python -m usine.cours.base) : copie du dépôt godot à l'étiquette 4.7.2-stable.
 # Suffisent doc/classes, modules/gdscript/doc_classes et editor/project_upgrade (référence des classes, renommages).
+# Extraction partielle (2026-10-22, commit ed1daf0bf, celui du binaire 4.7.2) :
+#   git clone --depth 1 --branch 4.7.2-stable --filter=blob:none --no-checkout https://github.com/godotengine/godot.git
+#   puis git sparse-checkout set --no-cone /doc/classes/ /modules/*/doc_classes/ /editor/project_upgrade/
+#   (sous Git Bash : MSYS_NO_PATHCONV=1, sinon les chemins commençant par « / » sont réécrits).
 source_godot = 'A_RENSEIGNER'
 
 [entrainement]

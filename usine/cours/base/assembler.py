@@ -2,8 +2,8 @@
 
 Entrée : un fichier JSON par étape (exemples de création et sessions de débogage, chacun au format neutre et au
 format d'OpenCode). La base livrée est celle au format d'OpenCode (décision 14, règle 7.4). Sortie, dans
-donnees/cours/batiments_proceduraux/base/livraison/ : la base au format chat et au format sharegpt, sa déclaration
-pour LLaMA-Factory, un échantillon lisible, les contrôles (controles.json) et le LISEZMOI.
+donnees/cours/<cours>/base/livraison/ : la base au format chat et au format sharegpt, sa déclaration pour
+LLaMA-Factory, un échantillon lisible, les contrôles (controles.json) et le LISEZMOI.
 """
 
 from __future__ import annotations
@@ -12,12 +12,28 @@ import collections
 import json
 import re
 
-from usine.cours.base import chemins, creation, etat, exporter, jetons, lisezmoi, opencode, rejouer
+from usine.cours.base import chemins, creation, etat, exporter, jetons, lisezmoi, opencode, profil, rejouer
 
 LONGUEUR = 32768
-NOM = "base_batiments_proceduraux"
 ORDRE_VILLES = {"parisien": 0, "tokyoiste": 1, "newyorkais": 2}
-RESTES = re.compile(r"\{TWIN\}|\{FILES_TABLE\}|>>> NOUVEAU|<<< FIN DU NOUVEAU|· fichier (modifié|nouveau|inchangé) à cette étape")
+RESTES = re.compile(r"\{TWIN\}|\{FILES_TABLE\}|\{STEP\}|\{TITLE\}|\{TRACK\}|\{NAME\}|>>> NOUVEAU|<<< FIN DU NOUVEAU"
+                    r"|· fichier (modifié|nouveau|inchangé) à cette étape")
+
+
+def nom_base() -> str:
+    """base_batiments_proceduraux, base_kart, base_roguelike."""
+    return f"base_{chemins.actuels().nom_cours}"
+
+
+def ordre_lignes() -> dict[str, int]:
+    """Les villes des bâtiments, ou la seule suite d'étapes d'un cours de jeu (son préfixe)."""
+    ch = chemins.actuels()
+    return {ch.manifeste["PREFIXE"]: 0} if ch.jeu else ORDRE_VILLES
+
+
+def etapes_du_cours() -> range:
+    ch = chemins.actuels()
+    return range(1, (ch.manifeste["DERNIERE"] if ch.jeu else 13) + 1)
 # Un bloc de commande demandé à la fin d'une réponse : « ```\n$ commande\n``` ».
 DEMANDE = re.compile(r"```\n\$ (.+)\n```\s*$")
 BLOC = re.compile(r"```[^\n]*\n(.*?)```", re.S)
@@ -32,7 +48,8 @@ def charger() -> list[dict]:
     exemples = []
     for f in sorted(chemins.actuels().etapes.glob("*.json")):
         exemples += json.loads(f.read_text(encoding="utf-8"))
-    exemples.sort(key=lambda e: (ORDRE_VILLES[e["ville"]], e["etape"], 0 if e["type"] == "creation" else 1,
+    ordre = ordre_lignes()
+    exemples.sort(key=lambda e: (ordre[e["ville"]], e["etape"], 0 if e["type"] == "creation" else 1,
                                  e.get("partie", [0])[0], _numero(e)))
     for e in exemples:
         if "opencode" not in e:
@@ -197,11 +214,12 @@ def rejouer_opencode(exemples: list[dict], h: opencode.Harnais) -> dict:
     for (ville, n), liste in sorted(par_etape.items()):
         avant, apres = creation.etats(ville, n)
         dossier = h.dossier(etat.nom(ville, n))
-        fichiers = {k: v for k, v in avant.items() if k.endswith(etat.CODE)}
+        enseignes = profil.enseignables()
+        fichiers = {k: v for k, v in avant.items() if k.endswith(enseignes)}
         try:
             for e in sorted((x for x in liste if x["type"] == "creation"), key=lambda x: x["partie"][0]):
                 fichiers = opencode.appliquer(fichiers, _appels(e), dossier)
-            ecarts = [rel for rel, t in apres.items() if rel.endswith(etat.CODE) and fichiers.get(rel) != t]
+            ecarts = [rel for rel, t in apres.items() if rel.endswith(enseignes) and fichiers.get(rel) != t]
         except ValueError as exc:
             ecarts = [str(exc)]
         bilan["etapes"] += 1
@@ -314,8 +332,8 @@ def statistiques(exemples: list[dict]) -> dict:
     st["jetons"]["part_creation_total"] = round(jt["creation"]["total"] / sum(j), 3)
     # L'équilibre étape par étape : jetons de réponse du débogage / ceux de la création (règle 7.1).
     rapports = []
-    for v in ORDRE_VILLES:
-        for n in range(1, 14):
+    for v in ordre_lignes():
+        for n in etapes_du_cours():
             c = sum(e["jetons_reponse"] for e in crea if e["ville"] == v and e["etape"] == n)
             d = sum(e["jetons_reponse"] for e in deb if e["ville"] == v and e["etape"] == n)
             if c:
@@ -332,6 +350,10 @@ def choisir_echantillon(exemples: list[dict]) -> list[dict]:
     crea = [e for e in exemples if e["type"] == "creation"]
     deb = [e for e in exemples if e["type"] == "debogage"]
     pris: list[dict] = [e for e in crea if e["id"] in ("newyorkais-011-creation", "newyorkais-011-creation-p1")][:1]
+    if not pris and crea:
+        # Cours de jeu : la première partie d'une étape du milieu du cours.
+        milieu = sorted({e["etape"] for e in crea})[len({e["etape"] for e in crea}) // 2]
+        pris = [e for e in crea if e["etape"] == milieu][:1]
 
     def premier(cond) -> None:
         for e in sorted(deb, key=lambda e: (len(e["messages"]), e["id"])):
@@ -359,7 +381,7 @@ def assembler(journal=print) -> dict:
     problemes += controler_opencode(exemples, h, jetons.tokenizer())
     st = statistiques(exemples)
     # Les consignes d'édition du format neutre, rejouées à la lettre depuis l'état de départ (règle 5.7)…
-    bilan = rejouer.rejouer_exemples(exemples, creation.etats, etat.CODE)
+    bilan = rejouer.rejouer_exemples(exemples, creation.etats, profil.enseignables())
     st["consignes_rejouees"] = {k: v for k, v in bilan.items() if k != "details"}
     problemes += bilan["details"]
     # … et les appels edit et write du format d'OpenCode, rejoués comme OpenCode les applique.
@@ -374,7 +396,7 @@ def assembler(journal=print) -> dict:
         e.pop("jetons", None)
         e.pop("jetons_reponse", None)
     ch.livraison.mkdir(parents=True, exist_ok=True)
-    fichiers = exporter.ecrire(exemples, ch.livraison, NOM)
+    fichiers = exporter.ecrire(exemples, ch.livraison, nom_base())
     echantillon = choisir_echantillon(exemples)
     exporter.lisible(echantillon, ch.livraison / "echantillon.md", "Base d'entraînement : échantillon lisible (format d'OpenCode)")
     st["echantillon"] = [e["id"] for e in echantillon]

@@ -13,9 +13,27 @@ def competence(e: dict) -> str:
     return "K2" if e["type"] == "creation" else "K3"
 
 
+# Cours de jeu : les sujets de la grille (décision 2 de laurent) que nomme la piste de l'étape.
+SUJETS_PISTES = {"Contrôles": "contrôle à la manette", "Manette": "contrôle à la manette", "Gameplay": "gameplay",
+                 "IA": "gameplay", "Données": "gameplay", "Architecture": "gameplay", "Shader": "shaders",
+                 "Shader de calcul": "shaders", "VFX": "VFX", "Interface": "UI", "Audio": "audio",
+                 "Animation": "graphisme 3D", "Monde": "graphisme 3D", "Graphisme 3D": "graphisme 3D",
+                 "Physique": "physique", "Procédural": "procédural"}
+
+
 def sujet(e: dict) -> str:
     texte = "\n".join(m["content"] for m in e["messages"] if m["role"] == "assistant")
-    return "shaders" if texte.count(".gdshader") > texte.count(".gd`") else "procédural"
+    from usine.cours.base import chemins
+    if not chemins.actuels().jeu:
+        return "shaders" if texte.count(".gdshader") > texte.count(".gd`") else "procédural"
+    if e["type"] == "debogage":
+        shader = sum(1 for m in e["preuves"]["mutations"] if not m["fichier"].endswith(".gd"))
+        if shader * 2 > len(e["preuves"]["mutations"]):
+            return "shaders"
+    from usine.cours.base import notes
+    piste = notes.lire(e["ville"], e["etape"]).piste
+    sujets = [SUJETS_PISTES.get(p.strip(), "gameplay") for p in piste.split("+")]
+    return ", ".join(dict.fromkeys(sujets))
 
 
 def ligne_chat(e: dict) -> dict:

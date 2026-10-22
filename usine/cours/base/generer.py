@@ -1,8 +1,9 @@
 """Génère la base, étape par étape : les exemples de création de l'étape, puis des sessions de débogage jusqu'à ce
 que leurs jetons de réponse égalent ceux de la création (décision 3, règle 7.1).
 
-Un fichier JSON par étape dans donnees/cours/batiments_proceduraux/base/etapes/ : une étape déjà faite n'est pas
-refaite (reprise possible). Les projets du cours sont refabriqués d'abord, depuis les maîtres.
+Un fichier JSON par étape dans donnees/cours/<cours>/base/etapes/ : une étape déjà faite n'est pas refaite (reprise
+possible). Les projets du cours sont refabriqués d'abord, depuis les maîtres. Un cours « de jeu » (le kart, le
+roguelike) n'a qu'une suite d'étapes : elle porte le préfixe de ses projets à la place d'une ville.
 """
 
 from __future__ import annotations
@@ -36,11 +37,11 @@ def sessions_etape(ville: str, n: int, cible: int, journal=print) -> list[dict]:
     les jetons de réponse du débogage atteignent `cible`."""
     note = notes.lire(ville, n)
     titre = note.titre.split("·")[-1].strip()
-    desc, _ = textes.VILLES[ville]
+    desc, _ = textes.projet(ville)
     avant, apres = creation.etats(ville, n)
     tous = rattacher.decouper(etat.morceaux(avant, apres))
     neufs, autres = sessions.candidats(apres, tous)
-    projet = sessions.Projet(ville, n, apres)
+    projet = sessions.Projet(ville, n, apres, {m.fichier for m in tous})
     hasard = random.Random(f"sessions-{ville}-{n}")
     sortie: list[dict] = []
     acquis = 0
@@ -99,15 +100,21 @@ def sessions_etape(ville: str, n: int, cible: int, journal=print) -> list[dict]:
             break
     # 2. Des sessions à plusieurs erreurs, jusqu'à l'équilibre.
     moyenne = 1500
-    reserve = False
+    # Réserves successives : les lignes nouvelles de l'étape, puis les autres lignes de ses fichiers, puis (cours de
+    # jeu) les autres fichiers du projet (sessions.candidats_ailleurs).
+    reserves = [neufs, neufs + autres]
+    if chemins.actuels().jeu:
+        reserves.append(neufs + autres + sessions.candidats_ailleurs(apres, {m.fichier for m in tous}))
+    niveau = 0
     while len(sortie) < MAX_SESSIONS and echecs < MAX_ECHECS and acquis + moyenne / 2 < cible:
-        dispo = [c for c in (neufs + autres if reserve else neufs) if cle(c) not in ecartees]
+        dispo = [c for c in reserves[niveau] if cle(c) not in ecartees]
         muts = sessions.tirer(hasard, dispo, prises, exclus)
         if len(muts) < 2:
-            if reserve:
-                journal("    plus d'erreurs possibles dans les fichiers de l'étape")
+            if niveau + 1 == len(reserves):
+                journal("    plus d'erreurs possibles dans les fichiers de l'étape"
+                        + (" ni dans le reste du projet" if niveau == 2 else ""))
                 break
-            reserve = True
+            niveau += 1
             continue
         if essayer(muts) and len(sortie) > 1:
             moyenne = sum(e["preuves"]["jetons_reponse"] for e in sortie[1:]) / (len(sortie) - 1)
@@ -153,11 +160,17 @@ def generer(villes: list[str] | None = None, etapes: list[int] | None = None, tr
     """Refabrique les projets du cours, puis génère les étapes demandées qui ne sont pas encore faites."""
     reglages = dict(reglages or {})
     ch = chemins.configurer(**reglages)
-    fabriquer_tout(ch.cours, ch.projets)
     manifeste = lire_manifeste(ch.cours)
+    if ch.jeu:
+        from usine.cours import jeu
+        jeu.fabriquer_tout(ch.cours, ch.projets)
+        lignes = {manifeste["PREFIXE"]: list(manifeste.get("PRETES", range(1, manifeste["DERNIERE"] + 1)))}
+    else:
+        fabriquer_tout(ch.cours, ch.projets)
+        lignes = {v: manifeste["VILLES"][v]["pretes"] for v in manifeste["VILLES"]}
     a_faire = []
-    for ville in villes or list(manifeste["VILLES"]):
-        for n in etapes or manifeste["VILLES"][ville]["pretes"]:
+    for ville in villes or list(lignes):
+        for n in etapes or lignes[ville]:
             fichier = ch.etapes / f"{ville}_{n:03d}.json"
             if fichier.is_file() and not refaire:
                 journal(f"{ville} {n:03d} : déjà fait")

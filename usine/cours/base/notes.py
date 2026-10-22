@@ -42,8 +42,16 @@ class Note:
 
 
 def lire(ville: str, etape: int) -> Note:
-    chemin = chemins.actuels().cours / "notes" / ville / f"etape_{etape:03d}.md"
-    brut = chemin.read_text(encoding="utf-8")
+    ch = chemins.actuels()
+    if ch.jeu:
+        # Cours « de jeu » : une note par étape, ses jetons ({STEP}, {TITLE}, {TRACK}) remplacés comme dans le README
+        # du projet fabriqué.
+        from usine.cours import jeu
+        from usine.cours.fabriquer import remplacer
+        brut = remplacer((ch.cours / "notes" / f"etape_{etape:03d}.md").read_text(encoding="utf-8"),
+                         jeu.jetons(ch.manifeste, etape))
+    else:
+        brut = (ch.cours / "notes" / ville / f"etape_{etape:03d}.md").read_text(encoding="utf-8")
     brut = re.sub(r"\{(TWIN|FILES_TABLE)\}", "", brut)
     titre = brut.split("\n", 1)[0].lstrip("# ").strip()
     m = re.search(r"\*\*Piste : ([^*]+)\.\*\*\s*(.*?)\n## ", brut, re.S)
@@ -61,7 +69,8 @@ def lire(ville: str, etape: int) -> Note:
         points.append(p)
     trouve = lambda debut: next((v.strip() for k, v in par_titre.items() if k.startswith(debut)), "")  # noqa: E731
     return Note(ville, etape, titre, piste, intro, points, trouve("Ce qu'il faut retenir"), trouve("À essayer"),
-                trouve("Sources"), brut)
+                # « Sources » dans les bâtiments, « Source » dans les cours de jeu.
+                trouve("Source"), brut)
 
 
 def deplier(texte: str) -> str:

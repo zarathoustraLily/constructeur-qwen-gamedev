@@ -52,6 +52,7 @@ FICHIERS = {
     "7_tests/4_ui/hud/input_display/test_input_display.gd": "1+",
     "7_tests/2_sequence/test_main.gd": "1+",
     "7_tests/1_core/test_documentation.gd": "1+",
+    "7_tests/1_core/silence_audio.gd": "1+",
     "7_tests/lancer_tests.bat": "1+",
     "1_core/vehicles/kart_settings.gd": "2+",
     "5_data/kart/kart_settings.tres": "2+",

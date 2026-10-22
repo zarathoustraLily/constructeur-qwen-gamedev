@@ -91,6 +91,12 @@ tire_marks=""
 ;@ 7+
 
 ;@ all
+[gdunit4]
+
+hooks/session_hooks=Dictionary[String, bool]({
+"res://7_tests/1_core/silence_audio.gd": true
+})
+
 [input]
 
 move_forward={

@@ -25,7 +25,8 @@ from usine.cours.base import chemins
 from usine.cours.verifier import prefixe_ecran
 from usine.processus import executer
 
-COULEURS = re.compile(r"\x1b\[[0-9;]*m")
+# Codes de couleur et autres séquences de contrôle du terminal (GdUnit4 efface l'écran : « ESC[2J ESC[H »).
+COULEURS = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 BRUIT = re.compile(r"^\s*$|^Godot Engine v|^OpenGL API|^Vulkan \d|V-Sync mode|gl_manager_x11|^Using present mode"
                    r"|Failed to load cached shader|_load_from_cache|^\[\s*\d+% \]|^\[ DONE \]")
 # L'image du rendu : dans le dossier caché du projet, que Godot n'importe pas (aucun fichier ajouté à la racine).
@@ -52,15 +53,30 @@ _IMPORTES: set[str] = set()
 _GARDEES: dict[tuple[str, tuple[str, ...]], tuple[str, int, str]] = {}
 _IMAGES: dict[tuple[str, tuple[str, ...]], Path] = {}
 MARQUE = "\x00PROJET\x00"
+# Sous Windows, Godot écrit aussi le chemin du projet avec « / » : une seconde marque pour cette forme.
+MARQUE_OBLIQUE = "\x00PROJET/\x00"
 # Estimation sans Godot (creation.exemples) : chaque genre de commande rend une sortie type, gardée avec la marque.
 _SIMULATION: dict[str, tuple[str, int, str]] | None = None
 
 
-def materialiser(fichiers: dict[str, str], nom: str) -> str:
-    """Écrit un projet complet à partir de ses fichiers texte (les projets du cours n'ont aucun fichier binaire)."""
+def materialiser(fichiers: dict[str, str], nom: str, ressources: Path | str | None = None) -> str:
+    """Écrit un projet complet à partir de ses fichiers texte. Les projets des bâtiments n'ont aucun fichier binaire ;
+    ceux d'un cours de jeu en ont (modèles, textures, sons) : ils viennent du projet fabriqué `ressources`, avec ses
+    compagnons (.import, .uid) et ses extensions (addons/), tout ce qui n'est pas un fichier texte de l'état."""
+    from usine.cours.base.etat import TEXTE
     cible = chemins.actuels().travail / nom
     shutil.rmtree(cible, ignore_errors=True)
     cible.mkdir(parents=True)
+    if ressources is not None:
+        source = Path(ressources)
+        for chemin in source.rglob("*"):
+            rel = chemin.relative_to(source)
+            if not chemin.is_file() or rel.parts[0] == ".godot":
+                continue
+            if rel.parts[0] != "addons" and chemin.name.endswith(TEXTE):
+                continue
+            (cible / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(chemin, cible / rel)
     for rel, texte in fichiers.items():
         chemin = cible / rel
         chemin.parent.mkdir(parents=True, exist_ok=True)
@@ -81,8 +97,11 @@ def nettoyer(sortie: str, projet: str) -> str:
     machine ; le chemin du projet y devient relatif."""
     lignes = [COULEURS.sub("", l).rstrip() for l in sortie.splitlines()]
     lignes = [l for l in lignes if not BRUIT.search(l)]
-    absolu = str(Path(projet).resolve())
-    return "\n".join(lignes).replace(absolu + os.sep, "").replace(absolu + "/", "").replace(absolu, ".")
+    texte = "\n".join(lignes)
+    # Sous Windows, Godot écrit les chemins avec « / » : les deux formes du chemin du projet deviennent relatives.
+    for absolu in {str(Path(projet).resolve()), str(Path(projet).resolve()).replace("\\", "/")}:
+        texte = texte.replace(absolu + os.sep, "").replace(absolu + "/", "").replace(absolu, ".")
+    return texte
 
 
 def genre(arguments: list[str]) -> str:
@@ -98,12 +117,17 @@ def genre(arguments: list[str]) -> str:
 
 def _avec_marque(res: tuple[str, int, str], projet: str) -> tuple[str, int, str]:
     texte, code, brut = res
-    return texte, code, brut.replace(str(Path(projet).resolve()), MARQUE)
+    absolu = str(Path(projet).resolve())
+    brut = brut.replace(absolu, MARQUE)
+    if "\\" in absolu:
+        brut = brut.replace(absolu.replace("\\", "/"), MARQUE_OBLIQUE)
+    return texte, code, brut
 
 
 def _sans_marque(res: tuple[str, int, str], projet: str) -> tuple[str, int, str]:
     texte, code, brut = res
-    return texte, code, brut.replace(MARQUE, str(Path(projet).resolve()))
+    absolu = str(Path(projet).resolve())
+    return texte, code, brut.replace(MARQUE_OBLIQUE, absolu.replace("\\", "/")).replace(MARQUE, absolu)
 
 
 @contextmanager
@@ -149,6 +173,10 @@ def _lancer(arguments: list[str], projet: str, delai: int = 300, prefixe: list[s
 def _lancer_vraiment(arguments: list[str], projet: str, delai: int, prefixe: list[str] | None,
                      env: dict[str, str] | None) -> tuple[str, int, str]:
     res = executer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
+    if "Could not load editor settings" in res.sortie:
+        # Deux éditeurs lancés en même temps se disputent le fichier de réglages commun à toute la machine
+        # (editor_settings-4.7.tres) : un incident de la machine, pas du projet (relevé le 2026-10-22). On relance.
+        res = executer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
     texte = nettoyer(res.sortie, projet)
     if res.expire:
         return texte + f"\n[délai dépassé : {delai} s]", -1, res.sortie
@@ -175,6 +203,24 @@ def verifier_script(projet: str, res: str) -> Sortie:
 def tester(projet: str, res: str, delai: int = 90) -> Sortie:
     arguments = ["--headless", "--path", ".", "-s", res]
     texte, code, brut = _lancer(arguments, projet, delai)
+    return Sortie(commande(arguments), texte, code, brut)
+
+
+def tester_gdunit(projet: str, suites_res: list[str], delai: int = 300) -> Sortie:
+    """Les suites GdUnit4 de l'étape, comme `7_tests/lancer_tests.bat` (cours de jeu, profil.arguments_gdunit)."""
+    from usine.cours.base import profil
+    arguments = profil.arguments_gdunit(suites_res)
+    texte, code, brut = _lancer(arguments, projet, delai)
+    return Sortie(commande(arguments), texte, code, brut)
+
+
+def rendre_jeu(projet: str, scene: str | None = None) -> Sortie:
+    """Le jeu en Compatibilité (OpenGL 3), fenêtre hors de l'écran, quelques images : les shaders chargés s'y
+    compilent (règle 5.4). Aucune image n'est enregistrée : la sortie dit si un shader échoue (cours de jeu)."""
+    from usine.cours.base import profil
+    prefixe, env = prefixe_ecran()
+    arguments = profil.arguments_rendu(scene)
+    texte, code, brut = _lancer(arguments, projet, 180, prefixe, env)
     return Sortie(commande(arguments), texte, code, brut)
 
 

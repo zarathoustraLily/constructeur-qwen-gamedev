@@ -30,3 +30,31 @@ VILLES = {
     "tokyoiste": ("un petit immeuble de Tokyo procédural, sur une parcelle étroite", "l'immeuble"),
     "newyorkais": ("une tour de bureaux new-yorkaise procédurale, dans un quartier d'affaires", "la tour"),
 }
+
+# Les cours « de jeu » : le même plan, et ce que le projet a de propre (tests GdUnit4, avertissements en erreurs).
+SYSTEME_JEU = f"""Tu es un développeur Godot 4.7.2 : GDScript typé et shaders. Tu travailles dans un projet existant, rangé selon ce plan ; chaque fichier va dans le dossier que le plan lui donne :
+
+{PLAN}
+
+Dans ce projet :
+- les tests sont des suites GdUnit4 (`extends GdUnitTestSuite`) dans `7_tests/`, en miroir du fichier testé ; GdUnit4 est dans `addons/gdUnit4/` ;
+- les avertissements de GDScript sont des erreurs (bloc `[debug]` de `project.godot`), typage compris ;
+- la logique ne lit pas les entrées : un script `<nom>_input.gd` lit `Input` et donne des commandes ; la présentation (sons, particules, animations) va dans un script `<nom>_view.gd`."""
+
+# Le projet de chaque cours de jeu, tel que la demande le présente (d'après la note de sa première étape).
+JEUX = {
+    "kart": ("un jeu de kart sur une île, au clavier et à la manette : eau, herbe, effets et objets", "le jeu"),
+    "roguelike": ("un roguelike d'action en 3D, au clavier, à la souris et à la manette : combat, ennemis, vagues et "
+                  "boutique", "le jeu"),
+}
+
+
+def systeme() -> str:
+    """Le message système du format neutre, selon le cours."""
+    from usine.cours.base import chemins
+    return SYSTEME_JEU if chemins.actuels().jeu else SYSTEME
+
+
+def projet(ville: str) -> tuple[str, str]:
+    """(présentation du projet, son nom court) : une ville des bâtiments, ou un cours de jeu (son préfixe)."""
+    return JEUX[ville] if ville in JEUX else VILLES[ville]

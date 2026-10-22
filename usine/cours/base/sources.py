@@ -42,8 +42,10 @@ def _propre(texte: str) -> str:
 def doc(etape: int, code_nouveau: str) -> list[tuple[str, str]]:
     sortie = []
     vus = set()
+    # Les passages liés à un numéro d'étape sont ceux des bâtiments ; les autres valent pour tout cours.
+    jeu = chemins.actuels().jeu
     for numero, mot, chemin, titre, texte in DOC:
-        if numero is not None and numero != etape:
+        if numero is not None and (jeu or numero != etape):
             continue
         if mot and mot not in code_nouveau:
             continue
