@@ -56,6 +56,12 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
        - Qwen choisit l'échelle de temps (un événement rapide, une évolution sur une minute) et l'espacement des images, régulier ou non ; vérité : la durée de l'événement, lue dans les données du jeu ;
        - Qwen demande la bonne vue : un agrandissement en pleine définition quand le détail est trop petit à l'écran (taille connue de Godot), une séquence quand la question porte sur le temps, une image détaillée quand elle porte sur un détail fixe.
        Proposé : ajouter à `capture_frames` une zone et une définition (il prend déjà une liste de numéros d'image, à intervalles libres).
+    6. Itérer et diagnostiquer (2026-10-22). laurent : « il faudrait lui apprendre a iterer..; premiere tentative en 0.2 scondes.. ca ne fonctionne pas tentative a 1 secondes ca ne fonctionne pas 2secondes... ca ne fonctinne pas a 3 secodnes... en repojdatna la question est ceuq ue la temporalite est une cause de non reponse ? » ; « allez inscirt ». Donc :
+       - devant un « je ne vois rien », Qwen cherche la cause avant d'élargir : fenêtre trop courte ou trop tôt, événement entre deux images, hors champ ou caché, trop petit, jamais déclenché, ou jamais produit (c'est alors le bug, à chercher dans le code) ;
+       - il va du large au précis : un balayage large pour trouver quand quelque chose change, puis 5 images serrées autour ;
+       - il mesure plutôt que deviner quand le projet trace l'événement (service `trace` du socle) ;
+       - vérité par construction : l'instant, la place à l'écran et l'existence même de l'événement (bug injecté ou non) sont connus ; des cas où la bonne conclusion est « ce n'est pas le temps » en font partie ;
+       - une étape de la boucle tient dans une paire de 2 048 (tentatives passées résumées, 5 images de la tentative en cours, cause et tentative suivante) ; la boucle entière, images comprises, va dans les sessions OpenCode.
     **Proposés** : la « reflexion » des sessions est écrite avant chaque action, pas un bloc de réflexion (règle 7.6 ; le lanceur d'OpenCode coupe le raisonnement), et tient sous `cutoff_len` ; une campagne de contrôle entre les deux étapes ; l'analyse du mouvement (trajectoire, jugée par rejeu image par image) dans les séquences ; la carte de la seconde étape (H200 ou B300, au prix par jeton mesuré).
 
 ### 3. Pièges et interdits (décidé)
