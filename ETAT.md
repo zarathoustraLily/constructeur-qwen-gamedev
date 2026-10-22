@@ -1719,6 +1719,7 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   jetons), Godot 4.8-beta1 installé à côté (`D:\GODOT\Godot_v4.8-beta1_win64.exe\`, SHA-512 vérifiée).
 
 - Essai de mémoire sur la 5090 (demande de laurent, décision 19) : QLoRA rang 16 de Qwen 3.8 27B (`G:\llm_lora_trainer\qwen38_27b`, 4 bits, `template: qwen3_5`, `enable_thinking: false`), une paire de création de 2 043 jetons (même longueur comptée par LLaMA-Factory que par notre tokenizer), 12 pas d'un exemple : passé, pic de 31 940 Mio sur 32 607 dont 5 519 déjà pris par les applications ouvertes, 266 jetons/s. Environnement `G:\llm_lora_trainerenv` : LLaMA-Factory 0.9.5, transformers 5.6.0, torch 2.11.0+cu128, sans `flash-linear-attention`, `causal-conv1d` ni Liger. Fichiers : `donnees/essais/memoire_2048/`.
+- Même essai avec une séquence de 8 images (vue de jour de la tour new-yorkaise, étapes 001 à 008, rendus O1 réduits à 480 × 270), le plan et 12 pas : passé, 1 865 jetons dont 960 d'images (120 par image, mesuré), pic de 30 937 Mio sur 32 607 dont 3 498 déjà pris (Blender fermé), 266 jetons/s ; tour de vision et projecteur gelés. Fichiers : `donnees/essais/memoire_images/`.
 
 **Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
 
