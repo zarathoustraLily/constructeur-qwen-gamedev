@@ -29,6 +29,7 @@
 - [x] Bases d'entraînement des cours du kart et du roguelike, au format d'OpenCode, 50/50 en jetons de réponse, contrôle strict des sorties de tests (2026-10-22)
 - [ ] Apprendre à Qwen à chercher des références, tester le rendu et le gameplay, utiliser le RAG (priorité de laurent, « après le roguelike »)
 - [ ] Protocole de la décision 18 : découpe point par point, 138 démos, RAG et O1 dans les données (décision 19 : 10 000 paires courtes sur la 5090, puis 3 000 sessions longues sur carte louée), puis RFT et RLVR
+- [ ] Le plan manque dans les bases au format d'OpenCode : 0 exemple sur 203 (kart) et 0 sur 155 (roguelike) ; la conversion remplace le message système, et la session capturée le 2026-10-04 n'avait pas chargé `AGENTS.md`. Relever par une capture comment OpenCode transmet l'`AGENTS.md` d'un projet, puis corriger le générateur avec le bloc permanent du socle (règle de la section 3) ; vérifier la base des bâtiments
 
 ## Bilan des 6 sessions (2026-10-05)
 

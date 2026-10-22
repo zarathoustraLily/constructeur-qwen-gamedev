@@ -53,6 +53,8 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 
 - Jamais dans les données : une session avec une réécriture identique, une modification non testée ou sans vérification du gameplay.
 - L'export garde le texte de chaque tour qui contient un appel d'outil (sans lui, le LoRA t1 n'écrit plus rien) ; le plan reste dans le prompt d'entraînement.
+- Le plan des données est le bloc permanent du socle (`godot/socle_jeu/AGENTS.md`, section « EN PERMANENCE » : les cinq principes et le tableau des dossiers avec ce dont chacun peut dépendre). Critère de laurent (2026-10-22) : « celle qui permet d'eviter toute erruer qui detruirait la logique du code et pourrait permetre de perdre la structure » ; le tableau seul du format neutre n'a ni les principes ni les dépendances.
+- Exception (2026-10-22, « oui pour 1 ») : une paire courte de 1 024 jetons au plus peut se passer du plan quand elle enseigne un réflexe où le plan ne joue aucun rôle (nom de Godot 3, type, erreur de shader, lecture d'une sortie, requête au RAG) et que sa réponse ne contient aucune convention du plan. Les autres paires le gardent.
 - Le harnais vérifie après la dernière écriture : la campagne V2 a été cassée par sa dernière action.
 - Partir d'un projet qui suit déjà le plan : Starfox a son propre dossier `scripts/`.
 - Pas de campagne sans LoRA.
