@@ -26,7 +26,9 @@
 - [x] Compétence O1 « corriger en observant » (2026-10-20, sur la machine : juge, générateur, outil play_sequence ; 10 tâches kart produites, portillon et premier essai de Qwen à lancer : étape 29)
 - [x] Cours « kart » en 14 étapes de création, aux règles d'architecture (découpage accepté par laurent le 2026-10-20) : 14 étapes faites et vérifiées (2026-10-21)
 - [x] Cours « roguelike » en 14 étapes de création, même démarche (découpage validé par laurent le 2026-10-21) : 14 étapes faites et vérifiées (2026-10-21)
+- [x] Bases d'entraînement des cours du kart et du roguelike, au format d'OpenCode, 50/50 en jetons de réponse, contrôle strict des sorties de tests (2026-10-22)
 - [ ] Apprendre à Qwen à chercher des références, tester le rendu et le gameplay, utiliser le RAG (priorité de laurent, « après le roguelike »)
+- [ ] Protocole de la décision 18 : découpe point par point, 138 démos, RAG et O1 dans les données (vers 10 000 exemples), puis RFT et RLVR
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1674,6 +1676,78 @@ Vu au rendu (hors de l'écran, `usine.retour.capture.capturer`) : contrôles, co
 - `4_ui` ne connaît pas `5_data` (juge des règles) : un menu reçoit ses réglages de la scène qui le pose.
 - Dans les tests, des variables locales nommées `before` ou `name` masquent `GdUnitTestSuite` et `Node` : la suite ne compile plus (erreur revenue trois fois).
 - Un `await` devant `assert_error(...)` est redondant (`redundant_await`, donc erreur).
+
+### Bases d'entraînement des cours de jeu — 2026-10-22 (branche `claude/observation-visuelle`)
+
+Demande de laurent : étendre la base « 50 % création, 50 % débogage » aux cours du kart et du roguelike (« oui vas y »).
+Décisions du jour dans CLAUDE.md : un seul LoRA pour 4.7.2 et 4.8 (15), aucun exemple mis de côté pour tester (16),
+combler les trous de la grille par du débogage (17), protocole d'entraînement tiré des travaux lus (18).
+
+**Fait**
+- `usine/cours/base/profil.py` : ce qui change pour un cours de jeu.
+  - Tests : les suites GdUnit4 que l'étape crée ou modifie, à la dernière partie, sans `-d --remote-debug`, avec
+    `-rc 1`.
+  - Analyse : `--check-only` ne charge pas les autoloads (« Identifier not found: GameFlow » sur un script juste) ;
+    un script qui en emploie un, même par ce qu'il charge, est vérifié par les tests. Détection vérifiée contre
+    Godot sur les 95 scripts du roguelike 014.
+  - Rendu : la scène principale ou celle qui charge le shader, 60 images en Compatibilité, fenêtre hors de l'écran.
+  - Enseigné : le code, les scènes et ressources texte de taille raisonnable, `project.godot` ; donnés : les très
+    gros fichiers.
+  - Lignes bénignes du moteur, lues et expliquées par la réponse : « Parameter "material" is null » du moteur de
+    rendu factice, « … only available when using the Forward+ renderer » en Compatibilité.
+- `chemins.configurer(cours=…)`, `--cours` en ligne de commande, dossiers Windows `[opencode].dossier_kart` et
+  `dossier_roguelike` (choix de laurent : « 002_Kart et 003_Roguelike »).
+- Découpe (`ordonner.py`) : une scène ou ressource reste entière ; un script qui cherche un nœud (`$Nom`) passe après
+  la scène qui le déclare ; un morceau qui emploie une classe globale nouvelle passe après sa déclaration.
+- Erreurs posées (`mutations.py`) : variables, paramètres et types de retour sans type (référence de
+  `ProjectSettings` 4.7.2, `untyped_declaration`) ; noms de Godot 3 des classes 3D et des shaders (table
+  `renames_map_3_to_4.cpp` 4.7.2) ; `float` écrit `int` dans un shader ; sessions faites seulement de shaders ;
+  réserve d'erreurs élargie aux autres fichiers du projet quand l'étape n'en offre plus assez.
+- Contrôle strict (règle 5.5) : GdUnit4 finit en code 0 malgré des lignes ERROR/WARNING du jeu. Générateur et
+  vérificateur les comptent, sauf celles qu'une suite attend (`is_push_error`, `is_push_warning`). Défauts ainsi
+  trouvés dans les cours, corrigés dans les maîtres :
+  - kart 014 : 78 erreurs « Not supported by this display server » par passage du menu des commandes sans
+    fenêtre ;
+  - kart 012-014 : avertissement des poissons provoqué sans être vérifié ;
+  - roguelike 010 : requête de navigation avant la première synchronisation de la carte ;
+  - roguelike : sons qui jouent encore à la sortie (« ObjectDB instances were leaked at exit ») ; crochet de
+    session GdUnit4 `7_tests/1_core/silence_audio.gd`, dans les deux cours.
+- Machine de laurent : sources de Godot 4.7.2 (`D:\sources\godot-4.7.2`, extraction partielle au commit
+  ed1daf0bf du binaire), vocabulaire de Qwen 3.8 (`E:\llama_models\qwen3.8\ggml-vocab-qwen38.gguf`, 248 320
+  jetons), Godot 4.8-beta1 installé à côté (`D:\GODOT\Godot_v4.8-beta1_win64.exe\`, SHA-512 vérifiée).
+
+**Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
+
+```
+python -m usine.cours verifier roguelike --travailleurs 1   : 14/14 projets vérifiés sans erreur (contrôle strict)
+python -m usine.cours verifier kart --travailleurs 1        : 14/14 projets vérifiés sans erreur (contrôle strict, seul sur la machine)
+python -m usine.cours.base assembler --cours roguelike      : problèmes : 0
+  155 exemples (28 créations, 127 sessions, 334 erreurs corrigées) ; 3 162 139 jetons de Qwen 3.8, dont 479 382 de réponse ;
+  création 50,6 % des jetons de réponse ; débogage/création par étape 0,66 à 1,07, médiane 1,01 ; plus long 31 443 ;
+  consignes neutres et éditions d'OpenCode rejouées : 0 différence
+python -m usine.cours.base assembler --cours kart           : problèmes : 0
+  203 exemples (38 créations, 165 sessions, 476 erreurs corrigées) ; 4 176 339 jetons, dont 663 052 de réponse ;
+  création 49,8 % ; débogage/création par étape 0,97 à 1,06, médiane 1,01 ; plus long 31 439 ; rejouées : 0 différence
+python -m pytest -q tests/test_cours_base_jeu.py tests/test_cours_base.py tests/test_cours_opencode.py tests/test_cours_jeu.py tests/test_cours.py : 50 passed
+```
+
+**Reste à faire**
+- Décision 18 : découpe point par point (477 points dans les notes des trois cours), les 138 démos officielles, le RAG
+  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; viser de l'ordre de 10 000
+  exemples. Puis RFT, puis RLVR sur les tâches réussies en partie.
+- Essai court sur la machine (accord de laurent) : relever la forme réelle d'un appel MCP en Code Mode et de la
+  transmission d'une image à llama-server par OpenCode.
+- Regénérer la base des bâtiments sur la machine (elle n'existe que dans le cloud) avec le générateur actuel.
+- Le cours de migration vers Godot 4.8, après la base 4.7.2 (ordre convenu) ; données 4.8 vérifiées à la stable.
+- L'étape 1 du roguelike reste à 0,66 (peu de code à y fausser).
+
+**Pièges**
+- GdUnit4 n'échoue que sur ses assertions : lire chaque ligne de sortie, pas le résumé.
+- Un son qui joue à la sortie fuit ; les fuites dépendent de la suite qui passe en dernier.
+- `-d` n'est pas nécessaire à GdUnit4 ; sous Windows, l'historique des rapports finit par échouer (« Delete …
+  failed ») : `-rc 1`.
+- Deux éditeurs lancés en même temps se disputent `editor_settings-4.7.tres` : la commande est relancée.
+- Le shell de l'outil Bash réduit `\\` en `\` dans un heredoc : écrire les scripts de correction dans un fichier.
 
 ## Vérifications locales en attente
 

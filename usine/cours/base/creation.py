@@ -285,7 +285,11 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
             f"Le rendu {'ne signale aucune erreur de shader' if not erreurs_rendu else 'signale des erreurs : voir sa sortie'}"
             + (f", et l'image est enregistrée (`{godot.IMAGE_RENDU}`, {taille_image[0]} × {taille_image[1]}, `erreur=0`)."
                if taille_image else " ; l'image n'a pas été enregistrée.")]
-    if not test and rendu is None:
+    if jeu and not derniere and profil.suites(fichiers, {m.fichier for m in tous}):
+        r += ([""] if rendu is not None else []) + [
+            "Les suites de l'étape se lanceront à la dernière partie : d'ici là, leur ancienne version vérifie un "
+            "comportement que l'étape est en train de changer."]
+    elif not test and rendu is None:
         r += ["L'import et l'analyse sont propres ; cette partie n'a ni test ni shader à rendre."]
     essais = puces(note.essayer)
     if essais and derniere:
@@ -347,14 +351,13 @@ def generer(ville: str, n: int, ids: set[int], depuis: set[int], points: list[in
 
 def suites_test(tous: list[etat.Morceau], avant: dict[str, str], fichiers: dict[str, str], derniere: bool,
                 projet: str) -> godot.Sortie | None:
-    """Le test d'une partie, dans un cours de jeu : les suites GdUnit4 que l'étape crée ou modifie ; dans une partie
-    qui n'est pas la dernière, seulement celles que la partie n'a pas encore changées (les suites de l'étape
-    précédente, qui gardent ce qui marchait déjà)."""
-    touchees = {m.fichier for m in tous}
-    if derniere:
-        choisies = profil.suites(fichiers, touchees)
-    else:
-        choisies = [rel for rel in profil.suites(fichiers, touchees) if avant.get(rel) == fichiers[rel]]
+    """Le test d'une partie, dans un cours de jeu : les suites GdUnit4 que l'étape crée ou modifie, à la dernière
+    partie. Une partie intermédiaire n'en lance aucune : l'étape change justement le comportement que vérifient ses
+    suites, et leur ancienne version échoue contre le code déjà avancé, sans que rien ne soit cassé (kart 007 : un
+    cas sur sept, partie après partie). Dans les bâtiments, le test de l'étape précédente est un autre fichier."""
+    if not derniere:
+        return None
+    choisies = profil.suites(fichiers, {m.fichier for m in tous})
     if not choisies:
         return None
     return godot.tester_gdunit(projet, ["res://" + rel for rel in choisies])
