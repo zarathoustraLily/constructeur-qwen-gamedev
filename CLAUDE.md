@@ -41,7 +41,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 18. Protocole d'entraînement, tiré des travaux lus le 2026-10-22 (VisCoder, distil labs, IChart2Code, Preply 2610.10827, Sub-Billion 2606.22606, PAG-Health-LLM) (accord du 2026-10-22 : « oui accord donne ») :
     1. la vérification déterministe de chaque exemple reste une règle absolue ; jamais relâchée pour gagner du volume ;
     2. le RAG au même rang que le LoRA : chaque mesure compare LoRA avec et sans RAG ; les données montrent l'appel au RAG puis l'usage vérifié de ce qu'il rend ;
-    3. viser de l'ordre de 10 000 exemples : découpe point par point des cours, les 138 démos officielles, puis les trajectoires réussies du LoRA lui-même (RFT) ;
+    3. viser 2 000 exemples (2026-10-22, au lieu de 10 000, pour le budget : « on passe a 2000 exemples alors ca devrait suffir j'ai pas l'argent pour 600 euros d'entrainnemnt ») : découpe point par point des cours, les 138 démos officielles, puis les trajectoires réussies du LoRA lui-même (RFT) ;
     4. des retours d'outils structurés ; un jeu se juge en le jouant (`play_sequence`), pas seulement par une image ; ordre : imitation (SFT), puis RFT, puis RLVR seulement sur les tâches que le LoRA réussit parfois mais pas toujours.
     Les seuils de réussite des campagnes Starfox restent **proposés** (écritures identiques sous 5 %, RAG appelé avant chaque création, captures commentées, 0 modification non testée).
 
