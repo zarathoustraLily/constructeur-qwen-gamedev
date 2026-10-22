@@ -28,7 +28,7 @@
 - [x] Cours « roguelike » en 14 étapes de création, même démarche (découpage validé par laurent le 2026-10-21) : 14 étapes faites et vérifiées (2026-10-21)
 - [x] Bases d'entraînement des cours du kart et du roguelike, au format d'OpenCode, 50/50 en jetons de réponse, contrôle strict des sorties de tests (2026-10-22)
 - [ ] Apprendre à Qwen à chercher des références, tester le rendu et le gameplay, utiliser le RAG (priorité de laurent, « après le roguelike »)
-- [ ] Protocole de la décision 18 : découpe point par point, 138 démos, RAG et O1 dans les données (décision 19 : 9 000 paires de 1 024 jetons et 10 000 de 2 048 sur la 5090, puis 3 000 sessions longues sur carte louée), puis RFT et RLVR
+- [ ] Protocole de la décision 18 : découpe point par point, 138 démos, RAG et O1 dans les données (décision 19 : 12 000 paires de 1 024 jetons et 10 000 de 2 048 sur la 5090, puis 3 000 sessions longues sur carte louée), puis RFT et RLVR
 - [ ] Le plan manque dans les bases au format d'OpenCode : 0 exemple sur 203 (kart) et 0 sur 155 (roguelike) ; la conversion remplace le message système, et la session capturée le 2026-10-04 n'avait pas chargé `AGENTS.md`. Relever par une capture comment OpenCode transmet l'`AGENTS.md` d'un projet, puis corriger le générateur avec le bloc permanent du socle (règle de la section 3) ; vérifier la base des bâtiments
 - [ ] Décision 19 : 2 000 paires d'images (1 024 jetons : reconnaître, comparer deux étapes, voulu ou défaut, relier au code) et 3 000 analyses de séquences d'images (2 048 jetons). Mesurer d'abord : l'entraînement de la vision de Qwen 3.8 sur la 5090, la transmission des images par OpenCode, la forme des positions dans les réponses
 
@@ -1741,7 +1741,7 @@ python -m usine.cours verifier batiments_proceduraux --travailleurs 1 : 39/39 pr
 
 **Reste à faire**
 - Décision 18 : découpe point par point (477 points dans les notes des trois cours), les 138 démos officielles, le RAG
-  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; décision 19 : 9 000
+  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; décision 19 : 12 000
   paires de 1 024 jetons et 10 000 de 2 048 (5090), puis 3 000 sessions longues (carte louée). Puis RFT, puis RLVR sur les tâches réussies en partie.
 - Essai court sur la machine (accord de laurent) : relever la forme réelle d'un appel MCP en Code Mode et de la
   transmission d'une image à llama-server par OpenCode.
