@@ -1736,8 +1736,8 @@ python -m usine.cours verifier batiments_proceduraux --travailleurs 1 : 39/39 pr
 
 **Reste à faire**
 - Décision 18 : découpe point par point (477 points dans les notes des trois cours), les 138 démos officielles, le RAG
-  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; décision 19 : 10 000
-  paires courtes (5090), puis 3 000 sessions longues (carte louée). Puis RFT, puis RLVR sur les tâches réussies en partie.
+  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; décision 19 : 7 000
+  paires de 1 024 jetons et 10 000 de 2 048 (5090), puis 3 000 sessions longues (carte louée). Puis RFT, puis RLVR sur les tâches réussies en partie.
 - Essai court sur la machine (accord de laurent) : relever la forme réelle d'un appel MCP en Code Mode et de la
   transmission d'une image à llama-server par OpenCode.
 - Regénérer la base des bâtiments sur la machine (elle n'existe que dans le cloud) avec le générateur actuel.
