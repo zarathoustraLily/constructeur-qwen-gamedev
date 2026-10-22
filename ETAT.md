@@ -28,7 +28,7 @@
 - [x] Cours « roguelike » en 14 étapes de création, même démarche (découpage validé par laurent le 2026-10-21) : 14 étapes faites et vérifiées (2026-10-21)
 - [x] Bases d'entraînement des cours du kart et du roguelike, au format d'OpenCode, 50/50 en jetons de réponse, contrôle strict des sorties de tests (2026-10-22)
 - [ ] Apprendre à Qwen à chercher des références, tester le rendu et le gameplay, utiliser le RAG (priorité de laurent, « après le roguelike »)
-- [ ] Protocole de la décision 18 : découpe point par point, 138 démos, RAG et O1 dans les données (2 000 exemples, décision du 2026-10-22), puis RFT et RLVR
+- [ ] Protocole de la décision 18 : découpe point par point, 138 démos, RAG et O1 dans les données (décision 19 : 10 000 paires courtes sur la 5090, puis 3 000 sessions longues sur carte louée), puis RFT et RLVR
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -1734,8 +1734,8 @@ python -m usine.cours verifier batiments_proceduraux --travailleurs 1 : 39/39 pr
 
 **Reste à faire**
 - Décision 18 : découpe point par point (477 points dans les notes des trois cours), les 138 démos officielles, le RAG
-  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; viser 2 000 exemples
-  (budget de laurent, 2026-10-22). Puis RFT, puis RLVR sur les tâches réussies en partie.
+  dans les données (appel puis usage vérifié), les sessions O1 (jouer et regarder) ; décision 19 : 10 000
+  paires courtes (5090), puis 3 000 sessions longues (carte louée). Puis RFT, puis RLVR sur les tâches réussies en partie.
 - Essai court sur la machine (accord de laurent) : relever la forme réelle d'un appel MCP en Code Mode et de la
   transmission d'une image à llama-server par OpenCode.
 - Regénérer la base des bâtiments sur la machine (elle n'existe que dans le cloud) avec le générateur actuel.

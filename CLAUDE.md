@@ -41,9 +41,13 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 18. Protocole d'entraînement, tiré des travaux lus le 2026-10-22 (VisCoder, distil labs, IChart2Code, Preply 2610.10827, Sub-Billion 2606.22606, PAG-Health-LLM) (accord du 2026-10-22 : « oui accord donne ») :
     1. la vérification déterministe de chaque exemple reste une règle absolue ; jamais relâchée pour gagner du volume ;
     2. le RAG au même rang que le LoRA : chaque mesure compare LoRA avec et sans RAG ; les données montrent l'appel au RAG puis l'usage vérifié de ce qu'il rend ;
-    3. viser 2 000 exemples (2026-10-22, au lieu de 10 000, pour le budget : « on passe a 2000 exemples alors ca devrait suffir j'ai pas l'argent pour 600 euros d'entrainnemnt ») : découpe point par point des cours, les 138 démos officielles, puis les trajectoires réussies du LoRA lui-même (RFT) ;
+    3. volume et étapes : décision 19 (2026-10-22 ; elle remplace « 10 000 exemples », puis « 2 000 exemples » pour le budget : « j'ai pas l'argent pour 600 euros d'entrainnemnt ») ; sources : découpe point par point des cours, les 138 démos officielles, puis les trajectoires réussies du LoRA lui-même (RFT) ;
     4. des retours d'outils structurés ; un jeu se juge en le jouant (`play_sequence`), pas seulement par une image ; ordre : imitation (SFT), puis RFT, puis RLVR seulement sur les tâches que le LoRA réussit parfois mais pas toujours.
     Les seuils de réussite des campagnes Starfox restent **proposés** (écritures identiques sous 5 %, RAG appelé avant chaque création, captures commentées, 0 modification non testée).
+19. Entraînement en deux étapes (2026-10-22 : « je voudrais qu'on construire sur la base de nos exemple une base de 10000 paires avec tres peu de jeton (donc reponses courtes pour qu'on puisse l'entrinner sur  la 5090 et ensuite ajouter a cette base les 3000 paires pour la B3 » ; « je pensais a 10 000 je pense que ca devrait suffir qwen sait deja coder de base on lui apprend juste comment goto selon godot ») :
+    1. 10 000 paires courtes, hors du format d'OpenCode (sa consigne et ses outils pèsent à eux seuls 13 351 jetons), entraînées sur la 5090 : du code Godot 4.7.2 correct, morceau par morceau, en création et en débogage, chaque paire vérifiée par Godot ;
+    2. puis 3 000 sessions longues au format d'OpenCode, sur une carte louée, qui reprennent ce LoRA : la conduite d'un travail (outils, tests, RAG, jouer et regarder).
+    **Proposés** : 2 048 jetons au plus par paire courte (seule longueur vérifiée sur la 5090, entraînement du 2026-06-29) ; une campagne de contrôle entre les deux étapes ; une part des paires courtes gardée dans la seconde ; l'analyse du mouvement à partir de vidéos fabriquées par Godot, jugée par rejeu image par image ; la carte de la seconde étape (H200 ou B300, au prix par jeton mesuré).
 
 ### 3. Pièges et interdits (décidé)
 
@@ -58,7 +62,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 ### 4. Points ouverts (ne pas trancher sans laurent)
 
 - Les 221 tâches déjà gelées : les verser à l'entraînement découle de la décision 1, mais reste à confirmer ; d'ici là elles restent exclues (règle 4).
-- La compétence longue « de bout en bout » ; un entraînement sur des requêtes courtes, puis longues.
+- La compétence longue « de bout en bout » (l'ordre « requêtes courtes, puis longues » est tranché par la décision 19).
 - Les huit points à trancher des règles d'architecture (2D et 3D, format des données…) et la place de `6_assets/` hors des décors procéduraux.
 - L'origine des réécritures identiques.
 
