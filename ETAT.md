@@ -1729,6 +1729,7 @@ python -m usine.cours.base assembler --cours kart           : problèmes : 0
   203 exemples (38 créations, 165 sessions, 476 erreurs corrigées) ; 4 176 339 jetons, dont 663 052 de réponse ;
   création 49,8 % ; débogage/création par étape 0,97 à 1,06, médiane 1,01 ; plus long 31 439 ; rejouées : 0 différence
 python -m pytest -q tests/test_cours_base_jeu.py tests/test_cours_base.py tests/test_cours_opencode.py tests/test_cours_jeu.py tests/test_cours.py : 50 passed
+python -m usine.cours verifier batiments_proceduraux --travailleurs 1 : 39/39 projets vérifiés sans erreur (cours des bâtiments inchangé par ce travail, vérifié avec le vérificateur actuel)
 ```
 
 **Reste à faire**
