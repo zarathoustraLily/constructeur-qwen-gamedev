@@ -23,7 +23,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 
 1. Tester en conditions réelles, sur des campagnes Starfox propres, avec LoRA seulement ; plus de tâches mises de côté pour des tests : « je m'en fous des tests, je teste en réel dans des conditions propres ».
 2. Garder les domaines et les compétences, et les diviser en sujets : gameplay, VFX, shaders, optimisation, gestion de la mémoire, UI, contrôle à la manette, audio, physique, graphisme 3D et 2D, procédural, plugins et leur usage, création de tests.
-3. Dans chaque sujet, 50 % de création depuis une description et 50 % de débogage : « ça permet au LoRA d'apprendre la construction et le débogage ». Le partage se compte en jetons de réponse (choix du 2026-10-13).
+3. Dans chaque sujet, 40 % de création depuis une description, 40 % de débogage et 20 % d'analyse (lire une sortie, reconnaître, comparer, choisir la temporalité, diagnostiquer), comptés en jetons de réponse (2026-10-22 : « ok modifie en 40/40/20 », pour toutes les données). Avant : 50 % de création et 50 % de débogage, « ça permet au LoRA d'apprendre la construction et le débogage » (jetons de réponse, choix du 2026-10-13).
 4. Réflexes à apprendre : tester après chaque modification (`check_script`, puis `run_tests` ou `load_scene`) ; plusieurs captures par phase ; ne pas refaire un travail déjà validé ; le RAG pour des suggestions ; vérifier le gameplay avant la requête suivante. Lui donner une béquille.
 5. Le plan d'organisation fourni en contexte prime sur ce que le modèle a appris.
 6. Le gameplay s'enseigne par des boucles de test sur des suites de captures.
@@ -45,8 +45,8 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
     4. des retours d'outils structurés ; un jeu se juge en le jouant (`play_sequence`), pas seulement par une image ; ordre : imitation (SFT), puis RFT, puis RLVR seulement sur les tâches que le LoRA réussit parfois mais pas toujours.
     Les seuils de réussite des campagnes Starfox restent **proposés** (écritures identiques sous 5 %, RAG appelé avant chaque création, captures commentées, 0 modification non testée).
 19. Entraînement en deux étapes (2026-10-22). Origine : « je voudrais qu'on construire sur la base de nos exemple une base de 10000 paires avec tres peu de jeton (donc reponses courtes pour qu'on puisse l'entrinner sur  la 5090 et ensuite ajouter a cette base les 3000 paires pour la B3 » ; « qwen sait deja coder de base on lui apprend juste comment goto selon godot ». Structure retenue : « fais 7000 a 1024 dont 2000 d'images, les 10 000 paries a 2048 doivent apprendre a analyser des sequence d'images », puis, au choix posé, « 7 000 code + 3 000 séquences ».
-    1. Sur la 5090, des paires courtes hors du format d'OpenCode (sa consigne et ses outils pèsent à eux seuls 13 351 jetons), chacune vérifiée par Godot, création et débogage :
-       - 12 000 paires de 1 024 jetons au plus, sans plan (exception de la section 3) : 10 000 réflexes de code, moitié création, moitié débogage en jetons de réponse, et 2 000 d'analyse d'images (2026-10-22 : 5 000 paires ajoutées aux 7 000 du départ, « non vas y pour 5000 », autant de création que de débogage) ;
+    1. Sur la 5090, des paires courtes hors du format d'OpenCode (sa consigne et ses outils pèsent à eux seuls 13 351 jetons), chacune vérifiée de façon déterministe (Godot, `extension_api.json`, la vraie recherche du RAG), selon le partage de la décision 3 :
+       - 12 000 paires de 1 024 jetons au plus, sans plan (exception de la section 3) : 10 000 réflexes de code et 2 000 d'analyse d'images (2026-10-22 : 5 000 paires ajoutées aux 7 000 du départ, « non vas y pour 5000 ») ;
        - 10 000 paires de 2 048 jetons au plus, avec le plan : 7 000 morceaux de jeu (code) et 3 000 analyses de séquences d'images.
     2. Puis 3 000 sessions longues au format d'OpenCode, sur une carte louée, qui reprennent ce LoRA : la conduite d'un travail (outils, tests, RAG, jouer et regarder). laurent y veut « une enorme reflexion ».
     3. L'analyse d'images (2026-10-22 : « oui ») : images rendues par Godot, réponse écrite par le générateur d'après la vérité du moteur, en quatre niveaux, 500 paires chacun parmi les 2 000 de 1 024 jetons, à ajuster après la mesure de la 5090 : reconnaître ce qu'on voit (modèles, textures, effets, ennemis, interface) ; comparer deux étapes ; dire si le changement est voulu ou un défaut ; relier le défaut à sa ligne de code (O1 par l'image). Demande de laurent : « il faut qu'il puisse identifier les VFX les texture les model 3D les effet, les enemis comme le fait un humain et il faudrait qu'il apprenne a differencier des etapes […] ensuite a lier l'erreur au code identifie l'erreur dans cette ligne en regardant l'image ».
@@ -108,7 +108,7 @@ Les générateurs peuvent connaître `1_core/` et `5_data/`. Ailleurs, `5_data/`
 
 ### 7. Données d'entraînement (passe « bâtiments procéduraux »)
 
-1. Le 50/50 de la décision 3 se compte en jetons de réponse, étape par étape.
+1. Le partage de la décision 3 (40/40/20) se compte en jetons de réponse, étape par étape.
 2. Une réponse n'écrit jamais la sortie d'une commande : la sortie réelle arrive dans le message suivant. Le débogage suit les vagues de Godot : une faute de syntaxe cache le reste de l'analyse, un shader s'arrête à sa première erreur, certaines fautes n'apparaissent qu'à l'exécution.
 3. Une faute n'apparaît dans une réponse que comme le texte à remplacer.
 4. Les outils des données sont ceux du harnais d'usage, OpenCode (décision 14) : avant l'entraînement, commandes et éditions sont converties en ses appels d'outils, texte gardé (t1 a appris `read_file` et `write_file`, absents d'OpenCode).
