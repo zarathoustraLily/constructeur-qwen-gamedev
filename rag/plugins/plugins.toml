@@ -81,3 +81,24 @@ sha256 = "e16c7e1bd7f4c30d8e503ce424caef5b9e2fd5f44094cf00be66c334aff54c70"
 addons = ["debug_draw_3d-1.7.3/addons/debug_draw_3d"]
 # sans rendu (--headless), le plugin ne dessine ni ne compte rien : vérifié fenêtre hors de l'écran
 rendu = true
+
+[shaker]
+nom = "Shaker"
+depot = "Eneskp3441/Shaker"
+version = "v1.0.7"
+licence = "MIT"
+url = "https://codeload.github.com/Eneskp3441/Shaker/zip/refs/tags/v1.0.7"
+fichier = "v1.0.7.zip"
+sha256 = "a7177357d6909ee6506c0fa1021ed39c98dbfaeb423c53cd1331ad0436b96180"
+addons = ["Shaker-1.0.7/addons/shaker"]
+
+[juicee]
+nom = "Juicee"
+depot = "Kelpekk/Juicee"
+version = "v2.0.0"
+licence = "MIT"
+url = "https://github.com/Kelpekk/Juicee/releases/download/v2.0.0/juicee-2.0.0.zip"
+fichier = "juicee-2.0.0.zip"
+sha256 = "ad17a42433ab2b407fb1c7249bfff1bece1cc3b94de993988747e6e37955af81"
+addons = ["addons/juicee"]
+autoloads = { Juicee = "*res://addons/juicee/core/juicee.gd" }
