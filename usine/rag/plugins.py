@@ -27,7 +27,7 @@ import tempfile
 import tomllib
 import zipfile
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from usine import config as cfg
 
@@ -62,13 +62,16 @@ def type_racine(script: str) -> str:
     return m.group(1) if m else "Node"
 
 
-def problemes(sortie: str) -> list[str]:
-    """Les lignes d'erreur et d'avertissement, hors lignes propres à la machine."""
-    return [l.strip() for l in sortie.splitlines() if PROBLEME.match(l) and not MACHINE.search(l)]
+def problemes(sortie: str, connues: Iterable[str] = ()) -> list[str]:
+    """Les lignes d'erreur et d'avertissement, hors lignes propres à la machine et hors lignes connues du plugin
+    (`sorties_connues` du manifeste : messages exacts que le plugin écrit lui-même, expliqués dans sa fiche)."""
+    connues = set(connues)
+    return [l.strip() for l in sortie.splitlines()
+            if PROBLEME.match(l) and not MACHINE.search(l) and l.strip() not in connues]
 
 
-def reussi(code: int, sortie: str) -> bool:
-    return code == 0 and MARQUE in sortie and not problemes(sortie)
+def reussi(code: int, sortie: str, connues: Iterable[str] = ()) -> bool:
+    return code == 0 and MARQUE in sortie and not problemes(sortie, connues)
 
 
 def preparer(ident: str, entree: dict[str, Any], projet: Path, donnees: Path | None = None) -> None:
@@ -120,8 +123,9 @@ def verifier(ident: str, entree: dict[str, Any], donnees: Path | None = None) ->
     code, sortie = lancer(["--headless", "--path", str(projet), "--fixed-fps", "60", "--quit-after",
                            str(IMAGES_MAX), "res://exemple/main.tscn"])
     marque = next((l.strip() for l in sortie.splitlines() if MARQUE in l), None)
-    return {"id": ident, "ok": reussi(code, sortie), "etape": "exemple", "code": code, "marque": marque,
-            "lignes": problemes(sortie)[:20]}
+    connues = entree.get("sorties_connues", [])
+    return {"id": ident, "ok": reussi(code, sortie, connues), "etape": "exemple", "code": code, "marque": marque,
+            "lignes": problemes(sortie, connues)[:20]}
 
 
 def main(argv: list[str] | None = None) -> int:

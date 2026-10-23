@@ -21,6 +21,9 @@ def test_la_sortie_de_godot_se_lit_ligne_par_ligne():
     assert not plugins.reussi(0, "rien\n")
     assert not plugins.reussi(1, bon)
     assert plugins.problemes("WARNING: V-Sync mode not supported\n") == []
+    bruit = bon + "ERROR: Can't send message. No active debugger\n"
+    assert not plugins.reussi(0, bruit)
+    assert plugins.reussi(0, bruit, ["ERROR: Can't send message. No active debugger"])
 
 
 def test_la_racine_de_la_scene_suit_l_exemple():
