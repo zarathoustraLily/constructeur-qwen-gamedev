@@ -25,6 +25,7 @@ from typing import Any, Iterable
 
 from usine import config as cfg
 from usine.rag import vecteurs
+from usine.rag.glossaire import groupes
 from usine.rag.rst import lire_page, pages
 
 NOM_INDEX = "godot_docs.sqlite"
@@ -70,11 +71,12 @@ def _revision_docs(docs: Path) -> str:
 
 def construire(docs: Path, sortie: Path | None = None, donnees: Path | None = None,
                exclusion=None, demos: Path | None = None, verification: dict[str, Any] | None = None,
-               demos_exclues: Iterable[str] = ()) -> dict[str, Any]:
+               demos_exclues: Iterable[str] = (), nos_sources: bool = True) -> dict[str, Any]:
     """Construit l'index depuis `docs` (copie locale de godot-docs). Remplace l'index existant.
 
     demos + verification : exemples vérifiés (voir exemples.py) ; `demos_exclues` retire des
     projets entiers (par ex. une démo devenue source de tâches gelées).
+    nos_sources : nos cours (notes et code) et nos fiches de plugins (voir nos_sources.py).
     exclusion : une `usine.portillon.exclusion.Exclusion` ; par défaut celle du manifeste de
     `donnees/geles/`. Renvoie un rapport {fragments, pages, exclus, manifeste, duree_s, demos}.
     """
@@ -100,6 +102,13 @@ def construire(docs: Path, sortie: Path | None = None, donnees: Path | None = No
     if demos is not None and verification is not None:
         retenus = {k: v for k, v in verification["projets"].items() if k not in demos_exclues}
         fragments_ex, compte_demos = fragments_demos(demos, {**verification, "projets": retenus})
+    compte_nous: dict[str, dict[str, int]] = {}
+    if nos_sources:
+        from usine.rag.nos_sources import fragments_cours, fragments_plugins
+
+        f_cours, compte_nous["cours"] = fragments_cours(donnees)
+        f_plugins, compte_nous["plugins"] = fragments_plugins()
+        fragments_ex += f_cours + f_plugins
     con = sqlite3.connect(tmp)
     exclus: list[tuple[str, str, str]] = []
     n = 0
@@ -122,14 +131,16 @@ def construire(docs: Path, sortie: Path | None = None, donnees: Path | None = No
                 "fragments": str(n), "exclus": str(len(exclus)), "manifeste_gel": manifeste or "",
                 "taches_gelees": str(len(exclusion.ids) if exclusion else 0),
                 "demos_revision": (verification or {}).get("revision", "") if demos is not None else "",
-                "demos": json.dumps(compte_demos), "demos_exclues": json.dumps(demos_exclues)}
+                "demos": json.dumps(compte_demos), "demos_exclues": json.dumps(demos_exclues),
+                "nos_sources": json.dumps(compte_nous)}
         con.executemany("INSERT INTO meta VALUES (?,?)", meta.items())
         con.commit()
     finally:
         con.close()
     tmp.replace(sortie)
     return {"index": str(sortie), "pages": len(liste), "fragments": n, "exclus": exclus,
-            "manifeste": manifeste, "duree_s": round(time.monotonic() - debut, 1), "demos": compte_demos}
+            "manifeste": manifeste, "duree_s": round(time.monotonic() - debut, 1), "demos": compte_demos,
+            "nos_sources": compte_nous}
 
 
 class IndexDocs:
@@ -199,10 +210,12 @@ class IndexDocs:
 
     # --- plein texte
     def plein_texte(self, requete: str, n: int, tous: bool, exemples: bool | None = None) -> list[sqlite3.Row]:
-        mots = [w for w in re.findall(r"[\w@]+", requete) if len(w) > 1]
-        if not mots:
+        # Chaque notion de la demande devient un groupe : le mot, ses équivalents anglais et Godot (glossaire.py).
+        notions = groupes(requete)
+        if not notions:
             return []
-        expr = (" AND " if tous else " OR ").join('"' + w.replace('"', "") + '"' for w in mots)
+        expr = (" AND " if tous else " OR ").join(
+            "(" + " OR ".join('"' + t.replace('"', "") + '"' for t in g) + ")" for g in notions)
         return self.con.execute(
             "SELECT f.* FROM fts JOIN fragments f ON f.id = fts.rowid WHERE fts MATCH ? " + FILTRES[exemples] +
             " ORDER BY bm25(fts, 8.0, 1.0), f.id LIMIT ?", (expr, n)).fetchall()
@@ -230,6 +243,13 @@ class IndexDocs:
         places_ex = n // 2 if exemples is None and self._a_des_exemples() else 0
         if exemples is not True:
             ajouter(self.exacts(requete)[:n - places_ex], "exact")
+            # une demande en français nomme rarement la classe : le glossaire la donne (« caméra » → Camera3D) ;
+            # au plus deux pages de classe, dans l'ordre des notions de la demande
+            limite = min(len(resultats) + 2, n - places_ex)
+            for g in groupes(requete):
+                for terme in g[1:]:
+                    if terme[:1].isupper() and len(resultats) < limite:
+                        ajouter(self._classes(terme), "glossaire")
         if places_ex:
             limite = len(resultats) + places_ex
             for tous in (True, False):

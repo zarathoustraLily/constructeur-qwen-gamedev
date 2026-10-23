@@ -143,14 +143,19 @@ def verifier_demos(depot: Path, rapport: Path, travailleurs: int = 2, godot: Pat
     return resultat
 
 
-def fragments_script(projet: str, res: str, texte: str) -> list[Fragment]:
+def fragments_script(projet: str, res: str, texte: str, prefixe: str = "demos",
+                     etiquette: str = "démo officielle") -> list[Fragment]:
+    """Un fragment pour l'en-tête du script, puis un par fonction (avec sa doc et ses annotations).
+
+    prefixe et etiquette disent d'où vient le code : les démos officielles par défaut, nos cours sinon.
+    """
     from usine.projet.gdscript import lire_script
 
     script = lire_script(texte, res)
     lignes = texte.splitlines()
-    source = f"demos/{projet}/{res[len('res://'):]}"
+    source = f"{prefixe}/{projet}/{res[len('res://'):]}"
     base = script.extends or "?"
-    contexte = f"# démo officielle {projet} — {res}" + (f" — extends {base}" if script.extends else "") + \
+    contexte = f"# {etiquette} {projet} — {res}" + (f" — extends {base}" if script.extends else "") + \
                (f" — class_name {script.class_name}" if script.class_name else "")
     fragments: list[Fragment] = []
 
@@ -160,7 +165,7 @@ def fragments_script(projet: str, res: str, texte: str) -> list[Fragment]:
             return
         if len(code) > TAILLE_MAX:
             code = code[:TAILLE_MAX].rsplit("\n", 1)[0] + "\n\t# […] (suite dans " + source + ")"
-        fragments.append(Fragment(source, f"démo {projet}", titre, contexte + "\n" + code, "exemple",
+        fragments.append(Fragment(source, f"{etiquette} {projet}", titre, contexte + "\n" + code, "exemple",
                                   script.extends if script.extends and not script.extends.startswith(("\"", "'")) else None,
                                   membre))
 

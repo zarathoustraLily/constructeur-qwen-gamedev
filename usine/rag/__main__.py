@@ -37,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--sans-demos", action="store_true")
     p.add_argument("--travailleurs", type=int, default=2)
     p.add_argument("--sortie", type=Path)
+    p.add_argument("--sans-nos-sources", action="store_true", help="sans nos cours ni nos fiches de plugins")
     p = sous.add_parser("chercher", help="search_docs")
     p.add_argument("requete")
     p.add_argument("-n", type=int, default=5)
@@ -47,6 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--index", type=Path)
     p.add_argument("--taches", type=Path, help="contrôler contre toutes les tâches de ce dossier")
     p.add_argument("--temoin", type=Path, help="projet source dont les scripts doivent être reconnus")
+    p = sous.add_parser("banc", help="demandes en français tirées des notes des cours (banc.py)")
+    p.add_argument("-n", type=int, default=5)
+    p.add_argument("--index", type=Path)
+    p.add_argument("--rates", type=int, default=0, help="afficher autant de demandes ratées")
     p = sous.add_parser("vecteurs", help="plongements sqlite-vec par le llama-server local (option)")
     p.add_argument("--url", default=None)
     p.add_argument("--lot", type=int, default=32)
@@ -68,7 +73,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Vérification des démos de {demos} (Godot, une fois par révision)…")
             verification = verifier_demos(demos, sortie.parent / "verification_demos.json", args.travailleurs)
         exclues = cfg.charger_config().get("rag", {}).get("demos_exclues", [])
-        r = rag.construire(docs, args.sortie, demos=demos, verification=verification, demos_exclues=exclues)
+        r = rag.construire(docs, args.sortie, demos=demos, verification=verification, demos_exclues=exclues,
+                           nos_sources=not args.sans_nos_sources)
         print(f"index : {r['index']}")
         print(f"pages : {r['pages']}   fragments : {r['fragments']}   durée : {r['duree_s']} s")
         if r["demos"]:
@@ -77,10 +83,22 @@ def main(argv: list[str] | None = None) -> int:
                   f"{d['scripts_ecartes']} écartés ; projets retirés : {exclues or 'aucun'}")
         else:
             print("démos : aucune (exemples vérifiés absents)")
+        for nom, c in r["nos_sources"].items():
+            print(f"nos sources, {nom} : {c}")
         print(f"gel : {'manifeste ' + r['manifeste'][:16] + '…' if r['manifeste'] else 'aucun manifeste (rien à exclure)'}")
         print(f"fragments exclus (solution gelée) : {len(r['exclus'])}")
         for source, titre, tache in r["exclus"]:
             print(f"  {source} « {titre} » ← {tache}")
+        return 0
+    if args.commande == "banc":
+        from usine.rag.banc import mesurer
+        r = mesurer(args.n, args.index)
+        print(f"{r['points']} demandes ; dans les {r['n']} premiers résultats : page de référence attendue "
+              f"{r['reference']} ({r['taux_reference']:.1%}), fragment utile {r['utiles']} ({r['taux_utiles']:.1%})")
+        for cours, s in r["par_cours"].items():
+            print(f"  {cours} : {s}")
+        for x in r["rates"][:args.rates]:
+            print(f"  raté : {x['demande']} {x['attendues']} → {x['obtenus'][:3]}")
         return 0
     if args.commande == "chercher":
         res = rag.IndexDocs(args.index, plonger=rag.plongeur_configure()).chercher(args.requete, args.n, args.source)
