@@ -64,10 +64,13 @@ def type_racine(script: str) -> str:
 
 def problemes(sortie: str, connues: Iterable[str] = ()) -> list[str]:
     """Les lignes d'erreur et d'avertissement, hors lignes propres à la machine et hors lignes connues du plugin
-    (`sorties_connues` du manifeste : messages exacts que le plugin écrit lui-même, expliqués dans sa fiche)."""
-    connues = set(connues)
+    (`sorties_connues` du manifeste : messages exacts que le plugin écrit lui-même, expliqués dans sa fiche ; une
+    entrée qui commence par « re: » est une expression régulière, pour un nombre qui varie)."""
+    exactes = {c for c in connues if not c.startswith("re:")}
+    motifs = [re.compile(c[3:]) for c in connues if c.startswith("re:")]
     return [l.strip() for l in sortie.splitlines()
-            if PROBLEME.match(l) and not MACHINE.search(l) and l.strip() not in connues]
+            if PROBLEME.match(l) and not MACHINE.search(l) and l.strip() not in exactes
+            and not any(m.fullmatch(l.strip()) for m in motifs)]
 
 
 def reussi(code: int, sortie: str, connues: Iterable[str] = ()) -> bool:

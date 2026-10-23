@@ -36,3 +36,25 @@ addons = ["beehave-2.9.3/addons/beehave"]
 autoloads = { BeehaveGlobalMetrics = "*res://addons/beehave/metrics/beehave_global_metrics.gd", BeehaveGlobalDebugger = "*res://addons/beehave/debug/global_debugger.gd" }
 # lancé par le binaire de l'éditeur sans débogueur (tests sans fenêtre), le plugin envoie quand même ses messages
 sorties_connues = ["ERROR: Can't send message. No active debugger", "ERROR: Capture not registered: 'beehave'."]
+
+[godot_state_charts]
+nom = "Godot State Charts"
+depot = "derkork/godot-statecharts"
+version = "v0.22.5"
+licence = "MIT"
+url = "https://codeload.github.com/derkork/godot-statecharts/zip/refs/tags/v0.22.5"
+fichier = "v0.22.5.zip"
+sha256 = "8124286e61f000342d7d2cbe5e140ee5301a541ddffe5d28d657afc38f7f3692"
+addons = ["godot-statecharts-0.22.5/addons/godot_state_charts"]
+
+[gloot]
+nom = "GLoot"
+depot = "peter-kish/gloot"
+version = "v3.0.2"
+licence = "MIT"
+url = "https://codeload.github.com/peter-kish/gloot/zip/refs/tags/v3.0.2"
+fichier = "v3.0.2.zip"
+sha256 = "d4d08157860abbd0ccee9fc8657ebf79fdbe1ecb10f986343a3bfea417ff6937"
+addons = ["gloot-3.0.2/addons/gloot"]
+# le cache statique des prototypes (core/prototree/proto_tree_cache.gd) vit jusqu'à la sortie du programme
+sorties_connues = ['re:WARNING: \d+ ObjectDB instances were leaked at exit \(run with `--verbose` for details\)\.', "ERROR: 1 resources still in use at exit (run with --verbose for details)."]
