@@ -58,3 +58,26 @@ sha256 = "d4d08157860abbd0ccee9fc8657ebf79fdbe1ecb10f986343a3bfea417ff6937"
 addons = ["gloot-3.0.2/addons/gloot"]
 # le cache statique des prototypes (core/prototree/proto_tree_cache.gd) vit jusqu'à la sortie du programme
 sorties_connues = ['re:WARNING: \d+ ObjectDB instances were leaked at exit \(run with `--verbose` for details\)\.', "ERROR: 1 resources still in use at exit (run with --verbose for details)."]
+
+[input_helper]
+nom = "Input Helper"
+depot = "nathanhoad/godot_input_helper"
+version = "v4.7.0"
+licence = "MIT"
+url = "https://codeload.github.com/nathanhoad/godot_input_helper/zip/refs/tags/v4.7.0"
+fichier = "v4.7.0.zip"
+sha256 = "f52a74a2399c48a2dd90356ddd87478358b33088655509a1e95baf2ff411f3bd"
+addons = ["godot_input_helper-4.7.0/addons/input_helper"]
+autoloads = { InputHelper = "*res://addons/input_helper/input_helper.gd" }
+
+[debug_draw_3d]
+nom = "Debug Draw 3D"
+depot = "DmitriySalnikov/godot_debug_draw_3d"
+version = "1.7.3"
+licence = "MIT"
+url = "https://github.com/DmitriySalnikov/godot_debug_draw_3d/releases/download/1.7.3/debug-draw-3d_1.7.3.zip"
+fichier = "debug-draw-3d_1.7.3.zip"
+sha256 = "e16c7e1bd7f4c30d8e503ce424caef5b9e2fd5f44094cf00be66c334aff54c70"
+addons = ["debug_draw_3d-1.7.3/addons/debug_draw_3d"]
+# sans rendu (--headless), le plugin ne dessine ni ne compte rien : vérifié fenêtre hors de l'écran
+rendu = true

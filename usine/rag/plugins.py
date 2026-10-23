@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import tomllib
 import zipfile
 from pathlib import Path
@@ -35,7 +36,7 @@ DOSSIER = cfg.RACINE / "rag" / "plugins"
 MARQUE = "EXEMPLE VERIFIE"
 IMAGES_MAX = 600
 # lignes de la machine, sans lien avec le projet (règle 5.1)
-MACHINE = re.compile(r"^Godot Engine v|V-Sync|Shader cache|Failed to load cached shader|_load_from_cache")
+MACHINE = re.compile(r"^Godot Engine v|^OpenGL API|^Vulkan|V-Sync|Shader cache|Failed to load cached shader|_load_from_cache")
 PROBLEME = re.compile(r"^\s*(SCRIPT ERROR|USER ERROR|ERROR|USER WARNING|WARNING|Parse Error)\b")
 
 
@@ -113,9 +114,10 @@ def lancer(arguments: list[str], delai: float = 300) -> tuple[int, str]:
 
 
 def verifier(ident: str, entree: dict[str, Any], donnees: Path | None = None) -> dict[str, Any]:
-    projet = Path(donnees or cfg.dossier_donnees()) / "plugins" / "travail" / ident
-    if projet.exists():
-        shutil.rmtree(projet)
+    racine = Path(donnees or cfg.dossier_donnees()) / "plugins" / "travail" / ident
+    for ancien in racine.glob("*") if racine.exists() else []:  # un dossier encore ouvert ailleurs reste là
+        shutil.rmtree(ancien, ignore_errors=True)
+    projet = racine / time.strftime("%Y%m%d-%H%M%S")
     preparer(ident, entree, projet, donnees)
     for _ in range(2):  # Godot 4.7.2 plante parfois en sortant de l'import (0xC0000005), sans message : on relance
         code, sortie = lancer(["--headless", "--path", str(projet), "--import"])
@@ -123,7 +125,11 @@ def verifier(ident: str, entree: dict[str, Any], donnees: Path | None = None) ->
             break
     if code != 0 or problemes(sortie):
         return {"id": ident, "ok": False, "etape": "import", "code": code, "lignes": problemes(sortie)[:20]}
-    code, sortie = lancer(["--headless", "--path", str(projet), "--fixed-fps", "60", "--quit-after",
+    # un plugin qui ne fait rien sans rendu (dessin de débogage…) se vérifie fenêtre hors de l'écran, en
+    # Compatibilité, comme les rendus des cours (`rendu = true` dans le manifeste)
+    fenetre = ["--rendering-method", "gl_compatibility", "--position", "-10000,-10000"]
+    affichage = fenetre if entree.get("rendu") else ["--headless"]
+    code, sortie = lancer([*affichage, "--path", str(projet), "--fixed-fps", "60", "--quit-after",
                            str(IMAGES_MAX), "res://exemple/main.tscn"])
     marque = next((l.strip() for l in sortie.splitlines() if MARQUE in l), None)
     connues = entree.get("sorties_connues", [])
@@ -132,6 +138,7 @@ def verifier(ident: str, entree: dict[str, Any], donnees: Path | None = None) ->
 
 
 def main(argv: list[str] | None = None) -> int:
+    sys.stdout.reconfigure(encoding="utf-8")
     parseur = argparse.ArgumentParser(prog="python -m usine.rag.plugins")
     sous = parseur.add_subparsers(dest="commande", required=True)
     p_v = sous.add_parser("verifier", help="lancer l'exemple de chaque plugin dans Godot 4.7.2")
