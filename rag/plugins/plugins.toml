@@ -112,3 +112,17 @@ url = "https://github.com/cluttered-code/godot-health-hitbox-hurtbox/releases/do
 fichier = "godot-health-hitbox-hurtbox-5.0.4.zip"
 sha256 = "73d6c3a94e9e41cedb5af63cc5a64187b058c2e31ba5c1d345fe36ad5f53d73b"
 addons = ["godot-health-hitbox-hurtbox-5.0.4/addons/health_hitbox_hurtbox"]
+
+[dialogue_manager]
+nom = "Dialogue Manager"
+depot = "nathanhoad/godot_dialogue_manager"
+version = "v4.1.0"
+licence = "MIT"
+url = "https://codeload.github.com/nathanhoad/godot_dialogue_manager/zip/refs/tags/v4.1.0"
+fichier = "v4.1.0.zip"
+sha256 = "48cdc626e01a91dce21bfc905900edf634ba3b93d979663565bbb4388d5afd1a"
+addons = ["godot_dialogue_manager-4.1.0/addons/dialogue_manager"]
+autoloads = { DialogueManager = "*res://addons/dialogue_manager/dialogue_manager.gd" }
+# la ressource de dialogue se range dans ses propres lignes (dialogue_manager.gd : data.resource = resource) :
+# référence circulaire, encore en mémoire à la sortie du programme
+sorties_connues = ['re:WARNING: \d+ ObjectDB instances were leaked at exit \(run with `--verbose` for details\)\.', "ERROR: 1 resources still in use at exit (run with --verbose for details)."]
