@@ -90,6 +90,8 @@ def preparer(ident: str, entree: dict[str, Any], projet: Path, donnees: Path | N
         for dossier in entree["addons"]:
             source = Path(tmp) / dossier
             shutil.copytree(source, projet / "addons" / source.name)
+    for chemin_exclu in entree.get("exclure", []):  # ce qui n'est pas le plugin (démos, sources Blender…)
+        shutil.rmtree(projet / chemin_exclu, ignore_errors=True)
     shutil.copytree(DOSSIER / ident / "exemple", projet / "exemple")
     script = (projet / "exemple" / "exemple.gd").read_text(encoding="utf-8")
     (projet / "exemple" / "main.tscn").write_text(

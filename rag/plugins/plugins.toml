@@ -126,3 +126,15 @@ autoloads = { DialogueManager = "*res://addons/dialogue_manager/dialogue_manager
 # la ressource de dialogue se range dans ses propres lignes (dialogue_manager.gd : data.resource = resource) :
 # référence circulaire, encore en mémoire à la sortie du programme
 sorties_connues = ['re:WARNING: \d+ ObjectDB instances were leaked at exit \(run with `--verbose` for details\)\.', "ERROR: 1 resources still in use at exit (run with --verbose for details)."]
+
+[protonscatter]
+nom = "ProtonScatter"
+depot = "HungryProton/scatter"
+version = "main, commit 7198cc00078ebde61307578137c3f35223c6e438 (la version 4.0 de 2023 ne compile plus en 4.7.2)"
+licence = "MIT"
+url = "https://codeload.github.com/HungryProton/scatter/zip/refs/heads/main"
+fichier = "main.zip"
+sha256 = "5605c79868792af8a720468162bf71300e20a526c9b8970784e5fe9a62b7823d"
+addons = ["scatter-main/addons/proton_scatter"]
+# les démos du plugin contiennent un fichier .blend : sans Blender configuré, leur import échoue
+exclure = ["addons/proton_scatter/demos"]
