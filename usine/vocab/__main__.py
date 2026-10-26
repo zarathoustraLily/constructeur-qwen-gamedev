@@ -2,6 +2,7 @@
 
     python -m usine.vocab construire [--json extension_api.json]
     python -m usine.vocab lookup CharacterBody2D [membre] [--genre signal] [--json] [--toutes-methodes]
+    python -m usine.vocab difference ancien.json nouveau.json [--sortie rapport.json]
 """
 
 from __future__ import annotations
@@ -49,8 +50,20 @@ def main(argv: list[str] | None = None) -> int:
     p_l.add_argument("--genre", choices=sorted(GENRES))
     p_l.add_argument("--json", action="store_true", help="sortie JSON")
     p_l.add_argument("--toutes-methodes", action="store_true")
+    p_d = sous.add_parser("difference", help="différences d'API entre deux extension_api.json (décision 19.7)")
+    p_d.add_argument("ancien", type=Path)
+    p_d.add_argument("nouveau", type=Path)
+    p_d.add_argument("--sortie", type=Path, help="rapport JSON complet")
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")  # console Windows redirigée : éviter cp1252
+
+    if args.commande == "difference":
+        from usine.vocab.difference import comparer_fichiers
+        r = comparer_fichiers(args.ancien, args.nouveau)
+        if args.sortie:
+            args.sortie.write_text(json.dumps(r, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(json.dumps(r["resume"], ensure_ascii=False, indent=1))
+        return 0
 
     if args.commande == "construire":
         print(construire(args.json))
