@@ -1745,6 +1745,16 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   4.0 ne compile plus, sa branche main oui, sans son dossier `demos/` (fichier .blend). Messages propres à un
   plugin : `sorties_connues` du manifeste (texte exact ou motif « re: »), chacun expliqué dans sa fiche.
 - Index du RAG reconstruit avec les 21 fiches : 30 291 fragments ; banc hors même cours : 14/87 et 30/87.
+- Godot 4.8 (décision 19.7, accord de laurent : « ok fai_s ca ») : `extension_api.json` de la 4.8-beta1 extrait
+  (`donnees/vocab/extension_api_4.8-beta1.json`, Godot v4.8.beta1.official.4d10419ca) et comparé à celui de 4.7.2 par
+  `python -m usine.vocab difference` (`usine/vocab/difference.py`) : 339 différences ; 22 dans l'API de l'éditeur ;
+  31 sans effet pour GDScript (11 valeurs `…_MAX`, 16 indications de type de l'inspecteur, 4 signatures à
+  pointeurs) ; restent **287 différences utiles** : 276 ajouts (31 classes dont `Line3D`, `Trail3D`, les résultats
+  typés des requêtes physiques `Physics…Result2D/3D` ; 165 méthodes ; 35 propriétés ; 1 singleton,
+  `TextureStreaming`), 10 changements dont 7 compatibles (arguments facultatifs ajoutés), 1 retrait
+  (`AnimationNodeBlendSpace2D.triangles`). 33 concernent la réalité virtuelle (OpenXR). À 6 paires par différence :
+  1 722 paires (1 524 hors réalité virtuelle), sous le plafond de 10 % des 22 000 paires courtes. À refaire sur la
+  version stable avant de générer.
 
 **Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
 
