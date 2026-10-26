@@ -16,3 +16,6 @@ pas de recul
 2026-10-26 — R3 — Claude (fil principal) — banc ajouté — questions de godot-docs-dataset (accord de laurent pour
 le téléchargement) : `python -m usine.rag banc-docs` ; défauts corrigés : OS et IP sans membres, membres d'un mot ;
 pages about/, community/, engine_details/ utiles ajoutées ; banc en français inchangé
+2026-10-26 — R1 — Claude (fil principal) — faite — 11 effets vérifiés 11/11 (+ eau stylisée, vent dans l'herbe,
+particules d'impact, nombres de dégâts, traînée) ; banc hors même cours 14/87 et 32/87 ; à vérifier par une autre IA
+2026-10-26 — R2 — Claude (fil principal) — réservée — catalogues de morceaux de code

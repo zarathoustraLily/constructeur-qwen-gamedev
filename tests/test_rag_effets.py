@@ -10,11 +10,10 @@ SOURCES = ("mesuré", "godot-docs", "référence des classes", "principe")
 
 def test_chaque_effet_du_manifeste_a_son_exemple_et_des_pieges_sources():
     catalogue = effets.manifeste()
-    assert len(catalogue) >= 6
+    assert len(catalogue) >= 11
     for ident, entree in catalogue.items():
         exemple = effets.DOSSIER / ident / "exemple"
         assert (exemple / "exemple.gd").is_file(), ident
-        assert list(exemple.glob("*.gdshader")), ident
         assert {"titre", "fait", "quand", "pieges"} <= set(entree), ident
         for piege in entree["pieges"]:
             assert any(s in piege for s in SOURCES), f"{ident} : piège sans source : {piege}"

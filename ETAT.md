@@ -1765,6 +1765,12 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   - 6/6 : flash d'impact (rouge → blanc → rouge en 0,25 s), dissolution (part disparue 0 / 0,25 / 1 ; 1 appel de
     dessin sphère dissoute, 0 une fois libérée), contour (0 / 18 / 0 pixels sombres), bouclier de Fresnel (centre au
     fond, bord à 0,97 ; lueur 4,9 → 8,1 pendant un coup → 4,9), vignette de dégâts, pixelisation.
+  - 5 de plus (2026-10-26), 11/11 : eau stylisée (figée, 0 point changé en 20 images ; animée, 753 ; crête/creux
+    0,21 de luminance), vent dans l'herbe (0 pixel changé sans vent ; avec, 2 335 en haut du brin, 0 au pied :
+    `UV.y` vaut 0 en haut d'un `QuadMesh`), particules d'impact (`GPUParticles3D`, salve unique : 0 / 598 / 0 pixels
+    orange, 666 à la seconde salve relancée par `restart()`), nombres de dégâts (`Label3D` qui monte de la ligne 380
+    à 316 et s'efface, puis libéré), traînée (`Line2D` de 30 points, pleine près de l'objet, pâle à l'arrière).
+    Trois n'ont pas de fichier shader : le test n'en exige plus.
   - Défaut trouvé en vérifiant : la pixelisation lisait chaque bloc au bord de son premier pixel, et le filtre
     « nearest » y prenait parfois le voisin (222 changements au lieu de 223 avec des blocs de 1) ; elle lit
     maintenant le centre du pixel (+ 0,5).
@@ -1825,6 +1831,9 @@ python -m usine.rag banc-docs       : membre : couverture ancres 17710/17710 ; r
                                       classe : couverture pages 2859/2859, ancres 1851/2859 ; recherche 652/652
                                       guide : couverture pages 3421/3644, ancres 3356/3644 ; recherche page 820/905, précis 729/905
 python -m pytest -q tests/test_mcp_serveur.py tests/test_rag*.py : 37 passed, 1 skipped (sqlite_vec absent)
+python -m usine.rag.effets verifier eau_stylisee vent_herbe particules_impact nombres_degats trainee : 5/5 (11 effets en tout)
+python -m usine.rag construire      : effets {'effets': 11, 'sections': 44, 'shaders': 8} ; fragments exclus : 0
+banc.mesurer(tout_le_cours=True)    : page 14/87, utiles 32/87 ; banc-docs inchangé (970/1000, 652/652, 820/905, 729/905)
 ```
 
 **Reste à faire**

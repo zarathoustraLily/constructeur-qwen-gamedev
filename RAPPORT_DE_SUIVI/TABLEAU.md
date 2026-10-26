@@ -40,9 +40,9 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | F2 | Campagne Starfox avec le LoRA final, avec et sans RAG | en attente de E5 | | | |
 | F3 | Comparaison avec t1 et Qwen seul | en attente de F2 | | | |
 | F4 | RFT puis RLVR | plus tard | | | |
-| R1 | Catalogue d'effets et de shaders | réservée (2026-10-26) | Claude, fil principal | | 6 effets vérifiés 6/6 et indexés (ETAT, 2026-10-26) ; eau, traînées à faire |
-| R2 | Catalogues de morceaux de code | à faire | | | |
-| R3 | Reconstruire le RAG et rejouer les bancs | après chaque ajout | | | 2026-10-26 : banc 14/87 pages, 31/87 utiles hors même cours ; banc-docs membres 970/1000, classes 652/652, guides 820/905 (page) et 729/905 (section) |
+| R1 | Catalogue d'effets et de shaders | faite (2026-10-26) | Claude, fil principal | | 11 effets vérifiés 11/11 par leurs pixels et indexés : `python -m usine.rag.effets verifier` (ETAT, 2026-10-26) |
+| R2 | Catalogues de morceaux de code | réservée (2026-10-26) | Claude, fil principal | | |
+| R3 | Reconstruire le RAG et rejouer les bancs | après chaque ajout | | | 2026-10-26 : banc 14/87 pages, 32/87 utiles hors même cours ; banc-docs membres 970/1000, classes 652/652, guides 820/905 (page) et 729/905 (section) |
 | G1 | Comparaison des API sur la 4.8 stable | en attente de la sortie | | | |
 | G2 | Documentation 4.8 dans le RAG | en attente de G1 | | | |
 | G3 | Paires 4.8 | en attente de la décision de migrer | | | |

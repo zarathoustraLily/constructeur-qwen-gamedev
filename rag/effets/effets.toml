@@ -96,3 +96,80 @@ exemple prenait parfois le voisin (mesuré : 222 changements au lieu de 223 avec
     """Le shader ne voit que ce qui est dessiné avant lui, « what lies behind » (godot-docs, \
 screen-reading_shaders.rst) : l'interface dessinée au-dessus reste nette.""",
 ]
+
+[eau_stylisee]
+titre = "Eau stylisée animée (shader spatial, sommets)"
+fait = """\
+Deux houles, des sinus qui avancent avec le temps, soulèvent les sommets d'un plan ; les crêtes sont plus claires que \
+les creux. La normale est recalculée d'après la pente de la surface."""
+quand = "Lac, mer, rivière stylisés ; fond d'un niveau ; eau d'une fontaine."
+pieges = [
+    """Le plan doit être subdivisé (`subdivide_width`, `subdivide_depth`) : le shader ne déplace que des sommets, et \
+un plan de 4 sommets ne fait pas de vagues (non mesuré ici).""",
+    """Sans la normale recalculée, l'éclairage reste celui du plan plat : les vagues ne se voient qu'à la couleur \
+(non mesuré ici).""",
+    """`vitesse` multiplie `TIME` : la changer en cours fait sauter la phase des vagues (se déduit du shader ; non mesuré ici). Pour \
+ralentir en douceur, avancer sa propre horloge depuis GDScript et la passer en paramètre.""",
+    """`vitesse` à 0 fige l'eau (mesuré : 0 point changé en 20 images).""",
+]
+
+[vent_herbe]
+titre = "Vent dans l'herbe (shader spatial, sommets)"
+fait = """\
+Le haut de chaque brin se balance et son pied reste planté : le déplacement croît avec la hauteur du sommet et suit la \
+position du brin dans le monde, pour que les brins voisins ne bougent pas ensemble."""
+quand = """\
+Herbe, fleurs, roseaux, feuillage. Pour beaucoup de brins, un `MultiMeshInstance3D` avec le même matériau : la position \
+dans le monde (`MODEL_MATRIX`) décale chaque instance."""
+pieges = [
+    """Sur un `QuadMesh`, `UV.y` vaut 0 en haut : le facteur de hauteur est `1 - UV.y` (mesuré : le pied ne bouge \
+pas, le haut bouge).""",
+    """Le brin doit être subdivisé en hauteur (`subdivide_depth`) pour se courber ; sinon il pivote d'un bloc (non \
+mesuré ici).""",
+    """`cull_disabled` (« Culling disabled (double sided) », godot-docs, spatial_shader.rst) : un brin est une \
+seule face, qu'on doit voir des deux côtés.""",
+]
+
+[particules_impact]
+titre = "Particules d'impact (GPUParticles3D, salve unique)"
+fait = """\
+Au moment d'un coup, une salve d'étincelles part du point touché dans toutes les directions et retombe : `one_shot` \
+pour une seule salve, `explosiveness` 1 pour que toutes partent au même instant, `restart()` pour la relancer."""
+quand = "Balle qui touche un mur, coup d'épée, objet brisé, atterrissage lourd, pièce ramassée."
+pieges = [
+    """La couleur de `ParticleProcessMaterial.color` arrive par la couleur des sommets : le matériau du maillage doit \
+avoir `vertex_color_use_as_albedo` (mesuré : étincelles orange).""",
+    """`restart()` relance la salve, au nouvel endroit (mesuré : seconde salve visible).""",
+    """Les particules sortent de la boîte `visibility_aabb` : trop petite, la salve disparaît quand l'émetteur quitte \
+l'écran (référence des classes, `GPUParticles3D.visibility_aabb` ; non mesuré ici).""",
+]
+
+[nombres_degats]
+titre = "Nombres de dégâts flottants (Label3D, Tween)"
+fait = """\
+Le nombre de dégâts apparaît au point touché, toujours tourné vers la caméra, monte et s'efface, puis le `Label3D` est \
+libéré. Deux `tween_property` en parallèle (hauteur, transparence), puis `queue_free`."""
+quand = "Dégâts, soins, points gagnés, « Critique ! » au-dessus d'un ennemi."
+pieges = [
+    """Le Tween est créé par l'étiquette (`etiquette.create_tween()`) : il est lié à elle et s'arrête quand elle est \
+libérée (référence des classes, `Node.create_tween`).""",
+    """`no_depth_test` : le nombre reste lisible derrière un obstacle (référence des classes, \
+`Label3D.no_depth_test`).""",
+    """`chain()` après `set_parallel()` : la libération attend la fin des deux mouvements (mesuré : étiquette libérée \
+après l'effacement).""",
+]
+
+[trainee]
+titre = "Traînée derrière un objet (Line2D, dégradé)"
+fait = """\
+Une ligne suit l'objet : à chaque image, sa position est ajoutée à la fin de la `Line2D` et les points les plus anciens \
+sont retirés au-delà d'une longueur. Un dégradé rend l'arrière transparent."""
+quand = "Projectile, épée, curseur, comète, sillage d'un véhicule vu de dessus."
+pieges = [
+    """Le dégradé va du premier point (le plus ancien) au dernier (le plus récent) : transparent en 0, plein en 1 \
+(mesuré : pleine près de l'objet, pâle à l'arrière).""",
+    """Les points ajoutés sont des positions du monde : `top_level` empêche la ligne d'hériter du déplacement de son \
+parent (référence des classes, `CanvasItem.top_level`).""",
+    """En 3D, Godot 4.7 n'a pas de nœud de traînée ; Godot 4.8 ajoute `Trail3D` (différence d'API mesurée, \
+`python -m usine.vocab difference`).""",
+]
