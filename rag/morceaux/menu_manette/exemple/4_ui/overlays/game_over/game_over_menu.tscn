@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://4_ui/overlays/game_over/game_over_menu.gd" id="1_menu"]
+
+[node name="GameOverMenu" type="CanvasLayer"]
+script = ExtResource("1_menu")
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Retry" type="Button" parent="Center/Box"]
+layout_mode = 2
+text = "Rejouer"
+
+[node name="Menu" type="Button" parent="Center/Box"]
+layout_mode = 2
+text = "Menu principal"
+
+[node name="Quit" type="Button" parent="Center/Box"]
+layout_mode = 2
+text = "Quitter"

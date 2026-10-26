@@ -1799,6 +1799,9 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     sauvegardés (`ConfigFile`, absent → `ERR_FILE_NOT_FOUND`, abîmé → `ERR_PARSE_ERROR` et une ERROR du moteur,
     gardée comme sortie connue) ; manette (stick et croix dans les actions, zone morte 0,2 : 0,15 → 0, 0,6 → 0,5,
     diagonale de longueur 1).
+  - interface (11/11) : barre de vie qui écoute le `HealthComponent` du socle (10 → 8,5 à mi-glissement → 7 ; deux
+    coups rapprochés → 1) ; menu de fin de partie à la manette (focus vide avant `open()`, croix bas ×2 → « Quitter »,
+    ×3 → y reste, A et Entrée valident ; A et B ajoutés à `ui_accept` et `ui_cancel` avec leurs touches).
 - Jeu de données `arunsrajan/godot-docs-dataset` (Hugging Face, étudié à la demande de laurent, 2026-10-26) :
   24 631 paires question/réponse au format Alpaca tirées de godot-docs, branche 4.7 de développement, questions sur
   gabarits, réponses = texte de la doc (85 % de référence des classes), sans vérification ni outils. Pas pour
@@ -1858,6 +1861,9 @@ python -m usine.rag.morceaux verifier : 9/9 exemples vérifiés, leurs fiches r�
 python -m usine.rag construire      : morceaux {'morceaux': 9, 'sections': 36, 'shaders': 0, 'scripts': 21} ; exclus : 0
 python -m usine.rag banc            : référence 14/87, utiles 55/87 (hors même étape) ; hors même cours 14/87 et 33/87
 python -m pytest -q tests/test_mcp_serveur.py tests/test_rag*.py : 41 passed, 1 skipped (sqlite_vec absent)
+python -m usine.rag.morceaux verifier barre_de_vie menu_manette : 2/2 (11 morceaux en tout)
+python -m usine.rag construire      : morceaux {'morceaux': 11, 'sections': 44, 'shaders': 0, 'scripts': 25} ; exclus : 0
+python -m usine.rag banc            : référence 14/87, utiles 55/87 ; hors même cours 14/87 et 34/87 ; banc-docs inchangé
 ```
 
 **Reste à faire**

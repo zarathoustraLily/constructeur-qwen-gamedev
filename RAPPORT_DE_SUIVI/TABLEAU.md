@@ -41,8 +41,8 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | F3 | Comparaison avec t1 et Qwen seul | en attente de F2 | | | |
 | F4 | RFT puis RLVR | plus tard | | | |
 | R1 | Catalogue d'effets et de shaders | faite (2026-10-26) | Claude, fil principal | | 11 effets vérifiés 11/11 par leurs pixels et indexés : `python -m usine.rag.effets verifier` (ETAT, 2026-10-26) |
-| R2 | Catalogues de morceaux de code | réservée (2026-10-26) | Claude, fil principal | | 9 morceaux vérifiés 9/9 et indexés (ETAT, 2026-10-26) ; interface à faire |
-| R3 | Reconstruire le RAG et rejouer les bancs | après chaque ajout | | | 2026-10-26 : banc 14/87 pages, 33/87 utiles hors même cours ; banc-docs membres 970/1000, classes 652/652, guides 820/905 (page) et 729/905 (section) |
+| R2 | Catalogues de morceaux de code | faite (2026-10-26) | Claude, fil principal | | 11 morceaux vérifiés 11/11 par leur comportement et indexés : `python -m usine.rag.morceaux verifier` (ETAT, 2026-10-26) |
+| R3 | Reconstruire le RAG et rejouer les bancs | après chaque ajout | | | 2026-10-26 : banc 14/87 pages, 34/87 utiles hors même cours ; banc-docs membres 970/1000, classes 652/652, guides 820/905 (page) et 729/905 (section) |
 | G1 | Comparaison des API sur la 4.8 stable | en attente de la sortie | | | |
 | G2 | Documentation 4.8 dans le RAG | en attente de G1 | | | |
 | G3 | Paires 4.8 | en attente de la décision de migrer | | | |
