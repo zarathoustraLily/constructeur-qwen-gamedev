@@ -197,7 +197,15 @@ class IndexDocs:
         classes = [c for c in mots if (r := self._classes(c)) and (len(mots) == 1 or r[0]["classe"] == c)]
         for c in classes:
             trouves += self._classes(c)
-        autres = [w for w in mots if w not in classes and ("_" in w or len(mots) == 1)]
+        # Un membre d'un seul mot (`enabled`, velocity) est pris s'il est écrit entre accents graves, ou, dans une
+        # requête courte (« NavigationRegion3D enabled »), s'il appartient à la classe nommée elle-même. Chercher les
+        # ancêtres sans marque ferait entrer get, set, call… d'Object pour n'importe quel mot anglais ; dans une
+        # phrase, les mots ordinaires (« mesh », « animation ») prendraient la place des guides (banc_docs).
+        marques = {m for code in re.findall(r"`([^`]+)`", requete) for m in RE_IDENT.findall(code)}
+        propres = {r["membre"] for c in classes for r in self.con.execute(
+            "SELECT membre FROM fragments WHERE genre='membre' AND classe=?", (c,))} if len(mots) <= 4 else set()
+        autres = [w for w in mots if w not in classes
+                  and ("_" in w or len(mots) == 1 or w in marques or (w in propres and len(w) >= 3))]
         for w in autres:
             if classes:
                 ancetres = [a for c in classes for a in self._heritage(c)]

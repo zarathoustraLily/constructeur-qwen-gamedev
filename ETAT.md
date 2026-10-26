@@ -1776,8 +1776,25 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
 - Jeu de données `arunsrajan/godot-docs-dataset` (Hugging Face, étudié à la demande de laurent, 2026-10-26) :
   24 631 paires question/réponse au format Alpaca tirées de godot-docs, branche 4.7 de développement, questions sur
   gabarits, réponses = texte de la doc (85 % de référence des classes), sans vérification ni outils. Pas pour
-  l'entraînement (règles 18.1, 7.4, 5.2, 7.7 ; même source que notre RAG). **Proposé** : en faire un banc de
-  recherche du RAG (question → page et ancre attendues), après accord de laurent pour télécharger le CSV (15,7 Mo).
+  l'entraînement (règles 18.1, 7.4, 5.2, 7.7 ; même source que notre RAG). Banc de recherche du RAG (accord de
+  laurent : « je te donne l'accord ») :
+  - CSV téléchargé dans `donnees/rag/hf_godot_docs/` (révision `341723dec465…`, 15 704 187 octets, SHA-256
+    `049f8226…`, vérifié à chaque lecture) ; `python -m usine.rag banc-docs` (`usine/rag/banc_docs.py`) : 24 213
+    couples page#ancre en trois groupes (membre, classe, guide) ; couverture (page et ancre présentes dans l'index,
+    ancres converties comme `docutils.nodes.make_id`) et recherche sur 1 000 questions par groupe, toujours les
+    mêmes (page attendue, puis fragment de l'ancre, dans les 5 premiers résultats) ;
+  - deux défauts trouvés et corrigés : les pages `OS` et `IP` n'avaient **aucun membre** dans l'index (titre de
+    deux lettres souligné de deux caractères, non reconnu : la classe s'appelait « Description ») ; un membre d'un
+    seul mot (`enabled`, velocity) n'était jamais trouvé exactement : il l'est maintenant entre accents graves, ou
+    dans une requête de 4 mots au plus s'il appartient à la classe nommée (dans une phrase, « mesh » ou
+    « animation » prenaient la place des guides : mesuré, puis écarté) ;
+  - pages ajoutées à l'index : `about/`, `community/`, `engine_details/` file_formats (format `.tscn`), engine_api
+    (GDExtension), architecture ; restent hors index 223 lignes de pages pour contributeurs du moteur (compiler,
+    éditeur, écrire la référence) ; index : 1 553 pages, 30 945 fragments ;
+  - mesure (5 premiers résultats, source « tout ») : membres couverts 17 618 → 17 710/17 710, trouvés précisément
+    970/1 000 ; classes 652/652 ; guides couverts 3 104 → 3 421/3 644, page trouvée 820/905, section 729/905. Sur
+    le même échantillon de 200 avant/après : membres 186/198 → 194/200, classes 128/131 → 131/131, guides 157/169 et
+    140/169 inchangés. Banc en français inchangé (14/87 et 31/87 hors même cours ; 54/87 hors même étape).
 
 **Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
 
@@ -1803,6 +1820,11 @@ python -m usine.rag construire      : effets {'effets': 6, 'sections': 24, 'shad
 python -m usine.rag banc            : 87 demandes ; page de référence 14, fragment utile 54 (hors même étape)
 banc.mesurer(tout_le_cours=True)    : page 14/87, utiles 31/87 (référence du suivi : 14/87 et 30/87) : pas de recul
 python -m pytest -q tests/test_rag_effets.py tests/test_rag_nos_sources.py tests/test_rag_plugins.py tests/test_rag.py : 29 passed, 1 skipped (sqlite_vec absent)
+python -m usine.rag construire      : pages : 1553   fragments : 30945 ; fragments exclus (solution gelée) : 0
+python -m usine.rag banc-docs       : membre : couverture ancres 17710/17710 ; recherche page 1000/1000, précis 970/1000
+                                      classe : couverture pages 2859/2859, ancres 1851/2859 ; recherche 652/652
+                                      guide : couverture pages 3421/3644, ancres 3356/3644 ; recherche page 820/905, précis 729/905
+python -m pytest -q tests/test_mcp_serveur.py tests/test_rag*.py : 37 passed, 1 skipped (sqlite_vec absent)
 ```
 
 **Reste à faire**

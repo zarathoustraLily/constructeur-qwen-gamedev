@@ -13,3 +13,6 @@ complet (R1, R2), remarque de laurent : « pourquoi ne sais tu pas qu'on devais 
 vignette, pixelisation) ; fiches réécrites depuis le code que Godot a fait tourner ; indexés dans le RAG
 2026-10-26 — R3 — Claude (fil principal) — mesure — banc hors même cours 14/87 pages, 31/87 utiles (30/87 avant) :
 pas de recul
+2026-10-26 — R3 — Claude (fil principal) — banc ajouté — questions de godot-docs-dataset (accord de laurent pour
+le téléchargement) : `python -m usine.rag banc-docs` ; défauts corrigés : OS et IP sans membres, membres d'un mot ;
+pages about/, community/, engine_details/ utiles ajoutées ; banc en français inchangé

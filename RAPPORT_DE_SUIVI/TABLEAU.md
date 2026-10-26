@@ -42,7 +42,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | F4 | RFT puis RLVR | plus tard | | | |
 | R1 | Catalogue d'effets et de shaders | réservée (2026-10-26) | Claude, fil principal | | 6 effets vérifiés 6/6 et indexés (ETAT, 2026-10-26) ; eau, traînées à faire |
 | R2 | Catalogues de morceaux de code | à faire | | | |
-| R3 | Reconstruire le RAG et rejouer le banc | après chaque ajout | | | 2026-10-26 : 14/87 pages, 31/87 utiles hors même cours |
+| R3 | Reconstruire le RAG et rejouer les bancs | après chaque ajout | | | 2026-10-26 : banc 14/87 pages, 31/87 utiles hors même cours ; banc-docs membres 970/1000, classes 652/652, guides 820/905 (page) et 729/905 (section) |
 | G1 | Comparaison des API sur la 4.8 stable | en attente de la sortie | | | |
 | G2 | Documentation 4.8 dans le RAG | en attente de G1 | | | |
 | G3 | Paires 4.8 | en attente de la décision de migrer | | | |

@@ -5,8 +5,10 @@ Deux sortes de pages :
   héritage, résumé, Description), puis un fragment par membre (méthode, propriété, signal,
   énumération, constante, annotation…), repéré par son ancre `.. _class_<Classe>_<genre>_<nom>:`.
   Les tableaux récapitulatifs sont sautés : `vocab_lookup` les donne mieux et en moins de jetons ;
-- guides (`getting_started/`, `tutorials/`) : un fragment par section, découpé par paragraphes
-  au-delà de TAILLE_MAX caractères.
+- guides (`getting_started/`, `tutorials/`, `about/`, `community/` et la part d'`engine_details/` utile à un
+  jeu : formats de fichiers, API du moteur, architecture) : un fragment par section, découpé par paragraphes
+  au-delà de TAILLE_MAX caractères. Le reste d'`engine_details/` (compiler le moteur, développer l'éditeur,
+  écrire la référence) ne s'adresse qu'aux contributeurs du moteur.
 
 Le C# est retiré des onglets de code (`.. code-tab:: csharp`) : Qwen écrit du GDScript.
 """
@@ -19,6 +21,8 @@ from pathlib import Path
 
 TAILLE_MAX = 1800
 RE_SOULIGNE = re.compile(r"^([=\-~^\"'`#*+.:_])\1{2,}\s*$")
+# Un titre d'une ou deux lettres se souligne de deux caractères (« OS », « IP » dans la référence des classes).
+RE_SOULIGNE_COURT = re.compile(r"^([=\-~^\"'`#*+])\1\s*$")
 RE_ANCRE = re.compile(r"^\.\. _([^:]+):\s*$")
 RE_ROLE_CIBLE = re.compile(r":(?:ref|doc|abbr|term|kbd|menuselection|guilabel|code|file|math|"
                            r"button|ui|inputevent|emphasis|strong|literal)?:`([^`<]*?)\s*<[^`>]*>`")
@@ -113,7 +117,9 @@ def _sections(lignes: list[str]) -> list[tuple[str, int, list[str], list[str]]]:
         m = RE_ANCRE.match(ligne.strip())
         if m:
             ancres_en_attente.append(m.group(1))
-        if ligne.strip() and not ligne.startswith(" ") and RE_SOULIGNE.match(suivante.strip()) \
+        souligne = RE_SOULIGNE.match(suivante.strip()) or (RE_SOULIGNE_COURT.match(suivante.strip())
+                                                           and len(ligne.strip()) <= 2)
+        if ligne.strip() and not ligne.startswith(" ") and souligne \
                 and len(suivante.strip()) >= len(ligne.strip()) - 1 and not RE_SOULIGNE.match(ligne.strip()):
             car = suivante.strip()[0]
             if car not in niveaux:
@@ -232,7 +238,8 @@ def lire_page(racine_docs: Path, fichier: Path) -> list[Fragment]:
     return fragments_guide(source, lignes)
 
 
-DOSSIERS_INDEXES = ("classes", "getting_started", "tutorials")
+DOSSIERS_INDEXES = ("classes", "getting_started", "tutorials", "about", "community", "engine_details/architecture",
+                    "engine_details/engine_api", "engine_details/file_formats")
 
 
 def pages(racine_docs: Path) -> list[Path]:

@@ -182,8 +182,10 @@ apprend à lire un RAG qui n'existe plus.
 - **R1** : catalogue d'effets et de shaders vérifiés (eau, dissolution, contour, flash d'impact, traînées…), même
   modèle que `rag/plugins/` (fiche + exemple rendu en Compatibilité). Estimation : 3 jours.
 - **R2** : catalogues de morceaux de code (procédural, machines à états, VFX, caméras, inventaires, UI). 2 jours.
-- **R3** : après chaque ajout, `python -m usine.rag construire` puis `python -m usine.rag banc` ; le score ne doit
-  pas baisser (hors même cours : 14/87 pages, 30/87 utiles le 2026-10-22 ; 14/87 et 31/87 le 2026-10-26).
+- **R3** : après chaque ajout, `python -m usine.rag construire`, puis `python -m usine.rag banc` et
+  `python -m usine.rag banc-docs` ; aucun score ne doit baisser. Banc (hors même cours) : 14/87 pages, 30/87 utiles
+  le 2026-10-22 ; 14/87 et 31/87 le 2026-10-26. Banc-docs (questions de godot-docs-dataset, 2026-10-26) : membres
+  970/1000, classes 652/652, guides 820/905 pour la page et 729/905 pour la section.
 
 ---
 

@@ -4,6 +4,8 @@
     python -m usine.rag chercher "CharacterBody2D" [-n 5] [--source tout|doc|exemples] [--json]
     python -m usine.rag verifier [--taches <dossier de tâches>] [--temoin <projet source>]
     python -m usine.rag vecteurs [--url http://127.0.0.1:8080/v1] [--lot 32]   (option sqlite-vec)
+    python -m usine.rag banc [-n 5] [--rates 10]
+    python -m usine.rag banc-docs [-n 5] [--par-groupe 1000] [--source tout|doc] [--rates 10]
 
 `construire` lit `[chemins].docs_godot` et `[chemins].demos_godot` de config.toml si les options
 sont absentes. Les démos sont d'abord vérifiées par Godot (import + compilation de chaque
@@ -52,6 +54,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("-n", type=int, default=5)
     p.add_argument("--index", type=Path)
     p.add_argument("--rates", type=int, default=0, help="afficher autant de demandes ratées")
+    p = sous.add_parser("banc-docs", help="questions de godot-docs-dataset : couverture et recherche (banc_docs.py)")
+    p.add_argument("-n", type=int, default=5)
+    p.add_argument("--par-groupe", type=int, default=1000, help="questions par groupe (0 : toutes)")
+    p.add_argument("--source", default="tout", choices=["tout", "doc"])
+    p.add_argument("--index", type=Path)
+    p.add_argument("--rates", type=int, default=0, help="afficher autant de questions ratées par groupe")
     p = sous.add_parser("vecteurs", help="plongements sqlite-vec par le llama-server local (option)")
     p.add_argument("--url", default=None)
     p.add_argument("--lot", type=int, default=32)
@@ -99,6 +107,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {cours} : {s}")
         for x in r["rates"][:args.rates]:
             print(f"  raté : {x['demande']} {x['attendues']} → {x['obtenus'][:3]}")
+        return 0
+    if args.commande == "banc-docs":
+        from usine.rag.banc_docs import mesurer as mesurer_docs
+        r = mesurer_docs(args.n, args.par_groupe, args.source, args.index)
+        print(f"{r['lignes']} couples page#ancre (révision {r['revision'][:12]}) ; source {r['source']}, "
+              f"{r['n']} premiers résultats")
+        for g, c in r["couverture"].items():
+            s = r["recherche"][g]
+            print(f"  {g} : couverture pages {c['pages']}/{c['total']}, ancres {c['ancres']}/{c['total']} ; "
+                  f"recherche page {s['page']}/{s['total']}, précis {s['precis']}/{s['total']}")
+            for x in r["absentes"].get(g, [])[:args.rates]:
+                print(f"    absente : {x}")
+            for x in r["rates"].get(g, [])[:args.rates]:
+                print(f"    ratée : {x['question']} → {x['attendu']} ; obtenus {x['obtenus'][:3]}")
         return 0
     if args.commande == "chercher":
         res = rag.IndexDocs(args.index, plonger=rag.plongeur_configure()).chercher(args.requete, args.n, args.source)

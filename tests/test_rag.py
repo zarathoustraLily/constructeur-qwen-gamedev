@@ -82,6 +82,17 @@ def test_fragments_classe():
     assert "🔗" not in membres["move_and_slide"].texte
 
 
+def test_classe_au_nom_de_deux_lettres():
+    # « OS » et « IP » : titre souligné de deux caractères ; sans lui, la page perdait tous ses membres.
+    rst = (".. _class_OS:\n\nOS\n==\n\n**Inherits:** Object\n\nProvides access.\n\n"
+           "Methods\n-------\n\nx\n\nMethod Descriptions\n-------------------\n\n"
+           ".. _class_OS_method_get_name:\n\n:ref:`String<class_String>` **get_name**\\ (\\ )\n\n"
+           "Returns the name of the host platform.\n")
+    fr = fragments_classe("classes/class_os.rst", rst.splitlines())
+    assert fr[0].titre == "OS" and fr[0].genre == "classe"
+    assert [f.membre for f in fr if f.genre == "membre"] == ["get_name"]
+
+
 def test_fragments_guide_garde_le_gdscript_et_retire_le_csharp():
     fr = fragments_guide("tutorials/using.rst", GUIDE_RST.splitlines())
     assert [f.titre for f in fr] == ["Using CharacterBody2D › Introduction"]
