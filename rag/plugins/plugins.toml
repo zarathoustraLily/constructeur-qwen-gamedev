@@ -183,3 +183,13 @@ fichier = "main.zip"
 sha256 = "9601a47f0bb1ba1df685bcbe82bf2c15a98f4bd0acd1c634a6ec2b242585f356"
 addons = ["event-audio-godot-main/addons/event_audio"]
 autoloads = { EventAudio = "*res://addons/event_audio/scenes/event_audio_autoload.tscn" }
+
+[smartshape2d]
+nom = "SmartShape2D"
+depot = "SirRamEsq/SmartShape2D"
+version = "3.3.2"
+licence = "MIT"
+url = "https://github.com/SirRamEsq/SmartShape2D/releases/download/3.3.2/SmartShape2D-3.3.2.zip"
+fichier = "SmartShape2D-3.3.2.zip"
+sha256 = "3c50f6485253ea8ecb068b73c3d3c6c580b8e614316f7ef4237cc7d44ec26efd"
+addons = ["addons/rmsmartshape"]
