@@ -102,3 +102,13 @@ fichier = "juicee-2.0.0.zip"
 sha256 = "ad17a42433ab2b407fb1c7249bfff1bece1cc3b94de993988747e6e37955af81"
 addons = ["addons/juicee"]
 autoloads = { Juicee = "*res://addons/juicee/core/juicee.gd" }
+
+[health_hitbox_hurtbox]
+nom = "Health, HitBoxes, HurtBoxes"
+depot = "cluttered-code/godot-health-hitbox-hurtbox"
+version = "v5.0.4"
+licence = "MIT"
+url = "https://github.com/cluttered-code/godot-health-hitbox-hurtbox/releases/download/v5.0.4/godot-health-hitbox-hurtbox-5.0.4.zip"
+fichier = "godot-health-hitbox-hurtbox-5.0.4.zip"
+sha256 = "73d6c3a94e9e41cedb5af63cc5a64187b058c2e31ba5c1d345fe36ad5f53d73b"
+addons = ["godot-health-hitbox-hurtbox-5.0.4/addons/health_hitbox_hurtbox"]
