@@ -7,6 +7,8 @@
   `addons/` n'entre pas : ce n'est pas notre code.
 - Plugins : `rag/plugins/<id>/fiche.md`, un fragment par section, genre « plugin », et l'exemple vérifié
   (`exemple/exemple.gd`), genre « exemple ».
+- Effets : `rag/effets/<id>/fiche.md`, un fragment par section, genre « effet », et l'exemple vérifié par ses pixels
+  (shaders et `exemple/exemple.gd`), genre « exemple ».
 
 Rien ne vient de Starfox ni des jeux gelés : l'index passe chaque fragment par `Exclusion.texte_exclu` (règle 4).
 """
@@ -27,6 +29,21 @@ SHADERS = (".gdshader", ".gdshaderinc")
 
 def _coupe(texte: str) -> str:
     return texte if len(texte) <= TAILLE_MAX else texte[:TAILLE_MAX].rsplit("\n", 1)[0] + "\n[…]"
+
+
+def sections(texte: str) -> list[str]:
+    """Coupe une fiche à ses titres « ## » : l'en-tête, puis chaque section sans son « ## ». Un « ## » dans un bloc
+    de code (commentaire de documentation GDScript) n'est pas un titre."""
+    morceaux = [[]]
+    dans_code = False
+    for ligne in texte.splitlines(keepends=True):
+        if ligne.startswith("```"):
+            dans_code = not dans_code
+        if not dans_code and ligne.startswith("## "):
+            morceaux.append([ligne[3:]])
+        else:
+            morceaux[-1].append(ligne)
+    return ["".join(m) for m in morceaux]
 
 
 def fragments_notes(readme: Path, cours: str) -> list[Fragment]:
@@ -103,7 +120,7 @@ def fragments_plugins(dossier: Path | None = None) -> tuple[list[Fragment], dict
         texte = fiche.read_text(encoding="utf-8")
         nom = texte.splitlines()[0].lstrip("# ").strip()
         source = f"rag/plugins/{ident}/fiche.md"
-        morceaux = re.split(r"^## ", texte, flags=re.M)
+        morceaux = sections(texte)
         entete = morceaux[0].strip()
         fragments.append(Fragment(source, nom, f"plugin {nom}", _coupe(entete), "plugin"))
         for m in morceaux[1:]:
@@ -116,4 +133,41 @@ def fragments_plugins(dossier: Path | None = None) -> tuple[list[Fragment], dict
                                           prefixe="rag/plugins", etiquette=f"exemple vérifié du plugin {nom},")
         compte["plugins"] += 1
         compte["sections"] += len(morceaux)
+    return fragments, compte
+
+
+def fragments_effets(dossier: Path | None = None) -> tuple[list[Fragment], dict[str, int]]:
+    """Fiches d'effets : un fragment par section, genre « effet » ; leur code vient des fichiers vérifiés, indexés une
+    seule fois en genre « exemple » (shaders entiers, `exemple.gd` découpé par fonction). Les sections de la fiche qui
+    recopient ce code (« Le shader », « Le piloter ») n'entrent donc pas une seconde fois."""
+    dossier = Path(dossier or cfg.RACINE / "rag" / "effets")
+    fragments: list[Fragment] = []
+    compte = {"effets": 0, "sections": 0, "shaders": 0}
+    for fiche in sorted(dossier.glob("*/fiche.md")):
+        ident = fiche.parent.name
+        texte = fiche.read_text(encoding="utf-8")
+        nom = texte.splitlines()[0].lstrip("# ").strip()
+        source = f"rag/effets/{ident}/fiche.md"
+        morceaux = sections(texte)
+        fragments.append(Fragment(source, nom, f"effet {nom}", _coupe(morceaux[0].strip()), "effet"))
+        for m in morceaux[1:]:
+            titre, _, corps = m.partition("\n")
+            if titre.startswith(("Le shader", "Le piloter")):
+                continue
+            fragments.append(Fragment(source, nom, f"effet {nom} › {titre.strip()}",
+                                      _coupe(f"# effet {nom}\n{corps.strip()}"), "effet"))
+            compte["sections"] += 1
+        exemple = fiche.parent / "exemple"
+        for shader in sorted(exemple.glob("*.gdshader")):
+            code = shader.read_text(encoding="utf-8")
+            fragments.append(Fragment(f"rag/effets/{ident}/exemple/{shader.name}", f"effet vérifié {nom}",
+                                      f"{nom} › {shader.name}",
+                                      _coupe(f"// effet vérifié {nom} — res://exemple/{shader.name}\n{code}"),
+                                      "exemple"))
+            compte["shaders"] += 1
+        if (exemple / "exemple.gd").is_file():
+            fragments += fragments_script(ident, "res://exemple/exemple.gd",
+                                          (exemple / "exemple.gd").read_text(encoding="utf-8"),
+                                          prefixe="rag/effets", etiquette=f"exemple vérifié de l'effet {nom},")
+        compte["effets"] += 1
     return fragments, compte

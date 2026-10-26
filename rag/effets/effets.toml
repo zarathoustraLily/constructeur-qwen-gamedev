@@ -1,0 +1,98 @@
+# Catalogue d'effets du RAG (étape R1 du suivi). Une entrée par effet ; son exemple vérifié est dans <id>/exemple/.
+# `python -m usine.rag.effets verifier` rend chaque exemple dans Godot 4.7.2, lit ses pixels, puis réécrit
+# <id>/fiche.md à partir de ce texte, du shader et des fonctions de pilotage de l'exemple (le code des fiches est celui
+# que Godot a fait tourner) et de la mesure écrite par l'exemple.
+# Chaque piège est mesuré par l'exemple ou cité dans sa source ; sinon, il est marqué « non mesuré ici ».
+
+[flash_impact]
+titre = "Flash d'impact (VFX, shader spatial)"
+fait = """\
+Au moment d'un coup, l'objet touché vire à une couleur (le blanc, en général) puis revient : le joueur voit tout de \
+suite qu'il a touché. Le shader mélange la couleur de base et celle du flash selon un paramètre `flash` de 0 à 1, et \
+ajoute la même couleur en émission pour que le flash se voie dans l'ombre."""
+quand = """\
+Ennemi touché, joueur blessé, objet ramassé. Pour un modèle importé, on garde son matériau et on pose ce shader en \
+`next_pass` ou en `material_overlay`."""
+pieges = [
+    """Un matériau est une ressource, partagée par tous les objets qui l'utilisent (godot-docs, resources.rst) : \
+un seul matériau pour tous les ennemis les fait tous flasher. Un `ShaderMaterial` par instance (`duplicate()`), ou un \
+paramètre d'instance (`instance uniform`, réglé par \
+`GeometryInstance3D.set_instance_shader_parameter` ; godot-docs, « Per-instance uniforms »).""",
+    """Rien n'arrête le flash précédent : un second coup pendant le flash crée un second `Tween` sur le même \
+paramètre. Garder le `Tween` rendu par `flasher` et l'arrêter (`kill()`) avant d'en lancer un autre (non mesuré ici).""",
+]
+
+[dissolution]
+titre = "Dissolution (VFX, shader spatial)"
+fait = """\
+L'objet disparaît par morceaux quand `progression` monte de 0 à 1, avec un liseré lumineux au bord des trous. Chaque \
+fragment compare un bruit à la progression et se retire (`discard`) en dessous."""
+quand = """\
+Ennemi vaincu, objet qui apparaît ou disparaît, téléportation. Le bruit est calculé dans le shader (fonction \
+`value_noise`) : pas de texture à charger."""
+pieges = [
+    """Une `NoiseTexture2D` génère ses données sur un fil : tant que ce n'est pas fini, elle est vide (référence des \
+classes 4.7.2 : attendre `texture.changed`). Le bruit calculé dans le shader évite ce délai.""",
+    """Entièrement dissous, l'objet reste dans la scène et coûte encore son appel de dessin : `dissoudre` le libère à \
+la fin (mesuré par l'exemple).""",
+]
+
+[contour]
+titre = "Contour par coque inversée (shader spatial, passe suivante)"
+fait = """\
+Un trait de couleur autour de la silhouette : le maillage est redessiné une seconde fois, gonflé le long de ses \
+normales et vu de dos (`cull_front`), d'une couleur unie. Seul le bord dépasse."""
+quand = """\
+Objet sélectionné ou interactif, ennemi ciblé, style dessin animé. Le shader se met en `next_pass` du matériau de \
+l'objet : on garde son apparence."""
+pieges = [
+    """Sur un maillage à arêtes vives (un cube), les normales des faces sont séparées : le gonflement ouvre le trait \
+aux coins (limite connue de la méthode, non mesurée ici). Un maillage lissé donne un trait continu.""",
+    """L'épaisseur est en unités du maillage : `VERTEX` et `NORMAL` sont en espace du modèle (godot-docs, \
+spatial_shader.rst). Le trait suit l'échelle de l'objet et paraît plus fin de loin.""",
+    """`next_pass` modifie le matériau lui-même, une ressource partagée (godot-docs, resources.rst) : posé sur un \
+matériau commun, il entoure tous les objets qui l'utilisent.""",
+]
+
+[bouclier_fresnel]
+titre = "Bouclier d'énergie par effet de Fresnel (shader spatial, additif)"
+fait = """\
+Une bulle transparente au centre et lumineuse sur les bords : la luminosité suit `1 - dot(NORMAL, VIEW)`, forte quand \
+la surface est vue de biais. Le mélange additif (`blend_add`) éclaire ce qui est derrière sans le cacher."""
+quand = "Bouclier, aura, bulle de protection, mise en valeur d'un objet."
+pieges = [
+    """`depth_draw_never` : la bulle n'écrit pas la profondeur (« Never draw depth », godot-docs, \
+spatial_shader.rst), elle ne masque donc pas ce qu'elle contient (non mesuré ici).""",
+    """Avec `cull_back`, seule la face avant de la bulle est dessinée (mesuré : le centre montre le fond).""",
+]
+
+[vignette_degats]
+titre = "Vignette de dégâts (shader canvas_item, plein écran)"
+fait = """\
+Un voile rouge sur les bords de l'écran, d'autant plus fort que `force` monte (santé basse, coup reçu). Le centre \
+reste libre pour jouer."""
+quand = """\
+Santé basse, coup reçu, poison. Un `ColorRect` plein écran dans un `CanvasLayer` au-dessus du jeu porte le shader ; \
+c'est de la présentation (`4_ui/` ou un `_view.gd`)."""
+pieges = [
+    """`mouse_filter = MOUSE_FILTER_IGNORE` sur le `ColorRect` : avec `MOUSE_FILTER_STOP`, les clics sont marqués \
+traités et ne vont pas plus loin (référence des classes, `Control`).""",
+    """La force suit la santé dans la présentation, pas dans la logique (principe 1 du plan).""",
+]
+
+[pixelisation]
+titre = "Pixelisation de l'écran (shader canvas_item, texture d'écran)"
+fait = """\
+L'image déjà dessinée est relue (`hint_screen_texture`) par blocs de `taille` pixels : chaque bloc prend une seule \
+couleur. Effet rétro, transition, ou écran brouillé."""
+quand = """\
+Transition entre scènes, effet de téléportation, style rétro. Un `ColorRect` plein écran au-dessus de la scène porte \
+le shader."""
+pieges = [
+    """`filter_nearest` sur la texture d'écran, comme dans l'exemple de godot-docs (screen-reading_shaders.rst) : \
+un filtre lissé mélangerait les pixels voisins au bord des blocs (non mesuré ici).""",
+    """Lire chaque bloc au centre de son premier pixel (`+ 0.5`) : lu sur le bord du pixel, une première version de cet \
+exemple prenait parfois le voisin (mesuré : 222 changements au lieu de 223 avec des blocs de 1).""",
+    """Le shader ne voit que ce qui est dessiné avant lui, « what lies behind » (godot-docs, \
+screen-reading_shaders.rst) : l'interface dessinée au-dessus reste nette.""",
+]

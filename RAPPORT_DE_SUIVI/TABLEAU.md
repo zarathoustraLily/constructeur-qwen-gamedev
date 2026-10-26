@@ -16,7 +16,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | B3 | Paires : erreur à l'exécution → correction | à faire | | | |
 | B4 | Paires : lire une sortie de Godot | à faire | | | |
 | B5 | Paires : création courte | à faire | | | |
-| B6 | Paires : RAG | en attente de A5 | | | |
+| B6 | Paires : RAG | en attente de A5, R1, R2 | | | |
 | B7 | Paires : images, 4 niveaux | à faire | | | |
 | B8 | Assembleur du palier 1 | en attente de B1 | | | |
 | B9 | Génération du palier 1 sur le PC | en attente de B8 | | | |
@@ -32,7 +32,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | D5 | Génération du palier 2 sur le PC | en attente de D4 | | | |
 | D6 | Étape 2 | en attente de C5, D5 | | | |
 | E1 | Regénérer les 732 sessions | en attente de A1, A2, A4 | | | |
-| E2 | Nouvelles sessions OpenCode | en attente de A5 | | | |
+| E2 | Nouvelles sessions OpenCode | en attente de A5, R1, R2 | | | |
 | E3 | Assembleur des sessions | en attente de E1, E2 | | | |
 | E4 | Essai de débit sur carte louée | en attente de C1 | | | |
 | E5 | Étape 3 | en attente de D6, E3, E4 | | | |
@@ -40,9 +40,9 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | F2 | Campagne Starfox avec le LoRA final, avec et sans RAG | en attente de E5 | | | |
 | F3 | Comparaison avec t1 et Qwen seul | en attente de F2 | | | |
 | F4 | RFT puis RLVR | plus tard | | | |
-| R1 | Catalogue d'effets et de shaders | à faire | | | |
+| R1 | Catalogue d'effets et de shaders | réservée (2026-10-26) | Claude, fil principal | | 6 effets vérifiés 6/6 et indexés (ETAT, 2026-10-26) ; eau, traînées à faire |
 | R2 | Catalogues de morceaux de code | à faire | | | |
-| R3 | Reconstruire le RAG et rejouer le banc | après chaque ajout | | | |
+| R3 | Reconstruire le RAG et rejouer le banc | après chaque ajout | | | 2026-10-26 : 14/87 pages, 31/87 utiles hors même cours |
 | G1 | Comparaison des API sur la 4.8 stable | en attente de la sortie | | | |
 | G2 | Documentation 4.8 dans le RAG | en attente de G1 | | | |
 | G3 | Paires 4.8 | en attente de la décision de migrer | | | |

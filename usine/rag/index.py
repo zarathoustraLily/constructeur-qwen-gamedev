@@ -76,7 +76,7 @@ def construire(docs: Path, sortie: Path | None = None, donnees: Path | None = No
 
     demos + verification : exemples vérifiés (voir exemples.py) ; `demos_exclues` retire des
     projets entiers (par ex. une démo devenue source de tâches gelées).
-    nos_sources : nos cours (notes et code) et nos fiches de plugins (voir nos_sources.py).
+    nos_sources : nos cours (notes et code), nos fiches de plugins et d'effets (voir nos_sources.py).
     exclusion : une `usine.portillon.exclusion.Exclusion` ; par défaut celle du manifeste de
     `donnees/geles/`. Renvoie un rapport {fragments, pages, exclus, manifeste, duree_s, demos}.
     """
@@ -104,11 +104,12 @@ def construire(docs: Path, sortie: Path | None = None, donnees: Path | None = No
         fragments_ex, compte_demos = fragments_demos(demos, {**verification, "projets": retenus})
     compte_nous: dict[str, dict[str, int]] = {}
     if nos_sources:
-        from usine.rag.nos_sources import fragments_cours, fragments_plugins
+        from usine.rag.nos_sources import fragments_cours, fragments_effets, fragments_plugins
 
         f_cours, compte_nous["cours"] = fragments_cours(donnees)
         f_plugins, compte_nous["plugins"] = fragments_plugins()
-        fragments_ex += f_cours + f_plugins
+        f_effets, compte_nous["effets"] = fragments_effets()
+        fragments_ex += f_cours + f_plugins + f_effets
     con = sqlite3.connect(tmp)
     exclus: list[tuple[str, str, str]] = []
     n = 0

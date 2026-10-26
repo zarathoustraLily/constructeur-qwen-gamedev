@@ -1755,6 +1755,29 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   (`AnimationNodeBlendSpace2D.triangles`). 33 concernent la réalité virtuelle (OpenXR). À 6 paires par différence :
   1 722 paires (1 524 hors réalité virtuelle), sous le plafond de 10 % des 22 000 paires courtes. À refaire sur la
   version stable avant de générer.
+- Catalogue d'effets du RAG (étape R1 du suivi ; remarque de laurent : « pourquoi ne sais tu pas qu'on devais
+  preparer le RAG pour les shaders etc ??? ») :
+  - `rag/effets/effets.toml` (titre, usage, pièges) et `rag/effets/<id>/exemple/` (shaders et `exemple.gd`) ;
+    `python -m usine.rag.effets verifier` rend chaque exemple en Compatibilité, fenêtre hors de l'écran, lit ses
+    pixels, puis réécrit la fiche : shaders et fonctions de pilotage recopiés des fichiers que Godot vient de faire
+    tourner, mesure tirée de la ligne écrite par l'exemple. Chaque fonction de pilotage est appelée par l'exemple
+    (test) ; chaque piège est mesuré, cité (godot-docs 4.7, référence des classes) ou marqué « non mesuré ici ».
+  - 6/6 : flash d'impact (rouge → blanc → rouge en 0,25 s), dissolution (part disparue 0 / 0,25 / 1 ; 1 appel de
+    dessin sphère dissoute, 0 une fois libérée), contour (0 / 18 / 0 pixels sombres), bouclier de Fresnel (centre au
+    fond, bord à 0,97 ; lueur 4,9 → 8,1 pendant un coup → 4,9), vignette de dégâts, pixelisation.
+  - Défaut trouvé en vérifiant : la pixelisation lisait chaque bloc au bord de son premier pixel, et le filtre
+    « nearest » y prenait parfois le voisin (222 changements au lieu de 223 avec des blocs de 1) ; elle lit
+    maintenant le centre du pixel (+ 0,5).
+  - RAG : fiches indexées en genre « effet » (24 sections), leur code une seule fois en genre « exemple » (6
+    shaders, `exemple.gd` par fonction). Le découpage des fiches ignore désormais les `## ` des blocs de code
+    (commentaires de documentation GDScript : la fiche de GdUnit4 en avait un). Les 5 premiers résultats donnent la
+    fiche pour 5 demandes d'effets sur 6 ; « faire flasher un ennemi en blanc quand il est touché » remonte la vue
+    d'ennemi du roguelike.
+- Jeu de données `arunsrajan/godot-docs-dataset` (Hugging Face, étudié à la demande de laurent, 2026-10-26) :
+  24 631 paires question/réponse au format Alpaca tirées de godot-docs, branche 4.7 de développement, questions sur
+  gabarits, réponses = texte de la doc (85 % de référence des classes), sans vérification ni outils. Pas pour
+  l'entraînement (règles 18.1, 7.4, 5.2, 7.7 ; même source que notre RAG). **Proposé** : en faire un banc de
+  recherche du RAG (question → page et ancre attendues), après accord de laurent pour télécharger le CSV (15,7 Mo).
 
 **Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
 
@@ -1770,6 +1793,16 @@ python -m usine.cours.base assembler --cours kart           : problèmes : 0
   création 49,8 % ; débogage/création par étape 0,97 à 1,06, médiane 1,01 ; plus long 31 439 ; rejouées : 0 différence
 python -m pytest -q tests/test_cours_base_jeu.py tests/test_cours_base.py tests/test_cours_opencode.py tests/test_cours_jeu.py tests/test_cours.py : 50 passed
 python -m usine.cours verifier batiments_proceduraux --travailleurs 1 : 39/39 projets vérifiés sans erreur (cours des bâtiments inchangé par ce travail, vérifié avec le vérificateur actuel)
+```
+
+**Preuve du catalogue d'effets** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-26)
+
+```
+python -m usine.rag.effets verifier : 6/6 exemples vérifiés, leurs fiches réécrites
+python -m usine.rag construire      : effets {'effets': 6, 'sections': 24, 'shaders': 6} ; fragments exclus (solution gelée) : 0
+python -m usine.rag banc            : 87 demandes ; page de référence 14, fragment utile 54 (hors même étape)
+banc.mesurer(tout_le_cours=True)    : page 14/87, utiles 31/87 (référence du suivi : 14/87 et 30/87) : pas de recul
+python -m pytest -q tests/test_rag_effets.py tests/test_rag_nos_sources.py tests/test_rag_plugins.py tests/test_rag.py : 29 passed, 1 skipped (sqlite_vec absent)
 ```
 
 **Reste à faire**

@@ -14,7 +14,7 @@ les écrire fait partie de l'étape. Sources des décisions : `CLAUDE.md` (déci
 | D. Paires courtes, palier 2 (10 000 × 2 048) | D1 à D6 | tout de suite (D1, D2) ; D3 après B7 |
 | E. Sessions OpenCode (3 000) | E1 à E5 | après A1, A2 et A5 |
 | F. Mesure | F1 à F4 | après C4, puis après chaque étape d'entraînement |
-| R. RAG (en continu) | R1 à R3 | tout de suite |
+| R. RAG complet (priorité) | R1 à R3 | tout de suite ; **avant B6 et E2**, qui contiennent les vraies réponses du RAG |
 | G. Godot 4.8 | G1 à G3 | en attente de la version stable |
 
 Avec trois IA en parallèle (une sur B1 à B5, une sur B7 puis D3, une sur A, D1, D2), le premier entraînement d'essai
@@ -85,7 +85,7 @@ Chaque paire est vérifiée par Godot, `extension_api.json` ou la vraie recherch
 | B3 | Erreur à l'exécution → correction (instance nulle, chemin de nœud, signal) | débogage | 1 000 | fautes injectées ; lancement, sortie lue | 1,5 jour |
 | B4 | Lire une sortie de Godot (réussi ou non, ligne qui compte, catégorie, `fichier:ligne`) | analyse | 1 500 | sorties réelles des cours, étiquettes connues (D1) | 1 jour |
 | B5 | Création courte : appel exact pour une intention, signatures typées, petite fonction d'après un contrat | création | 4 000 | code vérifié des cours et des démos ; `extension_api.json` ; tests | 2 jours |
-| B6 | RAG : formuler la requête, trier les résultats, appliquer l'extrait | création | 700 | vrai `search_docs` ; la page attendue dans les 3 premiers | 1 jour, après A5 |
+| B6 | RAG : formuler la requête, trier les résultats, appliquer l'extrait | création | 700 | vrai `search_docs` ; la page attendue dans les 3 premiers | 1 jour, après A5, R1 et R2 |
 | B7 | Images (4 niveaux × 500) : reconnaître, comparer deux étapes, voulu ou défaut, relier à la ligne | analyse, débogage | 2 000 | vérité du moteur (nœuds visibles, position projetée, défaut injecté) ; juge visuel | 3 jours |
 
 Le partage 40/40/20 se règle en jetons de réponse à l'assemblage (B8), pas au nombre de paires.
@@ -154,7 +154,7 @@ les fiches de plugins (`rag/plugins/`) fournissent la matière « plugins ».
 | ID | Étape | Dépend de | Estimation |
 | --- | --- | --- | --- |
 | E1 | Regénérer les 732 sessions existantes (kart, roguelike, bâtiments) : plan (A1), 40/40/20 (A2), espaces (A4) | A1, A2, A4 | machine : quelques heures |
-| E2 | Nouvelles sessions : démos, jouer et regarder (O1), boucles d'images, RAG appelé puis employé (décision 18.2), audio, optimisation, mémoire, plugins | A5 | 4 à 5 jours |
+| E2 | Nouvelles sessions : démos, jouer et regarder (O1), boucles d'images, RAG appelé puis employé (décision 18.2), audio, optimisation, mémoire, plugins | A5, R1, R2 | 4 à 5 jours |
 | E3 | Assembleur des sessions (plafond 32 768, aucune troncature, règle 7.5) | E1, E2 | 0,5 jour |
 | E4 | Essai de débit sur la carte louée (H200 ou B300, avec `flash-linear-attention`, `causal-conv1d`, Liger) | C1 | 1 h de location |
 | E5 | Étape 3 : les 3 000 sessions + environ 5 000 paires courtes reprises | E3, E4 | location : 45 à 95 € (estimation) |
@@ -172,13 +172,18 @@ La réflexion écrite en clair dans les sessions reste **proposée** (pas un blo
 
 ---
 
-## R. RAG (en continu, une IA peut s'en charger seule)
+## R. RAG complet (priorité : avant B6 et E2)
+
+Demande de laurent : « ameliore le RAG poru qu'il soit complet » ; puis « lister des exemples de shaders, et des
+morceaux de codes pour le procedurale les state machine, les vfx les acemra les inventaires, les ui etc ». Les paires
+RAG et les sessions contiennent la vraie sortie du RAG : le RAG doit être complet avant de les générer, sinon le LoRA
+apprend à lire un RAG qui n'existe plus.
 
 - **R1** : catalogue d'effets et de shaders vérifiés (eau, dissolution, contour, flash d'impact, traînées…), même
   modèle que `rag/plugins/` (fiche + exemple rendu en Compatibilité). Estimation : 3 jours.
 - **R2** : catalogues de morceaux de code (procédural, machines à états, VFX, caméras, inventaires, UI). 2 jours.
 - **R3** : après chaque ajout, `python -m usine.rag construire` puis `python -m usine.rag banc` ; le score ne doit
-  pas baisser (aujourd'hui, hors même cours : 14/87 pages, 30/87 utiles).
+  pas baisser (hors même cours : 14/87 pages, 30/87 utiles le 2026-10-22 ; 14/87 et 31/87 le 2026-10-26).
 
 ---
 
