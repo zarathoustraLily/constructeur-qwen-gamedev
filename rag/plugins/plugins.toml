@@ -138,3 +138,15 @@ sha256 = "5605c79868792af8a720468162bf71300e20a526c9b8970784e5fe9a62b7823d"
 addons = ["scatter-main/addons/proton_scatter"]
 # les démos du plugin contiennent un fichier .blend : sans Blender configuré, leur import échoue
 exclure = ["addons/proton_scatter/demos"]
+
+[terrain3d]
+nom = "Terrain3D"
+depot = "TokisanGames/Terrain3D"
+version = "v1.0.2-stable"
+licence = "MIT"
+url = "https://github.com/TokisanGames/Terrain3D/releases/download/v1.0.2-stable/Terrain3D_v1.0.2-stable.zip"
+fichier = "Terrain3D_v1.0.2-stable.zip"
+sha256 = "a071850250ec5e596aa54da61c01d75768774eb379ee997584d426a45f4884a2"
+addons = ["addons/terrain_3d"]
+# compilé pour Godot 4.4 à 4.6, il appelle une fonction de RenderingServer que Godot 4.7.2 signale comme dépréciée
+sorties_connues = ["WARNING: instance_reset_physics_interpolation() is deprecated."]
