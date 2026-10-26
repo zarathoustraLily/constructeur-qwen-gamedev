@@ -1779,6 +1779,26 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     (commentaires de documentation GDScript : la fiche de GdUnit4 en avait un). Les 5 premiers résultats donnent la
     fiche pour 5 demandes d'effets sur 6 ; « faire flasher un ennemi en blanc quand il est touché » remonte la vue
     d'ennemi du roguelike.
+- Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
+  vérifiés par `python -m usine.rag.morceaux verifier` (sans fenêtre, comportement mesuré). Mécanique commune aux
+  effets et aux morceaux : `usine/rag/catalogue.py` ; le code d'un morceau garde son chemin du plan dans le projet de
+  vérification (`res://3_entities/robot/…`) et les fichiers du socle qu'il emploie y sont copiés ; un extrait de
+  `project.godot` (actions, noms de couches) entre dans le projet et dans la fiche. 9/9 :
+  - état « étourdi » avec la `StateMachine` du socle : 30 images pour 0,5 s, 90 avec 60 images de pause ;
+    **piège mesuré** : un décompte `float` comparé à 0 seul dure 31 images (reste infime au-dessus de 0), 30 avec
+    `is_zero_approx` (l'état `player_dash` du socle emploie `<= 0.0` : une image de plus quand la durée tombe juste
+    sur un multiple de 1/60 ; le socle n'est pas modifié) ;
+  - caméra qui suit sa cible (`1 - exp(-smoothing × delta)`) : même position à 30 et 120 images/s ; lissage naïf
+    3,349 m contre 3,601 m ;
+  - inventaire à piles (25 potions → 10, 10, 5 ; reste rendu ; empilement par `id`, `duplicate()` compris) ;
+  - génération par graine (même graine, même grotte ; générateur réemployé : autre grotte ; `Vector2i / int`
+    déclenche l'avertissement de division entière) ; terrain par bruit (`SurfaceTool`, normale moyenne +Y 0,88) ;
+  - vision d'un ennemi (portée, cône, `intersect_ray`) : **mon hypothèse était fausse**, le mur posé arrête le rayon
+    tout de suite, sans attendre une image de physique (mesuré, moteur par défaut) ;
+  - zone de ramassage (couches et masques dans la scène ; ramassée après 2 images de physique) ; réglages
+    sauvegardés (`ConfigFile`, absent → `ERR_FILE_NOT_FOUND`, abîmé → `ERR_PARSE_ERROR` et une ERROR du moteur,
+    gardée comme sortie connue) ; manette (stick et croix dans les actions, zone morte 0,2 : 0,15 → 0, 0,6 → 0,5,
+    diagonale de longueur 1).
 - Jeu de données `arunsrajan/godot-docs-dataset` (Hugging Face, étudié à la demande de laurent, 2026-10-26) :
   24 631 paires question/réponse au format Alpaca tirées de godot-docs, branche 4.7 de développement, questions sur
   gabarits, réponses = texte de la doc (85 % de référence des classes), sans vérification ni outils. Pas pour
@@ -1834,6 +1854,10 @@ python -m pytest -q tests/test_mcp_serveur.py tests/test_rag*.py : 37 passed, 1 
 python -m usine.rag.effets verifier eau_stylisee vent_herbe particules_impact nombres_degats trainee : 5/5 (11 effets en tout)
 python -m usine.rag construire      : effets {'effets': 11, 'sections': 44, 'shaders': 8} ; fragments exclus : 0
 banc.mesurer(tout_le_cours=True)    : page 14/87, utiles 32/87 ; banc-docs inchangé (970/1000, 652/652, 820/905, 729/905)
+python -m usine.rag.morceaux verifier : 9/9 exemples vérifiés, leurs fiches réécrites
+python -m usine.rag construire      : morceaux {'morceaux': 9, 'sections': 36, 'shaders': 0, 'scripts': 21} ; exclus : 0
+python -m usine.rag banc            : référence 14/87, utiles 55/87 (hors même étape) ; hors même cours 14/87 et 33/87
+python -m pytest -q tests/test_mcp_serveur.py tests/test_rag*.py : 41 passed, 1 skipped (sqlite_vec absent)
 ```
 
 **Reste à faire**

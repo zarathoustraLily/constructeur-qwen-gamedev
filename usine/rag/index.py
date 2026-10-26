@@ -104,12 +104,13 @@ def construire(docs: Path, sortie: Path | None = None, donnees: Path | None = No
         fragments_ex, compte_demos = fragments_demos(demos, {**verification, "projets": retenus})
     compte_nous: dict[str, dict[str, int]] = {}
     if nos_sources:
-        from usine.rag.nos_sources import fragments_cours, fragments_effets, fragments_plugins
+        from usine.rag.nos_sources import fragments_cours, fragments_effets, fragments_morceaux, fragments_plugins
 
         f_cours, compte_nous["cours"] = fragments_cours(donnees)
         f_plugins, compte_nous["plugins"] = fragments_plugins()
         f_effets, compte_nous["effets"] = fragments_effets()
-        fragments_ex += f_cours + f_plugins + f_effets
+        f_morceaux, compte_nous["morceaux"] = fragments_morceaux()
+        fragments_ex += f_cours + f_plugins + f_effets + f_morceaux
     con = sqlite3.connect(tmp)
     exclus: list[tuple[str, str, str]] = []
     n = 0

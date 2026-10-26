@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://3_entities/robot/robot.gd" id="1_robot"]
+[ext_resource type="Resource" path="res://5_data/actors/robot.tres" id="2_stats"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="3_sm"]
+[ext_resource type="Script" path="res://3_entities/robot/states/robot_idle.gd" id="4_idle"]
+[ext_resource type="Script" path="res://3_entities/robot/states/robot_stunned.gd" id="5_stunned"]
+
+[node name="Robot" type="Node3D"]
+script = ExtResource("1_robot")
+stats = ExtResource("2_stats")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("3_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("4_idle")
+
+[node name="Stunned" type="Node" parent="StateMachine"]
+script = ExtResource("5_stunned")

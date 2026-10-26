@@ -1,0 +1,235 @@
+# Catalogue de morceaux de code du RAG (étape R2 du suivi). Une entrée par savoir-faire ; son exemple vérifié est dans
+# <id>/exemple/ : le code du morceau, rangé comme dans le plan (il garde ce chemin dans le projet de vérification), et
+# exemple.gd, qui l'emploie et mesure son comportement. `python -m usine.rag.morceaux verifier` le lance dans
+# Godot 4.7.2 puis réécrit <id>/fiche.md à partir de ce texte, du code vérifié et de la mesure écrite par l'exemple.
+# `socle` : fichiers du socle (godot/socle_jeu/) qu'emploie le morceau, copiés à leur place.
+# Chaque piège est mesuré par l'exemple, cité dans sa source, renvoie au plan, ou est marqué « non mesuré ici ».
+
+[etat_etourdi]
+titre = "Ajouter un état à un acteur : étourdi après un coup (machine à états du socle)"
+fait = """\
+Un nouvel état, « étourdi », pour un acteur piloté par la `StateMachine` du socle : un coup le fait entrer dans \
+l'état, qui décompte sa durée (lue dans les données de l'acteur) dans `physics_update`, puis demande le retour au \
+repos par `transition_requested`."""
+quand = """\
+Étourdissement, recul, gel, sort qui immobilise, temps de récupération après une attaque : tout comportement \
+temporaire d'un acteur."""
+rangement = """\
+Dans un projet qui suit le plan : l'état dans `3_entities/<acteur>/states/<acteur>_<etat>.gd`, un nœud de ce nom dans \
+la `StateMachine` de la scène de l'acteur, la durée dans la classe de `1_core/data/` et sa valeur dans le `.tres` de \
+`5_data/` (principe 2) ; le test dans `7_tests/3_entities/<acteur>/`."""
+socle = ["1_core/process_order.gd", "1_core/state_machine/state.gd", "1_core/state_machine/state_machine.gd"]
+pieges = [
+    """Le décompte avance dans `physics_update` : il s'arrête quand l'arbre est en pause (mesuré : 60 images de pause \
+au milieu, l'étourdissement dure 60 images de plus en temps réel). Un décompte dans `_process` ou un minuteur de \
+`get_tree().create_timer(durée)` sans `false` continuerait (principe du plan SIM-08).""",
+    """Un nœud hérite du `process_mode` de son parent : sous un parent `PROCESS_MODE_ALWAYS`, l'acteur ignore la pause ; \
+il faut le remettre en `PROCESS_MODE_PAUSABLE` (mesuré par l'exemple, dont la racine compte pendant la pause).""",
+    """Un décompte en `float` comparé à 0 seul dure une image de trop quand la durée tombe juste : 0,5 s ôtées par \
+pas de 1/60 laissent un reste infime au-dessus de 0 (mesuré : 31 images avec `<= 0.0` seul, 30 avec \
+`is_zero_approx`).""",
+    """Le nom passé à `transition_requested` est celui du nœud de l'état, en minuscules (`&"stunned"` pour le nœud \
+`Stunned`) : la `StateMachine` du socle range ses états ainsi (principe du plan : un comportement = un état).""",
+    """L'acteur appelle vers le bas (`state_machine.transition_to`) et signale vers le haut (`stunned`) ; sa vue écoute \
+le signal pour montrer l'étourdissement (principe 1 du plan).""",
+]
+
+[camera_suivi_lisse]
+titre = "Caméra qui suit sa cible en douceur, à la même vitesse quelle que soit la cadence"
+fait = """\
+La caméra rattrape sa cible avec retard : à chaque image, elle parcourt une part `1 - exp(-smoothing × delta)` du \
+chemin qui reste. Après une même durée, elle est au même endroit à 30 ou à 120 images par seconde."""
+quand = "Caméra à la troisième personne, vue de dessus, caméra de course, curseur ou viseur qui suit la souris."
+rangement = """\
+Dans un projet qui suit le plan : un mécanisme générique dans `1_core/camera/`, comme la `ShakeCamera3D` du cours \
+roguelike ; ses réglages sont exportés et posés dans la scène du niveau ; elle bouge dans `_process` (présentation, \
+règle SIM-01 du plan) et reçoit sa cible par `setup()` (principe 4)."""
+pieges = [
+    """`lerp(cible, smoothing × delta)` dépend de la cadence (mesuré : après 0,2 s, il reste 3,349 m à 30 images/s et \
+3,601 m à 120, contre 3,679 m pour les deux avec `1 - exp(-smoothing × delta)`).""",
+    """La caméra suit la cible après que celle-ci a bougé : une cible déplacée dans `_physics_process` et une caméra dans \
+`_process` peuvent trembler quand les deux cadences diffèrent ; l'interpolation de physique \
+(`physics/common/physics_interpolation`) les accorde (godot-docs, physics_interpolation ; non mesuré ici).""",
+]
+
+[inventaire_piles]
+titre = "Inventaire à emplacements avec piles d'objets"
+fait = """\
+Un composant d'inventaire à emplacements : chaque objet (une ressource `ItemData` de `5_data/items/`) s'empile \
+jusqu'à son `max_stack` ; ajouter remplit d'abord les piles du même objet puis les emplacements vides, et rend ce qui \
+n'a pas trouvé de place ; retirer vide d'abord les dernières piles. Le signal `changed` prévient la vue."""
+quand = "Sac du joueur, coffre, boutique, barre d'objets rapides, munitions."
+rangement = """\
+Dans un projet qui suit le plan : la définition des objets dans `1_core/data/item_data.gd` et un `.tres` par objet \
+dans `5_data/items/` (principe 2) ; le composant dans `1_core/components/` (un composant par responsabilité) ; \
+l'affichage dans `4_ui/`, qui écoute `changed`."""
+pieges = [
+    """Deux objets s'empilent s'ils ont le même `id`, pas s'ils sont le même objet : `duplicate()` donne un autre objet \
+de même id (mesuré : 2 potions copiées s'empilent avec les autres).""",
+    """`add` rend le reste : un ramassage doit le laisser au sol, pas le perdre (mesuré : épée refusée, reste 1, \
+inventaire plein).""",
+    """Les définitions (`ItemData`) restent immuables pendant la partie ; le nombre d'exemplaires vit dans le \
+composant (principe du plan DAT-04).""",
+]
+
+[generation_graine]
+titre = "Génération procédurale reproductible : graine et RandomNumberGenerator"
+fait = """\
+Une grotte creusée par une marche au hasard sur une grille. Le hasard vient d'un `RandomNumberGenerator` reçu en \
+paramètre : même graine, même grotte ; autre graine, autre grotte."""
+quand = """\
+Donjons, grottes, placement d'objets, niveaux du jour (une graine par jour), parties rejouables, tests qui doivent \
+redonner le même résultat."""
+rangement = """\
+Dans un projet qui suit le plan : l'outil générique dans `1_core/procedural/` ; le générateur reçoit le \
+`RandomNumberGenerator` en dépendance (règle SIM-09 du plan : un tirage qui compte vient d'un générateur reçu, \
+`randf()` seulement dans une vue)."""
+pieges = [
+    """Réemployer le même générateur sans remettre sa graine donne une autre grotte : son état a avancé (mesuré). \
+`rng.seed = graine` remet l'état (mesuré : même grotte).""",
+    """Les fonctions globales `randi()`, `randf()`, `pick_random()` ne passent pas par le générateur reçu : elles \
+cassent la reproduction (principe du plan SIM-09 ; non mesuré ici).""",
+    """`size / 2` sur un `Vector2i` est une division entière : l'avertissement `integer_division`, une erreur avec les \
+réglages du plan, la vise aussi (mesuré : « Integer division. Decimal part will be discarded. ») ; écrire \
+`floori(size.x / 2.0)`.""",
+]
+
+[terrain_bruit]
+titre = "Terrain en relief tiré d'un bruit (FastNoiseLite, SurfaceTool)"
+fait = """\
+Une grille de sommets soulevés par `FastNoiseLite.get_noise_2d` × hauteur, deux triangles par carré, normales \
+calculées par `SurfaceTool.generate_normals()`. Même graine du bruit, même terrain."""
+quand = "Terrain, collines, fond marin, relief d'une carte ; base d'un monde ouvert ou d'une île générée."
+rangement = """\
+Dans un projet qui suit le plan : l'outil commun de maillage dans `1_core/procedural/` ; un générateur `@tool` et sa \
+scène dans `6_assets/Mesh/Procedural/<famille>/`, ses réglages (graine, taille, hauteur) dans `5_data/DECORS/` \
+(section 6 des règles du dépôt)."""
+pieges = [
+    """L'ordre des sommets d'un triangle décide de sa face avant, donc du sens des normales de `generate_normals()` \
+(mesuré : avec l'ordre du morceau, normale moyenne vers +Y).""",
+    """`get_noise_2d` rend une valeur entre -1 et 1 : la hauteur reste dans [-height, height] (mesuré).""",
+    """`commit_to_arrays()` donne les tableaux sans passer par le serveur de rendu : on peut les lire et les tester \
+sans fenêtre (mesuré).""",
+]
+
+[vision_ennemi]
+titre = "Vision d'un ennemi : portée, cône et ligne de visée (raycast)"
+fait = """\
+Une cible est vue si elle est assez proche, dans le cône devant l'acteur, et si aucun obstacle des couches surveillées \
+ne coupe la ligne de visée (`PhysicsDirectSpaceState3D.intersect_ray`)."""
+quand = "Garde qui repère le joueur, tourelle, caméra de surveillance, ennemi qui décide de poursuivre."
+rangement = """\
+Dans un projet qui suit le plan : un composant dans `1_core/components/`, posé dans la scène de l'ennemi ; ses \
+réglages sont tirés des données de l'ennemi (`5_data/`) ; l'état de l'ennemi (`states/`) l'interroge dans \
+`physics_update`."""
+pieges = [
+    """Un mur posé arrête le rayon tout de suite, sans attendre une image de physique (mesuré, moteur physique par \
+défaut de Godot 4.7.2). Les zones (`Area3D`), elles, ne voient un corps qu'après des images de physique (voir la \
+fiche des couches et masques).""",
+    """Le rayon part du centre de l'acteur : le masque ne doit pas contenir la couche de l'acteur lui-même, sinon il se \
+voit (non mesuré ici ; `PhysicsRayQueryParameters3D.exclude` sert aussi).""",
+    """L'avant d'un `Node3D` est -Z (`-global_basis.z`) : godot-docs, « Introduction to 3D » (non mesuré ici).""",
+]
+
+[zone_ramassage]
+titre = "Couches et masques de collision : une zone que seul le joueur déclenche"
+fait = """\
+Une pièce (`Area3D`) surveille la couche « joueur » par son masque et n'est sur aucune couche. Un ennemi qui la \
+traverse ne la déclenche pas ; le joueur, oui : elle émet `collected` puis se libère."""
+quand = "Objets à ramasser, déclencheurs de porte ou de cinématique, zones de dégâts, points de passage."
+rangement = """\
+Dans un projet qui suit le plan : la scène et son script dans `3_entities/pickups/<objet>/` ; couches et masques \
+posés dans la scène, pas dans le script (le script de `3_entities/` n'écrit aucun nombre, règle DAT-01) ; noms des \
+couches dans `project.godot` (ceux du socle : decor, joueur, ennemis, tirs_joueur, tirs_ennemis)."""
+project_godot = """\
+[layer_names]
+
+3d_physics/layer_1="decor"
+3d_physics/layer_2="joueur"
+3d_physics/layer_3="ennemis"
+3d_physics/layer_4="tirs_joueur"
+3d_physics/layer_5="tirs_ennemis"
+
+"""
+pieges = [
+    """La zone détecte un corps si son **masque** contient la **couche** du corps (mesuré : ennemi sur la couche 3, \
+aucune détection ; joueur sur la couche 2, détecté).""",
+    """Dans la scène, `collision_mask = 2` est un champ de bits : la couche 2 vaut 2, la couche 3 vaudrait 4 ; en code, \
+`set_collision_mask_value(2, true)` prend le numéro (référence des classes, `CollisionObject3D`).""",
+    """Un corps qui entre dans la zone n'est vu qu'après des images de physique : 2 ici (mesuré : 0 ramassage tout de \
+suite) ; la liste des corps d'une zone change une fois par pas de physique (référence des classes, \
+`Area3D.get_overlapping_bodies`). Un test attend `physics_frame` avant de conclure.""",
+]
+
+[reglages_sauvegardes]
+titre = "Réglages sauvegardés d'une partie à l'autre (ConfigFile, user://)"
+fait = """\
+Les réglages du joueur (volume, sensibilité) s'écrivent dans un fichier `ConfigFile` de `user://` et se relisent au \
+lancement. Un fichier absent ou abîmé laisse les valeurs par défaut, et le code d'erreur dit pourquoi."""
+quand = "Options du jeu, touches redéfinies, dernier niveau atteint, meilleurs scores."
+rangement = """\
+Dans un projet qui suit le plan : l'outil de lecture et d'écriture dans `1_core/save/` ; un service de `0_autoload/` \
+(comme `audio_manager` pour le volume) l'emploie au démarrage et à chaque changement."""
+pieges = [
+    """Fichier absent : `ConfigFile.load` rend `ERR_FILE_NOT_FOUND` (mesuré) ; c'est le cas normal au premier lancement, \
+pas une panne.""",
+    """Fichier abîmé : la lecture rend `ERR_PARSE_ERROR` et les valeurs par défaut restent (mesuré) ; le moteur écrit \
+aussi une ligne « ERROR: ConfigFile parse error at … » dans la sortie (mesuré). Ne jamais écraser les réglages par \
+des valeurs à moitié lues.""",
+    """`res://` est en lecture seule une fois le jeu exporté : les sauvegardes vont dans `user://` (godot-docs, \
+« File paths in Godot projects » ; non mesuré ici).""",
+]
+
+sorties_connues = [
+    "ERROR: ConfigFile parse error at user://exemple_reglages_abime.cfg:0: Unexpected EOF while parsing simple tag.",
+]
+
+[entrees_manette]
+titre = "Déplacement à la manette : stick, croix et zone morte (Input.get_vector)"
+fait = """\
+Les actions de déplacement reçoivent le stick gauche et la croix de la manette dans `project.godot`, avec une zone \
+morte. `Input.get_vector` les lit en un vecteur : rien sous la zone morte, course remise à l'échelle au-delà, \
+longueur jamais au-dessus de 1 en diagonale."""
+quand = "Tout jeu jouable à la manette : déplacement, visée au stick droit, menus."
+rangement = """\
+Dans un projet qui suit le plan : les actions dans `project.godot` ; seul `<acteur>_input.gd` lit `Input` et transmet \
+des intentions (règle ARC-04 du plan) ; les actions du socle n'ont que le clavier : on y ajoute ces événements."""
+project_godot = """\
+[input]
+
+move_left={
+"deadzone": 0.2,
+"events": [Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":0,"axis_value":-1.0,"script":null),
+Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":13,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+move_right={
+"deadzone": 0.2,
+"events": [Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":0,"axis_value":1.0,"script":null),
+Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":14,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+move_up={
+"deadzone": 0.2,
+"events": [Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":1,"axis_value":-1.0,"script":null),
+Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":11,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+move_down={
+"deadzone": 0.2,
+"events": [Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":1,"axis_value":1.0,"script":null),
+Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":12,"pressure":0.0,"pressed":true,"script":null)
+]
+}
+
+"""
+pieges = [
+    """Sous la zone morte, `get_vector` rend zéro ; au-delà, la course est remise à l'échelle : 0,6 avec une zone de \
+0,2 donne 0,5 (mesuré).""",
+    """`device: -1` dans l'action : toutes les manettes ; un `InputEvent*.new()` vaut l'appareil 0, la première \
+manette (mesuré par l'exemple : l'appareil 0 déclenche l'action).""",
+    """Dans un test, un stick passe par `Input.parse_input_event` puis `Input.flush_buffered_events()` ; \
+`Viewport.push_input` ne suffit pas pour la navigation au stick (mesuré dans le cours roguelike, 2026-10-21).""",
+    """`ui_accept` et `ui_cancel` n'ont par défaut aucun bouton de manette : les ajouter (A, B) pour les menus (mesuré \
+dans le cours roguelike, 2026-10-21).""",
+]

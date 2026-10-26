@@ -50,7 +50,7 @@ func eclater(particules: GPUParticles3D, ou: Vector3) -> void:
 
 ## Ce que l'exemple mesure
 
-`exemple/exemple.gd` : 0 pixels orange avant le coup, 598 juste après, 0 une fois la salve finie, 666 à la seconde salve.
+`exemple/exemple.gd` : 0 pixels orange avant le coup, 586 juste après, 0 une fois la salve finie, 601 à la seconde salve.
 
 ## Pièges
 
