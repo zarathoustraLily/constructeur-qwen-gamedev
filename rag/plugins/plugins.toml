@@ -161,3 +161,14 @@ fichier = "limbo_console_v0.8.0.zip"
 sha256 = "68cee989910322561222fde3261871a7bd0878122147a949bbb7a27fabef8d9a"
 addons = ["addons/limbo_console"]
 autoloads = { LimboConsole = "*res://addons/limbo_console/limbo_console.gd" }
+
+[maaack_scene_loader]
+nom = "Maaack's Scene Loader"
+depot = "Maaack/Godot-Scene-Loader"
+version = "v1.7.0"
+licence = "MIT"
+url = "https://codeload.github.com/Maaack/Godot-Scene-Loader/zip/refs/tags/v1.7.0"
+fichier = "v1.7.0.zip"
+sha256 = "6d673a1bd2ba34375e509c2e1ce9571a303a2ccfd4b8078a1d7f382dc47b4371"
+addons = ["Godot-Scene-Loader-1.7.0/addons/maaacks_scene_loader"]
+autoloads = { SceneLoader = "*res://addons/maaacks_scene_loader/base/nodes/autoloads/scene_loader/scene_loader.tscn" }
