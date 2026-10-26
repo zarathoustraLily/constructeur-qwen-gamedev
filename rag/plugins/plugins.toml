@@ -150,3 +150,14 @@ sha256 = "a071850250ec5e596aa54da61c01d75768774eb379ee997584d426a45f4884a2"
 addons = ["addons/terrain_3d"]
 # compilé pour Godot 4.4 à 4.6, il appelle une fonction de RenderingServer que Godot 4.7.2 signale comme dépréciée
 sorties_connues = ["WARNING: instance_reset_physics_interpolation() is deprecated."]
+
+[limbo_console]
+nom = "Limbo Console"
+depot = "limbonaut/limbo_console"
+version = "v0.8.0"
+licence = "MIT"
+url = "https://github.com/limbonaut/limbo_console/releases/download/v0.8.0/limbo_console_v0.8.0.zip"
+fichier = "limbo_console_v0.8.0.zip"
+sha256 = "68cee989910322561222fde3261871a7bd0878122147a949bbb7a27fabef8d9a"
+addons = ["addons/limbo_console"]
+autoloads = { LimboConsole = "*res://addons/limbo_console/limbo_console.gd" }
