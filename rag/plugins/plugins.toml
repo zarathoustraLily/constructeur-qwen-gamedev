@@ -172,3 +172,14 @@ fichier = "v1.7.0.zip"
 sha256 = "6d673a1bd2ba34375e509c2e1ce9571a303a2ccfd4b8078a1d7f382dc47b4371"
 addons = ["Godot-Scene-Loader-1.7.0/addons/maaacks_scene_loader"]
 autoloads = { SceneLoader = "*res://addons/maaacks_scene_loader/base/nodes/autoloads/scene_loader/scene_loader.tscn" }
+
+[event_audio]
+nom = "Event Audio"
+depot = "bbbscarter/event-audio-godot"
+version = "main, commit 2da31aa4e28dda5c462d80bc162538614c65fed3 (aucune version publiée)"
+licence = "MIT"
+url = "https://codeload.github.com/bbbscarter/event-audio-godot/zip/refs/heads/main"
+fichier = "main.zip"
+sha256 = "9601a47f0bb1ba1df685bcbe82bf2c15a98f4bd0acd1c634a6ec2b242585f356"
+addons = ["event-audio-godot-main/addons/event_audio"]
+autoloads = { EventAudio = "*res://addons/event_audio/scenes/event_audio_autoload.tscn" }
