@@ -1779,6 +1779,25 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     (commentaires de documentation GDScript : la fiche de GdUnit4 en avait un). Les 5 premiers résultats donnent la
     fiche pour 5 demandes d'effets sur 6 ; « faire flasher un ennemi en blanc quand il est touché » remonte la vue
     d'ennemi du roguelike.
+- Outil `voir_scene` (étape A7 du suivi ; accord de laurent : « Oui, construis ») : voir la scène 3D comme dans
+  l'éditeur. Origine : un vrai débogage du roguelike de laurent
+  (`F:\GODOT_APPRENTISSAGE_ROGUE\QWEN_TEST_VERSION\_backup_avant_fix_camera`) : `ShakeCamera3D` à 12 m au-dessus du
+  joueur, sans rotation, donc visée vers -Z (référence des classes, `Node3D.look_at` : « the -Z axis (camera
+  forward) ») ; image 3D vide, HUD visible ; Qwen a multiplié captures et scripts de fenêtre. La correction incline
+  `CameraRoot` de -55° et recule la caméra de 20 m ; deux autres défauts corrigés en même temps : modèle couché
+  (`PlayerRoot` tourné de -90° autour de X), `shadow_bias` négatif.
+  - `usine/retour/vues.py` et `usine/retour/gd/vues_scene.gd` (autoload posé dans une copie ; rendu fenêtre hors de
+    l'écran, Compatibilité) : vue du jeu à l'image N (HUD compris) ; vues d'observation dessus, côté, face, 3/4,
+    cadrées sur la scène, avec le champ de la caméra du jeu (jaune), la boîte de chaque objet (verte dans le champ,
+    rouge hors champ), axes, grille à y = 0, noms ; planche titrée composée par Godot ; carte en texte : caméra
+    (position, visée en mots, projection), chaque objet et le plan du champ qui l'exclut (proche, lointain, gauche,
+    haut, droite, bas, couche exclue par `cull_mask`), autres caméras, lumières, objets cachés, carte vue de dessus en
+    caractères. Outil MCP `voir_scene` ; compté parmi les captures du juge de sessions.
+  - Sur une copie du projet de laurent remise à l'état d'avant la correction : « regarde vers (0, 0, -1) (à
+    l'horizontale) ; 12 objets visibles, 0 dans le champ », tous « HORS CHAMP : bas » ; le corps du joueur mesure
+    0,7 m de haut pour 1,2 m de long, tête à côté du corps : le modèle couché se lit aussi. Sur le projet corrigé :
+    « 55° vers le bas », 12/12 dans le champ, position à l'écran de chacun. Les ERROR de fuite à la sortie viennent du
+    jeu lui-même (lancé seul 60 images : 143 objets non libérés, ressources de rendu), pas de l'outil.
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
   vérifiés par `python -m usine.rag.morceaux verifier` (sans fenêtre, comportement mesuré). Mécanique commune aux
   effets et aux morceaux : `usine/rag/catalogue.py` ; le code d'un morceau garde son chemin du plan dans le projet de
@@ -1864,6 +1883,8 @@ python -m pytest -q tests/test_mcp_serveur.py tests/test_rag*.py : 41 passed, 1 
 python -m usine.rag.morceaux verifier barre_de_vie menu_manette : 2/2 (11 morceaux en tout)
 python -m usine.rag construire      : morceaux {'morceaux': 11, 'sections': 44, 'shaders': 0, 'scripts': 25} ; exclus : 0
 python -m usine.rag banc            : référence 14/87, utiles 55/87 ; hors même cours 14/87 et 34/87 ; banc-docs inchangé
+python -m pytest -q tests/test_mcp_serveur.py tests/test_retour_vues.py tests/test_structure.py tests/test_capture.py : 25 passed
+  (preuve du serveur : 17/17 contrôles conformes, voir_scene compris)
 ```
 
 **Reste à faire**

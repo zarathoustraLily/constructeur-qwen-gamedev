@@ -105,6 +105,14 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
     async def capture_frames(images: list[int], scene: str | None = None, touches: list[str] | None = None) -> str:
         return await executer(outils.capture_frames, images, scene, touches)
 
+    @outil("Voir la scène 3D comme dans l'éditeur (copie, rendu) à l'image N : vue du jeu, vues de dessus, côté, "
+           "face, 3/4 avec le champ de la caméra (jaune), les objets dans le champ (vert) ou hors champ (rouge), axes "
+           "et noms ; carte en texte : caméra (position, visée), chaque objet et pourquoi il est hors champ. "
+           "vues : jeu,dessus,cote,face,perspective ; cadrer : un nœud ; collisions : formes de collision.")
+    async def voir_scene(scene: str | None = None, image: int = 60, vues: list[str] | None = None,
+                         cadrer: str | None = None, collisions: bool = False) -> str:
+        return await executer(outils.voir_scene, scene, image, vues, cadrer, collisions)
+
     @outil("Mesure d'efficience (copie, headless) : allocations après échauffement, lots de dessin, "
            "empreinte du rendu aux images 180/240/300, temps indicatif. Défaut : scène principale.")
     async def measure_efficiency(scene: str | None = None) -> str:

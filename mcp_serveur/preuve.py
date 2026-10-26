@@ -21,7 +21,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent
 OUTILS = ["vocab_lookup", "search_docs", "scene_read", "scene_write", "describe_project", "apply_edits",
           "check_script", "load_scene", "run_tests", "measure_efficiency", "check_structure",
-          "prepare_action", "capture_frames"]
+          "prepare_action", "capture_frames", "voir_scene"]
 
 
 async def _preuve(projet: Path, index: Path | None = None) -> list[tuple[str, bool, str]]:
@@ -91,6 +91,9 @@ async def _preuve(projet: Path, index: Path | None = None) -> list[tuple[str, bo
             await appel("capture_frames", {"images": [10, 30], "scene": "res://scenes/main.tscn"},
                         lambda e, t: not e and "case 2 (ligne 1, colonne 2) : image 30, 0.50 s" in t,
                         lambda t: t.splitlines()[0][:60])
+            await appel("voir_scene", {"scene": "res://scenes/main.tscn", "image": 10, "vues": ["jeu", "dessus"]},
+                        lambda e, t: not e and "Caméra du jeu" in t and "image : " in t,
+                        lambda t: t.splitlines()[1][:60])
             # Refus propres.
             avant = (projet / "scenes" / "coin.tscn").read_bytes()
             await appel("apply_edits", {"edits": [{"op": "set_property", "noeud": "coin:Inexistant",
@@ -110,7 +113,7 @@ def preuve(source: Path, index: Path | None = None) -> int:
         lignes = asyncio.run(_preuve(projet, index))
     for nom, ok, detail in lignes:
         print(f"{nom:<17} {'OK ' if ok else 'ÉCHEC'}  {detail}")
-    tout = all(ok for _, ok, _ in lignes) and len(lignes) == 16
+    tout = all(ok for _, ok, _ in lignes) and len(lignes) == 17
     print(f"{sum(ok for _, ok, _ in lignes)}/{len(lignes)} contrôles conformes")
     return 0 if tout else 1
 

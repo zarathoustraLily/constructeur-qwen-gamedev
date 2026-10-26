@@ -270,6 +270,19 @@ class Outils:
             return _compact({"ok": False, "erreur": r.get("erreur")})
         return f"{r['legende']}\nimage : {r['grille'] or 'aucune (pas de rendu)'}"
 
+    def voir_scene(self, scene: str | None = None, image: int = 60, vues: list[str] | None = None,
+                   cadrer: str | None = None, collisions: bool = False) -> str:
+        """La scène 3D vue comme dans l'éditeur : planche d'images (vue du jeu, vues d'observation avec repères) et
+        carte en texte (caméra, objets dans le champ ou non et pourquoi)."""
+        from usine.retour.vues import VUES, voir
+        r = voir(self.projet, self.res(scene) if scene else None, image, vues or VUES, cadrer, collisions=collisions,
+                 godot=self.godot)
+        if not r["ok"]:
+            return _compact({"ok": False, "erreur": r.get("erreur"), "erreurs": r.get("erreurs", [])[:10]})
+        erreurs = [l for l in r["erreurs"] if l.startswith(("ERROR", "SCRIPT ERROR"))][:5]
+        return (f"{r['carte']}\nimage : {r['image']}" +
+                (("\nerreurs de la partie : " + " | ".join(erreurs)) if erreurs else ""))
+
     def measure_efficiency(self, scene: str | None = None) -> str:
         """Mesure d'efficience (compétence E) sur une copie : allocations d'objets après 60 images
         d'échauffement, lots de dessin (comptés dans l'arbre, médiane), empreinte de ce qui serait

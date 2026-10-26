@@ -24,7 +24,7 @@ from usine.structure.regles import DOSSIERS, FICHIERS_RACINE, dossier_de
 PLANS = ("ORGANISATION.md", "plan.md")
 LECTURES = {"read_file", "read", "view"}
 ECRITURES = {"write_file", "write", "edit"}
-CAPTURES = {"capture_frames", "capture_ecran"}
+CAPTURES = {"capture_frames", "capture_ecran", "voir_scene"}
 # Annonce de tests verts, en français ou en anglais.
 ANNONCE_VERTS = re.compile(r"\b(tests?|suites?)\b[^.\n]{0,40}\b(verts?|passent|réussi(?:s|ssent)?|ok|pass(?:es|ed|ing)?|green)\b"
                            r"|\b(?:tout|tous)\b[^.\n]{0,20}\bvert", re.I)

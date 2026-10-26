@@ -69,6 +69,30 @@ Avec trois IA en parallèle (une sur B1 à B5, une sur B7 puis D3, une sur A, D1
 - **Pourquoi** : décision 19.5, demander un agrandissement ou une définition. Proposé, pas encore décidé.
 - **Faire si laurent accepte** : ajouter `zone` et `definition` à `mcp_serveur/outils.py`.
 
+### A7 — Voir la scène 3D comme dans l'éditeur : outil `voir_scene`
+- **Pourquoi** : vrai débogage du 2026-10-26 (roguelike de laurent) : caméra à 12 m sans rotation, donc tournée vers
+  l'horizon ; image 3D vide, HUD visible. Qwen a cherché du côté de la fenêtre ; il fallait situer la caméra et les
+  objets. laurent : « il faut enseigner a qwen absolument a localiser sur une carte les asset et la camera » ;
+  « surtout il doit pouvoir visualiser les interfzace 3D dans godot... comme tu le feraiS » ; accord : « Oui,
+  construis ».
+- **Fait** : `usine/retour/vues.py` et `usine/retour/gd/vues_scene.gd`, outil MCP `voir_scene` ; vue du jeu, vues
+  d'observation (dessus, côté, face, 3/4) avec le champ de la caméra, les objets dans le champ ou hors champ, axes,
+  grille et noms ; carte en texte (caméra, visée, chaque objet et pourquoi il est hors champ, carte vue de dessus).
+- **Preuve** : sur une copie du projet de laurent avec les scènes d'avant la correction : « regarde vers (0, 0, -1)
+  (à l'horizontale) », 0 objet sur 12 dans le champ, tous « HORS CHAMP : bas » ; sur le projet corrigé : « 55° vers
+  le bas », 12 sur 12. `tests/test_retour_vues.py` (deux vrais rendus) ; preuve du serveur 17/17.
+- **Proposé** : une ligne dans `godot/socle_jeu/AGENTS.md` (APRÈS CHAQUE ACTION) : si la 3D ne s'affiche pas ou
+  qu'un objet manque, `voir_scene` avant toute autre capture.
+
+### A8 — Cas fabriqués « situer la caméra et les objets », puis paires
+- **Dépend de** : A7.
+- **Faire** : un générateur de défauts à vérité connue (caméra sans inclinaison, tournée vers le haut, sous le sol
+  ou dans un mur ; `near` ou `far` mal réglés ; `size` orthographique trop petit ; autre caméra courante ;
+  `cull_mask` qui exclut la couche ; modèle couché, sous le sol, échelle nulle ; objet derrière la caméra) ; chaque cas
+  vérifié par `voir_scene` (défaut : objets hors champ pour la bonne raison ; correctif : dans le champ).
+- **Paires** : nombres à fixer par laurent après l'essai (proposé : 300 de 1 024 jetons, carte → défaut ; 300 de
+  2 048, carte, image et code → correctif), dans B4, B7 et C, plus des sessions longues.
+
 ---
 
 ## B. Paires courtes, palier 1 : 12 000 paires de 1 024 jetons au plus (décision 19.1)
