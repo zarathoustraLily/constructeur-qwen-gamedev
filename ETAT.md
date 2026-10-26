@@ -1733,6 +1733,18 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   - glossaire français-anglais (`usine/rag/glossaire.py`, table fixe) : mots vides retirés, chaque notion cherchée avec ses équivalents anglais et ses classes Godot, au plus deux pages de classe données par le glossaire ;
   - nos sources (`usine/rag/nos_sources.py`) : 485 points des notes, le code vérifié du dernier projet de chaque cours (1 924 fragments), les fiches de plugins ; index reconstruit : 30 100 fragments, 0 repris d'une tâche gelée ; l'index précédent est gardé dans `donnees/rag/godot_docs_avant_2026-10-22.sqlite` ;
   - mesure, hors même cours : page attendue 6/87 → 14/87, fragment utile 11/87 → 30/87.
+- Fiches de plugins : les 21 sont écrites et vérifiées (`python -m usine.rag.plugins verifier` : 21/21, 2026-10-26).
+  18 avec un exemple qui tourne dans Godot 4.7.2 (Debug Draw 3D fenêtre hors de l'écran), 3 outils d'éditeur
+  (Signal Lens, Shader Warm-Up, GdUnit4) vérifiés plugin activé dans l'éditeur sans fenêtre (`verification =
+  "editeur"`). Pièges réels relevés en les testant, entre autres : Beehave écrit une erreur par image sans
+  débogueur et ne cohabite pas avec LimboAI (« Class "Blackboard" hides a native class ») ; GLoot et Dialogue
+  Manager fuient à la sortie (cache statique ; ressource rangée dans ses propres lignes) ; Input Helper ne signale
+  jamais le changement d'appareil sans fenêtre (images dessinées à 0) ; Maaack's Scene Loader relit la scène par
+  `load` au lieu de `load_threaded_get`, et une demande de chargement sur fil jamais récupérée fuit à la sortie (vrai
+  sans le plugin) ; à `Engine.time_scale = 0`, `_physics_process` tourne encore avec un delta nul ; ProtonScatter
+  4.0 ne compile plus, sa branche main oui, sans son dossier `demos/` (fichier .blend). Messages propres à un
+  plugin : `sorties_connues` du manifeste (texte exact ou motif « re: »), chacun expliqué dans sa fiche.
+- Index du RAG reconstruit avec les 21 fiches : 30 291 fragments ; banc hors même cours : 14/87 et 30/87.
 
 **Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
 

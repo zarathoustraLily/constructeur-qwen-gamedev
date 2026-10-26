@@ -10,7 +10,8 @@ def test_le_manifeste_et_les_fiches_vont_ensemble():
         assert {"nom", "depot", "version", "licence", "url", "fichier", "sha256", "addons"} <= set(entree), ident
         assert len(entree["sha256"]) == 64
         assert (plugins.DOSSIER / ident / "fiche.md").exists(), ident
-        assert (plugins.DOSSIER / ident / "exemple" / "exemple.gd").exists(), ident
+        if entree.get("verification") != "editeur":  # un outil d'éditeur se vérifie sans exemple de jeu
+            assert (plugins.DOSSIER / ident / "exemple" / "exemple.gd").exists(), ident
 
 
 def test_la_sortie_de_godot_se_lit_ligne_par_ligne():

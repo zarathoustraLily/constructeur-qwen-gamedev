@@ -92,16 +92,21 @@ def preparer(ident: str, entree: dict[str, Any], projet: Path, donnees: Path | N
             shutil.copytree(source, projet / "addons" / source.name)
     for chemin_exclu in entree.get("exclure", []):  # ce qui n'est pas le plugin (démos, sources Blender…)
         shutil.rmtree(projet / chemin_exclu, ignore_errors=True)
-    shutil.copytree(DOSSIER / ident / "exemple", projet / "exemple")
-    script = (projet / "exemple" / "exemple.gd").read_text(encoding="utf-8")
-    (projet / "exemple" / "main.tscn").write_text(
-        '[gd_scene format=3]\n\n[ext_resource type="Script" path="res://exemple/exemple.gd" id="1"]\n\n'
-        f'[node name="Exemple" type="{type_racine(script)}"]\nscript = ExtResource("1")\n', encoding="utf-8")
+    editeur = entree.get("verification") == "editeur"
+    if not editeur:
+        shutil.copytree(DOSSIER / ident / "exemple", projet / "exemple")
+        script = (projet / "exemple" / "exemple.gd").read_text(encoding="utf-8")
+        (projet / "exemple" / "main.tscn").write_text(
+            '[gd_scene format=3]\n\n[ext_resource type="Script" path="res://exemple/exemple.gd" id="1"]\n\n'
+            f'[node name="Exemple" type="{type_racine(script)}"]\nscript = ExtResource("1")\n', encoding="utf-8")
     autoloads = "".join(f'{k}="{v}"\n' for k, v in entree.get("autoloads", {}).items())
+    # un outil d'éditeur se vérifie plugin activé, dans l'éditeur sans fenêtre (`verification = "editeur"`)
+    cfgs = sorted(f'"res://{c.relative_to(projet).as_posix()}"' for c in (projet / "addons").glob("*/plugin.cfg"))
+    plugins = f"[editor_plugins]\n\nenabled=PackedStringArray({', '.join(cfgs)})\n\n" if editeur else ""
     (projet / "project.godot").write_text(
         f'config_version=5\n\n[application]\n\nconfig/name="exemple {ident}"\n'
         'config/features=PackedStringArray("4.7")\n\n'
-        + (f"[autoload]\n\n{autoloads}\n" if autoloads else "") + bloc_debug(), encoding="utf-8")
+        + (f"[autoload]\n\n{autoloads}\n" if autoloads else "") + plugins + bloc_debug(), encoding="utf-8")
 
 
 def lancer(arguments: list[str], delai: float = 300) -> tuple[int, str]:
@@ -125,8 +130,15 @@ def verifier(ident: str, entree: dict[str, Any], donnees: Path | None = None) ->
         code, sortie = lancer(["--headless", "--path", str(projet), "--import"])
         if code < 0xC0000000 or problemes(sortie):
             break
-    if code != 0 or problemes(sortie):
-        return {"id": ident, "ok": False, "etape": "import", "code": code, "lignes": problemes(sortie)[:20]}
+    connues = entree.get("sorties_connues", [])
+    if code != 0 or problemes(sortie, connues):
+        return {"id": ident, "ok": False, "etape": "import", "code": code, "lignes": problemes(sortie, connues)[:20]}
+    if entree.get("verification") == "editeur":  # pas d'exemple de jeu : l'éditeur charge le plugin activé
+        code, sortie = lancer(["--headless", "--editor", "--path", str(projet), "--quit-after", "300"])
+        lignes = problemes(sortie, connues)
+        return {"id": ident, "ok": code == 0 and not lignes, "etape": "editeur", "code": code,
+                "marque": "plugin activé dans l'éditeur, sans erreur" if code == 0 and not lignes else None,
+                "lignes": lignes[:20]}
     # un plugin qui ne fait rien sans rendu (dessin de débogage…) se vérifie fenêtre hors de l'écran, en
     # Compatibilité, comme les rendus des cours (`rendu = true` dans le manifeste)
     fenetre = ["--rendering-method", "gl_compatibility", "--position", "-10000,-10000"]
@@ -134,7 +146,6 @@ def verifier(ident: str, entree: dict[str, Any], donnees: Path | None = None) ->
     code, sortie = lancer([*affichage, "--path", str(projet), "--fixed-fps", "60", "--quit-after",
                            str(IMAGES_MAX), "res://exemple/main.tscn"])
     marque = next((l.strip() for l in sortie.splitlines() if MARQUE in l), None)
-    connues = entree.get("sorties_connues", [])
     return {"id": ident, "ok": reussi(code, sortie, connues), "etape": "exemple", "code": code, "marque": marque,
             "lignes": problemes(sortie, connues)[:20]}
 

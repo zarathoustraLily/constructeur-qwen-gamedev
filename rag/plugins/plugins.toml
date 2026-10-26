@@ -203,3 +203,39 @@ url = "https://codeload.github.com/codevogel/godot_doctor/zip/refs/tags/2.2.0"
 fichier = "2.2.0.zip"
 sha256 = "d5ce8f0a74c9d933a6e60d67309774906c0d881690790158ba48cc0a73390e07"
 addons = ["godot_doctor-2.2.0/addons/godot_doctor"]
+
+[signal_lens]
+nom = "Signal Lens"
+depot = "yannlemos/signal-lens"
+version = "v1.4.1"
+licence = "MIT"
+url = "https://github.com/yannlemos/Signal-Lens/releases/download/v1.4.1/signal_lens.zip"
+fichier = "signal_lens.zip"
+sha256 = "9b59a247ae43d0f2dbc2faeca56d4eb5da02113618e74288f7540725da0774d0"
+addons = ["signal_lens"]
+autoloads = { SignalLens = "*res://addons/signal_lens/autoload/signal_lens_autoload.gd" }
+# outil d'éditeur (panneau du débogueur) : vérifié plugin activé dans l'éditeur
+verification = "editeur"
+
+[shader_warmup]
+nom = "Shader Warm-Up Tool"
+depot = "Koisuji02/GodotShaderWarmup"
+version = "main, commit 749516af9333b3d8a580da54cad76892cd541dc0 (plugin.cfg : 0.1.0, aucune version publiée)"
+licence = "MIT"
+url = "https://codeload.github.com/Koisuji02/GodotShaderWarmup/zip/refs/heads/main"
+fichier = "main.zip"
+sha256 = "ed6e61ee2183dedfb2ff46be4960ad2481a1c8bfde74aea2ea84b18ccda41b75"
+addons = ["GodotShaderWarmup-main/addons/shader_warmup_tool"]
+verification = "editeur"
+
+[gdunit4]
+nom = "GdUnit4"
+depot = "MikeSchulze/gdUnit4"
+version = "v6.2.2"
+licence = "MIT"
+url = "https://codeload.github.com/MikeSchulze/gdUnit4/zip/refs/tags/v6.2.2"
+fichier = "v6.2.2.zip"
+sha256 = "ddb44730ffb9cd77fd70d283753450759b00c5016143d7572bf63625f64d5433"
+addons = ["gdUnit4-6.2.2/addons/gdUnit4"]
+# vérifié plugin activé dans l'éditeur ; son usage est vérifié par les suites des trois cours (version 6.2.1)
+verification = "editeur"
