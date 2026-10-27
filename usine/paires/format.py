@@ -59,10 +59,21 @@ def paire(famille: str, sujet: str, type_: str, demande: str, reponse: str, preu
           systeme: str | None = None, images: list[str] | None = None) -> dict[str, Any]:
     if type_ not in TYPES:
         raise ValueError(f"type inconnu : {type_}")
-    messages = ([{"role": "system", "content": systeme}] if systeme else []) + [
+    # Chaque message rogné : le gabarit de Qwen 3.8 le fait (|trim), LLaMA-Factory (qwen3_5) non (étape A4).
+    messages = ([{"role": "system", "content": systeme.strip()}] if systeme else []) + [
         {"role": "user", "content": demande.strip()}, {"role": "assistant", "content": reponse.strip()}]
     return {"famille": famille, "sujet": sujet, "type": type_, "messages": messages, "images": images or [],
             "preuve": preuve, "jetons": jetons(messages, images), "jetons_reponse": jetons_reponse(messages)}
+
+
+def vers_llamafactory(p: dict[str, Any]) -> dict[str, Any]:
+    """La paire au format sharegpt de LLaMA-Factory, comme les bases des cours (`opencode.vers_sharegpt` : chaque
+    message rogné, rendu identique à celui du gabarit) ; ses images dans la colonne « images »."""
+    from usine.cours.base import opencode
+    ligne = opencode.vers_sharegpt(p["messages"], [])
+    if p["images"]:
+        ligne["images"] = list(p["images"])
+    return ligne
 
 
 def dossier(famille: str, donnees: Path | None = None) -> Path:

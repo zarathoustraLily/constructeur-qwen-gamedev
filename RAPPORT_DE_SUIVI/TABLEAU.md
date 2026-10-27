@@ -8,7 +8,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | A1 | Plan dans les sessions OpenCode | en attente de A5 | | | |
 | A2 | Partage 40/40/20 dans l'assembleur | à faire | | | |
 | A3 | Regénérer la base des bâtiments sur le PC | en attente de A1, A2 | | | |
-| A4 | Espaces de fin des messages | à faire | | | |
+| A4 | Espaces de fin des messages | faite (2026-10-27) | Claude, fil principal | | rendus identiques : kart 203/203, roguelike 155/155, paires 430/430 (ETAT) |
 | A5 | Capture d'une session OpenCode (laurent) | à faire (laurent) | | | |
 | A6 | `capture_frames` : zone et définition | proposé, attend laurent | | | |
 | A7 | Outil `voir_scene` : voir la scène 3D comme dans l'éditeur | faite (2026-10-26) | Claude, fil principal | | bug réel : 0/12 objets dans le champ, « à l'horizontale » ; corrigé : 12/12 ; tests et preuve 17/17 (ETAT) |

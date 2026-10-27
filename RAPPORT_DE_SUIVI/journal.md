@@ -37,3 +37,5 @@ complets), aucune trop longue après passage à 2 ou 3 objets ; ligne voir_scene
 « lire l'éditeur » (essai : 50 paires) ; A8 : cause « autre caméra courante » corrigée (mesuré), paires régénérées
 2026-10-27 — A10 — Claude (fil principal) — ajoutée et générateur fait — accord de laurent (« oui ») ;
 capture_frames corrigé : Capture posée après Trace, sinon la légende perdait le journal
+2026-10-27 — A4 — Claude (fil principal) — faite — les cours rognaient déjà ; paires : système rogné et export
+vers_llamafactory ; rendu de LLaMA-Factory identique au gabarit sur 788 exemples

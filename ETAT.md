@@ -33,7 +33,7 @@
 - [ ] Décision 19 : 2 000 paires d'images (1 024 jetons : reconnaître, comparer deux étapes, voulu ou défaut, relier au code) et 3 000 analyses de séquences d'images (2 048 jetons). Mémoire de la 5090 mesurée (5 images en 640 × 360 passent sous 2 048 jetons) ; reste à relever la transmission des images par OpenCode et la forme des positions dans les réponses
 - [ ] Décision 3 passée à 40/40/20 (création, débogage, analyse) : les bases du kart et du roguelike sont au 50/50 sans analyse ; l'assembleur doit compter un troisième type, « analyse », à leur regénération
 - [ ] Décision 19.7 : relever par la capture d'OpenCode la forme exacte d'un appel du Code Mode dans `execute` (requêtes au RAG et captures des paires courtes) ; à la sortie de Godot 4.8 stable, comparer les `extension_api.json` de 4.7.2 et 4.8 et compter les différences utiles
-- [ ] Retirer les espaces de fin des messages : le gabarit de Qwen 3.8 les retire, LLaMA-Factory (`qwen3_5`) les garde (seule différence relevée entre les deux rendus, essai du 2026-10-22)
+- [x] Retirer les espaces de fin des messages (étape A4, 2026-10-27) : le gabarit de Qwen 3.8 rogne chaque message (`|trim`), LLaMA-Factory (`qwen3_5`) non ; la différence de l'essai du 2026-10-22 était le saut de ligne final du message système, écrit à la main pour l'essai. Les bases des cours passaient déjà par `opencode.vers_sharegpt`, qui rogne tout (kart 203/203, roguelike 155/155 rendus identiques) ; les paires courtes rognent maintenant aussi le système et s'exportent par `format.vers_llamafactory` (430/430 identiques, images comprises ; `tests/test_paires_format.py`)
 
 ## Bilan des 6 sessions (2026-10-05)
 
