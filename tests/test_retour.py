@@ -181,6 +181,16 @@ def test_capture_posee_dans_un_projet_qui_ne_l_a_pas(tmp_path):
     assert (tmp_path / "addons" / "usine_capture" / "capture.gd").is_file()
 
 
+def test_capture_posee_apres_le_journal(tmp_path):
+    # La capture cherche le journal dans son _ready : elle doit naître après Trace (autoloads dans l'ordre du fichier).
+    from usine.retour.capture import _poser_capture
+    (tmp_path / "project.godot").write_text(
+        '[autoload]\n\nTrace="*res://0_autoload/trace.gd"\n\n[debug]\n\nx=1\n', encoding="utf-8")
+    _poser_capture(tmp_path)
+    texte = (tmp_path / "project.godot").read_text(encoding="utf-8")
+    assert texte.index("Trace=") < texte.index("Capture=") < texte.index("[debug]")
+
+
 @pytest.mark.godot
 def test_capture_du_socle(tmp_path):
     from usine import config as cfg

@@ -37,8 +37,14 @@ def _poser_capture(copie: Path) -> None:
     cible.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SCRIPT_CAPTURE, cible)
     ligne = f'Capture="*{INJECTE}"'
-    if re.search(r"^\[autoload\]", texte, re.M):
-        texte = re.sub(r"^\[autoload\]\s*\n", lambda m: m.group(0) + ligne + "\n", texte, count=1, flags=re.M)
+    section = re.search(r"^\[autoload\]\s*\n(.*?)(?=^\[|\Z)", texte, re.M | re.S)
+    if section:
+        # En fin de section : les autoloads naissent dans l'ordre du fichier, et la capture cherche le journal
+        # (Trace, groupe « journal ») dans son _ready. Placée en tête, elle ne le trouvait pas (mesuré : légende
+        # sans aucune ligne du journal sur un projet qui a Trace sans Capture).
+        corps = section.group(1).rstrip("\n")
+        texte = (texte[:section.start(1)] + (corps + "\n" if corps else "") + ligne + "\n\n"
+                 + texte[section.end(1):].lstrip("\n"))
     else:
         texte = texte.rstrip("\n") + f"\n\n[autoload]\n\n{ligne}\n"
     projet_godot.write_text(texte, encoding="utf-8")
@@ -53,11 +59,13 @@ def _prefixe_ecran() -> tuple[list[str], list[str]]:
 
 def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touches: Iterable[str] = (),
              sortie: Path | None = None, colonnes: int = 4, echelle: float = 0.5, godot: Path | None = None,
-             delai_s: float = 180, hors_ecran: bool = False, compatibilite: bool = False) -> dict[str, Any]:
+             delai_s: float = 180, hors_ecran: bool = False, compatibilite: bool = False,
+             sans_image: bool = False) -> dict[str, Any]:
     """{ok, grille (chemin du PNG ou None), legende (texte), duree_s, erreurs (lignes d'erreur de la partie),
     erreur?}. `hors_ecran` : fenêtre placée hors de l'écran (même image, sans gêner : choix de laurent du
     2026-10-20 pour les rendus de fabrication). `compatibilite` : rendu de compatibilité, quel que soit celui
-    du projet (règle 5.4 : un shader ne se compile qu'au rendu, l'image fait foi en Compatibilité)."""
+    du projet (règle 5.4 : un shader ne se compile qu'au rendu, l'image fait foi en Compatibilité). `sans_image` :
+    sans fenêtre (headless) : la légende et le journal seuls, plus vite et sans rien montrer."""
     from usine.juge.godot import importer
     images = sorted({int(i) for i in images if int(i) > 0})
     touches = [t for t in touches if _TOUCHE.match(t)]
@@ -72,7 +80,7 @@ def capturer(projet: Path, images: Iterable[int], scene: str | None = None, touc
         shutil.copytree(projet, copie, ignore=IGNORES)
         _poser_capture(copie)
         importer(copie, godot)
-        prefixe, options = _prefixe_ecran()
+        prefixe, options = ([], ["--headless"]) if sans_image else _prefixe_ecran()
         if compatibilite and "gl_compatibility" not in options:
             options = [*options, "--rendering-method", "gl_compatibility"]
         if hors_ecran and not prefixe:

@@ -14,6 +14,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | A7 | Outil `voir_scene` : voir la scène 3D comme dans l'éditeur | faite (2026-10-26) | Claude, fil principal | | bug réel : 0/12 objets dans le champ, « à l'horizontale » ; corrigé : 12/12 ; tests et preuve 17/17 (ETAT) |
 | A8 | Cas fabriqués « situer la caméra et les objets », puis paires | 1 024 faites (2026-10-27) ; 2 048 avec image à faire | Claude, fil principal | | 13 niveaux : 162 cas vérifiés, 0 rejeté, 311 paires ≤ 1 024 jetons, 26 par défaut commun (ETAT) |
 | A9 | Lire l'interface de l'éditeur Godot (A : fenêtre entière ; B : par godot-ai) | A : outil MCP et générateur faits (2026-10-27), nombre à fixer ; B attend la capture chez laurent | Claude, fil principal | | `voir_editeur` : preuve du serveur 18/18 ; essai 2 niveaux : 50 paires ≤ 2 040 jetons, 0 rejet (ETAT) |
+| A10 | Timing : ce qu'on voit contre ce qu'on doit produire | générateur fait (2026-10-27), nombre à fixer | Claude, fil principal | | 1 jeu : 23 paires, 9 défauts sur 10 au symptôme mesuré (ETAT) |
 | B1 | Paires : erreur de compilation → correction | à faire | | | |
 | B2 | Paires : erreur de shader → correction | à faire | | | |
 | B3 | Paires : erreur à l'exécution → correction | à faire | | | |

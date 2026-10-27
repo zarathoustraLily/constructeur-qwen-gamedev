@@ -1884,6 +1884,38 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   `current = true`. Mesuré (`voir_scene`, deux styles) : sans cette ligne, `CameraDebug` reste la caméra courante
   (0 objet sur 5 dans le champ) ; référence de `Camera3D.current` : « one will always be made current ». Cause
   corrigée dans le générateur ; les 311 paires régénérées (1 017 jetons au plus).
+- Famille « timing : ce qu'on voit contre ce qu'on doit produire » (étape A10 ; laurent : « le timng de deplacement
+  rrection entre ce qu'on voit et ceuq o'n doit produire ca serait bien », puis « oui ») :
+  `python -m usine.paires timing --niveaux N` (`usine/paires/timing.py`). Jeu généré par graine, rangé selon le plan,
+  sur le socle (machine à états, `ProcessOrder`, `HealthComponent`, journal Trace copiés) : joueur (dash vers +X,
+  saut ; intentions par `PlayerInput`, comme le socle), ennemi (repos → alerte quand il voit le joueur → poursuite
+  après `reaction_time`), niveau. Consignes : durée du dash, départ à l'image qui suit l'appui, sommet du saut,
+  délai de réaction de l'ennemi ; gravité multiple de 15 et durées multiples de 1/60 : chaque consigne tombe juste en
+  images. Joué avec `capture_frames` (fenêtre hors de l'écran, 60 images/s, appuis `dash:10-10`, `jump:N-N`) ; la
+  légende reprend le journal (« 0.18 s Player : idle → dash »), temps × 60 = numéro d'image.
+  - Jeu sain (graines 1 à 3) : chaque consigne tenue à l'image près ; l'appui posé à l'image 10 fait partir le dash
+    à 0.18 s (image 11).
+  - Défauts, chacun une seule édition, mesurés sur 3 graines : décompte en float sans `is_zero_approx` (+1 image,
+    dash et alerte), décompte aussi dans `_process` (dash de 8 images au lieu de 15 ; le joueur n'entre plus dans la
+    portée de l'ennemi), entrées en `ProcessOrder.ATTACK` (départ à +2 au lieu de +1), sommet pris avec `< 0.0`
+    (+1), gravité ajoutée dans `player.gd` (sommet à 10 images au lieu de 18), `jump_velocity` doublé dans les
+    données (36 au lieu de 18), décompte de l'alerte remis à chaque image et `reaction_time` en millisecondes
+    (poursuite jamais produite). Sans symptôme, donc rejeté : entrées lues dans `_process` (mêmes instants).
+  - Paires par jeu : 4 analyses du jeu sain (conforme), une « fenêtre trop courte » (même jeu, capture arrêtée
+    5 images avant le sommet : ce n'est pas un défaut, relancer plus loin ; décision 19.6), puis pour chaque défaut
+    une analyse (écart ou jamais produit : la fenêtre couvre bien plus que la consigne, la cause est dans le code)
+    et un débogage avec le plan (légende, script ou données en cause → cause, texte à remplacer, instant attendu à
+    la mesure suivante, lu dans le jeu sain). Une partie sans le départ du dash est rejouée une fois, pour qu'une
+    partie vide ne passe jamais pour « jamais produit ».
+  - Essai, graine 1 : 23 paires (9 débogage, 14 analyse), analyse ≤ 466 jetons, débogage ≤ 1 552 ; tests
+    `tests/test_paires_timing.py` (9, dont le jeu sain joué dans Godot). Nombre à fixer par laurent.
+  - **Erreur corrigée dans `capture_frames`** : la capture était posée en tête de `[autoload]`, donc avant Trace ;
+    son `_ready` cherchait le journal avant qu'il ne s'inscrive dans le groupe « journal » : sur un projet qui a
+    Trace sans déclarer Capture, la légende n'avait aucune ligne du journal. Posée maintenant en fin de section
+    (test `test_capture_posee_apres_le_journal`). Le socle n'était pas touché : il déclare Capture après Trace.
+  - **Hypothèse fausse, mesurée** : j'avais d'abord attribué l'absence de dash à `Input.is_action_just_pressed`
+    avec des appuis scriptés ; mesuré, il voit l'appui (mêmes instants, avec et sans fenêtre). La cause était
+    l'ordre Capture/Trace.
 - Refusé par laurent (2026-10-27) : familles « défauts de texture », « effets cassés », « copier un effet d'après une
   image » : « non l'iasse tomber ca je vais le faire moi meme ».
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,

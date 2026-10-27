@@ -110,6 +110,19 @@ Avec trois IA en parallèle (une sur B1 à B5, une sur B7 puis D3, une sur A, D1
 - **Preuve** : chaque position et chaque valeur d'une réponse vient de la vérité du plugin ; la correction indiquée
   est appliquée et vérifiée par `voir_scene`.
 
+### A10 — Timing : ce qu'on voit contre ce qu'on doit produire
+- **Pourquoi** : laurent (2026-10-27) : « le timng de deplacement rrection entre ce qu'on voit et ceuq o'n doit
+  produire ca serait bien » ; à la proposition, « oui ».
+- **Fait** : `usine/paires/timing.py`, `python -m usine.paires timing`. Un jeu généré par graine, rangé selon le plan
+  (machine à états, ordre d'exécution et journal Trace du socle) : dash, départ à l'appui, saut, réaction d'un
+  ennemi ; une consigne chiffrée par mécanique ; un défaut de timing posé par une seule édition (code ou données) ;
+  le jeu joué avec des appuis scriptés (`capture_frames`), la légende donnant chaque changement d'état à l'image
+  près. Paires d'analyse (1 024, sans plan : lire la légende ; conforme, écart, jamais produit, fenêtre trop courte)
+  et de débogage (2 048, avec le plan : la légende et le script → cause, texte à remplacer, mesure attendue).
+- **Preuve** : le jeu sain tient chaque consigne à l'image près ; chaque défaut retenu s'en écarte (mesuré) ; la
+  correction redonne le jeu sain. `tests/test_paires_timing.py`.
+- **Reste** : les séquences d'images (D3) sur ces jeux ; le nombre de paires (laurent).
+
 ---
 
 ## B. Paires courtes, palier 1 : 12 000 paires de 1 024 jetons au plus (décision 19.1)

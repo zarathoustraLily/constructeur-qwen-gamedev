@@ -35,3 +35,5 @@ complets), aucune trop longue après passage à 2 ou 3 objets ; ligne voir_scene
 « copier un effet d'après une image » : laurent : « non l'iasse tomber ca je vais le faire moi meme »
 2026-10-27 — A9 — Claude (fil principal) — partie A faite — outil MCP voir_editeur (preuve 18/18), famille
 « lire l'éditeur » (essai : 50 paires) ; A8 : cause « autre caméra courante » corrigée (mesuré), paires régénérées
+2026-10-27 — A10 — Claude (fil principal) — ajoutée et générateur fait — accord de laurent (« oui ») ;
+capture_frames corrigé : Capture posée après Trace, sinon la légende perdait le journal
