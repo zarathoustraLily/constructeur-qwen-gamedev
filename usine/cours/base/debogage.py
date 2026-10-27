@@ -47,15 +47,23 @@ def lecture_extrait_shader(texte: str, res: str, ligne: int, faute: str, fichier
     for i in range(1, len(morceaux) - 1, 2):
         if morceaux[i] != res:
             continue
-        fleche, montree = None, None
+        fleche, montree, code_fleche = None, None, ""
         for l in morceaux[i + 1].splitlines():
             m = re.match(r"^(E)?\s*(\d+)\s?(?:\||->)(.*)$", l)
             if not m:
                 continue
             if m.group(1):
-                fleche = int(m.group(2))
+                fleche, code_fleche = int(m.group(2)), m.group(3).strip()
             if faute.strip() and m.group(3).strip() == faute.strip() and montree is None:
                 montree = int(m.group(2))
+        lignes = fichier.split("\n")
+        if montree is None and fleche == ligne and inclus and ligne - inclus >= 1 and code_fleche \
+                and code_fleche != lignes[ligne - 1].strip() and code_fleche == lignes[ligne - 1 - inclus].strip():
+            # Décalé de plus d'une ligne, la ligne fautive sort de l'extrait (mesuré : 3 `#include`, 3 lignes, kart).
+            return (f" Attention à l'extrait de code que Godot affiche : à côté de la flèche `E`, numérotée {ligne}, il "
+                    f"montre `{code_fleche}`, qui est la ligne {ligne - inclus} du fichier ; l'extrait est décalé de "
+                    f"{inclus} lignes et la ligne fautive n'y apparaît pas. Le numéro sûr est celui de la ligne « at: » : "
+                    f"ligne {ligne} du fichier." + cause)
         if montree is None or montree == ligne:
             return ""
         if fleche == ligne and montree == ligne + 1:

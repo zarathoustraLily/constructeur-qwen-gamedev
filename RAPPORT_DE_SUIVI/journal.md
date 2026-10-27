@@ -41,3 +41,5 @@ capture_frames corrigé : Capture posée après Trace, sinon la légende perdait
 vers_llamafactory ; rendu de LLaMA-Factory identique au gabarit sur 788 exemples
 2026-10-27 — A2 — Claude (fil principal) — faite — analyses tirées des sessions de débogage, équilibrage par
 étape ; analyse à 14 % (kart) et 13 % (roguelike) au lieu de 20 % : moyen de combler à trancher par laurent
+2026-10-27 — B1, B2 — Claude (fil principal) — générateurs faits — compilation et shaders sur le code des cours ;
+note de l'extrait de shader décalé de plusieurs lignes ajoutée au générateur des cours

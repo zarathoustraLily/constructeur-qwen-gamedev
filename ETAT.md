@@ -1916,6 +1916,19 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   - **Hypothèse fausse, mesurée** : j'avais d'abord attribué l'absence de dash à `Input.is_action_just_pressed`
     avec des appuis scriptés ; mesuré, il voit l'appui (mêmes instants, avec et sans fenêtre). La cause était
     l'ordre Capture/Trace.
+- Familles B1 « erreur de compilation → ligne corrigée » et B2 « erreur de shader → correction »
+  (`usine/paires/compilation.py` ; `python -m usine.paires compilation|shader --cours kart --par-etape N`) : le code
+  vérifié des cours de jeu reçoit une seule faute du poseur des cours (genres tirés à tour de rôle) ; Godot analyse
+  le script (`--check-only` strict) ou rend en Compatibilité la plus petite scène qui charge le shader ; paire gardée
+  seulement si Godot signale exactement cette ligne et rien d'autre, et si la même commande passe une fois corrigée.
+  Réponse : « Lire », « Chercher » (explication sourcée des cours), « Corriger », commande à relancer. Sans plan.
+  - Essai, kart étapes 3 et 7 (B1) : 12 paires sur 12, 6 genres, 718 jetons en moyenne, 839 au plus.
+  - Essai, kart étapes 5 et 10 (B2) : 10 vérifiées sur 12 (2 « flottant écrit entier » sans erreur de Godot, rejetées),
+    7 sous 1 024 jetons (les sorties de rendu sont longues).
+  - **Corrigé dans le générateur des cours** (`debogage.lecture_extrait_shader`) : avec 3 `#include` au-dessus, l'extrait
+    de Godot est décalé de 3 lignes et la ligne fautive n'y apparaît plus ; la note de l'extrait décalé manquait. Elle
+    nomme maintenant la ligne montrée à côté de la flèche (vérifiée : exactement autant de lignes plus haut que de
+    `#include`). Vaut aussi pour les sessions des cours, à leur regénération.
 - Refusé par laurent (2026-10-27) : familles « défauts de texture », « effets cassés », « copier un effet d'après une
   image » : « non l'iasse tomber ca je vais le faire moi meme ».
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
