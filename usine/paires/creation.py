@@ -31,6 +31,8 @@ FAMILLE = "creation_fonction"
 CORPS_MIN, CORPS_MAX = 2, 25   # lignes de code du corps
 USAGES_MAX = 4
 TROU = "\t# À écrire."
+# Avertissements que le vidage d'un corps fait naître (noms de debug/gdscript/warnings/ de la référence 4.7.2).
+IGNORES = ("unused_parameter", "unused_private_class_variable", "unused_signal", "shadowed_variable")
 
 
 def contrat(lignes: list[str], f: Any) -> list[str]:
@@ -175,20 +177,20 @@ def contexte_minimal(texte: str, f: Any) -> str:
 
 
 def masque(texte: str, f: Any) -> list[str]:
-    """Les versions du script au corps vidé à essayer : telle quelle, puis paramètres préfixés de `_` (sans quoi
-    l'avertissement UNUSED_PARAMETER, traité en erreur, empêcherait le script de se charger). Elles ne servent qu'à
-    vérifier que les tests jugent la fonction ; la demande ne les montre pas."""
-    from dataclasses import replace
+    """Les versions du script au corps vidé à essayer : telle quelle, puis avec les avertissements que le vidage
+    lui-même fait naître ignorés (`IGNORES`, traités en erreur, ils empêcheraient le script de se charger : paramètre
+    ou variable de classe que seul ce corps employait). Elles ne servent qu'à vérifier que les tests jugent la
+    fonction ; la demande ne les montre pas."""
     from usine.generateurs.masquage import vider_fonction
     vide = vider_fonction(texte, f.nom)
-    sortie = [vide]
-    if any(not a.nom.startswith("_") for a in f.arguments):
-        prives = replace(f, arguments=[replace(a, nom=a.nom if a.nom.startswith("_") else "_" + a.nom)
-                                       for a in f.arguments])
-        lignes = vide.split("\n")
-        lignes[f.ligne_debut:f.ligne_corps] = [prives.signature() + ":"]
-        sortie.append("\n".join(lignes))
-    return sortie
+    lignes = vide.split("\n")
+    # Après l'en-tête (@tool, class_name, extends) : l'annotation vaut pour la suite du fichier.
+    k = 0
+    while k < len(lignes) and (not lignes[k].strip() or lignes[k].startswith(("@tool", "@icon", "class_name",
+                                                                                "extends", "#"))):
+        k += 1
+    lignes.insert(k, "@warning_ignore_start(" + ", ".join(f'"{w}"' for w in IGNORES) + ")")
+    return [vide, "\n".join(lignes)]
 
 
 def usages(texte_f: str, script: str) -> list[str]:
@@ -284,7 +286,7 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
             for rel in fichiers_a_fauter(apres, "compilation"):
                 lignes = apres[rel].split("\n")
                 for f in candidates(apres, rel):
-                    cle = (rel, texte_fonction(lignes, f))
+                    cle = (fmt.commun(rel), fmt.commun(texte_fonction(lignes, f)))
                     if cle not in vues and suites_pour(apres, rel):
                         dispo.append((rel, f, cle))
             if not dispo:

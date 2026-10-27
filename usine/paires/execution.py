@@ -540,7 +540,8 @@ def paire(projet: Any, m: Any, suites: list[str], sujet: str) -> tuple[dict[str,
 
 # Le sujet d'un fichier (décision 2), lu dans son chemin ; à défaut, celui de l'étape du cours.
 SUJETS_CHEMIN = (("4_ui/", "UI"), (".gdshader", "shaders"), ("/effects/", "VFX"), ("particles", "VFX"),
-                 ("_input.gd", "contrôle à la manette"), ("audio", "audio"), ("/camera/", "graphisme 3D"),
+                 ("/Procedural/", "procédural"), ("_input.gd", "contrôle à la manette"), ("audio", "audio"),
+                 ("/camera/", "graphisme 3D"),
                  ("procedural", "procédural"), ("/water/", "procédural"), ("/tools/", "procédural"),
                  ("_view.gd", "graphisme 3D"), ("/weather/", "VFX"))
 
@@ -565,12 +566,12 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
     paires: list[dict[str, Any]] = []
     rejets: list[str] = []
     rng = random.Random(graine)
-    vues: set[tuple[str, int]] = set()  # une ligne déjà fautée dans une étape précédente ne revient pas (règle 7.7)
+    vues: set[tuple[str, str]] = set()  # une ligne déjà fautée dans une étape précédente ne revient pas (règle 7.7)
     for ville in assembler.ordre_lignes():
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo = [m for rel in fichiers_a_fauter(apres, "compilation") for m in candidates(apres, rel)
-                     if (m.fichier, m.avant) not in vues]
+                     if (fmt.commun(m.fichier), fmt.commun(m.avant)) not in vues]
             if not dispo:
                 continue
             par_genre: dict[str, list[Any]] = {}
@@ -597,7 +598,7 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
                                   f"{raison}")
                     continue
                 paires.append(p)
-                vues.add((m.fichier, m.avant))
+                vues.add((fmt.commun(m.fichier), fmt.commun(m.avant)))
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{len(choisies)} paires")
     trop_longues = [p for p in paires if p["jetons"] > PLAFOND]

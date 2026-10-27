@@ -57,3 +57,9 @@ verte avec ; 12/12 sur l'essai du kart
 volume`, familles l'une après l'autre, journal `donnees/paires/volume.log`
 2026-10-27 — A5 — Claude (fil principal) — format capturé — OpenCode 2.1.4 en bac à sable contre une sonde, sans
 llama-server : place de l'AGENTS.md, appel MCP par le Code Mode, catalogue partiel et `search`, image en message user
+2026-10-27 — B6 — Claude (fil principal) — fait — RAG par le Code Mode puis usage vérifié ; 59 paires
+2026-10-27 — B9, D5 — Claude (fil principal) — faits — 2 h 08 puis 54 min ; palier 1 : 1 579 paires, palier 2 : 278,
+0 problème ; vidage des fonctions corrigé (valeurs, avertissements du vidage) : création 85 → 105 ; bâtiments en
+compilation (2 186) ; doc, blocs et fonctions non jugées essayés sans suite
+2026-10-27 — B8 — Claude (fil principal) — question à laurent — la création manque (≈ 820 000 jetons) : quelle règle
+pour les sujets sans création (272, 1 583 ou 8 662 paires au palier 1)

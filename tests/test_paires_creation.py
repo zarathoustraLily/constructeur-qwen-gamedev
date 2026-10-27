@@ -63,7 +63,10 @@ def test_le_script_a_trou_et_le_masque():
 	trou = creation.script_a_trou(SCRIPT, "ajouter")
 	assert creation.TROU in trou and "roundi" not in trou and "\t…" in trou
 	masques = creation.masque(SCRIPT, _f("ajouter"))
-	assert "func ajouter(_n: int) -> void:" in masques[-1] and "roundi" not in masques[-1]
+	# Le paramètre garde son nom (un `_n` pourrait masquer une variable de classe) ; les avertissements du vidage
+	# sont ignorés après l'en-tête.
+	assert "func ajouter(n: int) -> void:" in masques[-1] and "roundi" not in masques[-1]
+	assert '@warning_ignore_start("unused_parameter"' in masques[-1].split("func ")[0]
 
 
 def test_seules_les_fonctions_documentees_sont_candidates():

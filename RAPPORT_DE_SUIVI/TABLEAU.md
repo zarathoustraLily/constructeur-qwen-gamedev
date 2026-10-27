@@ -15,25 +15,25 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | A8 | Cas fabriqués « situer la caméra et les objets », puis paires | 1 024 faites (2026-10-27) ; 2 048 avec image à faire | Claude, fil principal | | 13 niveaux : 162 cas vérifiés, 0 rejeté, 311 paires ≤ 1 024 jetons, 26 par défaut commun (ETAT) |
 | A9 | Lire l'interface de l'éditeur Godot (A : fenêtre entière ; B : par godot-ai) | A : outil MCP et générateur faits (2026-10-27), 300 paires (délégation), plan ajouté (palier 2) ; B attend la capture chez laurent | Claude, fil principal | | `voir_editeur` : preuve du serveur 18/18 ; essai 2 niveaux : 50 paires ≤ 2 040 jetons, 0 rejet (ETAT) |
 | A10 | Timing : ce qu'on voit contre ce qu'on doit produire | générateur fait (2026-10-27), 300 paires (délégation) | Claude, fil principal | | 1 jeu : 23 paires, 9 défauts sur 10 au symptôme mesuré (ETAT) |
-| B1 | Paires : erreur de compilation → correction | générateur fait (2026-10-27) ; volume en B9 | Claude, fil principal | | essai kart : 12/12 paires vérifiées par Godot (ETAT) |
-| B2 | Paires : erreur de shader → correction | générateur fait (2026-10-27) ; volume en B9 | Claude, fil principal | | essai kart : 10 vérifiées, 7 ≤ 1 024 jetons (ETAT) |
+| B1 | Paires : erreur de compilation → correction | fait (2026-10-27) : kart 957, roguelike 625, bâtiments 2 186 | Claude, fil principal | | `volume.log`, ETAT |
+| B2 | Paires : erreur de shader → correction | fait (2026-10-27) : kart 184, roguelike 27 ; bâtiments tous > 1 024 (shader entier dans la sortie) | Claude, fil principal | | `volume.log`, ETAT |
 | B3 | Paires : erreur à l'exécution → correction | générateur fait (2026-10-27), palier 2 avec le plan (délégation) ; volume en B9 | Claude, fil principal | | essai kart et roguelike : 26 paires vérifiées sur 31, 0 trop longue (ETAT) |
 | B4 | Paires : lire une sortie de Godot | générateur fait (2026-10-27), tiré de B1 à B3 sans relancer Godot | Claude, fil principal | | essai : 36 lectures, 18 échecs, 18 réussites, ≤ 980 jetons (ETAT) |
-| B5 | Paires : création courte | générateur fait (2026-10-27) avec D1 : fonction d'après son contrat, palier 1 quand le plan n'y joue aucun rôle | Claude, fil principal | | essai kart : 5 paires palier 1 sur 12 (ETAT) |
+| B5 | Paires : création courte | fonction d'après son contrat : 105 (58 au palier 1) ; **source épuisée** (blocs, fonctions non jugées, exemples de la doc : sans suite, ETAT) | Claude, fil principal | | `volume.log`, ETAT |
 | B6 | Paires : RAG | en attente de A5, R1, R2 | | | |
 | B7 | Paires : images, 4 niveaux | à faire | | | |
-| B8 | Assembleur du palier 1 | en attente de B1 | | | |
-| B9 | Génération du palier 1 sur le PC | en attente de B8 | | | |
+| B8 | Assembleur du palier 1 | fait ; règle des sujets sans création **à trancher par laurent** | Claude, fil principal | | `controles_palier_1.json` : 1 579 paires, 0 problème |
+| B9 | Génération du palier 1 sur le PC | fait (2026-10-27, 2 h 08 puis 54 min) | Claude, fil principal | | `donnees/paires/volume.log` |
 | C1 | Réglages de LLaMA-Factory | faite (2026-10-27) | Claude, fil principal | | `python -m usine.entrainement reglages` ; tests (ETAT) |
 | C2 | Entraînement d'essai (≈ 6 000 paires) | en attente de B1-B4, C1 | | | |
 | C3 | Conversion GGUF et chargement | en attente de C2 | | | |
 | C4 | Courte campagne de contrôle | proposé, attend laurent | | | |
 | C5 | Étape 1 complète | en attente de B9, C3 | | | |
-| D1 | Morceaux de jeu point par point | générateur « fonction d'après son contrat » fait (2026-10-27) ; volume en D5 | Claude, fil principal | | essai kart : 12 paires vérifiées sur 12, 7 palier 2 (ETAT) |
+| D1 | Morceaux de jeu point par point | « fonction d'après son contrat » : 47 au palier 2 ; reste les points des notes | Claude, fil principal | | `volume.log`, ETAT |
 | D2 | Morceaux tirés des démos | à faire | | | |
 | D3 | Séquences de 5 images | en attente de B7 | | | |
-| D4 | Assembleur du palier 2 | en attente de D1 | | | |
-| D5 | Génération du palier 2 sur le PC | en attente de D4 | | | |
+| D4 | Assembleur du palier 2 | fait | Claude, fil principal | | `controles_palier_2.json` : 278 paires, 0 problème |
+| D5 | Génération du palier 2 sur le PC | fait avec B9 | Claude, fil principal | | `donnees/paires/volume.log` |
 | D6 | Étape 2 | en attente de C5, D5 | | | |
 | E1 | Regénérer les 732 sessions | en attente de A1, A2, A4 | | | |
 | E2 | Nouvelles sessions OpenCode | en attente de A5, R1, R2 | | | |

@@ -10,7 +10,7 @@
     python -m usine.paires lecture
     python -m usine.paires rag
     python -m usine.paires assembler --palier 1|2 [--graine G]
-    python -m usine.paires volume [--seulement creation,execution,...]
+    python -m usine.paires volume [--seulement creation,execution,...] [--cours kart,...]
 """
 
 from __future__ import annotations
@@ -39,14 +39,14 @@ def main(argv: list[str] | None = None) -> int:
     for nom, aide in (("compilation", "erreur de compilation → ligne corrigée (code vérifié des cours)"),
                       ("shader", "erreur de shader → correction, compilée au rendu (code vérifié des cours)")):
         cp = sous.add_parser(nom, help=aide)
-        cp.add_argument("--cours", default="kart", choices=["kart", "roguelike"])
+        cp.add_argument("--cours", default="kart", choices=["kart", "roguelike", "batiments_proceduraux"])
         cp.add_argument("--par-etape", type=int, default=6)
         cp.add_argument("--graine", type=int, default=1)
         cp.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     for nom, aide in (("execution", "erreur à l'exécution → correction (chemin de nœud, type du nœud)"),
                       ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape")):
         ex = sous.add_parser(nom, help=aide)
-        ex.add_argument("--cours", default="kart", choices=["kart", "roguelike"])
+        ex.add_argument("--cours", default="kart", choices=["kart", "roguelike", "batiments_proceduraux"])
         ex.add_argument("--par-etape", type=int, default=4)
         ex.add_argument("--graine", type=int, default=1)
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
@@ -54,6 +54,7 @@ def main(argv: list[str] | None = None) -> int:
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     vol = sous.add_parser("volume", help="génération en volume, famille après famille, puis lectures et paliers")
     vol.add_argument("--seulement", default=None, help="familles séparées par des virgules (défaut : toutes)")
+    vol.add_argument("--cours", default=None, help="cours séparés par des virgules (défaut : tous)")
     asm = sous.add_parser("assembler", help="jeu d'un palier : contrôles, 40/40/20 par sujet, format de LLaMA-Factory")
     asm.add_argument("--palier", type=int, required=True, choices=[1, 2])
     asm.add_argument("--graine", type=int, default=1)
@@ -105,7 +106,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if bilan["paires"] else 1
     if args.famille == "volume":
         from usine.paires.volume import lancer
-        lancer(args.seulement.split(",") if args.seulement else None)
+        lancer(args.seulement.split(",") if args.seulement else None,
+               cours=args.cours.split(",") if args.cours else None)
         return 0
     if args.famille == "assembler":
         from usine.paires.assembler import assembler

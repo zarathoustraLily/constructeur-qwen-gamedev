@@ -4,6 +4,7 @@ estimation ; la paire est mise en forme par le gabarit, `enable_thinking: false`
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -103,6 +104,16 @@ def plan() -> str:
     """Le bloc permanent du socle (section 3 : le plan des données), message système des paires de 2 048 jetons."""
     texte = (cfg.RACINE / "godot" / "socle_jeu" / "AGENTS.md").read_text(encoding="utf-8")
     return texte[:texte.index("# AVANT CHAQUE ÉTAPE")].strip()
+
+
+ETAPE = re.compile(r"etape_\d+")
+
+
+def commun(texte: str) -> str:
+    """Le texte sans numéro d'étape : dans le cours des bâtiments, chaque étape renomme ses fichiers
+    (`…_etape_013_toit.gd`) et ses préchargements ; une même fonction ou une même ligne fautée ne revient pas d'une
+    étape à l'autre (règle 7.7)."""
+    return ETAPE.sub("etape_N", texte)
 
 
 def dossier(famille: str, donnees: Path | None = None) -> Path:

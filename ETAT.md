@@ -1971,7 +1971,7 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   Essai sur B1 et B2 : 36 lectures, 18 échecs et 18 réussites, 980 jetons au plus.
 - Famille « écrire une fonction d'après son contrat » (`usine/paires/creation.py` ; `python -m usine.paires
   creation`) : une fonction documentée (`##`) du code vérifié des cours, corps retiré ; gardée seulement si le script au
-  corps vidé passe l'analyse (paramètres préfixés de `_` au besoin) et qu'une suite échoue alors, et si la même suite
+  corps vidé passe l'analyse (avertissements nés du vidage ignorés au besoin) et qu'une suite échoue alors, et si la même suite
   passe avec la fonction d'origine. Demande : le contexte (script entier aux autres fonctions réduites à leur signature,
   ou seulement ce que la fonction emploie) et les déclarations d'autres scripts qu'elle lit (`settings.wheel_base` : la
   ligne de `KartSettings`, avec son `##`). Réponse : la fonction, la signature réelle des appels de Godot employés
@@ -2054,6 +2054,54 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     970/1 000 ; classes 652/652 ; guides couverts 3 104 → 3 421/3 644, page trouvée 820/905, section 729/905. Sur
     le même échantillon de 200 avant/après : membres 186/198 → 194/200, classes 128/131 → 131/131, guides 157/169 et
     140/169 inchangés. Banc en français inchangé (14/87 et 31/87 hors même cours ; 54/87 hors même étape).
+- **Génération en volume (B9 et D5, accord de laurent : « ok pour tout »)** : `python -m usine.paires volume`, sur la
+  machine, sans fenêtre, 2 h 08 (17 h 33 → 19 h 41) ; journal `donnees/paires/volume.log`, bilan
+  `donnees/paires/volume_bilan.json`. Premier passage : création 39 + 46 paires (kart, roguelike), exécution 28 + 48,
+  compilation 957 + 625, shader 184 + 27 (117 trop longues : Godot affiche le shader entier, numéroté), timing 299,
+  éditeur 300, lectures 3 737, RAG 45. Second passage, après les corrections ci-dessous (20 h 02 → 20 h 56) :
+  création 50 + 55 (85 → 105), RAG 59, compilation des bâtiments 2 186 (555 trop longues ; 1 913 en « procédural »),
+  lectures 8 109. Assemblage : palier 1 **1 579 paires**, 1 055 657 jetons (≈ 1,1 h sur la 5090), 0 problème ;
+  palier 2 **278 paires**, 426 053 jetons, 0 problème.
+- **La création limite tout (à trancher par laurent)** : pour garder 40/40/20 dans chaque sujet (décision 3), le palier 1
+  manque d'environ 820 000 jetons de création (≈ 2 700 paires). L'assembleur garde aujourd'hui **entier** tout sujet
+  sans aucune création (graphisme 3D, shaders, physique) : choix de Claude à la construction de B8, pas une décision de
+  laurent (la décision 17 ne couvre qu'audio, optimisation, mémoire et plugins). Effet pervers : quelques créations
+  dans un tel sujet y couperaient le débogage à leur mesure. Trois lectures, mesurées sur les paires du second passage :
+
+  | Règle du palier 1 | Paires | Jetons | 5090 | Création / débogage / analyse |
+  | --- | --- | --- | --- | --- |
+  | 40/40/20 dans chaque sujet, seuls les sujets de la décision 17 dispensés | 272 | 164 102 | 0,2 h | 40 / 40 / 20 |
+  | actuelle : tout sujet sans création gardé entier | 1 583 | 1 057 533 | 1,1 h | 7 / 55 / 38 |
+  | tout le vérifié, sans équilibrage | 8 662 | 5 551 258 | 5,8 h | 1 / 58 / 41 |
+
+  Palier 2 : 21, 278 et 451 paires (l'analyse y attend D3).
+- **Deux défauts du vidage d'une fonction, corrigés dans les générateurs** (151 des 367 fonctions écartées) :
+  - `masquage.corps_vide` rendait `return null` pour un type de valeur (`Color`, `PackedStringArray`…, `Error`) :
+    « Cannot return a value of type "null" as "Color" ». Il rend maintenant le constructeur sans argument (types de
+    valeur de `builtin_classes`, vérifiés contre `extension_api.json` par un test), `OK` pour `Error`, `{}` pour un
+    dictionnaire typé. Aucune tâche gelée touchée : un tel masquage ne compilait pas, le portillon l'écartait.
+  - Le corps vidé laissait inutilisés un paramètre ou une variable de classe que lui seul employait (avertissements
+    traités en erreurs) ; préfixer les paramètres de `_` masquait alors une variable de classe (`_pads`). Le script de
+    vérification (jamais montré) ignore maintenant ces avertissements par `@warning_ignore_start(…)` après l'en-tête
+    (annotation de la référence 4.7.2 ; noms relus dans `ProjectSettings.xml`). Rejoué : 0 échec d'analyse sur les 25
+    cas du kart, 1 sur 70 du roguelike (`Error`, corrigé ensuite).
+- **Cours des bâtiments comme source** (`--cours batiments_proceduraux`, ajouté à `volume`) :
+  - compilation (B1) : elle marche (essai étape 9 : 15 paires sur 18) ;
+  - shaders (B2) : ils ne sont chargés par aucune scène mais préchargés par le code des matériaux ;
+    `compilation._charge_par_la_principale` suit maintenant les scripts de la scène principale. Godot vérifie
+    alors la faute, mais toutes les paires dépassent 1 024 jetons : Godot affiche le shader entier, et la règle 13
+    interdit d'écourter la sortie. Pas de B2 tiré des bâtiments ;
+  - création et exécution : impossibles, les tests des bâtiments sont des scripts `SceneTree` qui comptent des
+    triangles (rien ne juge une fonction ; aucun chemin de nœud à fausser).
+  - Chaque étape renomme ses fichiers (`…_etape_013_toit.gd`) : les clés du dédoublonnage d'une étape à l'autre passent
+    par `format.commun` (numéro d'étape retiré), sans quoi la même fonction reviendrait 13 fois (règle 7.7).
+- **Sources de création essayées, sans suite** (à ne pas refaire) :
+  - fonctions que les tests ne jugent pas : 34 distinctes (les 216 rejets comptaient les répétitions d'une étape à
+    l'autre), dont 8 seulement aux paramètres et retour de valeur : un générateur de tests pour elles ne paierait pas ;
+  - blocs commentés à l'intérieur des fonctions testées : 69 distincts dans les deux cours ;
+  - exemples de la documentation (référence des classes 4.7.2 et guides, 1 430 exemples dont 439 complets) :
+    **0 sur 140 essayés** ne compile dans un projet au bloc `[debug]` du socle (non typés, ou fragments qui
+    emploient des variables d'ailleurs). Les apprendre enseignerait le code non typé que la règle 5.3 refuse.
 
 **Preuve** (machine de laurent, Windows 11, Godot 4.7.2, 2026-10-22)
 

@@ -66,7 +66,13 @@ def fichiers_a_fauter(apres: dict[str, str], famille: str) -> list[str]:
 def _charge_par_la_principale(apres: dict[str, str], rel: str) -> bool:
     from usine.cours.base import profil
     m = profil.MAIN.search(apres.get("project.godot", ""))
-    return bool(m) and rel in profil.dependances(apres, m[1])
+    if not m:
+        return False
+    if rel in profil.dependances(apres, m[1]):
+        return True
+    # Ou préchargé par un script que la scène principale charge : dans le cours des bâtiments, les matériaux se font
+    # dans le code. Le rendu dit ensuite si la faute s'y voit (ligne signalée vérifiée par `paire`).
+    return any(f'"res://{rel}"' in apres[f] for f in profil.charges(apres, m[1]) if f.endswith(".gd"))
 
 
 def paire(projet: Any, m: Any, sujet: str, famille: str = "compilation") -> tuple[dict[str, Any] | None, str]:
@@ -120,7 +126,7 @@ def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: li
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo = [m for m in candidates(apres, fichiers_a_fauter(apres, famille), famille)
-                     if (m.fichier, m.avant, m.apres) not in vues]
+                     if tuple(fmt.commun(x) for x in (m.fichier, m.avant, m.apres)) not in vues]
             if not dispo:
                 continue
             # Les genres à tour de rôle, pour qu'aucun ne remplisse l'étape (règle 7.7).
@@ -144,7 +150,7 @@ def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: li
                     rejets.append(f"{ville}-{n:03d} {m.fichier}:{m.ligne} {m.genre} : {raison}")
                     continue
                 paires.append(p)
-                vues.add((m.fichier, m.avant, m.apres))
+                vues.add(tuple(fmt.commun(x) for x in (m.fichier, m.avant, m.apres)))
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{len(choisies)} paires")
     trop_longues = [p for p in paires if p["jetons"] > PLAFOND]

@@ -30,7 +30,15 @@ ORIGINE = "generateur:masquage"
 
 _DEFAUTS = {None: "pass", "void": "pass", "bool": "return false", "int": "return 0", "float": "return 0.0",
             "String": 'return ""', "StringName": 'return &""', "Vector2": "return Vector2.ZERO",
-            "Vector3": "return Vector3.ZERO", "Dictionary": "return {}", "Array": "return []"}
+            "Vector3": "return Vector3.ZERO", "Dictionary": "return {}", "Array": "return []",
+            "Error": "return OK"}
+# Les autres types de valeur (builtin_classes de extension_api.json 4.7.2) : `null` ne s'y convertit pas (« Cannot
+# return a value of type "null" as "Color" »), leur constructeur sans argument compile.
+_VALEURS = frozenset({
+    "AABB", "Basis", "Callable", "Color", "NodePath", "PackedByteArray", "PackedColorArray", "PackedFloat32Array",
+    "PackedFloat64Array", "PackedInt32Array", "PackedInt64Array", "PackedStringArray", "PackedVector2Array",
+    "PackedVector3Array", "PackedVector4Array", "Plane", "Projection", "Quaternion", "RID", "Rect2", "Rect2i",
+    "Signal", "Transform2D", "Transform3D", "Vector2i", "Vector3i", "Vector4", "Vector4i"})
 
 
 def corps_vide(fonction: Fonction, script: Script) -> str:
@@ -40,6 +48,10 @@ def corps_vide(fonction: Fonction, script: Script) -> str:
         return _DEFAUTS[retour]
     if retour.startswith("Array["):
         return "return []"
+    if retour.startswith("Dictionary["):
+        return "return {}"
+    if retour in _VALEURS:
+        return f"return {retour}()"
     if retour in script.enums:
         return f"return {retour}.values()[0]"
     return "return null"

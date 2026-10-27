@@ -42,6 +42,27 @@ def test_corps_vide_selon_le_type_de_retour():
     assert masquage.corps_vide(s.fonction("start_next_wave"), s) == "pass"
 
 
+def test_corps_vide_des_types_de_valeur():
+    # `return null` ne compile pas pour un type de valeur : son constructeur sans argument, OK pour Error.
+    s = lire_script("extends Node\n\nfunc teinte() -> Color:\n\treturn Color.RED\n\n"
+                    "func noms() -> PackedStringArray:\n\treturn PackedStringArray()\n\n"
+                    "func sauver() -> Error:\n\treturn FAILED\n\nfunc table() -> Dictionary[String, int]:\n\treturn {}\n")
+    assert masquage.corps_vide(s.fonction("teinte"), s) == "return Color()"
+    assert masquage.corps_vide(s.fonction("noms"), s) == "return PackedStringArray()"
+    assert masquage.corps_vide(s.fonction("sauver"), s) == "return OK"
+    assert masquage.corps_vide(s.fonction("table"), s) == "return {}"
+
+
+def test_les_types_de_valeur_sont_ceux_du_moteur():
+    from usine import config as cfg
+    from usine.vocab.construire import chemin_json
+    chemin = chemin_json(cfg.charger_config())
+    if not Path(chemin).exists():
+        pytest.skip("extension_api.json absent")
+    noms = {b["name"] for b in json.loads(Path(chemin).read_text(encoding="utf-8"))["builtin_classes"]}
+    assert masquage._VALEURS <= noms
+
+
 def test_squelette_et_interface():
     sq = masquage.squelette(PROJET["scripts/hero.gd"])
     avant, apres = lire_script(PROJET["scripts/hero.gd"]), lire_script(sq)
