@@ -39,3 +39,5 @@ complets), aucune trop longue après passage à 2 ou 3 objets ; ligne voir_scene
 capture_frames corrigé : Capture posée après Trace, sinon la légende perdait le journal
 2026-10-27 — A4 — Claude (fil principal) — faite — les cours rognaient déjà ; paires : système rogné et export
 vers_llamafactory ; rendu de LLaMA-Factory identique au gabarit sur 788 exemples
+2026-10-27 — A2 — Claude (fil principal) — faite — analyses tirées des sessions de débogage, équilibrage par
+étape ; analyse à 14 % (kart) et 13 % (roguelike) au lieu de 20 % : moyen de combler à trancher par laurent

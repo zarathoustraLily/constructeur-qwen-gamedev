@@ -10,7 +10,8 @@ from usine.cours.base import opencode
 
 
 def competence(e: dict) -> str:
-    return "K2" if e["type"] == "creation" else "K3"
+    # L'analyse lit la sortie de Godot et nomme la faute, fichier et ligne : D1.
+    return {"creation": "K2", "debogage": "K3", "analyse": "D1"}[e["type"]]
 
 
 # Cours de jeu : les sujets de la grille (décision 2 de laurent) que nomme la piste de l'étape.
@@ -26,7 +27,7 @@ def sujet(e: dict) -> str:
     from usine.cours.base import chemins
     if not chemins.actuels().jeu:
         return "shaders" if texte.count(".gdshader") > texte.count(".gd`") else "procédural"
-    if e["type"] == "debogage":
+    if e["type"] in ("debogage", "analyse"):
         shader = sum(1 for m in e["preuves"]["mutations"] if not m["fichier"].endswith(".gd"))
         if shader * 2 > len(e["preuves"]["mutations"]):
             return "shaders"

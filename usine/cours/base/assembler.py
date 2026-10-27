@@ -12,9 +12,12 @@ import collections
 import json
 import re
 
-from usine.cours.base import chemins, creation, etat, exporter, jetons, lisezmoi, opencode, profil, rejouer
+from usine.cours.base import analyse, chemins, creation, etat, exporter, jetons, lisezmoi, opencode, profil, rejouer
 
 LONGUEUR = 32768
+# Décision 3 (2026-10-22, « ok modifie en 40/40/20 ») : parts des jetons de réponse, étape par étape (règle 7.1).
+CIBLE = {"creation": 0.4, "debogage": 0.4, "analyse": 0.2}
+TYPES = tuple(CIBLE)
 ORDRE_VILLES = {"parisien": 0, "tokyoiste": 1, "newyorkais": 2}
 RESTES = re.compile(r"\{TWIN\}|\{FILES_TABLE\}|\{STEP\}|\{TITLE\}|\{TRACK\}|\{NAME\}|>>> NOUVEAU|<<< FIN DU NOUVEAU"
                     r"|· fichier (modifié|nouveau|inchangé) à cette étape")
@@ -58,6 +61,55 @@ def charger() -> list[dict]:
         # Les jetons qui comptent : ceux de l'exemple au format d'OpenCode, celui de l'entraînement.
         e["jetons"], e["jetons_reponse"] = e["opencode"]["jetons"], e["opencode"]["jetons_reponse"]
     return exemples
+
+
+def ajouter_analyses(exemples: list[dict], h: opencode.Harnais) -> tuple[list[dict], list[str]]:
+    """Les exemples d'analyse tirés des sessions de débogage (analyse.py), comptés comme les autres."""
+    analyses, ecartees = analyse.deriver(exemples, h)
+    for a in analyses:
+        a["jetons"], a["jetons_reponse"] = a["opencode"]["jetons"], a["opencode"]["jetons_reponse"]
+    return exemples + analyses, ecartees
+
+
+def _rapprocher(liste: list[dict], cible: float) -> list[dict]:
+    """Retire des exemples, le plus long d'abord, tant que la somme des jetons de réponse s'en rapproche de la cible.
+    Une somme sous la cible garde tout : rien ne s'invente (règle 7.7 : d'une base volumineuse, on garde une part)."""
+    gardes = sorted(liste, key=lambda e: (-e["jetons_reponse"], e["id"]))
+    somme = sum(e["jetons_reponse"] for e in gardes)
+    k = 0
+    while k < len(gardes):
+        apres = somme - gardes[k]["jetons_reponse"]
+        if abs(apres - cible) < abs(somme - cible):
+            somme = apres
+            gardes.pop(k)
+        else:
+            k += 1
+    return gardes
+
+
+def equilibrer(exemples: list[dict]) -> tuple[list[dict], list[str]]:
+    """Étape par étape, la création reste entière (ses parties se suivent) ; débogage et analyse sont choisis pour
+    peser, en jetons de réponse, création × 40/40 et création × 20/40. Rend les exemples gardés et les écartés."""
+    par_etape: dict = {}
+    for e in exemples:
+        par_etape.setdefault((e["ville"], e["etape"]), []).append(e)
+    gardes, ecartes = [], []
+    for cle in sorted(par_etape, key=lambda c: (ordre_lignes()[c[0]], c[1])):
+        liste = par_etape[cle]
+        c = sum(e["jetons_reponse"] for e in liste if e["type"] == "creation")
+        pris = [e for e in liste if e["type"] == "creation"]
+        for t in ("debogage", "analyse"):
+            choix = [e for e in liste if e["type"] == t]
+            retenus = _rapprocher(choix, c * CIBLE[t] / CIBLE["creation"]) if c else choix
+            pris += retenus
+            ecartes += [e["id"] for e in choix if e not in retenus]
+        gardes += [e for e in liste if e in pris]
+    return gardes, ecartes
+
+
+def parts(liste: list[dict]) -> dict[str, float]:
+    total = sum(e["jetons_reponse"] for e in liste) or 1
+    return {t: round(sum(e["jetons_reponse"] for e in liste if e["type"] == t) / total, 3) for t in TYPES}
 
 
 def roles_valides(roles: list[str]) -> bool:
@@ -275,6 +327,7 @@ def verifier_decalages(exemples: list[dict]) -> tuple[int, list[str]]:
 def statistiques(exemples: list[dict]) -> dict:
     crea = [e for e in exemples if e["type"] == "creation"]
     deb = [e for e in exemples if e["type"] == "debogage"]
+    ana = [e for e in exemples if e["type"] == "analyse"]
     st = {"total": len(exemples), "par_type": dict(collections.Counter(e["type"] for e in exemples)),
           "par_ville": dict(collections.Counter(e["ville"] for e in exemples))}
     st["creations"] = {
@@ -324,11 +377,24 @@ def statistiques(exemples: list[dict]) -> dict:
         "caracteres_par_jeton": round(sum(tailles) / sum(j), 2),
         "marge_plus_long": LONGUEUR - max(j),
         "au_dela_de_32768": [e["id"] for e in exemples if e["jetons"] > LONGUEUR],
-        "par_type": {"creation": resume(crea), "debogage": resume(deb)},
+        "par_type": {"creation": resume(crea), "debogage": resume(deb), **({"analyse": resume(ana)} if ana else {})},
     }
     jt = st["jetons"]["par_type"]
-    st["jetons"]["part_creation_reponses"] = round(
-        jt["creation"]["reponses"] / (jt["creation"]["reponses"] + jt["debogage"]["reponses"]), 3)
+    st["jetons"]["part_creation_reponses"] = round(jt["creation"]["reponses"] / st["jetons"]["reponses"], 3)
+    # Les trois parts (décision 3), sur toute la base puis étape par étape, et leur écart à la cible.
+    st["jetons"]["parts_reponses"] = parts(exemples)
+    st["jetons"]["cible"] = CIBLE
+    par_etape = {}
+    for v in ordre_lignes():
+        for n in etapes_du_cours():
+            liste = [e for e in exemples if e["ville"] == v and e["etape"] == n]
+            if liste:
+                par_etape[f"{v}-{n:03d}"] = parts(liste)
+    st["parts_par_etape"] = {
+        "min": {t: min(p[t] for p in par_etape.values()) for t in TYPES},
+        "max": {t: max(p[t] for p in par_etape.values()) for t in TYPES},
+        "ecart_max_points": round(100 * max(abs(p[t] - CIBLE[t]) for p in par_etape.values() for t in TYPES), 1),
+        "etapes": par_etape}
     st["jetons"]["part_creation_total"] = round(jt["creation"]["total"] / sum(j), 3)
     # L'équilibre étape par étape : jetons de réponse du débogage / ceux de la création (règle 7.1).
     rapports = []
@@ -367,6 +433,7 @@ def choisir_echantillon(exemples: list[dict]) -> list[dict]:
     premier(lambda e: "test" in e["preuves"]["vues"] and e["nb_erreurs"] >= 2)
     premier(lambda e: "recherche" in e["preuves"]["vues"])
     pris += [e for e in crea if e["id"] in ("parisien-002-creation", "parisien-002-creation-p1")][:1]
+    pris += sorted((e for e in exemples if e["type"] == "analyse"), key=lambda e: (len(e["messages"]), e["id"]))[:1]
     return pris
 
 
@@ -377,9 +444,14 @@ def assembler(journal=print) -> dict:
     if not exemples:
         raise RuntimeError(f"aucune étape générée dans {ch.etapes} : lancer d'abord « generer »")
     h = ch.harnais()
+    # Analyse (décision 3, 40/40/20) : tirée des sessions de débogage, puis chaque étape équilibrée.
+    exemples, non_tirees = ajouter_analyses(exemples, h)
+    exemples, ecartes = equilibrer(exemples)
     problemes = controler(exemples)
     problemes += controler_opencode(exemples, h, jetons.tokenizer())
     st = statistiques(exemples)
+    st["analyses"] = {"sessions_sans_analyse": non_tirees, "ecartes_a_l_equilibrage": len(ecartes),
+                      "ecartes": ecartes}
     # Les consignes d'édition du format neutre, rejouées à la lettre depuis l'état de départ (règle 5.7)…
     bilan = rejouer.rejouer_exemples(exemples, creation.etats, profil.enseignables())
     st["consignes_rejouees"] = {k: v for k, v in bilan.items() if k != "details"}

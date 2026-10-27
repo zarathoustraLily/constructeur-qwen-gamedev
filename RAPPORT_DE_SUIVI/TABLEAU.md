@@ -6,7 +6,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | ID | Étape | État | Réalisé par | Vérifié par | Preuve |
 | --- | --- | --- | --- | --- | --- |
 | A1 | Plan dans les sessions OpenCode | en attente de A5 | | | |
-| A2 | Partage 40/40/20 dans l'assembleur | à faire | | | |
+| A2 | Partage 40/40/20 dans l'assembleur | faite (2026-10-27), cible d'analyse non atteinte : à trancher par laurent | Claude, fil principal | | kart 43/43/14, roguelike 44/42/13, 0 problème (ETAT) |
 | A3 | Regénérer la base des bâtiments sur le PC | en attente de A1, A2 | | | |
 | A4 | Espaces de fin des messages | faite (2026-10-27) | Claude, fil principal | | rendus identiques : kart 203/203, roguelike 155/155, paires 430/430 (ETAT) |
 | A5 | Capture d'une session OpenCode (laurent) | à faire (laurent) | | | |

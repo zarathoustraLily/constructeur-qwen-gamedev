@@ -54,6 +54,20 @@ JEUX = {
 }
 
 
+def phrase_parts(st: dict) -> str:
+    """Les trois parts de la décision 3 (40/40/20) dans les réponses, sur la base et étape par étape."""
+    j = st["jetons"]
+    p, jt, pe = j["parts_reponses"], j["par_type"], st["parts_par_etape"]
+    rep = {t: jt[t]["reponses"] if t in jt else 0 for t in ("creation", "debogage", "analyse")}
+    return (f"**Création, débogage, analyse : 40/40/20 visés, sur ce que le modèle apprend** (décision 3) : dans les "
+            f"réponses, la création pèse {pc(p['creation'])} des jetons, le débogage {pc(p['debogage'])}, l'analyse "
+            f"{pc(p['analyse'])} ({nb(rep['creation'])}, {nb(rep['debogage'])} et {nb(rep['analyse'])} jetons). Étape "
+            f"par étape, l'analyse pèse de {pc(pe['min']['analyse'])} à {pc(pe['max']['analyse'])}, et l'écart le "
+            f"plus grand à la cible est de {str(pe['ecart_max_points']).replace('.', ',')} points. Les analyses sont tirées des sessions "
+            "de débogage : mêmes commandes, mêmes sorties réelles, même lecture du code, puis le diagnostic et les "
+            "lignes à changer, sans rien modifier.")
+
+
 def texte(c: dict) -> str:
     from usine.cours.base import chemins
     ch = chemins.actuels()
@@ -65,10 +79,8 @@ def texte(c: dict) -> str:
     se = st["sessions"]
     cr = st["creations"]
     roc = st["editions_opencode_rejouees"]
-    eq = st["equilibre_par_etape"]
     ap = st["appels_d_outils"]
     repartition = ", ".join(f"{v} à {k} erreur{'s' if int(k) > 1 else ''}" for k, v in se["par_nombre_d_erreurs"].items())
-    part_deb = 1 - j["part_creation_reponses"]
     crea_nb = st["par_type"].get("creation", 0)
     parties = cr["etapes_en_plusieurs_parties"]
     appels = ", ".join(f"`{k}` {nb(v)}" for k, v in ap.items())
@@ -83,15 +95,11 @@ compte rendu, avec les outils d'OpenCode. Produite par `python -m usine.cours.ba
 ## Contenu
 
 - **{nb(st['total'])} exemples** : {crea_nb} de création ({aucun(parties, "étape découpée", "étapes découpées", "aucune")} en
-  parties qui se compilent chacune) et {nb(se['nombre'])} sessions de débogage, où {nb(se['erreurs'])} erreurs sont
-  corrigées en tout.
+  parties qui se compilent chacune), {nb(se['nombre'])} sessions de débogage, où {nb(se['erreurs'])} erreurs sont
+  corrigées en tout, et {nb(st['par_type'].get('analyse', 0))} analyses.
 - **3 villes, 13 étapes chacune** : Paris (immeuble haussmannien), Tokyo (petit immeuble sur parcelle étroite),
   New York (tour de bureaux, quartier d'affaires).
-- **Moitié création, moitié débogage, sur ce que le modèle apprend** : l'entraînement ne porte que sur les réponses,
-  et dans les réponses la création pèse {pc(j['part_creation_reponses'])} des jetons, le débogage {pc(part_deb)}
-  ({nb(jt['creation']['reponses'])} et {nb(jt['debogage']['reponses'])} jetons). L'équilibre est fait étape par étape :
-  selon l'étape, le débogage pèse de {virgule(eq['plus_bas'][0][0])} à {virgule(eq['plus_haut'][-1][0])} fois la création
-  (médiane {virgule(eq['median'])}).
+- {phrase_parts(st)}
 - **Appels d'outils** : {appels}.
 - **Taille, en jetons de Qwen 3.8, gabarit de chat compris** : {nb(j['total'])} en tout, dont {nb(j['prompt_et_outils'])} par
   exemple pour le prompt système d'OpenCode et la définition de ses outils. Le plus long exemple en compte {nb(j['max'])}
@@ -251,10 +259,8 @@ def texte_jeu(c: dict, cours: str, manifeste: dict, dossier: str) -> str:
     se = st["sessions"]
     cr = st["creations"]
     roc = st["editions_opencode_rejouees"]
-    eq = st["equilibre_par_etape"]
     titre, contenu = JEUX[cours]
     nom = f"base_{cours}"
-    part_deb = 1 - j["part_creation_reponses"]
     crea_nb = st["par_type"].get("creation", 0)
     parties = cr["etapes_en_plusieurs_parties"]
     appels = ", ".join(f"`{k}` {nb(v)}" for k, v in st["appels_d_outils"].items())
@@ -271,14 +277,10 @@ du dépôt (demande de laurent du 2026-10-22 : la même base que les bâtiments,
 ## Contenu
 
 - **{nb(st['total'])} exemples** : {crea_nb} de création ({aucun(parties, "étape découpée", "étapes découpées", "aucune")} en
-  parties qui se compilent chacune) et {nb(se['nombre'])} sessions de débogage, où {nb(se['erreurs'])} erreurs sont
-  corrigées en tout.
+  parties qui se compilent chacune), {nb(se['nombre'])} sessions de débogage, où {nb(se['erreurs'])} erreurs sont
+  corrigées en tout, et {nb(st['par_type'].get('analyse', 0))} analyses.
 - **{n_etapes} étapes**, celles du cours, chacune vérifiée par Godot 4.7.2 avant d'en tirer des exemples.
-- **Moitié création, moitié débogage, sur ce que le modèle apprend** : dans les réponses, la création pèse
-  {pc(j['part_creation_reponses'])} des jetons, le débogage {pc(part_deb)} ({nb(jt['creation']['reponses'])} et
-  {nb(jt['debogage']['reponses'])} jetons). Étape par étape, le débogage pèse de {virgule(eq['plus_bas'][0][0])} à
-  {virgule(eq['plus_haut'][-1][0])} fois la création (médiane {virgule(eq['median'])}) : les étapes faites presque
-  seulement de shaders offrent moins de places où poser une erreur.
+- {phrase_parts(st)}
 - **Appels d'outils** : {appels}.
 - **Taille, en jetons de Qwen 3.8, gabarit de chat compris** : {nb(j['total'])} en tout, dont {nb(j['prompt_et_outils'])} par
   exemple pour le prompt système d'OpenCode et la définition de ses outils. Le plus long exemple en compte {nb(j['max'])}
