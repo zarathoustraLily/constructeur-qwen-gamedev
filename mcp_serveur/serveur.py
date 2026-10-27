@@ -113,6 +113,14 @@ def creer_serveur(projet: Path, godot: Path | None = None, index_docs: Path | No
                          cadrer: str | None = None, collisions: bool = False) -> str:
         return await executer(outils.voir_scene, scene, image, vues, cadrer, collisions)
 
+    @outil("Voir l'éditeur Godot tel qu'on le voit (copie, fenêtre hors de l'écran) : image de la fenêtre entière "
+           "et ce qu'elle montre : zones, arbre de la scène (rang, type, sélection, caché), Inspecteur du nœud "
+           "sélectionné (valeurs affichées), ce que la vue 3D de l'éditeur montre, boutons de lancement. "
+           "selection : chemin depuis la racine de la scène ; propriete : celle à amener dans l'Inspecteur.")
+    async def voir_editeur(scene: str | None = None, selection: str | None = None,
+                           propriete: str | None = None) -> str:
+        return await executer(outils.voir_editeur, scene, selection, propriete)
+
     @outil("Mesure d'efficience (copie, headless) : allocations après échauffement, lots de dessin, "
            "empreinte du rendu aux images 180/240/300, temps indicatif. Défaut : scène principale.")
     async def measure_efficiency(scene: str | None = None) -> str:

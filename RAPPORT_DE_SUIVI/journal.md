@@ -31,3 +31,7 @@ vérifié par deux rendus ; 6 niveaux → 75 cas, 140 paires ≤ 1 024 jetons ; 
 2026-10-27 — A8 — Claude (fil principal) — paires de 1 024 faites — 300 décidées par laurent ; 311 (13 niveaux
 complets), aucune trop longue après passage à 2 ou 3 objets ; ligne voir_scene ajoutée dans AGENTS.md (accord)
 2026-10-27 — A9 — Claude (fil principal) — ajoutée — lire l'interface de l'éditeur ; choix de laurent : « Les deux »
+2026-10-27 — (proposition) — Claude (fil principal) — refusée — familles « défauts de texture », « effets cassés »,
+« copier un effet d'après une image » : laurent : « non l'iasse tomber ca je vais le faire moi meme »
+2026-10-27 — A9 — Claude (fil principal) — partie A faite — outil MCP voir_editeur (preuve 18/18), famille
+« lire l'éditeur » (essai : 50 paires) ; A8 : cause « autre caméra courante » corrigée (mesuré), paires régénérées

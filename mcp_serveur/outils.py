@@ -283,6 +283,28 @@ class Outils:
         return (f"{r['carte']}\nimage : {r['image']}" +
                 (("\nerreurs de la partie : " + " | ".join(erreurs)) if erreurs else ""))
 
+    def voir_editeur(self, scene: str | None = None, selection: str | None = None,
+                     propriete: str | None = None) -> str:
+        """L'éditeur Godot tel qu'on le voit (copie, fenêtre hors de l'écran) : image de la fenêtre entière et ce
+        qu'elle montre (zones, arbre de scène, Inspecteur du nœud sélectionné, vue 3D, boutons de lancement)."""
+        from usine.retour.editeur import texte, voir_editeur
+        res = self.res(scene) if scene else self.scene_principale()
+        if not self.disque(res).is_file():
+            raise ErreurOutil(f"scène absente : {res}")
+        r = voir_editeur(self.projet, res, selection, propriete, godot=self.godot)
+        if not r["donnees"]:
+            return _compact({"ok": False, "erreur": r.get("erreur"), "erreurs": r.get("erreurs", [])[:10]})
+        return f"{texte(r['donnees'])}\nimage : {r['image']}"
+
+    def scene_principale(self) -> str:
+        from usine.scene.texte import lire_document
+        for section in lire_document((self.projet / "project.godot").read_text(encoding="utf-8")).sections:
+            if section.balise == "application":
+                e = section.propriete("run/main_scene")
+                if e and e.valeur:
+                    return e.valeur
+        raise ErreurOutil("pas de scène principale : donner `scene`")
+
     def measure_efficiency(self, scene: str | None = None) -> str:
         """Mesure d'efficience (compétence E) sur une copie : allocations d'objets après 60 images
         d'échauffement, lots de dessin (comptés dans l'arbre, médiane), empreinte de ce qui serait

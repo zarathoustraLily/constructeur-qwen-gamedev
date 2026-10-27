@@ -1854,6 +1854,38 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   - Réglages de laurent intacts : Godot est copié en mode autonome dans `donnees/editeur_godot/` (fichier `._sc_`,
     réglages dans `editor_data/`) ; les autres plugins de la copie sont désactivés (`godot-ai` y ouvrirait ses
     ports, pris par celui de laurent).
+  - Outil MCP `voir_editeur(scene, selection, propriete)` (laurent : « normalement c'est un outil mpc ») : rend le
+    texte de `usine.retour.editeur.texte` (zones, arbre numéroté avec type, sélection et nœuds cachés, Inspecteur,
+    vue 3D, boutons de lancement) et le chemin de l'image ; écran 2D ou 3D d'après la racine de la scène ; compté
+    parmi les captures du juge de sessions. Preuve du serveur avec `C:\Program Files\Python312\python.exe` (le
+    Python d'Anaconda n'a pas le module `mcp`) : 18/18, dont `voir_editeur` en 13,4 s sur `godot/reference`.
+  - Relevés du plugin : d'autres (nœud, propriété) lus dans l'Inspecteur après l'image, telles qu'affichées, avec
+    leur section (`get_property_list`, groupe en cours) ; onglets du panneau du bas (`TabBar`) ; traduction de
+    « Output » pour trouver l'onglet de sortie sans supposer son rang ; `visible` de chaque ligne de l'arbre (l'œil
+    fermé d'un nœud caché se voit dans l'image) ; image réduite par Godot (Lanczos), sans Pillow.
+  - **Mesuré** : Cull Mask et Layers sont des grilles de cases dessinées par l'éditeur (10 cases à la fois, sans
+    texte lisible) : décrites d'après la valeur. Un bouton de l'Inspecteur remonté par le défilement garde une
+    place au-dessus de la fenêtre (y < 0) : écarté des boutons de lancement.
+- Jetons des images (`usine/paires/format.py`) : côtés arrondis au multiple de 32 (patch 16 × fusion 2,
+  `preprocessor_config.json` de Qwen 3.8) ; chaque `<image>` devient `<|vision_start|><|vision_end|>` autour de ses
+  jetons. Sur la paire de l'essai de mémoire (5 images en 640 × 360) : 1 998 contre 1 999 comptés par
+  LLaMA-Factory ; les paires avec images gardent une marge (plafond 2 040). 1 280 × 720 : 880 jetons.
+- Famille de paires « lire l'éditeur Godot » (étape A9, partie A) : `python -m usine.paires editeur --niveaux N`
+  (`usine/paires/editeur.py`). Sur chaque cas d'A8 (déjà vérifié par deux rendus de `voir_scene`) : une capture
+  saine (caméra sélectionnée ; relevés de toutes les valeurs saines) et une capture par cas fautif (nœud en cause
+  sélectionné) ; le cas est rejeté si l'éditeur affiche la même valeur que dans le niveau sain. Paires de 2 048
+  jetons au plus, image de l'éditeur en 1 280 × 720 : où est la caméra et où lire ses réglages ; comment lancer la
+  scène et où lire ses messages ; quel nœud est sélectionné et ce que montre l'Inspecteur ; débogage : valeur
+  fautive affichée, cause, geste dans l'Inspecteur (valeur saine lue dans l'éditeur) ou édition du `.tscn`, rappel
+  que la vue 3D est celle de la caméra de l'éditeur. Positions dites en mots (zone, rang), pas en coordonnées.
+  Essai sur 2 niveaux : 50 paires (23 débogage, 27 analyse), 0 cas rejeté, 1 133 jetons en moyenne, 1 411 au plus.
+  Nombre à fixer par laurent.
+- **Erreur corrigée dans A8** : la cause d'« autre caméra courante » proposait de retirer seulement
+  `current = true`. Mesuré (`voir_scene`, deux styles) : sans cette ligne, `CameraDebug` reste la caméra courante
+  (0 objet sur 5 dans le champ) ; référence de `Camera3D.current` : « one will always be made current ». Cause
+  corrigée dans le générateur ; les 311 paires régénérées (1 017 jetons au plus).
+- Refusé par laurent (2026-10-27) : familles « défauts de texture », « effets cassés », « copier un effet d'après une
+  image » : « non l'iasse tomber ca je vais le faire moi meme ».
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
   vérifiés par `python -m usine.rag.morceaux verifier` (sans fenêtre, comportement mesuré). Mécanique commune aux
   effets et aux morceaux : `usine/rag/catalogue.py` ; le code d'un morceau garde son chemin du plan dans le projet de

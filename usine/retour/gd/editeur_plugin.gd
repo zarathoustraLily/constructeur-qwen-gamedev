@@ -57,8 +57,9 @@ func _lancer() -> void:
 	if not scene.is_empty():
 		EditorInterface.open_scene_from_path(scene)
 		await _images(10)
-	EditorInterface.set_main_screen_editor(_arg("ecran", "3D"))
 	var racine := EditorInterface.get_edited_scene_root()
+	# Écran principal : celui demandé, sinon 3D pour une scène 3D et 2D pour le reste.
+	EditorInterface.set_main_screen_editor(_arg("ecran", "3D" if racine is Node3D else "2D"))
 	if racine == null:
 		erreurs.append("aucune scène ouverte")
 	var noeud: Node = null
@@ -85,6 +86,11 @@ func _lancer() -> void:
 	await _images(30)
 	var image := get_tree().root.get_texture().get_image()
 	image.save_png(_args["sortie"] + ".png")
+	var reduite := _arg("reduite", "").split("x")
+	if reduite.size() == 2:
+		var petite := image.duplicate() as Image
+		petite.resize(int(reduite[0]), int(reduite[1]), Image.INTERPOLATE_LANCZOS)
+		petite.save_png(_args["sortie"] + "_reduite.png")
 	var donnees := {
 		"fenetre": [get_tree().root.size.x, get_tree().root.size.y],
 		"langue": EditorInterface.get_editor_language(),
@@ -94,11 +100,37 @@ func _lancer() -> void:
 		"propriete": propriete,
 		"zones": _zones(),
 		"haut": _boutons_du_haut(),
+		"bas": _boutons_du_bas(),
+		"traductions": {"Output": EditorInterface.get_base_control().atr("Output")},
 		"arbre": _arbre(racine),
 		"inspecteur": _inspecteur(inspecteur),
 		"vue_3d": _vue_3d(racine),
-		"erreurs": erreurs,
 	}
+	# Après l'image : d'autres propriétés, lues dans l'Inspecteur telles qu'il les affiche (sans image).
+	var releves: Array[Dictionary] = []
+	for releve: String in _arg("releves", "").split(";", false):
+		var chemin_r := releve.get_slice(":", 0)
+		var propriete_r := releve.get_slice(":", 1)
+		var n_r: Node = null
+		if racine != null:
+			n_r = racine if chemin_r == "." else racine.get_node_or_null(NodePath(chemin_r))
+		if n_r == null:
+			erreurs.append("relevé : nœud introuvable : " + chemin_r)
+			continue
+		EditorInterface.get_selection().clear()
+		EditorInterface.get_selection().add_node(n_r)
+		EditorInterface.edit_node(n_r)
+		await _images(5)
+		inspecteur.expand_all_folding()
+		await _images(5)
+		var e := _editeur_de(inspecteur, propriete_r)
+		if e == null:
+			erreurs.append("relevé : propriété absente de l'Inspecteur : " + releve)
+			continue
+		releves.append({"chemin": chemin_r, "propriete": propriete_r, "libelle": e.label, "affiche": _affiche(e),
+			"valeur": var_to_str(n_r.get(propriete_r)), "groupe": _groupe(n_r, propriete_r)})
+	donnees["releves"] = releves
+	donnees["erreurs"] = erreurs
 	var f := FileAccess.open(_args["sortie"] + ".json", FileAccess.WRITE)
 	f.store_string(JSON.stringify(donnees, " ", false))
 	f.close()
@@ -135,16 +167,43 @@ func _zones() -> Dictionary:
 
 func _boutons_du_haut() -> Array[Dictionary]:
 	## Les boutons de la barre du haut : écrans principaux (texte) et lancement (bulle d'aide).
-	var sortie: Array[Dictionary] = []
 	var limite := 48.0 * EditorInterface.get_editor_scale()
+	return _boutons(func(r: Rect2) -> bool: return r.position.y <= limite)
+
+
+func _boutons_du_bas() -> Array[Dictionary]:
+	## Les onglets du panneau du bas (Sortie, Débogueur…), dessinés par une barre d'onglets, puis ses boutons.
+	var panneaux := EditorInterface.get_base_control().find_children("*", "EditorBottomPanel", true, false)
+	if panneaux.is_empty():
+		return []
+	var panneau := panneaux[0] as Control
+	var zone := panneau.get_global_rect()
+	var sortie: Array[Dictionary] = []
+	for n: Node in panneau.find_children("*", "TabBar", true, false):
+		var barre := n as TabBar
+		if not barre.is_visible_in_tree():
+			continue
+		for i in barre.get_tab_count():
+			if barre.is_tab_hidden(i):
+				continue
+			var r := barre.get_tab_rect(i)
+			sortie.append({"texte": barre.atr(barre.get_tab_title(i)), "bulle": "", "onglet": true,
+				"rect": _rect(Rect2(barre.get_global_rect().position + r.position, r.size)),
+				"enfonce": i == barre.current_tab})
+	sortie.append_array(_boutons(func(r: Rect2) -> bool: return zone.has_point(r.get_center())))
+	return sortie
+
+
+func _boutons(garder: Callable) -> Array[Dictionary]:
+	var sortie: Array[Dictionary] = []
 	for n: Node in EditorInterface.get_base_control().find_children("*", "Button", true, false):
 		var b := n as Button
-		if not b.is_visible_in_tree() or b.get_global_rect().position.y > limite:
+		if not b.is_visible_in_tree() or not garder.call(b.get_global_rect()):
 			continue
 		if b.text.is_empty() and b.tooltip_text.is_empty():
 			continue
-		sortie.append({"texte": b.atr(b.text), "bulle": b.atr(b.tooltip_text).get_slice("\n", 0), "rect": _rect(b.get_global_rect()),
-			"enfonce": b.button_pressed})
+		sortie.append({"texte": b.atr(b.text), "bulle": b.atr(b.tooltip_text).get_slice("\n", 0),
+			"rect": _rect(b.get_global_rect()), "enfonce": b.button_pressed})
 	return sortie
 
 
@@ -167,13 +226,16 @@ func _arbre(racine: Node) -> Array[Dictionary]:
 			var global := Rect2(zone.position + r.position - Vector2(arbre.get_scroll()), r.size)
 			var chemin := ""
 			var type := ""
+			var visible := true  # l'œil de la ligne est fermé quand le nœud est caché
 			var meta: Variant = item.get_metadata(0)
 			if meta is NodePath:
 				var n := racine.get_tree().root.get_node_or_null(meta as NodePath)
 				if n != null:
 					chemin = String(racine.get_path_to(n))
 					type = n.get_class()
-			lignes.append({"rang": rang, "texte": item.get_text(0), "chemin": chemin, "type": type,
+					if n is Node3D or n is CanvasItem:
+						visible = bool(n.get("visible"))
+			lignes.append({"rang": rang, "texte": item.get_text(0), "chemin": chemin, "type": type, "visible": visible,
 				"rect": _rect(global), "selectionne": item.is_selected(0), "replie": item.collapsed,
 				"dans_la_zone": zone.encloses(global)})
 			rang += 1
@@ -202,9 +264,27 @@ func _inspecteur(inspecteur: EditorInspector) -> Dictionary:
 			continue
 		var valeur: Variant = p.get_edited_object().get(p.get_edited_property()) if p.get_edited_object() != null else null
 		proprietes.append({"propriete": String(p.get_edited_property()), "libelle": p.label, "rect": _rect(r),
-			"entiere": zone.encloses(r), "valeur": var_to_str(valeur), "affiche": _affiche(p)})
+			"entiere": zone.encloses(r), "valeur": var_to_str(valeur), "affiche": _affiche(p),
+			"groupe": _groupe(p.get_edited_object(), String(p.get_edited_property()))})
 	return {"objet": String(objet.get("name")) if objet != null else "", "classe": objet.get_class() if objet != null else "",
 		"rect": _rect(zone), "proprietes": proprietes}
+
+
+func _groupe(objet: Object, propriete: String) -> String:
+	## La section de l'Inspecteur qui contient la propriété (« Transform », « Visibility »…), d'après la liste des
+	## propriétés de l'objet : un groupe court jusqu'au groupe ou à la catégorie suivante.
+	if objet == null:
+		return ""
+	var groupe := ""
+	for p: Dictionary in objet.get_property_list():
+		var usage: int = p["usage"]
+		if usage & PROPERTY_USAGE_CATEGORY:
+			groupe = ""
+		elif usage & PROPERTY_USAGE_GROUP:
+			groupe = String(p["name"])
+		elif String(p["name"]) == propriete:
+			return groupe
+	return ""
 
 
 func _affiche(p: EditorProperty) -> Array[String]:

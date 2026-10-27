@@ -271,9 +271,12 @@ DEFAUTS = [
                       '[node name="CameraDebug" type="Camera3D" parent="."]\nposition = Vector3(0, 2, 40)\n'
                       'rotation = Vector3(0, 3.14159, 0)\ncurrent = true\n\n[node name="Joueur" type="Node3D" parent="."]'),
         lambda d, n: d["camera"]["chemin"].endswith("CameraDebug") and _hors(d, "Corps"),
+        # Retirer seulement `current = true` ne suffit pas (mesuré le 2026-10-27, sur les deux styles) : CameraDebug
+        # reste courante. Référence de Camera3D.current : « one will always be made current ».
         lambda d, n: ("la caméra courante n'est pas celle du joueur mais `CameraDebug` (`current = true`), posée en "
-                      "(0, 2, 40) et tournée vers +Z, à l'opposé du niveau ; la caméra du joueur ne sert pas. Retirer "
-                      "`CameraDebug` (ou son `current = true`)"),
+                      "(0, 2, 40) et tournée vers +Z, à l'opposé du niveau. Retirer `current = true` ne suffit pas : "
+                      "avec plusieurs caméras, l'une est toujours courante, et ce reste `CameraDebug`. Il faut retirer "
+                      "le nœud `CameraDebug`"),
         lambda n: ["CameraDebug", "Pivot", "Camera3D"]),
     Defaut(
         "modele_couche", "Le joueur apparaît couché au sol au lieu d'être debout.", ("dessus", "perspective"),

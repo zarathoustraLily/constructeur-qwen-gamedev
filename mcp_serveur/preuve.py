@@ -21,7 +21,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent
 OUTILS = ["vocab_lookup", "search_docs", "scene_read", "scene_write", "describe_project", "apply_edits",
           "check_script", "load_scene", "run_tests", "measure_efficiency", "check_structure",
-          "prepare_action", "capture_frames", "voir_scene"]
+          "prepare_action", "capture_frames", "voir_scene", "voir_editeur"]
 
 
 async def _preuve(projet: Path, index: Path | None = None) -> list[tuple[str, bool, str]]:
@@ -94,6 +94,9 @@ async def _preuve(projet: Path, index: Path | None = None) -> list[tuple[str, bo
             await appel("voir_scene", {"scene": "res://scenes/main.tscn", "image": 10, "vues": ["jeu", "dessus"]},
                         lambda e, t: not e and "Caméra du jeu" in t and "image : " in t,
                         lambda t: t.splitlines()[1][:60])
+            await appel("voir_editeur", {"scene": "res://scenes/main.tscn"},
+                        lambda e, t: not e and "Arbre de la scène" in t and "image : " in t,
+                        lambda t: t.splitlines()[0][:60])
             # Refus propres.
             avant = (projet / "scenes" / "coin.tscn").read_bytes()
             await appel("apply_edits", {"edits": [{"op": "set_property", "noeud": "coin:Inexistant",
