@@ -43,14 +43,21 @@ def _tuer_arbre(proc: subprocess.Popen) -> None:
 
 
 def executer(commande: list[str | Path], cwd: Path | None = None, delai_s: float = 300,
-             env: dict[str, str] | None = None) -> Resultat:
+             env: dict[str, str] | None = None, reduit: bool = False) -> Resultat:
     """Exécute une commande, fusionne stdout et stderr, et coupe au-delà du délai.
-    `env` : variables d'environnement ajoutées à celles du processus courant."""
+    `env` : variables d'environnement ajoutées à celles du processus courant.
+    `reduit` (Windows) : la première fenêtre s'ouvre réduite, sans prendre le focus (SW_SHOWMINNOACTIVE) ; sert à
+    l'éditeur, qui ne suit pas --position."""
     options: dict = {}
     if env:
         options["env"] = {**os.environ, **env}
     if sys.platform == "win32":
         options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        if reduit:
+            demarrage = subprocess.STARTUPINFO()
+            demarrage.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            demarrage.wShowWindow = 7  # SW_SHOWMINNOACTIVE
+            options["startupinfo"] = demarrage
     else:
         options["start_new_session"] = True
     debut = time.monotonic()

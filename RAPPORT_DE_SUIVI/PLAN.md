@@ -93,6 +93,23 @@ Avec trois IA en parallèle (une sur B1 à B5, une sur B7 puis D3, une sur A, D1
 - **Paires** : 300 de 1 024 jetons, carte → défaut (décidé le 2026-10-27, « ok pour 1 et 2 »). Proposé ensuite :
   300 de 2 048, carte, image et code → correctif, dans B4, B7 et C, plus des sessions longues.
 
+### A9 — Lire l'interface de l'éditeur Godot : où est quoi, quoi faire
+- **Pourquoi** : laurent (2026-10-27) : « il ne faut pas oublier les paires avec l'interface godot ! pour qu'il
+  sache ou est qsuoi et quoi faire » ; au choix posé, « Les deux » : A (lire la fenêtre entière de l'éditeur) puis
+  B (regarder l'éditeur lui-même par les outils de `godot-ai`, dont `take_screenshot` de la vue 3D :
+  `addons/godot_ai/handlers/editor_handler.gd:427`).
+- **A, faire** : un outil qui ouvre l'éditeur 4.7.2 hors de l'écran sur une copie du projet (copie de Godot en mode
+  autonome dans `donnees/`, pour ne pas toucher aux réglages d'éditeur de laurent), ouvre une scène, sélectionne un
+  nœud, et rend l'image de la fenêtre entière (1 280 × 720 : environ 900 jetons d'image) avec sa vérité lue par un
+  plugin d'éditeur : zones (Scène, Inspecteur, Système de fichiers, vue 3D, onglets 2D/3D/Script, lancement),
+  nœuds de l'arbre et leur place, propriétés visibles dans l'Inspecteur et leur valeur. Puis des paires de 2 048
+  jetons sur les niveaux et défauts d'A8 : où est quoi (analyse) ; quoi faire, dans l'éditeur et dans le `.tscn`
+  (débogage).
+- **B, faire** : capturer le vrai format des outils de `godot-ai` chez laurent (éditeur ouvert avec le plugin, sur
+  une copie de projet, avec son accord), puis des paires où Qwen appelle ces outils et lit leur réponse.
+- **Preuve** : chaque position et chaque valeur d'une réponse vient de la vérité du plugin ; la correction indiquée
+  est appliquée et vérifiée par `voir_scene`.
+
 ---
 
 ## B. Paires courtes, palier 1 : 12 000 paires de 1 024 jetons au plus (décision 19.1)

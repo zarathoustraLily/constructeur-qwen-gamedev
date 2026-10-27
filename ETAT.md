@@ -1831,6 +1831,29 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     near », sans la liste des autres plans. **Piège mesuré** : `Camera3D.is_position_behind()` compare au plan
     proche, pas à la caméra : avec `near = 60`, un objet 20 m devant la caméra est « behind » (la référence des
     classes dit seulement « behind the camera ») ; l'outil calcule le côté par la direction de visée.
+- Outil « voir l'éditeur » (étape A9 du suivi ; laurent : « il ne faut pas oublier les paires avec l'interface godot !
+  pour qu'il sache ou est qsuoi et quoi faire » ; au choix posé, « Les deux » : A, lire la fenêtre entière, puis B,
+  regarder par `godot-ai`) : `usine/retour/editeur.py` et le plugin `usine/retour/gd/editeur_plugin.gd`.
+  `voir_editeur(projet, scene, selection, propriete)` ouvre l'éditeur 4.7.2 sur une copie, sélectionne le nœud,
+  déplie l'Inspecteur jusqu'à la propriété, rend la fenêtre entière (1 920 × 1 080, échelle 1,25 et langue de la
+  machine : français) et écrit la vérité : zones (Scène, Système de fichiers, Inspecteur, vue 3D, panneau du bas) avec
+  leur titre affiché, boutons du haut (écrans 2D/3D/Script/Jeu, lancement par leur bulle), lignes de l'arbre de scène
+  (chemin, type, place, sélection), propriétés visibles de l'Inspecteur avec la valeur affichée (rotation en degrés,
+  unités), place des nœuds 3D dans la vue de l'éditeur. 4,4 s par capture. Tests : `tests/test_retour_editeur.py`
+  (3, dont une vraie capture).
+  - **Mesuré** : l'éditeur ne suit pas `--position` : au premier lancement il s'agrandit (5 120 × 1 351 en (0, 29)),
+    ensuite il se centre (1 920, 330), et une position hors de tout écran enregistrée dans `editor_layout.cfg` n'est
+    pas reprise. Solution : lancement réduit sans focus (`STARTUPINFO`, `SW_SHOWMINNOACTIVE`, option `reduit` de
+    `usine.processus.executer`), puis le plugin pose la fenêtre hors de l'écran ; image identique au pixel près à une
+    capture faite après déplacement. Il reste un bouton dans la barre des tâches pendant environ 4 s.
+  - **Incident** : un premier plugin avait une faute de typage ; l'éditeur a ouvert sa boîte « Impossible de charger
+    le script de l'extension » dans une fenêtre à part, sur l'écran de laurent, qui l'a vue. Corrigé : réglages de la
+    copie autonome en fenêtre unique (les boîtes restent dans la fenêtre hors de l'écran), contrôle sans fenêtre
+    avant d'ouvrir l'éditeur (`--headless --editor` : si le plugin ne se charge pas, rien ne s'ouvre ; vérifié avec un
+    plugin cassé exprès), et le plugin ferme l'éditeur après 60 s quoi qu'il arrive.
+  - Réglages de laurent intacts : Godot est copié en mode autonome dans `donnees/editeur_godot/` (fichier `._sc_`,
+    réglages dans `editor_data/`) ; les autres plugins de la copie sont désactivés (`godot-ai` y ouvrirait ses
+    ports, pris par celui de laurent).
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
   vérifiés par `python -m usine.rag.morceaux verifier` (sans fenêtre, comportement mesuré). Mécanique commune aux
   effets et aux morceaux : `usine/rag/catalogue.py` ; le code d'un morceau garde son chemin du plan dans le projet de
