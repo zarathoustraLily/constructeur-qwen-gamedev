@@ -63,3 +63,4 @@ llama-server : place de l'AGENTS.md, appel MCP par le Code Mode, catalogue parti
 compilation (2 186) ; doc, blocs et fonctions non jugées essayés sans suite
 2026-10-27 — B8 — Claude (fil principal) — question à laurent — la création manque (≈ 820 000 jetons) : quelle règle
 pour les sujets sans création (272, 1 583 ou 8 662 paires au palier 1)
+2026-10-27 — B8 — laurent — tranché — « Règle actuelle » : au palier 1, un sujet sans création est gardé entier (1 579 paires) ; inscrit à la décision 17

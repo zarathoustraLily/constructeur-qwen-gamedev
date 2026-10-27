@@ -22,7 +22,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | B5 | Paires : création courte | fonction d'après son contrat : 105 (58 au palier 1) ; **source épuisée** (blocs, fonctions non jugées, exemples de la doc : sans suite, ETAT) | Claude, fil principal | | `volume.log`, ETAT |
 | B6 | Paires : RAG | en attente de A5, R1, R2 | | | |
 | B7 | Paires : images, 4 niveaux | à faire | | | |
-| B8 | Assembleur du palier 1 | fait ; règle des sujets sans création **à trancher par laurent** | Claude, fil principal | | `controles_palier_1.json` : 1 579 paires, 0 problème |
+| B8 | Assembleur du palier 1 | fait ; sujet sans création gardé entier (laurent, 2026-10-27) | Claude, fil principal | | `controles_palier_1.json` : 1 579 paires, 0 problème |
 | B9 | Génération du palier 1 sur le PC | fait (2026-10-27, 2 h 08 puis 54 min) | Claude, fil principal | | `donnees/paires/volume.log` |
 | C1 | Réglages de LLaMA-Factory | faite (2026-10-27) | Claude, fil principal | | `python -m usine.entrainement reglages` ; tests (ETAT) |
 | C2 | Entraînement d'essai (≈ 6 000 paires) | en attente de B1-B4, C1 | | | |

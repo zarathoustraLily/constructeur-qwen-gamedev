@@ -2062,7 +2062,7 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   création 50 + 55 (85 → 105), RAG 59, compilation des bâtiments 2 186 (555 trop longues ; 1 913 en « procédural »),
   lectures 8 109. Assemblage : palier 1 **1 579 paires**, 1 055 657 jetons (≈ 1,1 h sur la 5090), 0 problème ;
   palier 2 **278 paires**, 426 053 jetons, 0 problème.
-- **La création limite tout (à trancher par laurent)** : pour garder 40/40/20 dans chaque sujet (décision 3), le palier 1
+- **La création limite tout (tranché par laurent le 2026-10-27 : « Règle actuelle », inscrite à la décision 17)** : pour garder 40/40/20 dans chaque sujet (décision 3), le palier 1
   manque d'environ 820 000 jetons de création (≈ 2 700 paires). L'assembleur garde aujourd'hui **entier** tout sujet
   sans aucune création (graphisme 3D, shaders, physique) : choix de Claude à la construction de B8, pas une décision de
   laurent (la décision 17 ne couvre qu'audio, optimisation, mémoire et plugins). Effet pervers : quelques créations
