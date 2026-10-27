@@ -155,9 +155,17 @@ func _objets(camera: Camera3D) -> Array[Dictionary]:
 				"centre": _v(boite.get_center()), "taille": _v(boite.size)}
 		if camera != null:
 			var dehors: PackedStringArray = []
-			for i in plans.size():
-				if _entierement_au_dessus(plans[i], boite):
-					dehors.append(NOMS_PLANS[i])
+			if plans.size() > 0 and _entierement_au_dessus(plans[0], boite):
+				# Du mauvais côté du plan proche, l'objet sort aussi des plans des côtés : seul ce motif compte.
+				# Le côté se calcule ici : is_position_behind() compare au plan proche, pas à la caméra (mesuré :
+				# avec near = 60, un objet 20 m devant elle est « behind »).
+				var devant := -camera.global_basis.z
+				var derriere := devant.dot(boite.get_center() - camera.global_position) < 0.0
+				dehors.append("derrière la caméra" if derriere else "plus près que near")
+			else:
+				for i in range(1, plans.size()):
+					if _entierement_au_dessus(plans[i], boite):
+						dehors.append(NOMS_PLANS[i])
 			if (g.layers & camera.cull_mask) == 0:
 				dehors.append("couche exclue par cull_mask")
 			objet["dans_le_champ"] = dehors.is_empty()

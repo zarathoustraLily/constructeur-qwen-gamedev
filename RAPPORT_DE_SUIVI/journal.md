@@ -26,3 +26,5 @@ banc hors même cours 14/87 et 34/87 ; à vérifier par une autre IA
 2026-10-26 — A7 — Claude (fil principal) — faite — outil voir_scene (accord de laurent : « Oui, construis ») ;
 vérifié sur le vrai bug de caméra du roguelike de laurent (0/12 dans le champ) et sur sa correction (12/12)
 2026-10-26 — A8 — Claude (fil principal) — ajoutée — cas fabriqués et paires « situer la caméra et les objets »
+2026-10-27 — A8 — Claude (fil principal) — générateur fait — `python -m usine.paires camera` : 13 défauts, chaque cas
+vérifié par deux rendus ; 6 niveaux → 75 cas, 140 paires ≤ 1 024 jetons ; nombres de paires à fixer par laurent

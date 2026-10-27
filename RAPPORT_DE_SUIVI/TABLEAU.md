@@ -12,7 +12,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | A5 | Capture d'une session OpenCode (laurent) | à faire (laurent) | | | |
 | A6 | `capture_frames` : zone et définition | proposé, attend laurent | | | |
 | A7 | Outil `voir_scene` : voir la scène 3D comme dans l'éditeur | faite (2026-10-26) | Claude, fil principal | | bug réel : 0/12 objets dans le champ, « à l'horizontale » ; corrigé : 12/12 ; tests et preuve 17/17 (ETAT) |
-| A8 | Cas fabriqués « situer la caméra et les objets », puis paires | à faire ; nombres à fixer par laurent | | | |
+| A8 | Cas fabriqués « situer la caméra et les objets », puis paires | générateur fait (2026-10-27) ; nombres à fixer par laurent | Claude, fil principal | | 6 niveaux : 75 cas vérifiés, 0 rejeté, 140 paires ≤ 1 024 jetons (ETAT) |
 | B1 | Paires : erreur de compilation → correction | à faire | | | |
 | B2 | Paires : erreur de shader → correction | à faire | | | |
 | B3 | Paires : erreur à l'exécution → correction | à faire | | | |

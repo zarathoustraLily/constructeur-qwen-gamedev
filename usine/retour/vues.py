@@ -9,7 +9,8 @@ fenêtre et du pilote ; il fallait situer la caméra et les objets. Cet outil le
   repères de l'éditeur : champ de la caméra du jeu (jaune), boîte de chaque objet (verte dans le champ, rouge hors
   champ), axes X Y Z (rouge, vert, bleu), grille du sol (y = 0), noms des nœuds ;
 - carte en texte : caméra (position, direction de visée, projection), chaque objet dans le champ ou non et pourquoi
-  (derrière le plan proche, au-delà de far, à gauche, à droite, au-dessus, au-dessous, couche exclue), autres
+  (derrière la caméra, plus près que near, au-delà de far, à gauche, à droite, au-dessus, au-dessous, couche
+  exclue), autres
   caméras, lumières, objets cachés, et une carte vue de dessus en caractères.
 
 Rendu fenêtré hors de l'écran, en Compatibilité, sur une copie du projet (règle 7) ; seul notre processus est arrêté
@@ -106,7 +107,9 @@ def _direction(d: list[float]) -> str:
     return f"{abs(pente):.0f}° vers le {'bas' if pente < 0 else 'haut'}"
 
 
-def carte(d: dict[str, Any], vues: Iterable[str] = VUES) -> str:
+def carte(d: dict[str, Any], vues: Iterable[str] = VUES, plan: bool = True) -> str:
+    """`plan` : la carte vue de dessus en caractères et la légende des couleurs des images (sans elles, la carte tient
+    dans une paire courte, sans image)."""
     lignes = [f"Scène {d.get('scene') or '?'}, image {d['image']} ({d['image'] / 60:.2f} s de jeu)."]
     cam = d.get("camera") or {}
     objets = d.get("objets", [])
@@ -141,8 +144,9 @@ def carte(d: dict[str, Any], vues: Iterable[str] = VUES) -> str:
         lignes.append("Lumières : aucune.")
     if d.get("caches"):
         lignes.append("Objets cachés (visible = false) : " + ", ".join(c.removeprefix("/root/") for c in d["caches"][:15]))
-    lignes += ["", carte_texte(d), "", "Vues : " + ", ".join(vues) + " ; repères : jaune = champ de la caméra du jeu, "
-               "vert = objet dans le champ, rouge = hors champ, axes X rouge, Y vert, Z bleu, grille à y = 0."]
+    if plan:
+        lignes += ["", carte_texte(d), "", "Vues : " + ", ".join(vues) + " ; repères : jaune = champ de la caméra du "
+                   "jeu, vert = objet dans le champ, rouge = hors champ, axes X rouge, Y vert, Z bleu, grille à y = 0."]
     return "\n".join(lignes)
 
 

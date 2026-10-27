@@ -63,6 +63,12 @@ def test_la_carte_dit_ou_regarde_la_camera_et_ce_qui_est_hors_champ():
     assert "a = Sol" in carte  # hors champ : minuscule
 
 
+def test_carte_sans_plan_pour_les_paires_courtes():
+    texte = vues.carte(DONNEES_BUG, plan=False)
+    assert "regarde vers (0, 0, -1) (à l'horizontale)" in texte
+    assert "Carte vue de dessus" not in texte and "repères" not in texte
+
+
 def test_sans_camera_la_carte_le_dit():
     d = dict(DONNEES_BUG, camera={}, objets=[])
     assert "AUCUNE caméra 3D courante" in vues.carte(d)

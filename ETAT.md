@@ -1798,6 +1798,28 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     0,7 m de haut pour 1,2 m de long, tête à côté du corps : le modèle couché se lit aussi. Sur le projet corrigé :
     « 55° vers le bas », 12/12 dans le champ, position à l'écran de chacun. Les ERROR de fuite à la sortie viennent du
     jeu lui-même (lancé seul 60 images : 143 objets non libérés, ressources de rendu), pas de l'outil.
+- Famille de paires « situer la caméra et les objets » (étape A8 ; premier module de `usine/paires/`, format commun
+  dans `usine/paires/format.py`, jetons comptés avec le tokenizer de Qwen 3.8 et son gabarit) :
+  `python -m usine.paires camera --niveaux N --graine G` (`usine/paires/camera.py`). Niveaux générés d'après une
+  graine (sol, 2 à 4 objets, joueur, pivot et caméra ; vue de dessus orthographique inclinée ou perspective) ; le
+  niveau sain doit tout montrer à `voir_scene`, sinon il est rejeté ; 13 défauts posés chacun par une seule édition du
+  `.tscn` (inclinaison absente = le bug réel, visée vers le haut, caméra sous le sol, `far` trop court, `near` trop
+  loin, champ orthographique ou `fov` trop étroit, `cull_mask` sans la couche, autre caméra courante, modèle couché,
+  objet sous le sol, objet caché, objet derrière la caméra) ; chaque scène fautive est rendue et doit montrer le
+  symptôme dans les mesures du moteur, sinon le cas est rejeté ; la correction est l'édition inverse (rendu sain).
+  Paires sans plan (exception de la section 3), 1 024 jetons au plus : analyse d'un niveau sain, diagnostic d'un cas
+  fautif (analyse), correction avec le texte à remplacer (débogage).
+  - Sur 6 niveaux : 75 cas, 0 rejeté ; 140 paires (65 débogage, 75 analyse ; 62 % et 38 % des jetons de réponse),
+    803 jetons en moyenne, 4 au-delà de 1 024 écartées. Nombres à fixer par laurent.
+  - Ce que la vérification a corrigé : sur un pivot sans rotation, la caméra reculée le long de son axe se retrouve
+    au ras du sol et voit tout ; le défaut reproduit donc le bug réel (caméra en hauteur, sans rotation), réservé à
+    la vue de dessus (en perspective, une caméra à l'horizontale voit encore le niveau en bas de l'image, mesuré) ;
+    inverser l'inclinaison du pivot mettait la caméra sous le sol, d'où le niveau est dans le champ mais caché (l'outil
+    ne calcule pas l'occultation) : le défaut tourne la caméra elle-même vers le haut.
+  - `voir_scene` corrigé : un objet du mauvais côté du plan proche est dit « derrière la caméra » ou « plus près que
+    near », sans la liste des autres plans. **Piège mesuré** : `Camera3D.is_position_behind()` compare au plan
+    proche, pas à la caméra : avec `near = 60`, un objet 20 m devant la caméra est « behind » (la référence des
+    classes dit seulement « behind the camera ») ; l'outil calcule le côté par la direction de visée.
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
   vérifiés par `python -m usine.rag.morceaux verifier` (sans fenêtre, comportement mesuré). Mécanique commune aux
   effets et aux morceaux : `usine/rag/catalogue.py` ; le code d'un morceau garde son chemin du plan dans le projet de
