@@ -114,10 +114,13 @@ def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: li
     paires: list[dict[str, Any]] = []
     rejets: list[str] = []
     rng = random.Random(graine)
+    # Une faute gardée à une étape ne revient pas aux suivantes, où la même ligne existe encore (règle 7.7).
+    vues: set[tuple[str, str, str]] = set()
     for ville in assembler.ordre_lignes():
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
-            dispo = candidates(apres, fichiers_a_fauter(apres, famille), famille)
+            dispo = [m for m in candidates(apres, fichiers_a_fauter(apres, famille), famille)
+                     if (m.fichier, m.avant, m.apres) not in vues]
             if not dispo:
                 continue
             # Les genres à tour de rôle, pour qu'aucun ne remplisse l'étape (règle 7.7).
@@ -132,14 +135,16 @@ def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: li
                     if par_genre[g] and len(choisies) < par_etape:
                         choisies.append(par_genre[g].pop())
             projet = sessions.Projet(ville, n, apres)
-            sujet = _sujet(ville, n, famille)
+            from usine.paires.execution import _sujet as sujet_fichier
             gardees = 0
             for m in choisies:
+                sujet = "shaders" if famille == "shader" else sujet_fichier(ville, n, m.fichier)
                 p, raison = paire(projet, m, sujet, famille)
                 if p is None:
                     rejets.append(f"{ville}-{n:03d} {m.fichier}:{m.ligne} {m.genre} : {raison}")
                     continue
                 paires.append(p)
+                vues.add((m.fichier, m.avant, m.apres))
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{len(choisies)} paires")
     trop_longues = [p for p in paires if p["jetons"] > PLAFOND]

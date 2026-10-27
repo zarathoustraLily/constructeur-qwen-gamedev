@@ -53,3 +53,7 @@ ou scène lancée sans fenêtre ; 26/31 vérifiées, 0 trop longue ; compacter c
 verte avec ; 12/12 sur l'essai du kart
 2026-10-27 — A9 — Claude (fil principal) — corrigé — le plan manquait aux paires de plus de 1 024 jetons
 2026-10-27 — C1 — Claude (fil principal) — faite — réglages des trois étapes, rien n'est lancé
+2026-10-27 — B9 — Claude (fil principal) — lancée — accord de laurent (« ok pour tout ») : `python -m usine.paires
+volume`, familles l'une après l'autre, journal `donnees/paires/volume.log`
+2026-10-27 — A5 — Claude (fil principal) — format capturé — OpenCode 2.1.4 en bac à sable contre une sonde, sans
+llama-server : place de l'AGENTS.md, appel MCP par le Code Mode, catalogue partiel et `search`, image en message user

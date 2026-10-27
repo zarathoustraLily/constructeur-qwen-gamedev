@@ -9,7 +9,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | A2 | Partage 40/40/20 dans l'assembleur | faite (2026-10-27) ; écart d'analyse comblé à l'étape d'entraînement par les paires d'analyse (tranché par Claude sur délégation) | Claude, fil principal | | kart 43/43/14, roguelike 44/42/13, 0 problème (ETAT) |
 | A3 | Regénérer la base des bâtiments sur le PC | en attente de A1, A2 | | | |
 | A4 | Espaces de fin des messages | faite (2026-10-27) | Claude, fil principal | | rendus identiques : kart 203/203, roguelike 155/155, paires 430/430 (ETAT) |
-| A5 | Capture d'une session OpenCode (laurent) | à faire (laurent) | | | |
+| A5 | Capture d'une session OpenCode | format capturé sans llama-server (2026-10-27) : AGENTS.md, Code Mode, image ; reste la capture dans l'environnement réel de laurent (llama-server chargé) | Claude, fil principal | | `outils/capturer_opencode.py`, requêtes dans `donnees/capture_opencode/` (ETAT) |
 | A6 | `capture_frames` : zone et définition | proposé, attend laurent | | | |
 | A7 | Outil `voir_scene` : voir la scène 3D comme dans l'éditeur | faite (2026-10-26) | Claude, fil principal | | bug réel : 0/12 objets dans le champ, « à l'horizontale » ; corrigé : 12/12 ; tests et preuve 17/17 (ETAT) |
 | A8 | Cas fabriqués « situer la caméra et les objets », puis paires | 1 024 faites (2026-10-27) ; 2 048 avec image à faire | Claude, fil principal | | 13 niveaux : 162 cas vérifiés, 0 rejeté, 311 paires ≤ 1 024 jetons, 26 par défaut commun (ETAT) |

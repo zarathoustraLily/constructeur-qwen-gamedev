@@ -1979,6 +1979,31 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   vérifiées, 5 au palier 1 (357 à 639 jetons), 7 au palier 2 (1 061 à 1 801), aucune trop longue.
 - « Lire l'éditeur » (A9) : 38 paires sur 50 dépassaient 1 024 jetons sans le plan (section 3). Le générateur met
   maintenant le plan dans toutes (palier 2) ; les paires de l'essai sont à regénérer.
+- **Capture d'OpenCode sans llama-server (étape A5, accord de laurent : « ok pour tout »)** :
+  `outils/capturer_opencode.py --travail <dossier>` et la sonde `usine/capture/sonde.py` (faux modèle OpenAI-compatible
+  qui garde chaque requête et joue : `search_docs` par le Code Mode, lecture d'une image, conclusion). OpenCode
+  2.1.4 (`resources/opencode-cli.exe` de l'application de bureau ; la 2.0.6 n'est plus celle installée) tourne dans un
+  bac à sable (XDG_*), serveur privé, sur une copie du socle hors de tout dépôt git. Relevé (requêtes dans
+  `donnees/capture_opencode/requetes/`) :
+  - **`AGENTS.md`** : le fichier entier, tel quel, dans le message système, juste après `</available_skills>` et avant
+    « Today's date » : `\n\nInstructions from: <chemin absolu de AGENTS.md>\n<contenu>\n\nToday's date: …`.
+  - **Ordre du message système en 2.1.4** : harnais, modèle, Code Mode (catalogue), `<mcp_instructions>`, fiches,
+    `AGENTS.md`, date, `<env>`. En 2.0.6 (session réelle du 2026-10-04), `<env>` et la date venaient tôt, après « Your
+    Model ». Le texte du harnais est presque le même (10 892 caractères contre 10 902 avant les fiches).
+  - **Outils** : les 12 de nos bases, mêmes noms et paramètres (`read` {path, offset, limit}, `edit` {path, oldString,
+    newString, replaceAll}, `write` {path, content}, `shell` {command, workdir, timeout, background}, `execute` {code}…).
+  - **Code Mode** : les outils MCP ne s'appellent que dans `execute`, `tools["usine-godot"].search_docs({requete: …})` ;
+    le résultat revient en texte simple dans le message `tool`. Le catalogue est **partiel** quand les serveurs sont
+    nombreux : dans la session réelle de laurent, « usine-godot (9 tools, 4 shown) », « godot-ai (47 tools, 4 shown) » ;
+    les autres outils se trouvent par `search(...)` dans `execute` (synchrone, sans `await`). Réflexe à enseigner.
+  - **Image** : `read` d'un PNG rend « Image read successfully », puis OpenCode ajoute un message `user` qui contient
+    l'image (`image_url`, `data:image/png;base64,…`).
+  - Pièges relevés : OpenCode prend la racine git pour dossier de travail (il y lirait la configuration et les consignes
+    d'un autre projet) et son dossier dans `PWD` ; `run --standalone` envoie la première requête 0,1 s après le
+    démarrage, avant que les serveurs MCP soient connectés (catalogue sans eux) ; le serveur privé exige un mot de passe.
+  - Reste (avec llama-server, quand laurent le charge) : la même capture dans son vrai environnement (ses serveurs MCP et
+    ses fiches, son application de bureau, par le proxy de l'usine), qui donne le message système exact de l'usage, et la
+    façon dont Qwen écrit lui-même un appel du Code Mode.
 - Réglages de LLaMA-Factory (étape C1) : `usine/entrainement/reglages.py` ; `python -m usine.entrainement reglages
   --etape 1|2|3 --jeu <dossier> --nom <jeu>` écrit `etape_<N>.yaml` (rien n'est lancé). QLoRA rang 16, 4 bits,
   `qwen3_5`, `enable_thinking: false`, `cutoff_len` 1 024, 2 048 puis 32 768, une époque, un exemple par pas et

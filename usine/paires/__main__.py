@@ -9,6 +9,7 @@
     python -m usine.paires creation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires lecture
     python -m usine.paires assembler --palier 1|2 [--graine G]
+    python -m usine.paires volume [--seulement creation,execution,...]
 """
 
 from __future__ import annotations
@@ -49,6 +50,8 @@ def main(argv: list[str] | None = None) -> int:
         ex.add_argument("--graine", type=int, default=1)
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
+    vol = sous.add_parser("volume", help="génération en volume, famille après famille, puis lectures et paliers")
+    vol.add_argument("--seulement", default=None, help="familles séparées par des virgules (défaut : toutes)")
     asm = sous.add_parser("assembler", help="jeu d'un palier : contrôles, 40/40/20 par sujet, format de LLaMA-Factory")
     asm.add_argument("--palier", type=int, required=True, choices=[1, 2])
     asm.add_argument("--graine", type=int, default=1)
@@ -93,6 +96,10 @@ def main(argv: list[str] | None = None) -> int:
         for r in bilan["rejets"]:
             print("rejet :", r)
         return 0 if bilan["paires"] else 1
+    if args.famille == "volume":
+        from usine.paires.volume import lancer
+        lancer(args.seulement.split(",") if args.seulement else None)
+        return 0
     if args.famille == "assembler":
         from usine.paires.assembler import assembler
         controles = assembler(args.palier, args.graine)
