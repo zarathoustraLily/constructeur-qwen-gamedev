@@ -1801,7 +1801,7 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
 - Famille de paires « situer la caméra et les objets » (étape A8 ; premier module de `usine/paires/`, format commun
   dans `usine/paires/format.py`, jetons comptés avec le tokenizer de Qwen 3.8 et son gabarit) :
   `python -m usine.paires camera --niveaux N --graine G` (`usine/paires/camera.py`). Niveaux générés d'après une
-  graine (sol, 2 à 4 objets, joueur, pivot et caméra ; vue de dessus orthographique inclinée ou perspective) ; le
+  graine (sol, 2 ou 3 objets, joueur, pivot et caméra ; vue de dessus orthographique inclinée ou perspective) ; le
   niveau sain doit tout montrer à `voir_scene`, sinon il est rejeté ; 13 défauts posés chacun par une seule édition du
   `.tscn` (inclinaison absente = le bug réel, visée vers le haut, caméra sous le sol, `far` trop court, `near` trop
   loin, champ orthographique ou `fov` trop étroit, `cull_mask` sans la couche, autre caméra courante, modèle couché,
@@ -1809,8 +1809,19 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
   symptôme dans les mesures du moteur, sinon le cas est rejeté ; la correction est l'édition inverse (rendu sain).
   Paires sans plan (exception de la section 3), 1 024 jetons au plus : analyse d'un niveau sain, diagnostic d'un cas
   fautif (analyse), correction avec le texte à remplacer (débogage).
-  - Sur 6 niveaux : 75 cas, 0 rejeté ; 140 paires (65 débogage, 75 analyse ; 62 % et 38 % des jetons de réponse),
-    803 jetons en moyenne, 4 au-delà de 1 024 écartées. Nombres à fixer par laurent.
+  - Nombre décidé par laurent le 2026-10-27 (« ok pour 1 et 2 ») : 300 paires de 1 024 jetons.
+    `python -m usine.paires camera --niveaux 20 --paires 300` : 13 niveaux complets, 162 cas, 0 rejeté ; 311 paires
+    (149 débogage, 162 analyse ; 64 % et 36 % des jetons de réponse), 793 jetons en moyenne, 1 017 au plus,
+    aucune écartée ; 26 paires par défaut commun, 12 à 14 pour les défauts propres à un style. On s'arrête au niveau
+    qui atteint la cible, sans couper le dernier : chaque défaut pèse autant. Tests du module et de `voir_scene`
+    avec Godot : 14 passés.
+  - Ce que la mesure a corrigé : avec 4 objets de décor, 22 paires sur 336 dépassaient 1 024 jetons, toutes de
+    débogage et pour trois défauts au long extrait (autre caméra courante, modèle couché, objet derrière la caméra) :
+    ces défauts tombaient à 18-21 paires au lieu de 28. Le générateur pose maintenant 2 ou 3 objets (la sortie de
+    `voir_scene` n'est pas raccourcie, décision 13) et la cause « objet derrière » ne répète plus la position de la
+    caméra, déjà dans la ligne qui la précède. Le bilan compte les paires écartées par défaut.
+  - Ligne ajoutée dans `godot/socle_jeu/AGENTS.md` (APRÈS CHAQUE ACTION, accord du 2026-10-27) : « Si la 3D ne
+    s'affiche pas ou qu'un objet manque : voir_scene avant toute autre capture. » Hors du bloc permanent.
   - Ce que la vérification a corrigé : sur un pivot sans rotation, la caméra reculée le long de son axe se retrouve
     au ras du sol et voit tout ; le défaut reproduit donc le bug réel (caméra en hauteur, sans rotation), réservé à
     la vue de dessus (en perspective, une caméra à l'horizontale voit encore le niveau en bas de l'image, mesuré) ;

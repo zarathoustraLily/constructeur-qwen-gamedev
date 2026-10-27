@@ -57,6 +57,19 @@ def test_la_paire_de_debogage_ne_montre_la_faute_que_comme_texte_a_remplacer():
     assert p["type"] == "débogage" and p["jetons"] <= 1024
 
 
+def test_la_cible_arrete_au_niveau_qui_l_atteint(tmp_path, monkeypatch):
+    vus = []
+
+    def cas_du_niveau(g, travail):
+        vus.append(g)
+        return [camera.Cas(camera.niveau(g), None, "", None, None, None, None)] * 4, []
+
+    monkeypatch.setattr(camera, "cas_du_niveau", cas_du_niveau)
+    monkeypatch.setattr(camera, "paire_analyse", lambda c: {"jetons": 500, "type": "analyse", "preuve": {}})
+    bilan = camera.generer(10, 1, donnees=tmp_path, journal=lambda _: None, cible=10)
+    assert vus == [1, 2, 3] and bilan["niveaux"] == 3 and bilan["paires"] == 12  # niveaux complets
+
+
 @pytest.mark.godot
 def test_godot_un_niveau_sain_et_le_bug_reel(tmp_path):
     n = camera.niveau(2)  # vue de dessus orthographique, comme le roguelike

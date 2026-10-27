@@ -1,6 +1,6 @@
 """CLI des paires courtes.
 
-    python -m usine.paires camera [--niveaux N] [--graine G]
+    python -m usine.paires camera [--niveaux N] [--graine G] [--paires P]
 """
 
 from __future__ import annotations
@@ -17,10 +17,11 @@ def main(argv: list[str] | None = None) -> int:
     p = sous.add_parser("camera", help="situer la caméra et les objets (voir_scene), cas vérifiés par deux rendus")
     p.add_argument("--niveaux", type=int, default=2)
     p.add_argument("--graine", type=int, default=1)
+    p.add_argument("--paires", type=int, default=None, help="s'arrêter au niveau qui atteint P paires (niveaux devient un plafond)")
     args = parseur.parse_args(argv)
     if args.famille == "camera":
         from usine.paires.camera import generer
-        bilan = generer(args.niveaux, args.graine)
+        bilan = generer(args.niveaux, args.graine, cible=args.paires)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)

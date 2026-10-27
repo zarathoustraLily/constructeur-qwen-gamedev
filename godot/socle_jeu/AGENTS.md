@@ -30,5 +30,6 @@ Décors procéduraux : générateurs @tool et leurs scènes dans 6_assets/Mesh/P
 - Avant de réécrire un fichier : dis ce qui change. Si rien ne change, n'écris pas.
 - Après une erreur du moteur : cherche dans la doc le membre en cause avant de corriger.
 - Après chaque capture (capture_frames) : écris un verdict en trois lignes : ce que tu vois, si c'est lisible, ce qui cloche.
+- Si la 3D ne s'affiche pas ou qu'un objet manque : voir_scene avant toute autre capture.
 - Avant de dire qu'une sous-étape est finie : check_structure ; corrige chaque règle qu'il nomme par son identifiant.
 - Sous-étape finie et tests verts : coche-la dans plan.md, en une seule écriture, puis écris le compte rendu : fichiers, tests lancés et leur résultat, problèmes, règles concernées.

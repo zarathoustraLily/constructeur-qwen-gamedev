@@ -16,7 +16,7 @@ Paires (palier 1, 1 024 jetons au plus, sans plan : le plan n'y joue aucun rôle
 - débogage : un symptôme, la sortie de `voir_scene` et l'extrait de la scène → ce que montre la carte, la cause, le
   texte à remplacer (la faute n'apparaît que là, règle 7.3) et ce que doit montrer le rendu suivant.
 
-    python -m usine.paires camera [--niveaux N] [--graine G]
+    python -m usine.paires camera [--niveaux N] [--graine G] [--paires P]
 """
 
 from __future__ import annotations
@@ -76,7 +76,9 @@ def niveau(graine: int) -> Niveau:
     cote = rng.choice([8, 10, 12])
     n.objets.append({"nom": "Sol", "genre": "Sol", "position": (0.0, -0.1, 0.0), "hauteur": 0.2, "cote": cote})
     places: list[tuple[float, float]] = [(0.0, 0.0)]
-    for k in range(rng.randint(2, 4)):  # peu d'objets : la sortie réelle de voir_scene tient dans 1 024 jetons
+    # Peu d'objets : la sortie réelle de voir_scene tient dans 1 024 jetons. Avec 4, les paires de débogage des
+    # défauts au long extrait (autre caméra, modèle couché, objet derrière) dépassaient : mesuré le 2026-10-27.
+    for k in range(rng.randint(2, 3)):
         genre = rng.choice(sorted(GENRES))
         for _ in range(50):
             x = rng.randint(-(cote // 2 - 1), cote // 2 - 1)
@@ -309,9 +311,9 @@ DEFAUTS = [
             "position = " + _v(tuple(round(c + 3 * u, 2) for c, u in zip(
                 n.position_camera, (0.0, math.sin(n.inclinaison), math.cos(n.inclinaison))))))),
         lambda d, n: _hors(d, _cible(n), "derrière la caméra"),
-        lambda d, n: (f"`{_cible(n)}` est en {vues._f(_objet(d, _cible(n))['centre'])}, derrière la caméra (en "
-                      f"{vues._f(d['camera']['position'])}, visée {_direction(d['camera']['regarde_vers'])}) : il est "
-                      "du mauvais côté de son plan proche. Il doit être posé dans le niveau, devant elle"),
+        # La position et la visée de la caméra sont dans la ligne qui précède la cause : pas de redite.
+        lambda d, n: (f"`{_cible(n)}` est en {vues._f(_objet(d, _cible(n))['centre'])}, derrière la caméra, du mauvais "
+                      "côté de son plan proche. Il doit être posé dans le niveau, devant elle"),
         lambda n: [_cible(n), "Pivot", "Camera3D"]),
 ]
 
@@ -443,26 +445,34 @@ def paire_debogage(c: Cas) -> dict[str, Any]:
 
 
 def generer(niveaux: int, graine: int = 1, donnees: Path | None = None,
-            journal: Callable[[str], None] = print) -> dict[str, Any]:
+            journal: Callable[[str], None] = print, cible: int | None = None) -> dict[str, Any]:
+    """`niveaux` niveaux au plus ; avec `cible`, on s'arrête au niveau qui l'atteint. Les niveaux restent complets :
+    couper le dernier retirerait les défauts de fin de liste, chaque défaut doit peser autant."""
     sortie = fmt.dossier(FAMILLE, donnees)
     paires: list[dict[str, Any]] = []
     rejets: list[str] = []
+    faits = 0
     with tempfile.TemporaryDirectory(prefix="usine_camera_") as tmp:
         for g in range(graine, graine + niveaux):
             cas, rej = cas_du_niveau(g, Path(tmp))
             rejets += rej
+            faits += 1
             for c in cas:
                 paires += [paire_analyse(c)] if c.defaut is None else [paire_diagnostic(c), paire_debogage(c)]
             journal(f"graine {g} : {len(cas)} cas retenus, {len(rej)} rejetés")
+            if cible is not None and sum(p["jetons"] <= 1024 for p in paires) >= cible:
+                break
     trop_longues = [p for p in paires if p["jetons"] > 1024]
     retenues = [p for p in paires if p["jetons"] <= 1024]
     fmt.ecrire(retenues, sortie / "paires.jsonl")
-    bilan = {"niveaux": niveaux, "graine": graine, "paires": len(retenues), "trop_longues": len(trop_longues),
+    bilan = {"niveaux": faits, "graine": graine, "paires": len(retenues), "trop_longues": len(trop_longues),
              "rejets": rejets, "par_type": {t: sum(p["type"] == t for p in retenues) for t in fmt.TYPES},
              "par_defaut": {}, "jetons_max": max((p["jetons"] for p in paires), default=0),
              "jetons_moyens": round(sum(p["jetons"] for p in paires) / max(len(paires), 1))}
-    for p in retenues:
-        cle = p["preuve"].get("defaut", "aucun (analyse)")
-        bilan["par_defaut"][cle] = bilan["par_defaut"].get(cle, 0) + 1
+    bilan["trop_longues_par_defaut"] = {}
+    for cle_bilan, liste in (("par_defaut", retenues), ("trop_longues_par_defaut", trop_longues)):
+        for p in liste:
+            cle = p["preuve"].get("defaut", "aucun (analyse)")
+            bilan[cle_bilan][cle] = bilan[cle_bilan].get(cle, 0) + 1
     (sortie / "bilan.json").write_text(json.dumps(bilan, indent=1, ensure_ascii=False), encoding="utf-8")
     return bilan
