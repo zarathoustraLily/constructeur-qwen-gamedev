@@ -52,7 +52,9 @@ def jetons_reponse(messages: list[dict[str, str]]) -> int:
     from usine.cours.base import jetons as j
     if _TOKENIZER is None:
         _TOKENIZER = j.tokenizer()
-    return sum(len(_TOKENIZER.encoder(m["content"].strip())) for m in messages if m["role"] == "assistant")
+    from usine.cours.base.opencode import reponse_rendue
+    # Le texte de la réponse et ses appels d'outils, tels que le gabarit les écrit : le modèle apprend les deux.
+    return sum(len(_TOKENIZER.encoder(reponse_rendue(m))) for m in messages if m["role"] == "assistant")
 
 
 def paire(famille: str, sujet: str, type_: str, demande: str, reponse: str, preuve: dict[str, Any],
@@ -64,6 +66,27 @@ def paire(famille: str, sujet: str, type_: str, demande: str, reponse: str, preu
         {"role": "user", "content": demande.strip()}, {"role": "assistant", "content": reponse.strip()}]
     return {"famille": famille, "sujet": sujet, "type": type_, "messages": messages, "images": images or [],
             "preuve": preuve, "jetons": jetons(messages, images), "jetons_reponse": jetons_reponse(messages)}
+
+
+def paire_tours(famille: str, sujet: str, type_: str, tours: list[dict[str, Any]], preuve: dict[str, Any],
+                systeme: str | None = None, images: list[str] | None = None) -> dict[str, Any]:
+    """Une paire en plusieurs tours (demande, réponse avec appel d'outil, retour réel de l'outil, réponse) : les appels
+    s'écrivent comme à l'usage (format d'OpenAI, arguments en objet), le retour est la vraie sortie (règle 7.2)."""
+    if type_ not in TYPES:
+        raise ValueError(f"type inconnu : {type_}")
+    messages = ([{"role": "system", "content": systeme.strip()}] if systeme else [])
+    for t in tours:
+        m = dict(t)
+        m["content"] = (m.get("content") or "").strip()
+        messages.append(m)
+    if messages[-1]["role"] != "assistant" or messages[-1].get("tool_calls"):
+        raise ValueError("une paire finit par une réponse sans appel d'outil")
+    return {"famille": famille, "sujet": sujet, "type": type_, "messages": messages, "images": images or [],
+            "preuve": preuve, "jetons": jetons(messages, images), "jetons_reponse": jetons_reponse(messages)}
+
+
+def appel(identifiant: str, nom: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    return {"id": identifiant, "type": "function", "function": {"name": nom, "arguments": arguments}}
 
 
 def vers_llamafactory(p: dict[str, Any]) -> dict[str, Any]:

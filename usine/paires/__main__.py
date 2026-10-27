@@ -8,6 +8,7 @@
     python -m usine.paires execution [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires creation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires lecture
+    python -m usine.paires rag
     python -m usine.paires assembler --palier 1|2 [--graine G]
     python -m usine.paires volume [--seulement creation,execution,...]
 """
@@ -50,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
         ex.add_argument("--graine", type=int, default=1)
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
+    sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     vol = sous.add_parser("volume", help="génération en volume, famille après famille, puis lectures et paliers")
     vol.add_argument("--seulement", default=None, help="familles séparées par des virgules (défaut : toutes)")
     asm = sous.add_parser("assembler", help="jeu d'un palier : contrôles, 40/40/20 par sujet, format de LLaMA-Factory")
@@ -95,6 +97,11 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)
+        return 0 if bilan["paires"] else 1
+    if args.famille == "rag":
+        from usine.paires.rag import generer as generer_rag
+        bilan = generer_rag()
+        print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         return 0 if bilan["paires"] else 1
     if args.famille == "volume":
         from usine.paires.volume import lancer
