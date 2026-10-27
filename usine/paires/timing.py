@@ -618,10 +618,7 @@ def lecture(mec: Mecanique, m: dict[str, Any], j: Jeu, derniere_image: int) -> t
 
 # ------------------------------------------------------------------ paires
 
-def plan() -> str:
-    """Le bloc permanent du socle (section 3 : le plan des données)."""
-    texte = (SOCLE / "AGENTS.md").read_text(encoding="utf-8")
-    return texte[:texte.index("# AVANT CHAQUE ÉTAPE")].strip()
+plan = fmt.plan  # le bloc permanent du socle (section 3)
 
 
 def _demande(mec: Mecanique, j: Jeu, r: dict[str, Any]) -> str:

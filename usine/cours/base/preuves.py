@@ -39,6 +39,8 @@ DOC_ERREURS = ("GDScript warning system", "tutorials/scripting/gdscript/warning_
 REF_UNTYPED = ("ProjectSettings", "debug/gdscript/warnings/untyped_declaration",
                "When set to [b]Warn[/b] or [b]Error[/b], produces a warning or an error respectively when a variable or "
                "parameter has no static type, or if a function has no static return type.")
+REF_GET_NODE = ("Node", "get_node", "If [param path] does not point to a valid node, generates an error and returns "
+                "[code]null[/code].")
 
 
 def citation_reference(ref: tuple[str, str, str]) -> str:
@@ -46,7 +48,7 @@ def citation_reference(ref: tuple[str, str, str]) -> str:
     classe, membre, texte = ref
     contenu = (chemins.actuels().classes / f"{classe}.xml").read_text(encoding="utf-8")
     assert texte in contenu, (classe, membre, texte)
-    propre = re.sub(r"\[/?b\]", "", texte)
+    propre = re.sub(r"\[param (\w+)\]", r"\1", re.sub(r"\[/?(?:b|code)\]", "", texte))
     return f"Référence de `{classe}` (Godot 4.7.2), `{membre}` : « {propre} »"
 
 

@@ -206,10 +206,17 @@ def tester(projet: str, res: str, delai: int = 90) -> Sortie:
     return Sortie(commande(arguments), texte, code, brut)
 
 
-def tester_gdunit(projet: str, suites_res: list[str], delai: int = 300) -> Sortie:
+def tester_gdunit(projet: str, suites_res: list[str], delai: int = 300, ignorer: list[str] | None = None) -> Sortie:
     """Les suites GdUnit4 de l'étape, comme `7_tests/lancer_tests.bat` (cours de jeu, profil.arguments_gdunit)."""
     from usine.cours.base import profil
-    arguments = profil.arguments_gdunit(suites_res)
+    arguments = profil.arguments_gdunit(suites_res, ignorer)
+    texte, code, brut = _lancer(arguments, projet, delai)
+    return Sortie(commande(arguments), texte, code, brut)
+
+
+def lancer_scene(projet: str, scene: str, images: int = 30, delai: int = 120) -> Sortie:
+    """Une scène lancée sans fenêtre pendant `images` images : ses `_ready` et ses premiers `_process` tournent."""
+    arguments = ["--headless", "--path", ".", "--quit-after", str(images), "res://" + scene]
     texte, code, brut = _lancer(arguments, projet, delai)
     return Sortie(commande(arguments), texte, code, brut)
 

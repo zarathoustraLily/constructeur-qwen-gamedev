@@ -8,9 +8,15 @@ import re
 from usine.cours.base import api, mutations, preuves
 
 
+# Les lignes qui appartiennent à une erreur : « at: », pile d'appels de GDScript, extrait de code d'un shader.
+SUITE_ERREUR = re.compile(r"^\s+(?:at: |GDScript backtrace|\[\d+\] )|^E?\s*\d+\s?(?:\||->)")
+
+
 def compacter(texte: str, garder: int = 2, pile: int = 3) -> str:
     """Une erreur répétée à chaque construction : on garde les premières (pile d'appels raccourcie),
-    puis on dit combien de fois elle revient. Les autres lignes restent telles quelles."""
+    puis on dit combien de fois elle revient. Les autres lignes restent telles quelles : une erreur retirée
+    emporte ses propres lignes, pas celles qui la suivent (cas « FAILED », résumé et code de sortie de GdUnit4 ;
+    constaté le 2026-10-27 sur les paires B3, où ils disparaissaient)."""
     blocs: list[list[str]] = []
     for l in texte.splitlines():
         if l.startswith(("SCRIPT ERROR", "ERROR", "SHADER ERROR", "WARNING", "ok", "ÉCHEC", "--res://")) or not blocs:
@@ -23,11 +29,18 @@ def compacter(texte: str, garder: int = 2, pile: int = 3) -> str:
         cle = "\n".join(b[:2])
         vus[cle] = vus.get(cle, 0) + 1
         if vus[cle] > garder:
+            i = 1
+            while i < len(b) and SUITE_ERREUR.match(b[i]):
+                i += 1
+            sortie += b[i:]
             continue
         if any("backtrace" in l for l in b):
             i = next(i for i, l in enumerate(b) if "backtrace" in l)
-            reste = b[i + 1:]
-            b = b[:i + 1] + reste[:pile] + (["              [...]"] if len(reste) > pile else [])
+            j = i + 1
+            while j < len(b) and re.match(r"^\s+\[\d+\] ", b[j]):
+                j += 1
+            appels = b[i + 1:j]
+            b = b[:i + 1] + appels[:pile] + (["              [...]"] if len(appels) > pile else []) + b[j:]
         sortie += b
     extra = sum(n - garder for n in vus.values() if n > garder)
     if extra:

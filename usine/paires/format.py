@@ -76,6 +76,12 @@ def vers_llamafactory(p: dict[str, Any]) -> dict[str, Any]:
     return ligne
 
 
+def plan() -> str:
+    """Le bloc permanent du socle (section 3 : le plan des données), message système des paires de 2 048 jetons."""
+    texte = (cfg.RACINE / "godot" / "socle_jeu" / "AGENTS.md").read_text(encoding="utf-8")
+    return texte[:texte.index("# AVANT CHAQUE ÉTAPE")].strip()
+
+
 def dossier(famille: str, donnees: Path | None = None) -> Path:
     d = Path(donnees or cfg.dossier_donnees()) / "paires" / famille
     d.mkdir(parents=True, exist_ok=True)

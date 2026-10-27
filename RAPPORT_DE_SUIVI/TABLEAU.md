@@ -6,30 +6,30 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | ID | Étape | État | Réalisé par | Vérifié par | Preuve |
 | --- | --- | --- | --- | --- | --- |
 | A1 | Plan dans les sessions OpenCode | en attente de A5 | | | |
-| A2 | Partage 40/40/20 dans l'assembleur | faite (2026-10-27), cible d'analyse non atteinte : à trancher par laurent | Claude, fil principal | | kart 43/43/14, roguelike 44/42/13, 0 problème (ETAT) |
+| A2 | Partage 40/40/20 dans l'assembleur | faite (2026-10-27) ; écart d'analyse comblé à l'étape d'entraînement par les paires d'analyse (tranché par Claude sur délégation) | Claude, fil principal | | kart 43/43/14, roguelike 44/42/13, 0 problème (ETAT) |
 | A3 | Regénérer la base des bâtiments sur le PC | en attente de A1, A2 | | | |
 | A4 | Espaces de fin des messages | faite (2026-10-27) | Claude, fil principal | | rendus identiques : kart 203/203, roguelike 155/155, paires 430/430 (ETAT) |
 | A5 | Capture d'une session OpenCode (laurent) | à faire (laurent) | | | |
 | A6 | `capture_frames` : zone et définition | proposé, attend laurent | | | |
 | A7 | Outil `voir_scene` : voir la scène 3D comme dans l'éditeur | faite (2026-10-26) | Claude, fil principal | | bug réel : 0/12 objets dans le champ, « à l'horizontale » ; corrigé : 12/12 ; tests et preuve 17/17 (ETAT) |
 | A8 | Cas fabriqués « situer la caméra et les objets », puis paires | 1 024 faites (2026-10-27) ; 2 048 avec image à faire | Claude, fil principal | | 13 niveaux : 162 cas vérifiés, 0 rejeté, 311 paires ≤ 1 024 jetons, 26 par défaut commun (ETAT) |
-| A9 | Lire l'interface de l'éditeur Godot (A : fenêtre entière ; B : par godot-ai) | A : outil MCP et générateur faits (2026-10-27), nombre à fixer ; B attend la capture chez laurent | Claude, fil principal | | `voir_editeur` : preuve du serveur 18/18 ; essai 2 niveaux : 50 paires ≤ 2 040 jetons, 0 rejet (ETAT) |
-| A10 | Timing : ce qu'on voit contre ce qu'on doit produire | générateur fait (2026-10-27), nombre à fixer | Claude, fil principal | | 1 jeu : 23 paires, 9 défauts sur 10 au symptôme mesuré (ETAT) |
+| A9 | Lire l'interface de l'éditeur Godot (A : fenêtre entière ; B : par godot-ai) | A : outil MCP et générateur faits (2026-10-27), 300 paires (délégation), plan ajouté (palier 2) ; B attend la capture chez laurent | Claude, fil principal | | `voir_editeur` : preuve du serveur 18/18 ; essai 2 niveaux : 50 paires ≤ 2 040 jetons, 0 rejet (ETAT) |
+| A10 | Timing : ce qu'on voit contre ce qu'on doit produire | générateur fait (2026-10-27), 300 paires (délégation) | Claude, fil principal | | 1 jeu : 23 paires, 9 défauts sur 10 au symptôme mesuré (ETAT) |
 | B1 | Paires : erreur de compilation → correction | générateur fait (2026-10-27) ; volume en B9 | Claude, fil principal | | essai kart : 12/12 paires vérifiées par Godot (ETAT) |
 | B2 | Paires : erreur de shader → correction | générateur fait (2026-10-27) ; volume en B9 | Claude, fil principal | | essai kart : 10 vérifiées, 7 ≤ 1 024 jetons (ETAT) |
-| B3 | Paires : erreur à l'exécution → correction | à faire | | | |
-| B4 | Paires : lire une sortie de Godot | à faire | | | |
-| B5 | Paires : création courte | à faire | | | |
+| B3 | Paires : erreur à l'exécution → correction | générateur fait (2026-10-27), palier 2 avec le plan (délégation) ; volume en B9 | Claude, fil principal | | essai kart et roguelike : 26 paires vérifiées sur 31, 0 trop longue (ETAT) |
+| B4 | Paires : lire une sortie de Godot | générateur fait (2026-10-27), tiré de B1 à B3 sans relancer Godot | Claude, fil principal | | essai : 36 lectures, 18 échecs, 18 réussites, ≤ 980 jetons (ETAT) |
+| B5 | Paires : création courte | générateur fait (2026-10-27) avec D1 : fonction d'après son contrat, palier 1 quand le plan n'y joue aucun rôle | Claude, fil principal | | essai kart : 5 paires palier 1 sur 12 (ETAT) |
 | B6 | Paires : RAG | en attente de A5, R1, R2 | | | |
 | B7 | Paires : images, 4 niveaux | à faire | | | |
 | B8 | Assembleur du palier 1 | en attente de B1 | | | |
 | B9 | Génération du palier 1 sur le PC | en attente de B8 | | | |
-| C1 | Réglages de LLaMA-Factory | à faire | | | |
+| C1 | Réglages de LLaMA-Factory | faite (2026-10-27) | Claude, fil principal | | `python -m usine.entrainement reglages` ; tests (ETAT) |
 | C2 | Entraînement d'essai (≈ 6 000 paires) | en attente de B1-B4, C1 | | | |
 | C3 | Conversion GGUF et chargement | en attente de C2 | | | |
 | C4 | Courte campagne de contrôle | proposé, attend laurent | | | |
 | C5 | Étape 1 complète | en attente de B9, C3 | | | |
-| D1 | Morceaux de jeu point par point | à faire | | | |
+| D1 | Morceaux de jeu point par point | générateur « fonction d'après son contrat » fait (2026-10-27) ; volume en D5 | Claude, fil principal | | essai kart : 12 paires vérifiées sur 12, 7 palier 2 (ETAT) |
 | D2 | Morceaux tirés des démos | à faire | | | |
 | D3 | Séquences de 5 images | en attente de B7 | | | |
 | D4 | Assembleur du palier 2 | en attente de D1 | | | |

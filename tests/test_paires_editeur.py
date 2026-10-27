@@ -70,7 +70,8 @@ def test_la_paire_de_debogage_montre_l_image_et_la_faute_seulement_a_remplacer(t
                       + (720).to_bytes(4, "big"))
     assert editeur.montre_le_defaut(c, {"donnees": d}, sains)
     p = editeur.paire_debogage(c, {"donnees": d}, str(image), sains)
-    demande, reponse = p["messages"][0]["content"], p["messages"][1]["content"]
+    systeme, demande, reponse = (m["content"] for m in p["messages"])
+    assert systeme == fmt.plan()  # palier de 2 048 : le plan (section 3)
     assert demande.startswith(fmt.MARQUE_IMAGE) and p["images"] == [str(image)]
     assert "mettre Transform > Rotation à x -50.0° y 0.0° z 0.0°" in reponse
     assert "c'est la caméra de l'éditeur" in reponse

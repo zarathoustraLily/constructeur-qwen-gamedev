@@ -110,7 +110,9 @@ def propriete_vue(d: dict[str, Any], nom: str) -> dict[str, Any] | None:
 # ------------------------------------------------------------------ paires
 
 def _paire(type_: str, demande: str, reponse: str, image: str, preuve: dict[str, Any]) -> dict[str, Any]:
-    return fmt.paire(FAMILLE, SUJET, type_, f"{fmt.MARQUE_IMAGE}\n{demande}", reponse, preuve, images=[image])
+    # Palier de 2 048 : le plan en message système (section 3 ; l'image seule pèse 880 jetons, la paire dépasse 1 024).
+    return fmt.paire(FAMILLE, SUJET, type_, f"{fmt.MARQUE_IMAGE}\n{demande}", reponse, preuve, images=[image],
+                     systeme=fmt.plan())
 
 
 def paire_camera(n: camera.Niveau, r: dict[str, Any], image: str) -> dict[str, Any]:

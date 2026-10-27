@@ -99,7 +99,8 @@ def paire(projet: Any, m: Any, sujet: str, famille: str = "compilation") -> tupl
         projet.remettre()
     return fmt.paire(famille, sujet, "débogage", demande, reponse,
                      {"outil": "rendu" if shader else "--check-only", "commande": s.commande, "sortie": s.texte,
-                      "sortie_apres": apres.texte, "etape": f"{projet.ville}-{projet.n:03d}", "fichier": m.fichier,
+                      "code": s.code, "sortie_apres": apres.texte, "code_apres": apres.code,
+                      "etape": f"{projet.ville}-{projet.n:03d}", "fichier": m.fichier,
                       "ligne": m.ligne, "genre": m.genre}), ""
 
 

@@ -72,8 +72,9 @@ def suites(fichiers: dict[str, str], parmi: set[str] | None = None) -> list[str]
                   and (parmi is None or rel in parmi) and SUITE.search(t))
 
 
-def arguments_gdunit(suites_res: list[str]) -> list[str]:
-    """Comme `7_tests/lancer_tests.bat`, sans le débogueur : ces suites seulement."""
+def arguments_gdunit(suites_res: list[str], ignorer: list[str] | None = None) -> list[str]:
+    """Comme `7_tests/lancer_tests.bat`, sans le débogueur : ces suites seulement. `ignorer` : des cas écartés,
+    « suite:cas » (option `-i` de GdUnit4 6.2.1, qui n'a pas d'option pour lancer un seul cas)."""
     # « -rc 1 » : un seul rapport, réécrit à chaque passage. Avec l'historique par défaut, GdUnit4 finit par
     # supprimer ses anciens rapports, et sous Windows la suppression échoue (« ERROR: Delete .godot/rapports_tests/
     # report_1/css/breadcrumb.css failed », relevé le 2026-10-22 en relançant les tests dans le même projet).
@@ -81,6 +82,8 @@ def arguments_gdunit(suites_res: list[str]) -> list[str]:
             "-rd", ".godot/rapports_tests"]
     for res in suites_res:
         args += ["-a", res]
+    for cas in ignorer or []:
+        args += ["-i", cas]
     return args + ["++", "cadence_fixe"]
 
 

@@ -1931,6 +1931,59 @@ combler les trous de la grille par du débogage (17), protocole d'entraînement 
     `#include`). Vaut aussi pour les sessions des cours, à leur regénération.
 - Refusé par laurent (2026-10-27) : familles « défauts de texture », « effets cassés », « copier un effet d'après une
   image » : « non l'iasse tomber ca je vais le faire moi meme ».
+- **Délégation de laurent (2026-10-27)** : « fais ce qui semble le plus pertinent pur rendre le model le plus performant
+  pur sa tache developper un jeu en godot de facon continue jsuq'ao botenir le resultat ». Tranché par Claude sur
+  cette délégation (à revoir si laurent le veut) :
+  1. A2 : l'analyse des cours (13 à 14 %) se complète à l'étape d'entraînement par les paires courtes d'analyse
+     (lire une sortie, timing, caméra, éditeur), plutôt que par une seconde sorte d'analyse tirée des cours.
+  2. 300 paires « timing » et 300 « lire l'éditeur ».
+  3. B3 (erreurs à l'exécution) va au palier de 2 048 jetons, avec le plan : la vraie sortie d'une suite, le passage et
+     la scène pèsent 1 300 à 2 000 jetons ; aucune paire ne tenait sous 1 024.
+  4. Écrire une fonction d'après son contrat (création, D1 et part création du palier 1) : palier 1 sans plan quand la
+     fonction n'emploie aucune convention du plan, palier 2 avec le plan sinon.
+  5. Les lignes d'information de GdUnit4 (bandeau, chemins des rapports, durées) sortent des paires courtes, comme la
+     version de Godot (règle 5.1) ; cas « FAILED », résumé et code de sortie restent.
+- Famille B3 « erreur à l'exécution → correction » (`usine/paires/execution.py` ; `python -m usine.paires execution`) :
+  une faute qui passe l'analyse stricte mais casse à l'exécution, dans le code vérifié des cours : chemin de nœud qui
+  ne mène à rien (parent oublié, minuscule, nom du type au lieu du nom du nœud), type `@onready` qui n'est pas celui du
+  nœud (2D pour 3D, `RichTextLabel` pour `Label` ; hors de la lignée lue dans `extension_api.json`). Deux preuves
+  réelles : le cas de test où la panne paraît, lancé seul (GdUnit4 6.2.1 n'a pas d'option pour un seul cas : les
+  autres sont écartés par `-i suite:cas`), et la scène lancée sans fenêtre (`godot.lancer_scene`, le réflexe
+  `load_scene`) ; la paire montre les tests si elle tient sous 2 048 jetons, la scène sinon. Correction vérifiée par
+  les deux. La demande donne aussi le passage et une vraie recherche du nœud dans sa scène (`grep -n 'name=.X.'` :
+  sous Windows, un guillemet dans un argument n'arrive pas intact au grep de Git, mesuré, d'où le point). Réponse :
+  la première erreur, d'où vient son numéro (la ligne « at: » de « Node not found » désigne `node.cpp`, la pile
+  d'appels de GDScript donne la ligne du script), les erreurs qui en découlent (« c'est la ligne 6 qu'il faut corriger,
+  pas la ligne 13 »), la scène (« il manque `Rows` »), la ligne à remplacer, la commande à relancer.
+  - Essai, kart étapes 4, 11, 14 et roguelike 3, 6, 9, 12 : 26 paires sur 31 candidates, 0 trop longue, 1 813 et
+    1 861 jetons en moyenne ; 23 par les tests, 3 par la scène ; rejets : faute que l'analyse voit déjà (2D pour 3D
+    dont un `.y` ne compile plus), ligne jamais exécutée par les suites.
+- **Défaut corrigé dans `debogage.compacter`** (vu sur B3) : une erreur répétée retirée emportait les lignes qui la
+  suivaient, et la pile d'appels coupée emportait celles d'après ; les cas « FAILED », « Overall Summary » et « Exit
+  code » disparaissaient de la sortie montrée. Ils restent maintenant. Aucun exemple des bases livrées n'était touché
+  (0 sortie compactée dans `base_kart.jsonl` et `base_roguelike.jsonl`, vérifié).
+- Famille B4 « lire une sortie de Godot » (`usine/paires/lecture.py` ; `python -m usine.paires lecture`) : analyse,
+  sans relancer Godot ; chaque paire B1, B2, B3 donne deux lectures, sa sortie fautive et sa sortie corrigée (codes de
+  sortie gardés dans les preuves). Réponse : verdict et ce qui le fonde (un code 0 avec une erreur du jeu est un échec ;
+  un shader qui ne compile pas aussi), erreur à traiter d'abord avec sa catégorie du juge (`usine/juge/verdict.py`,
+  « SHADER ERROR » en `parse_error`), les erreurs qui en découlent, les lignes du moteur hors projet (rendu factice,
+  réglages Forward+), puis la suite : corriger cette seule ligne, ou, après une réussite, ne rien retoucher (décision 4).
+  Essai sur B1 et B2 : 36 lectures, 18 échecs et 18 réussites, 980 jetons au plus.
+- Famille « écrire une fonction d'après son contrat » (`usine/paires/creation.py` ; `python -m usine.paires
+  creation`) : une fonction documentée (`##`) du code vérifié des cours, corps retiré ; gardée seulement si le script au
+  corps vidé passe l'analyse (paramètres préfixés de `_` au besoin) et qu'une suite échoue alors, et si la même suite
+  passe avec la fonction d'origine. Demande : le contexte (script entier aux autres fonctions réduites à leur signature,
+  ou seulement ce que la fonction emploie) et les déclarations d'autres scripts qu'elle lit (`settings.wheel_base` : la
+  ligne de `KartSettings`, avec son `##`). Réponse : la fonction, la signature réelle des appels de Godot employés
+  (`extension_api.json`), l'analyse puis les tests à lancer. Essai, kart étapes 5, 8 et 12 : 12 paires sur 12
+  vérifiées, 5 au palier 1 (357 à 639 jetons), 7 au palier 2 (1 061 à 1 801), aucune trop longue.
+- « Lire l'éditeur » (A9) : 38 paires sur 50 dépassaient 1 024 jetons sans le plan (section 3). Le générateur met
+  maintenant le plan dans toutes (palier 2) ; les paires de l'essai sont à regénérer.
+- Réglages de LLaMA-Factory (étape C1) : `usine/entrainement/reglages.py` ; `python -m usine.entrainement reglages
+  --etape 1|2|3 --jeu <dossier> --nom <jeu>` écrit `etape_<N>.yaml` (rien n'est lancé). QLoRA rang 16, 4 bits,
+  `qwen3_5`, `enable_thinking: false`, `cutoff_len` 1 024, 2 048 puis 32 768, une époque, un exemple par pas et
+  16 accumulés, cosinus, reprise du LoRA de l'étape précédente ; `image_max_pixels` à 1 280 × 720 pour ne pas réduire
+  les images de l'éditeur (sinon leurs jetons d'image ne valent plus). Durée estimée au débit mesuré (266 jetons/s).
 - Catalogue de morceaux de code (étape R2 du suivi) : `rag/morceaux/morceaux.toml` et `rag/morceaux/<id>/exemple/`,
   vérifiés par `python -m usine.rag.morceaux verifier` (sans fenêtre, comportement mesuré). Mécanique commune aux
   effets et aux morceaux : `usine/rag/catalogue.py` ; le code d'un morceau garde son chemin du plan dans le projet de

@@ -116,7 +116,8 @@ def preuve(source: Path, index: Path | None = None) -> int:
         lignes = asyncio.run(_preuve(projet, index))
     for nom, ok, detail in lignes:
         print(f"{nom:<17} {'OK ' if ok else 'ÉCHEC'}  {detail}")
-    tout = all(ok for _, ok, _ in lignes) and len(lignes) == 17
+    # list_tools, un contrôle par outil, puis les deux refus (édition invalide, chemin hors du projet).
+    tout = all(ok for _, ok, _ in lignes) and len(lignes) == len(OUTILS) + 3
     print(f"{sum(ok for _, ok, _ in lignes)}/{len(lignes)} contrôles conformes")
     return 0 if tout else 1
 

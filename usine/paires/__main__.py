@@ -5,6 +5,10 @@
     python -m usine.paires timing [--niveaux N] [--graine G] [--paires P]
     python -m usine.paires compilation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires shader [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires execution [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires creation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires lecture
+    python -m usine.paires assembler --palier 1|2 [--graine G]
 """
 
 from __future__ import annotations
@@ -37,6 +41,17 @@ def main(argv: list[str] | None = None) -> int:
         cp.add_argument("--par-etape", type=int, default=6)
         cp.add_argument("--graine", type=int, default=1)
         cp.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+    for nom, aide in (("execution", "erreur à l'exécution → correction (chemin de nœud, type du nœud)"),
+                      ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape")):
+        ex = sous.add_parser(nom, help=aide)
+        ex.add_argument("--cours", default="kart", choices=["kart", "roguelike"])
+        ex.add_argument("--par-etape", type=int, default=4)
+        ex.add_argument("--graine", type=int, default=1)
+        ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+    sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
+    asm = sous.add_parser("assembler", help="jeu d'un palier : contrôles, 40/40/20 par sujet, format de LLaMA-Factory")
+    asm.add_argument("--palier", type=int, required=True, choices=[1, 2])
+    asm.add_argument("--graine", type=int, default=1)
     args = parseur.parse_args(argv)
     if args.famille == "camera":
         from usine.paires.camera import generer
@@ -66,6 +81,27 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)
+        return 0 if bilan["paires"] else 1
+    if args.famille in ("execution", "creation"):
+        if args.famille == "execution":
+            from usine.paires.execution import generer as generer_famille
+        else:
+            from usine.paires.creation import generer as generer_famille
+        etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
+        bilan = generer_famille(args.cours, args.par_etape, args.graine, etapes)
+        print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
+        for r in bilan["rejets"]:
+            print("rejet :", r)
+        return 0 if bilan["paires"] else 1
+    if args.famille == "assembler":
+        from usine.paires.assembler import assembler
+        controles = assembler(args.palier, args.graine)
+        print(json.dumps(controles, ensure_ascii=False, indent=1))
+        return 0 if controles["paires"] and not controles["problemes"] else 1
+    if args.famille == "lecture":
+        from usine.paires.lecture import generer as generer_lecture
+        bilan = generer_lecture()
+        print(json.dumps(bilan, ensure_ascii=False, indent=1))
         return 0 if bilan["paires"] else 1
     return 2
 

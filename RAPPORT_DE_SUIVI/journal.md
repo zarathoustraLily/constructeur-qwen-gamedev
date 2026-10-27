@@ -43,3 +43,13 @@ vers_llamafactory ; rendu de LLaMA-Factory identique au gabarit sur 788 exemples
 étape ; analyse à 14 % (kart) et 13 % (roguelike) au lieu de 20 % : moyen de combler à trancher par laurent
 2026-10-27 — B1, B2 — Claude (fil principal) — générateurs faits — compilation et shaders sur le code des cours ;
 note de l'extrait de shader décalé de plusieurs lignes ajoutée au générateur des cours
+2026-10-27 — (délégation) — laurent : « fais ce qui semble le plus pertinent [...] developper un jeu en godot de facon
+continue jsuq'ao botenir le resultat » ; tranché par Claude : A2 comblé par les paires d'analyse, 300 timing et 300
+éditeur, B3 au palier 2, création au palier 1 quand le plan n'y joue aucun rôle (détail dans ETAT)
+2026-10-27 — B3 — Claude (fil principal) — générateur fait — chemin de nœud et type du nœud ; cas isolé par `-i`,
+ou scène lancée sans fenêtre ; 26/31 vérifiées, 0 trop longue ; compacter corrigé (cas FAILED et résumé gardés)
+2026-10-27 — B4 — Claude (fil principal) — générateur fait — lectures tirées de B1 à B3 (sortie fautive et corrigée)
+2026-10-27 — D1, B5 — Claude (fil principal) — générateur fait — fonction d'après son contrat, rouge sans le corps et
+verte avec ; 12/12 sur l'essai du kart
+2026-10-27 — A9 — Claude (fil principal) — corrigé — le plan manquait aux paires de plus de 1 024 jetons
+2026-10-27 — C1 — Claude (fil principal) — faite — réglages des trois étapes, rien n'est lancé

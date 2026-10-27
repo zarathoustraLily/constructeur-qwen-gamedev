@@ -136,7 +136,7 @@ Chaque paire est vérifiée par Godot, `extension_api.json` ou la vraie recherch
 | --- | --- | --- | --- | --- | --- |
 | B1 | Erreur de compilation → ligne corrigée | débogage | 2 000 | poseur de fautes (`usine/cours/base/mutations.py`) ; `--check-only` strict | 1 jour |
 | B2 | Erreur de shader → correction | débogage | 800 | fautes de shader ; rendu en Compatibilité (règle 5.4) | 1 jour |
-| B3 | Erreur à l'exécution → correction (instance nulle, chemin de nœud, signal) | débogage | 1 000 | fautes injectées ; lancement, sortie lue | 1,5 jour |
+| B3 | Erreur à l'exécution → correction (chemin de nœud, type du nœud) ; **palier 2 avec le plan** (délégation du 2026-10-27 : aucune paire ne tient sous 1 024) | débogage | 1 000 | fautes injectées ; cas de test isolé ou scène lancée, sortie lue | fait |
 | B4 | Lire une sortie de Godot (réussi ou non, ligne qui compte, catégorie, `fichier:ligne`) | analyse | 1 500 | sorties réelles des cours, étiquettes connues (D1) | 1 jour |
 | B5 | Création courte : appel exact pour une intention, signatures typées, petite fonction d'après un contrat | création | 4 000 | code vérifié des cours et des démos ; `extension_api.json` ; tests | 2 jours |
 | B6 | RAG : formuler la requête, trier les résultats, appliquer l'extrait | création | 700 | vrai `search_docs` ; la page attendue dans les 3 premiers | 1 jour, après A5, R1 et R2 |
