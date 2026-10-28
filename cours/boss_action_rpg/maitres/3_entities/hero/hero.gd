@@ -5,12 +5,20 @@ class_name Hero extends CharacterBody3D
 #@ 4+
 ## Ce qu'il fait (courir, rouler) est choisi par sa machine à états (StateMachine, états Move et Roll) : chaque état
 ## appelle les mouvements ci-dessous ; l'endurance et la mémoire d'appui sont ses composants.
+#@ 5+
+## Il tire avec son arme (Gun) vers le point qu'il vise au centre de l'écran.
 #@ all
 
 ## Vitesses, accélérations, virage, gravité.
 @export var settings: HeroSettings
 ## Ce qui donne le lacet de la caméra (la caméra, ou son pivot).
 @export var camera: Node3D
+#@ 5+
+## La caméra qui rend l'image : le centre de l'écran est le point visé.
+@export var aim_camera: Camera3D
+## La réserve des projectiles du niveau, donnée à l'arme.
+@export var projectiles: ProjectilePool
+#@ all
 
 ## Le stick voulu (x : droite, y : arrière, longueur 0 à 1), posé par l'entrée.
 var stick: Vector2 = Vector2.ZERO
@@ -23,6 +31,10 @@ var dodge_held: bool = false
 var sprinting: bool = false
 ## Vrai au début de la roulade : aucun coup ne porte.
 var invulnerable: bool = false
+#@ 5+
+## Vrai tant que la gâchette est tenue : l'arme tire à sa cadence (état Move).
+var trigger: bool = false
+#@ 4+
 
 ## L'endurance : la roulade et le sprint la dépensent.
 @onready var stamina: StaminaComponent = $Stamina
@@ -30,6 +42,9 @@ var invulnerable: bool = false
 @onready var roll_buffer: InputBuffer = $RollBuffer
 ## Ce qu'il fait : Move ou Roll.
 @onready var machine: StateMachine = $StateMachine
+#@ 5+
+## L'arme : sa bouche est à la main droite.
+@onready var gun: HeroGun = $Gun
 #@ all
 
 
@@ -41,6 +56,8 @@ func _ready() -> void:
 	collision_mask = Layers.mask([Layers.WORLD, Layers.BOSS])
 #@ 4+
 	roll_buffer.window = settings.roll_buffer_time
+#@ 5+
+	gun.pool = projectiles
 #@ 2-3
 
 
@@ -74,8 +91,31 @@ func step(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= settings.gravity * delta
 	velocity = Motion.approach(velocity, direction * top_speed(), settings.acceleration, settings.deceleration, delta)
+#@ 2-4
 	rotation.y = Motion.face(rotation.y, direction, settings.turn_speed, delta)
+#@ 5+
+	rotation.y = Motion.face(rotation.y, facing_direction(direction), settings.turn_speed, delta)
+#@ all
 	move_and_slide()
+#@ 5+
+
+
+## Où le corps se tourne : là où regarde la caméra en visant ou en tirant (on tire droit devant soi), sinon vers sa
+## marche `direction`.
+func facing_direction(direction: Vector3) -> Vector3:
+	if aiming or trigger:
+		return Motion.forward_of(camera_yaw())
+	return direction
+
+
+## Le point visé : ce que touche le rayon du centre de l'écran ; sans caméra de visée, droit devant le corps, à
+## portée.
+func aim_point() -> Vector3:
+	if aim_camera == null:
+		return gun.global_position + Motion.forward_of(rotation.y) * gun.settings.aim_range
+	var forward: Vector3 = -aim_camera.global_basis.z
+	return Aim.point(get_world_3d().direct_space_state, aim_camera.global_position, forward, gun.settings.aim_range,
+			Projectile.hit_mask())
 #@ 4+
 
 

@@ -1,7 +1,9 @@
 ;@ 2-3
 [gd_scene load_steps=8 format=3]
-;@ 4+
+;@ 4
 [gd_scene load_steps=14 format=3]
+;@ 5+
+[gd_scene load_steps=18 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://3_entities/hero/hero.gd" id="1_hero"]
@@ -14,6 +16,11 @@
 [ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="7_machine"]
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_move_state.gd" id="8_move"]
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_roll_state.gd" id="9_roll"]
+;@ 5+
+[ext_resource type="Script" path="res://3_entities/hero/hero_gun.gd" id="10_gun"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_gun.tres" id="11_gun_settings"]
+[ext_resource type="Script" path="res://1_core/components/heat_component.gd" id="12_heat"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_gun_heat.tres" id="13_heat_settings"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -70,4 +77,14 @@ hero = NodePath("../..")
 [node name="Roll" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
 script = ExtResource("9_roll")
 hero = NodePath("../..")
+;@ 5+
+
+[node name="Gun" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 1.35, -0.45)
+script = ExtResource("10_gun")
+settings = ExtResource("11_gun_settings")
+
+[node name="Heat" type="Node" parent="Gun"]
+script = ExtResource("12_heat")
+settings = ExtResource("13_heat_settings")
 ;@ all

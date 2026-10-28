@@ -12,6 +12,10 @@ const BOSS: int = 3
 const PROJECTILES: int = 4
 ## Les zones de coup du boss.
 const BOSS_HITS: int = 5
+#@ 5+
+## Les zones qui reçoivent les tirs du héros (Hurtbox) : corps du boss, points faibles, bouclier, cibles.
+const TARGETS: int = 6
+#@ all
 
 
 ## Le bit de la couche numéro `layer` (de 1 à 32).

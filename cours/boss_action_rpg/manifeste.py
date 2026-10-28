@@ -15,20 +15,21 @@ dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) quand les mod
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "kart"
-DERNIERE = 4
+DERNIERE = 5
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
     {"piste": "Gameplay + Physique", "titre": "Le héros en maquette grise : courir par rapport à la caméra"},
     {"piste": "Graphisme 3D + Contrôles", "titre": "La caméra à la troisième personne et le verrouillage de cible"},
     {"piste": "Gameplay + Contrôles", "titre": "L'endurance et la roulade à invincibilité : la machine à états du héros"},
+    {"piste": "Gameplay + Physique + Optimisation", "titre": "Le tir : visée au centre de l'écran, projectiles en réserve, surchauffe"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4]
+PRETES = [1, 2, 3, 4, 5]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -71,4 +72,24 @@ FICHIERS = {
     "7_tests/1_core/state_machine/test_state_machine.gd": "4+",
     "7_tests/1_core/input/test_input_buffer.gd": "4+",
     "7_tests/1_core/components/test_stamina_component.gd": "4+",
+    "1_core/data/health_settings.gd": "5+",
+    "1_core/components/health_component.gd": "5+",
+    "5_data/target/target_health.tres": "5+",
+    "1_core/data/heat_settings.gd": "5+",
+    "1_core/components/heat_component.gd": "5+",
+    "5_data/hero/hero_gun_heat.tres": "5+",
+    "1_core/data/gun_settings.gd": "5+",
+    "5_data/hero/hero_gun.tres": "5+",
+    "1_core/combat/hurtbox.gd": "5+",
+    "1_core/combat/projectile.gd": "5+",
+    "1_core/combat/projectile.tscn": "5+",
+    "1_core/combat/projectile_pool.gd": "5+",
+    "1_core/combat/aim.gd": "5+",
+    "3_entities/hero/hero_gun.gd": "5+",
+    "7_tests/1_core/components/test_health_component.gd": "5+",
+    "7_tests/1_core/components/test_heat_component.gd": "5+",
+    "7_tests/1_core/combat/test_hurtbox.gd": "5+",
+    "7_tests/1_core/combat/test_projectile.gd": "5+",
+    "7_tests/1_core/combat/test_aim.gd": "5+",
+    "7_tests/3_entities/hero/test_hero_gun.gd": "5+",
 }

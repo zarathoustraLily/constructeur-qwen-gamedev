@@ -17,4 +17,6 @@ func _physics_process(_delta: float) -> void:
 	hero.dodge_held = Input.is_action_pressed(Actions.DODGE)
 	if Input.is_action_just_pressed(Actions.DODGE):
 		hero.roll_buffer.press()
+#@ 5+
+	hero.trigger = Input.is_action_pressed(Actions.SHOOT)
 #@ all

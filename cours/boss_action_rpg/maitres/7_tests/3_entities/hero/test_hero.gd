@@ -7,14 +7,23 @@ extends GdUnitTestSuite
 ## l'endurance et finit en course ; sans endurance, pas de roulade ; pressée un peu tôt, elle part dès que possible,
 ## trop tôt, elle est oubliée ; bouton tenu, il sprinte en dépensant son endurance ; essoufflé, il court jusqu'à
 ## relâcher le bouton ; en visant, il ne sprinte pas.
+#@ 5+
+## Gâchette tenue, il tire à sa cadence puis surchauffe ; pendant une roulade, il ne tire pas ; en visant, il se
+## tourne vers la caméra, même en reculant.
 #@ all
 
 const HERO := preload("res://3_entities/hero/hero.tscn")
+#@ 5+
+const PROJECTILE := preload("res://1_core/combat/projectile.tscn")
+#@ all
 
 var _world: Node3D
 var _camera: Node3D
 #@ 4+
 var _rolls: int = 0
+#@ 5+
+var _pool: ProjectilePool
+var _shots: int = 0
 #@ all
 
 
@@ -33,6 +42,11 @@ func before_test() -> void:
 	add_child(_world)
 #@ 4+
 	_rolls = 0
+#@ 5+
+	_shots = 0
+	_pool = ProjectilePool.new()
+	_pool.scene = PROJECTILE
+	_world.add_child(_pool)
 #@ all
 
 
@@ -40,6 +54,9 @@ func _hero() -> Hero:
 	var hero: Hero = HERO.instantiate() as Hero
 	hero.get_node("Input").free()
 	hero.camera = _camera
+#@ 5+
+	hero.projectiles = _pool
+#@ all
 	hero.position = Vector3(0.0, 0.05, 0.0)
 	_world.add_child(hero)
 	return hero
@@ -217,4 +234,42 @@ func test_en_visant_il_ne_sprinte_pas() -> void:
 	await _frames(40)
 	assert_float(_speed(hero)).is_equal_approx(hero.settings.aim_speed, 0.05)
 	assert_float(hero.stamina.stamina).is_equal(hero.stamina.settings.max_stamina)
+#@ all
+#@ 5+
+
+
+func _count_shot(_origin: Vector3, _direction: Vector3) -> void:
+	_shots += 1
+
+
+func test_gachette_tenue_il_tire_a_sa_cadence_puis_surchauffe() -> void:
+	var hero: Hero = _hero()
+	hero.gun.fired.connect(_count_shot)
+	await _frames(5)
+	hero.trigger = true
+	await _frames(70)
+	assert_int(_shots).is_equal(10)
+	assert_bool(hero.gun.heat.is_overheated).is_true()
+
+
+func test_pendant_une_roulade_il_ne_tire_pas() -> void:
+	var hero: Hero = _hero()
+	hero.gun.fired.connect(_count_shot)
+	await _frames(5)
+	hero.roll_buffer.press()
+	hero.trigger = true
+	await _frames(20)
+	assert_int(_shots).is_equal(0)
+	await _frames(30)
+	assert_int(_shots).is_greater(0)
+
+
+func test_en_visant_il_se_tourne_vers_la_camera_meme_en_reculant() -> void:
+	_camera.rotation.y = PI / 2.0
+	var hero: Hero = _hero()
+	hero.aiming = true
+	hero.stick = Vector2(0.0, 1.0)
+	await _frames(60)
+	assert_float(absf(angle_difference(hero.rotation.y, PI / 2.0))).is_less(0.01)
+	assert_float(hero.position.x).is_greater(0.5)
 #@ all

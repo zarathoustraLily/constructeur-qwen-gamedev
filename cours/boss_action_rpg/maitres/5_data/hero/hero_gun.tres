@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="GunSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/gun_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+fire_interval = 0.1
+heat_per_shot = 10.0
+projectile_speed = 70.0
+damage = 12.0
+lifetime = 0.6
+aim_range = 60.0
