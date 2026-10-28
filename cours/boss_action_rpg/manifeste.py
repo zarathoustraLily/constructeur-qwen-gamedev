@@ -15,19 +15,20 @@ dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) quand les mod
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "kart"
-DERNIERE = 3
+DERNIERE = 4
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
     {"piste": "Gameplay + Physique", "titre": "Le héros en maquette grise : courir par rapport à la caméra"},
     {"piste": "Graphisme 3D + Contrôles", "titre": "La caméra à la troisième personne et le verrouillage de cible"},
+    {"piste": "Gameplay + Contrôles", "titre": "L'endurance et la roulade à invincibilité : la machine à états du héros"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3]
+PRETES = [1, 2, 3, 4]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -59,4 +60,15 @@ FICHIERS = {
     "5_data/camera/camera_settings.tres": "3+",
     "7_tests/1_core/camera/test_lock_on.gd": "3+",
     "7_tests/1_core/camera/test_orbit_camera.gd": "3+",
+    "1_core/state_machine/state.gd": "4+",
+    "1_core/state_machine/state_machine.gd": "4+",
+    "1_core/input/input_buffer.gd": "4+",
+    "1_core/data/stamina_settings.gd": "4+",
+    "1_core/components/stamina_component.gd": "4+",
+    "5_data/hero/hero_stamina.tres": "4+",
+    "3_entities/hero/states/hero_move_state.gd": "4+",
+    "3_entities/hero/states/hero_roll_state.gd": "4+",
+    "7_tests/1_core/state_machine/test_state_machine.gd": "4+",
+    "7_tests/1_core/input/test_input_buffer.gd": "4+",
+    "7_tests/1_core/components/test_stamina_component.gd": "4+",
 }

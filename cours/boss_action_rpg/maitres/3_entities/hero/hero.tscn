@@ -1,8 +1,20 @@
+;@ 2-3
 [gd_scene load_steps=8 format=3]
+;@ 4+
+[gd_scene load_steps=14 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://3_entities/hero/hero.gd" id="1_hero"]
 [ext_resource type="Resource" path="res://5_data/hero/hero_settings.tres" id="2_settings"]
 [ext_resource type="Script" path="res://3_entities/hero/hero_input.gd" id="3_input"]
+;@ 4+
+[ext_resource type="Script" path="res://1_core/components/stamina_component.gd" id="4_stamina"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_stamina.tres" id="5_stamina_settings"]
+[ext_resource type="Script" path="res://1_core/input/input_buffer.gd" id="6_buffer"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="7_machine"]
+[ext_resource type="Script" path="res://3_entities/hero/states/hero_move_state.gd" id="8_move"]
+[ext_resource type="Script" path="res://3_entities/hero/states/hero_roll_state.gd" id="9_roll"]
+;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -38,3 +50,24 @@ surface_material_override/0 = SubResource("StandardMaterial3D_nose")
 [node name="Input" type="Node" parent="." node_paths=PackedStringArray("hero")]
 script = ExtResource("3_input")
 hero = NodePath("..")
+;@ 4+
+
+[node name="Stamina" type="Node" parent="."]
+script = ExtResource("4_stamina")
+settings = ExtResource("5_stamina_settings")
+
+[node name="RollBuffer" type="Node" parent="."]
+script = ExtResource("6_buffer")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("7_machine")
+initial_state = NodePath("Move")
+
+[node name="Move" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
+script = ExtResource("8_move")
+hero = NodePath("../..")
+
+[node name="Roll" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
+script = ExtResource("9_roll")
+hero = NodePath("../..")
+;@ all

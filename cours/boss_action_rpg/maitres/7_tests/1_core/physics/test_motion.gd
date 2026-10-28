@@ -3,6 +3,9 @@ extends GdUnitTestSuite
 ## un ; la vitesse rejoint la cible au rythme de l'accélération et freine au rythme du freinage ; la vitesse verticale
 ## n'est pas touchée ; le corps tourne vers sa marche par le plus court chemin, sans dépasser sa vitesse de virage ;
 ## les couches donnent leur bit.
+#@ 4+
+## Le lacet et l'avant d'un nœud sont inverses l'un de l'autre.
+#@ all
 
 
 func test_le_haut_du_stick_avance_la_ou_regarde_la_camera() -> void:
@@ -44,3 +47,13 @@ func test_les_couches_donnent_leur_bit() -> void:
 	assert_int(Layers.bit(Layers.HERO)).is_equal(2)
 	assert_int(Layers.mask([Layers.WORLD, Layers.BOSS])).is_equal(0b101)
 	assert_bool(Layers.has(Layers.mask([Layers.PROJECTILES]), Layers.PROJECTILES)).is_true()
+#@ 4+
+
+
+func test_le_lacet_et_l_avant_sont_inverses() -> void:
+	assert_float(Motion.yaw_of(Vector3.FORWARD)).is_equal_approx(0.0, 0.0001)
+	assert_float(Motion.yaw_of(Vector3.RIGHT)).is_equal_approx(-PI / 2.0, 0.0001)
+	assert_vector(Motion.forward_of(PI / 2.0)).is_equal_approx(Vector3.LEFT, Vector3.ONE * 0.0001)
+	var direction: Vector3 = Vector3(0.6, 0.0, 0.8)
+	assert_vector(Motion.forward_of(Motion.yaw_of(direction))).is_equal_approx(direction, Vector3.ONE * 0.0001)
+#@ all

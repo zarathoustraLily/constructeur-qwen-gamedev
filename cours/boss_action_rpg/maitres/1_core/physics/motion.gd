@@ -29,3 +29,15 @@ static func face(yaw: float, direction: Vector3, turn_speed: float, delta: float
 	var target: float = atan2(-direction.x, -direction.z)
 	var gap: float = angle_difference(yaw, target)
 	return yaw + clampf(gap, -turn_speed * delta, turn_speed * delta)
+#@ 4+
+
+
+## Le lacet qui fait regarder un nœud vers `direction` (x, z) d'un coup : atan2(-x, -z), comme dans face.
+static func yaw_of(direction: Vector3) -> float:
+	return atan2(-direction.x, -direction.z)
+
+
+## La direction au sol (longueur 1) que regarde un nœud de lacet `yaw` : l'inverse de yaw_of.
+static func forward_of(yaw: float) -> Vector3:
+	return Vector3(-sin(yaw), 0.0, -cos(yaw))
+#@ all

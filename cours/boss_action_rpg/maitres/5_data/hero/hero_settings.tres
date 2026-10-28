@@ -10,3 +10,12 @@ acceleration = 45.0
 deceleration = 60.0
 turn_speed = 14.0
 gravity = 24.0
+;@ 4+
+sprint_speed = 8.0
+sprint_cost = 20.0
+roll_speed = 7.0
+roll_duration = 0.5
+roll_invulnerable_time = 0.3
+roll_cost = 25.0
+roll_buffer_time = 0.25
+;@ all

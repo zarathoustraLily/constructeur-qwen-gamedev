@@ -13,3 +13,8 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	hero.stick = Input.get_vector(Actions.MOVE_LEFT, Actions.MOVE_RIGHT, Actions.MOVE_FORWARD, Actions.MOVE_BACK)
 	hero.aiming = Input.is_action_pressed(Actions.AIM)
+#@ 4+
+	hero.dodge_held = Input.is_action_pressed(Actions.DODGE)
+	if Input.is_action_just_pressed(Actions.DODGE):
+		hero.roll_buffer.press()
+#@ all
