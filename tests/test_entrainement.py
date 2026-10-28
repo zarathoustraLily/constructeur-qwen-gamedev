@@ -24,3 +24,18 @@ def test_le_yaml_est_plat_et_relisible(tmp_path):
 
 def test_la_duree_suit_le_debit_mesure():
     assert reglages.duree_estimee_h(266 * 3600) == 1.0
+
+
+def test_le_releve_de_memoire_se_resume(tmp_path):
+    import json
+
+    from usine.entrainement import lancer
+    assert lancer.resume_memoire(tmp_path / "absent.jsonl") is None
+    f = tmp_path / "memoire.jsonl"
+    f.write_text("".join(json.dumps(l) + "\n" for l in (
+        {"pas": 1, "pic_occupe_mio": 20000, "pic_reserve_mio": 24000, "libre_en_morceaux_mio": 900, "reessais": 0},
+        {"pas": 2, "pic_occupe_mio": 21000, "pic_reserve_mio": 23000, "libre_en_morceaux_mio": 2500, "reessais": 3})),
+        encoding="utf-8")
+    assert lancer.resume_memoire(f) == {"pas": 2, "max_pic_occupe_mio": 21000, "max_pic_reserve_mio": 24000,
+                                        "max_libre_en_morceaux_mio": 2500, "max_reessais": 3}
+    assert lancer.python_de("G:/v/Scripts/llamafactory-cli.exe").replace("\\", "/").startswith("G:/v/Scripts/python")

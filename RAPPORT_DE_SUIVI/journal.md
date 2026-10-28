@@ -64,3 +64,22 @@ compilation (2 186) ; doc, blocs et fonctions non jugées essayés sans suite
 2026-10-27 — B8 — Claude (fil principal) — question à laurent — la création manque (≈ 820 000 jetons) : quelle règle
 pour les sujets sans création (272, 1 583 ou 8 662 paires au palier 1)
 2026-10-27 — B8 — laurent — tranché — « Règle actuelle » : au palier 1, un sujet sans création est gardé entier (1 579 paires) ; inscrit à la décision 17
+2026-10-28 — C2 — Claude (fil principal) — lancée — accord de laurent (« vas sy he te l'aisse l'ordinateur ») : étape 1,
+palier 1 (1 579 paires), 99 pas ; `python -m usine.entrainement lancer --yaml donnees/entrainement/etape_1.yaml`
+2026-10-28 — C2 — Claude (fil principal) — plantée — pas 44/99 à 08:40, « CUDA error: unknown error » : Windows a
+réinitialisé le pilote (TDR, événements `nvlddmkm` 153 de 08:40:22 à 08:40:50). 97 s au pas 1, puis ≈ 510 s par pas,
+carte au bord (pic 32 134 Mio sur 32 607, dont 4 160 pris avant le départ). Aucune sauvegarde (`save_steps` 200) :
+6 h 16 perdues. Corrigé : sauvegarde tous les 10 pas, reprise seule par LLaMA-Factory, journal à la suite.
+Dossier du plantage : `donnees/entrainement/lora_etape_1_plantage_0840/`
+2026-10-28 — C2 — Claude (fil principal) — relancée — demande de laurent (« regarde si ca va plus vite ») : carte à
+1 298 Mio au départ ; vitesse des premiers pas surveillée
+2026-10-28 — C2 — Claude (fil principal) — cause trouvée — PyTorch ne vide sa réserve qu'après un refus de mémoire
+(`num_alloc_retries`, `torch/cuda/memory.py`) ; sous Windows, la carte pleine ne refuse rien (le pilote prête la
+mémoire du PC) et la réserve grossit sans fin. `PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:256,
+garbage_collection_threshold:0.8` a aggravé (14 760 Mio partagés avant la fin du pas 1). Corrigé par un plafond de
+PyTorch (`set_per_process_memory_fraction`, libre au départ moins 2 000 Mio) dans `usine/entrainement/suivi_memoire.py`,
+avec un relevé par pas (`memoire.jsonl`). Pas 1 à 6 : 47 à 60 s, besoin réel 22,8 Go au plus, réserve plafonnée à
+29,7 Go, 85 Mio partagés ; fin prévue vers 10 h 50 (99 pas)
+2026-10-28 — B8 — Claude (fil principal) — constat — création au palier 1 : 89 paires (58 fonctions, 31 RAG). Fonctions
+des cours : kart 266 (81 candidates, 50 paires), roguelike 187 (69, 55), bâtiments 324 (226 candidates, 0 paire :
+aucun test ne juge une fonction). Proposé à laurent : un juge « même maillage » pour les fonctions des bâtiments

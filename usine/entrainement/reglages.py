@@ -12,7 +12,7 @@ l'accumulation. La tour de vision et le projecteur restent gelés. `image_max_pi
 1 280 × 720 (921 600 pixels) : LLaMA-Factory réduit toute image plus grande, et le compte des jetons d'images des paires
 (880 pour 1 280 × 720) ne vaudrait plus.
 
-Rien ne se lance d'ici : le module écrit les fichiers ; l'entraînement, c'est laurent qui le démarre.
+Ce module écrit les fichiers ; `lancer.py` démarre l'entraînement, sur commande et avec l'accord de laurent.
 
     python -m usine.entrainement reglages --etape 1 --jeu <dossier du jeu> [--sortie <dossier>] [--reprise <LoRA>]
 """
@@ -45,7 +45,7 @@ COMMUN: dict[str, Any] = {
     "template": "qwen3_5",
     "enable_thinking": False,
     "overwrite_cache": True,
-    "preprocessing_num_workers": 4,
+    "preprocessing_num_workers": 1,  # comme les essais de mémoire : sous Windows, plusieurs processus risquent de bloquer
     "per_device_train_batch_size": 1,
     "gradient_accumulation_steps": 16,
     "learning_rate": 1.0e-4,
@@ -53,10 +53,12 @@ COMMUN: dict[str, Any] = {
     "lr_scheduler_type": "cosine",
     "warmup_ratio": 0.03,
     "bf16": True,
-    "logging_steps": 10,
+    "logging_steps": 5,
     "save_strategy": "steps",
-    "save_steps": 200,
-    "save_total_limit": 3,
+    # Tous les 10 pas : le 2026-10-28, un arrêt du pilote (TDR) au pas 44 sur 99 a perdu 6 h faute de sauvegarde ;
+    # LLaMA-Factory reprend seul depuis le dernier `checkpoint-N` du dossier de sortie.
+    "save_steps": 10,
+    "save_total_limit": 2,
     "report_to": "none",
     "overwrite_output_dir": False,
 }
