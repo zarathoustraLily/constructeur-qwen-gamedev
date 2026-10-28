@@ -1,0 +1,40 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://3_entities/boss/golem.gd" id="1_golem"]
+[ext_resource type="PackedScene" path="res://6_assets/Characters/Golem/golem_model.tscn" id="2_model"]
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="3_health"]
+[ext_resource type="Resource" path="res://5_data/boss/golem_health.tres" id="4_health_settings"]
+[ext_resource type="Script" path="res://1_core/combat/hurtbox.gd" id="5_hurtbox"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 1.6
+height = 7.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
+radius = 1.8
+height = 7.4
+
+[node name="Golem" type="CharacterBody3D"]
+script = ExtResource("1_golem")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+transform = Transform3D(-4, 0, 0, 0, 4, 0, 0, 0, -4, 0, 0, 0)
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+settings = ExtResource("4_health_settings")
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("health")]
+script = ExtResource("5_hurtbox")
+health = NodePath("../Health")
+
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, 0)
+shape = SubResource("CapsuleShape3D_hurt")
+
+[node name="LockPoint" type="Node3D" parent="." groups=["lockable"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, 0)

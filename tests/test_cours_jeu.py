@@ -58,6 +58,21 @@ def test_une_ressource_designee_vient_du_jeu_source_avec_ses_compagnons(tmp_path
     assert r1["fichiers"][0]["etat"] == "nouveau" and r2["fichiers"][0]["etat"] == "modifié"
 
 
+def test_une_ressource_binaire_amene_les_ressources_qu_elle_designe(tmp_path):
+    maitre = 'extends Node\nconst MAILLAGE := preload("res://maillages/pierre.res")\n'
+    cours, source, manifeste = _cours(tmp_path, maitre)
+    (source / "maillages").mkdir()
+    (source / "maillages" / "pierre.res").write_bytes(
+        b"RSRC\x00\x01\x02\x1a\x00\x00\x00res://materiaux/pierre.tres\x00\x00\x07\x00\x00\x00ArrayMesh\xff\xfe")
+    (source / "materiaux").mkdir()
+    (source / "materiaux" / "pierre.tres").write_text('[gd_resource type="StandardMaterial3D" format=3]\n',
+                                                      encoding="utf-8")
+    rapport = fabriquer(cours, 1, tmp_path / "sortie", manifeste, source)
+    projet = tmp_path / "sortie" / "essai_etape_001"
+    assert (projet / "maillages" / "pierre.res").is_file() and (projet / "materiaux" / "pierre.tres").is_file()
+    assert "materiaux/pierre.tres" in rapport["ressources"]
+
+
 def test_un_chemin_introuvable_dans_le_source_est_note(tmp_path):
     cours, source, manifeste = _cours(tmp_path)
     rapport = fabriquer(cours, 3, tmp_path / "sortie", manifeste, source)

@@ -7,15 +7,15 @@ plus dramatique ». Le cours enseigne à Qwen comment on part de ce prompt pour 
 explique la démarche (ce qu'on cherche, pourquoi, comment on vérifie). Combat original du genre (conception :
 `D:\\GODOT\\PROJETS_DEMOS\\PROJET_BOSS_ACTION_RPG\\SUIVIS_PROGRESSION\\conception.md`).
 
-Le jeu source : celui du kart pour l'extension GdUnit4 tant que le jeu est en maquette grise (étapes 1 à 11) ; le
-dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) quand les modèles, animations et sons classés dans
-`6_assets/` arrivent.
+Le jeu source : le dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) : il fournit l'extension GdUnit4
+et, à partir de l'étape 7, les modèles, textures et animations classés dans `6_assets/` (tirés des paquets de laurent
+par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était le jeu du kart (pour GdUnit4 seulement).
 """
 
 GENRE = "jeu"
 PREFIXE = "boss"
-SOURCE = "kart"
-DERNIERE = 6
+SOURCE = "boss_action_rpg"
+DERNIERE = 7
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -24,13 +24,14 @@ ETAPES = [
     {"piste": "Gameplay + Contrôles", "titre": "L'endurance et la roulade à invincibilité : la machine à états du héros"},
     {"piste": "Gameplay + Physique + Optimisation", "titre": "Le tir : visée au centre de l'écran, projectiles en réserve, surchauffe"},
     {"piste": "Gameplay + Architecture", "titre": "La santé du héros : coups reçus, fioles, chute et recommencement"},
+    {"piste": "Graphisme 3D + Optimisation", "titre": "Le saloon d'un géant et son gardien : décor et boss tirés de paquets Unity, ambiance"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6]
+PRETES = [1, 2, 3, 4, 5, 6, 7]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -75,7 +76,7 @@ FICHIERS = {
     "7_tests/1_core/components/test_stamina_component.gd": "4+",
     "1_core/data/health_settings.gd": "5+",
     "1_core/components/health_component.gd": "5+",
-    "5_data/target/target_health.tres": "5+",
+    "5_data/target/target_health.tres": "5-6",
     "1_core/data/heat_settings.gd": "5+",
     "1_core/components/heat_component.gd": "5+",
     "5_data/hero/hero_gun_heat.tres": "5+",
@@ -103,4 +104,10 @@ FICHIERS = {
     "3_entities/hero/states/hero_dead_state.gd": "6+",
     "7_tests/1_core/combat/test_hitbox.gd": "6+",
     "7_tests/1_core/components/test_flask_component.gd": "6+",
+    "5_data/environment/arena_environment.tres": "7+",
+    "5_data/environment/ground_mist.tres": "7+",
+    "5_data/boss/golem_health.tres": "7+",
+    "3_entities/boss/golem.gd": "7+",
+    "3_entities/boss/golem.tscn": "7+",
+    "7_tests/3_entities/boss/test_golem.gd": "7+",
 }

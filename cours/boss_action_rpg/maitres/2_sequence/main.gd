@@ -4,9 +4,13 @@ extends Node3D
 ## et voir qu'il tient debout ; le héros, le boss et l'arène arrivent aux étapes suivantes.
 #@ 2
 ## La scène principale du niveau : le sol, la lumière, la caméra, et le héros qui court par rapport à elle.
-#@ 3+
+#@ 3-6
 ## La scène principale du niveau : le sol, la lumière, le héros, la caméra à la troisième personne qui le suit, et
 ## une cible à verrouiller (le boss prendra sa place).
+#@ 7+
+## La scène principale du niveau : le saloon d'un géant (décor Quixel agrandi quatre fois), son ambiance (nuit froide,
+## lampes chaudes, brouillard, brume au sol), le héros minuscule à l'entrée, la caméra à la troisième personne qui le
+## suit, et le Gardien du Comptoir, le golem, qui l'attend devant le comptoir.
 #@ 6+
 ## Quand le héros tombe, le niveau recommence après un délai : tout repart de zéro (héros, fioles, cible, et le boss
 ## quand il sera là), en rechargeant la scène.

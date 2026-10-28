@@ -6,8 +6,10 @@
 [gd_scene load_steps=10 format=3]
 ;@ 5
 [gd_scene load_steps=16 format=3]
-;@ 6+
+;@ 6
 [gd_scene load_steps=17 format=3]
+;@ 7+
+[gd_scene load_steps=11 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -17,25 +19,31 @@
 [ext_resource type="PackedScene" path="res://1_core/camera/orbit_camera.tscn" id="3_orbit"]
 ;@ 5+
 [ext_resource type="Script" path="res://1_core/combat/projectile_pool.gd" id="4_pool"]
+;@ 5-6
 [ext_resource type="Script" path="res://1_core/combat/hurtbox.gd" id="5_hurtbox"]
 [ext_resource type="Script" path="res://1_core/components/health_component.gd" id="6_health"]
 [ext_resource type="Resource" path="res://5_data/target/target_health.tres" id="7_target_health"]
+;@ 5+
 [ext_resource type="PackedScene" path="res://1_core/combat/projectile.tscn" id="8_projectile"]
 ;@ 6+
 [ext_resource type="Resource" path="res://5_data/encounter/encounter.tres" id="9_encounter"]
-;@ 5+
-;@ 3+
+;@ 7+
+[ext_resource type="PackedScene" path="res://6_assets/Environment/Saloon/saloon.tscn" id="10_saloon"]
+[ext_resource type="PackedScene" path="res://3_entities/boss/golem.tscn" id="11_golem"]
+[ext_resource type="Environment" path="res://5_data/environment/arena_environment.tres" id="12_environment"]
+[ext_resource type="FogMaterial" path="res://5_data/environment/ground_mist.tres" id="13_mist"]
+;@ 3-6
 
 [sub_resource type="BoxMesh" id="BoxMesh_target"]
 size = Vector3(1.5, 3, 1.5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_target"]
 albedo_color = Color(0.7, 0.2, 0.2, 1)
-;@ 5+
+;@ 5-6
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_target"]
 size = Vector3(1.5, 3, 1.5)
-;@ all
+;@ 1-6
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(30, 22)
@@ -51,12 +59,13 @@ sky_material = SubResource("ProceduralSkyMaterial_sky")
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 2
 sky = SubResource("Sky_sky")
+;@ all
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
 ;@ 6+
 settings = ExtResource("9_encounter")
-;@ all
+;@ 1-6
 
 [node name="World" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_world")
@@ -73,6 +82,25 @@ mesh = SubResource("PlaneMesh_floor")
 [node name="Shape" type="CollisionShape3D" parent="Floor"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_floor")
+;@ 7+
+
+[node name="World" type="WorldEnvironment" parent="."]
+environment = ExtResource("12_environment")
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.34202015, 0.53898555, -0.76975113, 0, 0.81915206, 0.57357645, 0.9396926, -0.19617471, 0.2801665, 0, 20, 0)
+light_color = Color(0.55, 0.65, 0.9, 1)
+light_energy = 0.6
+light_volumetric_fog_energy = 2.0
+shadow_enabled = true
+
+[node name="Saloon" parent="." instance=ExtResource("10_saloon")]
+
+[node name="GroundMist" type="FogVolume" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+size = Vector3(60, 3, 50)
+material = ExtResource("13_mist")
+;@ all
 
 ;@ 1-2
 [node name="Camera" type="Camera3D" parent="."]
@@ -86,9 +114,15 @@ camera = NodePath("../Camera")
 [node name="Hero" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_hero")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 camera = NodePath("../OrbitCamera")
-;@ 5+
+;@ 5-6
 [node name="Hero" parent="." node_paths=PackedStringArray("camera", "aim_camera", "projectiles") instance=ExtResource("2_hero")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+camera = NodePath("../OrbitCamera")
+aim_camera = NodePath("../OrbitCamera/Arm/Camera")
+projectiles = NodePath("../Projectiles")
+;@ 7+
+[node name="Hero" parent="." node_paths=PackedStringArray("camera", "aim_camera", "projectiles") instance=ExtResource("2_hero")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 9, 0, -11)
 camera = NodePath("../OrbitCamera")
 aim_camera = NodePath("../OrbitCamera/Arm/Camera")
 projectiles = NodePath("../Projectiles")
@@ -96,6 +130,7 @@ projectiles = NodePath("../Projectiles")
 
 [node name="OrbitCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_orbit")]
 target = NodePath("../Hero")
+;@ 3-6
 
 [node name="Target" type="StaticBody3D" parent="." groups=["lockable"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -8)
@@ -104,7 +139,7 @@ collision_layer = 4
 [node name="Mesh" type="MeshInstance3D" parent="Target"]
 mesh = SubResource("BoxMesh_target")
 surface_material_override/0 = SubResource("StandardMaterial3D_target")
-;@ 5+
+;@ 5-6
 
 [node name="Health" type="Node" parent="Target"]
 script = ExtResource("6_health")
@@ -116,6 +151,11 @@ health = NodePath("../Health")
 
 [node name="Shape" type="CollisionShape3D" parent="Target/Hurtbox"]
 shape = SubResource("BoxShape3D_target")
+;@ 7+
+
+[node name="Golem" parent="." instance=ExtResource("11_golem")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -1)
+;@ 5+
 
 [node name="Projectiles" type="Node3D" parent="."]
 script = ExtResource("4_pool")

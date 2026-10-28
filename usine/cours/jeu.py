@@ -39,6 +39,8 @@ TEXTE = (".gd", ".gdshader", ".gdshaderinc", ".glsl", ".tscn", ".tres", ".godot"
 COMPAGNONS = (".import", ".uid")
 _REF_RES = re.compile(r"res://[^\"'\s)\]]+")
 _REF_UID = re.compile(r"uid://[a-z0-9]+")
+BINAIRES = (".res", ".scn")
+_REF_BINAIRE = re.compile(rb"res://[\w./\-]+\.\w+")
 
 
 class ErreurEtape(RuntimeError):
@@ -130,6 +132,10 @@ def _copier(source: Path, racine: Path, rel: str) -> None:
 
 
 def _lisible(chemin: Path) -> str | None:
+    if chemin.suffix in BINAIRES:
+        # Une ressource binaire de Godot garde en clair le chemin de ses ressources externes (un maillage .res désigne
+        # ses matériaux) ; on n'en lit que ces chemins, au motif strict (aucun octet de structure autour).
+        return "\n".join(m.decode("ascii") for m in _REF_BINAIRE.findall(chemin.read_bytes()))
     if chemin.suffix not in TEXTE and chemin.suffix != ".obj":
         return None
     try:

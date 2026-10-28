@@ -130,12 +130,22 @@ func facing_direction(direction: Vector3) -> Vector3:
 
 ## Le point visé : ce que touche le rayon du centre de l'écran ; sans caméra de visée, droit devant le corps, à
 ## portée.
+#@ 7+
+## Le rayon ne compte les obstacles qu'à partir de la profondeur du héros : ce qui se trouve entre la caméra et lui
+## (un chambranle, une chaise, derrière son dos) ne peut pas être visé.
+#@ 5+
 func aim_point() -> Vector3:
 	if aim_camera == null:
 		return gun.global_position + Motion.forward_of(rotation.y) * gun.settings.aim_range
 	var forward: Vector3 = -aim_camera.global_basis.z
+#@ 5-6
 	return Aim.point(get_world_3d().direct_space_state, aim_camera.global_position, forward, gun.settings.aim_range,
 			Projectile.hit_mask())
+#@ 7+
+	var depart: Vector3 = aim_camera.global_position
+	depart += forward * maxf(0.0, (global_position - depart).dot(forward))
+	return Aim.point(get_world_3d().direct_space_state, depart, forward, gun.settings.aim_range, Projectile.hit_mask())
+#@ 5+
 #@ 4+
 
 

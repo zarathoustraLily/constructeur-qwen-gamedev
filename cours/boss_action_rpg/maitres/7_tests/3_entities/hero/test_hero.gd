@@ -15,6 +15,8 @@ extends GdUnitTestSuite
 ## un coup, le suivant ne porte pas ; une fiole se boit immobile et soigne au bon moment ; sans fiole, pas de soin ;
 ## un coup pendant qu'il boit fait perdre la fiole ; le dernier coup le fait tomber, une seule fois, et il ne bouge
 ## plus.
+#@ 7+
+## Un obstacle entre la caméra et le héros n'arrête pas la visée.
 #@ all
 
 const HERO := preload("res://3_entities/hero/hero.tscn")
@@ -374,4 +376,24 @@ func test_le_dernier_coup_le_fait_tomber_une_fois_et_il_ne_bouge_plus() -> void:
 	assert_that(hero.machine.current).is_same(hero.machine.get_node("Dead"))
 	assert_float(Vector2(hero.velocity.x, hero.velocity.z).length()).is_equal(0.0)
 	assert_int(_defeats).is_equal(1)
+#@ all
+#@ 7+
+
+
+func test_un_obstacle_entre_la_camera_et_le_heros_n_arrete_pas_la_visee() -> void:
+	var hero: Hero = _hero()
+	var camera: Camera3D = Camera3D.new()
+	_world.add_child(camera)
+	camera.global_position = Vector3(0.0, 1.6, 5.0)
+	hero.aim_camera = camera
+	var obstacle: StaticBody3D = StaticBody3D.new()
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	var box: BoxShape3D = BoxShape3D.new()
+	box.size = Vector3(4.0, 4.0, 0.2)
+	shape.shape = box
+	obstacle.add_child(shape)
+	obstacle.position = Vector3(0.0, 1.6, 3.0)
+	_world.add_child(obstacle)
+	await _frames(3)
+	assert_float(hero.aim_point().z).is_less(-20.0)
 #@ all

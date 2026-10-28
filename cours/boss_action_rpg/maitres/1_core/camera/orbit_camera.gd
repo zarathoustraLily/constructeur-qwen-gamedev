@@ -27,6 +27,9 @@ func _ready() -> void:
 	_arm.spring_length = settings.distance
 	if target != null:
 		global_position = focus(target.global_position, settings)
+#@ 7+
+		yaw = wrapf(target.global_rotation.y, -PI, PI)
+#@ all
 	apply_rotation()
 	_camera.make_current()
 

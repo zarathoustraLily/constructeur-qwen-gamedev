@@ -2,6 +2,9 @@ extends GdUnitTestSuite
 ## Règles de la caméra à la troisième personne : l'inclinaison reste dans ses bornes et le lacet entre -PI et PI ;
 ## verrouillée, elle ignore le stick et se tourne vers sa cible ; elle rejoint le héros en douceur ; en visant, le bras
 ## raccourcit ; un mur raccourcit le bras ; la caméra est décalée vers l'épaule ; une cible libérée déverrouille.
+#@ 7+
+## Au départ, elle se place derrière le héros, dans la direction où il regarde.
+#@ all
 
 const CAMERA := preload("res://1_core/camera/orbit_camera.tscn")
 const SETTINGS := preload("res://5_data/camera/camera_settings.tres")
@@ -96,3 +99,11 @@ func test_une_cible_liberee_deverrouille() -> void:
 	target.free()
 	orbit.follow(DT)
 	assert_object(orbit.locked).is_null()
+#@ 7+
+
+
+func test_au_depart_elle_regarde_ou_regarde_le_heros() -> void:
+	_hero.rotation.y = PI
+	var orbit: OrbitCamera = _camera()
+	assert_float(absf(angle_difference(orbit.yaw, PI))).is_less(0.0001)
+#@ all

@@ -1,0 +1,16 @@
+[gd_resource type="FogMaterial" format=3]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_n62wp"]
+frequency = 0.08
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_n0nda"]
+height = 16
+noise = SubResource("FastNoiseLite_n62wp")
+seamless = true
+
+[resource]
+density = 0.6
+albedo = Color(0.75, 0.8, 0.9, 1)
+height_falloff = 1.2
+edge_fade = 0.3
+density_texture = SubResource("NoiseTexture3D_n0nda")
