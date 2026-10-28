@@ -1,0 +1,9 @@
+extends Node3D
+## La scène principale du niveau. À cette étape : un sol, une lumière et une caméra, de quoi lancer le projet (F5)
+## et voir qu'il tient debout ; le héros, le boss et l'arène arrivent aux étapes suivantes.
+
+@onready var _camera: Camera3D = $Camera
+
+
+func _ready() -> void:
+	_camera.make_current()
