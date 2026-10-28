@@ -2282,6 +2282,8 @@ animations, zones de coup, bouclier, points faibles, phase 2, mort) ; effets et 
 paires tirées du cours (familles de création, RAG, **recherche de sources**, sessions longues). L'entrée du saloon est
 surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler avec les lumières.
 
+**Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
+
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal
 `cours/boss_action_rpg/demarche.json` (un pas par décision, outil réellement employé, fragments attendus, lecture qui
 cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
