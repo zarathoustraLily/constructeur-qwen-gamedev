@@ -119,7 +119,7 @@ def paire(projet: Any, suite: str, cas: Any, cibles: list[tuple[str, Any]],
     ecrire = [f"**Écrire.** Le cas `{cas.nom}` :", f"```gdscript\n{code_cas}\n```"]
     tester = ["", "**Tester.** Je lance ce cas seul ; les autres cas de la suite sont écartés par `-i`."]
     sorties = [(vert, "test")]
-    lire = boucle.lecture(sorties, "", [], suite)
+    lire = boucle.lecture(sorties, f"`{cas.nom}`", [], suite, ecrit=cas.nom)
     if lire is None:
         return None, "la sortie de vérification ne passe pas la lecture"
     preuve = {"etape": f"{projet.ville}-{projet.n:03d}", "suite": suite, "cas": cas.nom, "vert_seul": True,

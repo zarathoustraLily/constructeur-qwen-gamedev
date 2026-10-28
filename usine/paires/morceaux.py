@@ -91,7 +91,7 @@ def paire(projet: Any, note: Any, p: Any, sans: dict[str, str], rel: str, juge: 
     finally:
         projet.remettre()
     sorties = [(analyse, "analyse"), (tests, "test")]
-    lire = boucle.lecture(sorties, "ce changement", cas, suite_lue)
+    lire = boucle.lecture(sorties, f"ce changement de `{Path(rel).name}` (point {p.numero})", cas, suite_lue)
     if lire is None:
         return None, "la sortie de vérification ne passe pas la lecture"
     nom_projet, _ = textes.projet(note.ville)

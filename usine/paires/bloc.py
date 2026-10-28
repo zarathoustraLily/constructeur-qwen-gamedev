@@ -168,7 +168,7 @@ def paire(projet: Any, rel: str, f: Any, debut: int, fin: int, juge: dict[str, A
     finally:
         projet.remettre()
     sorties = [(analyse, "analyse"), (tests, "test")]
-    lire = boucle.lecture(sorties, "ces lignes", cas, suite_lue)
+    lire = boucle.lecture(sorties, f"ces lignes de `{f.nom}`", cas, suite_lue)
     if lire is None:
         return None, "la sortie de vérification ne passe pas la lecture"
     bloc = "\n".join(lignes[debut:fin])

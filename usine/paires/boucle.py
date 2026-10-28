@@ -77,33 +77,45 @@ def phrase_cas(suite_texte: str, cas: list[str]) -> str:
     return f"les {len(cas)} cas de la suite qui jugent ce code ; les autres sont écartés par `-i`."
 
 
-def lecture(sorties: list[tuple[Any, str]], quoi: str, cas: list[str], suite: str | None) -> str | None:
-    """La lecture des sorties `[(sortie, phase)]` : verdict, cas qui jugent `quoi`, suite. None si une sortie ne
-    passe pas."""
+def lecture(sorties: list[tuple[Any, str]], quoi: str, cas: list[str], suite: str | None,
+            ecrit: str | None = None) -> str | None:
+    """La lecture des sorties `[(sortie, phase)]` : verdict, ce qui juge `quoi` (les cas qui échouaient sans lui,
+    nommés), suite ; `ecrit` : le nom du cas écrit, pour une paire qui écrit un test. Elle nomme ce qui vient d'être
+    écrit et ce qui l'a jugé : deux paires ne se lisent pas mot pour mot pareil (règle 7.7, au plus 20 réponses
+    identiques). None si une sortie ne passe pas."""
+    from pathlib import Path
+
     from usine.cours.base import profil
     from usine.paires.lecture import reponse_reussite
     phrases = []
     for s, phase in sorties:
         if phase == "test" and suite is None:
-            # Test d'étape des bâtiments : un script SceneTree, pas GdUnit4.
+            # Test d'étape des bâtiments : un script SceneTree, pas GdUnit4 ; ses lignes « ok » disent ce qu'il a
+            # construit.
             ok = [l for l in s.texte.splitlines() if l.startswith("ok")]
             if s.code != 0 or not ok or "SCRIPT ERROR" in s.texte or "ÉCHEC" in s.texte:
                 return None
-            phrases.append(f"Le test de l'étape passe : {len(ok)} ligne{'s' if len(ok) > 1 else ''} « ok », aucun "
-                           "« ÉCHEC » ni « SCRIPT ERROR », code de sortie 0.")
+            premiere = " ".join(ok[0].split()[1:])
+            phrases.append(f"Le test de l'étape passe avec {quoi} : {len(ok)} ligne{'s' if len(ok) > 1 else ''} "
+                           f"« ok » (« {premiere} »…), aucun « ÉCHEC » ni « SCRIPT ERROR », code de sortie 0.")
             continue
         r = reponse_reussite(phase, s.texte, s.code)
         if r is None:
             return None
         if phase == "analyse":
-            phrases.append("Analyse propre, code de sortie 0 : le script se charge.")
+            phrases.append(f"Analyse propre, code de sortie 0 : le script se charge avec {quoi}.")
         else:
             resume = profil.resume_gdunit(s.texte)
-            juges = ((f"les {len(cas)} cas qui échouaient sans {quoi} passent" if len(cas) > 1 else
-                      f"le cas qui échouait sans {quoi} passe") if cas else
-                     "le cas écrit passe" if not quoi else "la suite passe")
-            phrases.append(f"Tests : {juges} ({resume[0] if resume else '?'} cas, 0 erreur, 0 échec, aucune "
-                           "« SCRIPT ERROR », code 0).")
+            noms = ", ".join(f"`{c}`" for c in cas[:2]) + (" …" if len(cas) > 2 else "")
+            if ecrit:
+                juges = f"le cas écrit, `{ecrit}`, passe"
+            elif cas:
+                juges = (f"les {len(cas)} cas qui échouaient sans {quoi} passent ({noms})" if len(cas) > 1 else
+                         f"le cas qui échouait sans {quoi} passe ({noms})")
+            else:
+                juges = f"la suite `{Path(suite or '').stem}` passe avec {quoi}"
+            phrases.append(f"Tests : {juges} ; {resume[0] if resume else '?'} cas, 0 erreur, 0 échec, aucune "
+                           "« SCRIPT ERROR », code 0.")
     return "**Lire.** " + " ".join(phrases) + "\n\n**Suite.** Vérifié : on n'y retouche plus, on passe à la suite."
 
 
