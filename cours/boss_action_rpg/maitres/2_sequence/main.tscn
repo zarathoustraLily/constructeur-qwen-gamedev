@@ -1,6 +1,13 @@
+;@ 1
 [gd_scene load_steps=6 format=3]
+;@ 2+
+[gd_scene load_steps=7 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
+;@ 2+
+[ext_resource type="PackedScene" path="res://3_entities/hero/hero.tscn" id="2_hero"]
+;@ all
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(30, 22)
@@ -38,3 +45,8 @@ shape = SubResource("BoxShape3D_floor")
 
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 0, 6, 12)
+;@ 2+
+
+[node name="Hero" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_hero")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+camera = NodePath("../Camera")

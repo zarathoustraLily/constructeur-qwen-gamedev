@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HeroSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/hero_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+run_speed = 5.5
+aim_speed = 2.5
+acceleration = 45.0
+deceleration = 60.0
+turn_speed = 14.0
+gravity = 24.0

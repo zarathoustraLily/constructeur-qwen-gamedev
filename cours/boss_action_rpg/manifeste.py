@@ -15,17 +15,18 @@ dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) quand les mod
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "kart"
-DERNIERE = 1
+DERNIERE = 2
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
+    {"piste": "Gameplay + Physique", "titre": "Le héros en maquette grise : courir par rapport à la caméra"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1]
+PRETES = [1, 2]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -40,4 +41,13 @@ FICHIERS = {
     "7_tests/1_core/input/test_actions.gd": "1+",
     "7_tests/2_sequence/test_main.gd": "1+",
     "7_tests/lancer_tests.bat": "1+",
+    "1_core/data/hero_settings.gd": "2+",
+    "1_core/physics/motion.gd": "2+",
+    "1_core/physics/layers.gd": "2+",
+    "3_entities/hero/hero.gd": "2+",
+    "3_entities/hero/hero_input.gd": "2+",
+    "3_entities/hero/hero.tscn": "2+",
+    "5_data/hero/hero_settings.tres": "2+",
+    "7_tests/1_core/physics/test_motion.gd": "2+",
+    "7_tests/3_entities/hero/test_hero.gd": "2+",
 }
