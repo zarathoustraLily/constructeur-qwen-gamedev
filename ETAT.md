@@ -34,6 +34,12 @@
 - [~] Décision 3 passée à 40/40/20 (étape A2, 2026-10-27) : l'assembleur compte trois types. Les analyses sont tirées des sessions de débogage vérifiées, sans relancer Godot (`usine/cours/base/analyse.py`) : même demande changée en « dis-moi ce qui ne va pas et ce qu'il faudrait changer, sans rien modifier », mêmes commandes, mêmes sorties réelles, même lecture du code, puis « Chercher » de la session et les lignes à changer en texte (compétence D1). Chaque étape est équilibrée (`equilibrer` : création entière, débogage et analyse rapprochés de création × 1 et × 0,5). Kart : 165 analyses, 0 session écartée à la dérivation, 3 débogages écartés à l'équilibrage, parts 43,1 / 42,7 / 14,2 (analyse de 10,5 à 19,3 % selon l'étape, écart maximal 9,5 points), 0 problème ; roguelike : 127 analyses, 44,3 / 42,3 / 13,4 (9,9 à 17,1 %, 12,5 points), 0 problème. **Cible non atteinte** : une analyse pèse en moyenne le tiers d'une création ; il en faudrait la moitié. Moyens de combler, à trancher par laurent : la compléter à l'étape d'entraînement par les paires courtes d'analyse, ou une seconde sorte d'analyse tirée des sessions.
 - [ ] Décision 19.7 : relever par la capture d'OpenCode la forme exacte d'un appel du Code Mode dans `execute` (requêtes au RAG et captures des paires courtes) ; à la sortie de Godot 4.8 stable, comparer les `extension_api.json` de 4.7.2 et 4.8 et compter les différences utiles
 - [x] Retirer les espaces de fin des messages (étape A4, 2026-10-27) : le gabarit de Qwen 3.8 rogne chaque message (`|trim`), LLaMA-Factory (`qwen3_5`) non ; la différence de l'essai du 2026-10-22 était le saut de ligne final du message système, écrit à la main pour l'essai. Les bases des cours passaient déjà par `opencode.vers_sharegpt`, qui rogne tout (kart 203/203, roguelike 155/155 rendus identiques) ; les paires courtes rognent maintenant aussi le système et s'exportent par `format.vers_llamafactory` (430/430 identiques, images comprises ; `tests/test_paires_format.py`)
+- [ ] Cours `boss_action_rpg` (demande de laurent du 2026-10-28 : niveau de boss d'action RPG « à la Dark Souls », le
+  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **7 étapes sur 16 faites et vérifiées**
+  (17, 31, 43, 66, 105, 122, 129 cas verts). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
+  (section « Réorientation » et « Reprendre ici ») ; démarche : `demarche.md` du même dossier. Paires de ce cours :
+  pas encore générées
+- [x] Décision 20 (2026-10-28) : aucun réentraînement tant que les paires ne sont pas finies
 
 ## Bilan des 6 sessions (2026-10-05)
 
@@ -2233,6 +2239,65 @@ mais une dizaine de fonctions ; garder toutes les paires vérifiées du palier 1
 - Ne pas lancer Godot sur un projet en cours de fabrication : la console ouvre une boîte d'alerte (« no main scene »)
   sur l'écran de laurent.
 - `creation --cours X` prend 4 fonctions par étape par défaut : passer `--par-etape 30`.
+
+### Cours boss_action_rpg — 2026-10-28 (branche `claude/observation-visuelle`)
+
+**Demande** (texte de laurent dans `suivi.md`) : un niveau de boss d'action RPG professionnel en Godot 4.7, le héros
+tire sur un golem, le saloon agrandi pour être dramatique ; ses sources (`source/` du dossier du jeu) ; chercher ce
+qui manque (RAG, web, Mixamo avec son accord) ; **documenter comment on cherche et trouve les sources**, adapté aux
+outils d'OpenCode ; enseigner chaque étape à Qwen par un cours et des paires ; **tenir un journal pour qu'une autre IA
+puisse reprendre** (rappelé deux fois).
+
+**Où sont les choses**
+- Le jeu (résultat, projet Godot) : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\` ; `source/` (archives de laurent,
+  lecture seule), `source_extraites/` (extraites, classées), `6_assets/` (modèles, textures, animations convertis),
+  `SUIVIS_PROGRESSION/` (`suivi.md`, `demarche.md`, `conception.md`, `inventaire_sources.md`, `outils/`, `captures/`).
+- Le cours : `cours/boss_action_rpg/` (manifeste, maîtres balisés, notes `etape_001.md` à `etape_007.md`). La source du
+  cours est le dossier du jeu (clé `boss_action_rpg` de `[sources]`) depuis l'étape 7.
+- Les outils de la chaîne des ressources (Python et GDScript, sans réseau) : `SUIVIS_PROGRESSION/outils/` ;
+  `refaire_arene.py` refait tout d'un coup avec les paramètres retenus.
+
+**Fait et vérifié** (étapes du cours ; chaque étape fabriquée, importée, testée sous GdUnit4, chaque ligne de sortie
+lue ; les étapes précédentes refabriquées et revérifiées à chaque fois) :
+1. socle (17 cas) ; 2. héros en maquette grise (31) ; 3. caméra à la troisième personne, verrouillage (43) ;
+4. machine à états du héros, endurance, roulade, sprint (66) ; 5. tir, projectiles à rayon en réserve, surchauffe
+(105) ; 6. santé, zone de coup du boss, fioles, chute et recommencement (122 ; rechargement joué sans fenêtre) ;
+7. le saloon d'un géant et son gardien (129) : décor Quixel converti depuis la scène Unity du paquet, échelle 4,
+ambiance (lune, lampes, brouillard, brume au sol), golem animé (25 animations, armes sur les os d'arme).
+
+**Réorientation** : après l'étape 6, laurent a jugé la maquette grise trop loin de sa référence (vidéo de Dark Souls 1,
+https://www.youtube.com/watch?v=fsVcMukmQNU) ; le visuel passe en tête (décor et golem, puis héros animé, puis
+interface du genre, puis combat du golem). Demandes en cours de route : héros « très petit » (échelle 4), brume au
+sol (« carboglace »).
+
+**Usine** : `usine/cours/jeu.py` suit maintenant les chemins `res://` gardés en clair dans les ressources binaires
+(`.res`, `.scn`) ; test `test_une_ressource_binaire_amene_les_ressources_qu_elle_designe` ; `tests/test_cours_jeu.py`
+8 passés.
+
+**Reste à faire**, dans l'ordre accepté par laurent : étape 8, le héros animé (le soldat de `scifitroopermanv3`, les
+roulades de `sourse.zip`, les animations de `lyra.zip` et `gaspfix.zip` à recibler sur son squelette ; laurent : « tu
+utilises les sources que j'ai prises ») ; l'interface du genre ; le golem (machine à états, attaques sur ses vraies
+animations, zones de coup, bouclier, points faibles, phase 2, mort) ; effets et sons (sons TII : jeu final seulement,
+« No AI Training ») ; musique à chercher (accord de laurent pour chaque téléchargement) ; optimisation ; puis les
+paires tirées du cours (familles de création, RAG, **recherche de sources**, sessions longues). L'entrée du saloon est
+surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler avec les lumières.
+
+**Pièges de cette passe** (détail et remèdes dans `demarche.md`)
+- Une variable `before` dans une suite GdUnit masque `GdUnitTestSuite.before()` (déjà en mémoire, refait une fois).
+- Un `Vector3` garde ses composantes en float32 : comparer avec une tolérance.
+- Un temps décompté image par image n'arrive pas à zéro (0,1 − 6 × 1/60 = 3e-17) : `is_zero_approx`.
+- Avec GodotPhysics3D (moteur par défaut en 4.7.2), une `Area3D` n'a pas signalé un `StaticBody3D` posé dans son
+  volume ; un `CharacterBody3D`, si.
+- Sous GdUnit, la scène courante est le lanceur : un rechargement de scène se vérifie en jouant le niveau sans fenêtre.
+- Un script lancé par `-s` dans un projet est compilé avec ses réglages stricts (division entière refusée).
+- Le YAML des `MeshCollider` de Quixel est mal indenté ; les matériaux Quixel se lisent dans leur graphe de shader.
+- Unity → Godot : Mz · T · Mx pour un maillage, Mz · T · Mz pour une lumière.
+- Mesurer le plancher par des rayons au lieu de le supposer ; le rayon de visée ignore ce qui est entre la caméra et
+  le héros ; vérifier qu'un point d'apparition n'est pas dans un meuble.
+- Disque D: presque plein (environ 24 Go libres) : chaque étape du cours à partir de la 7 recopie environ 200 Mo de
+  ressources.
+- Une fenêtre de rendu hors de l'écran ne doit jamais capturer la souris de laurent : `capturer_jeu.gd` la libère dans
+  la même image.
 
 ## Vérifications locales en attente
 
