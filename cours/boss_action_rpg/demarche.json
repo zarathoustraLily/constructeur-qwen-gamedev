@@ -1,0 +1,125 @@
+{
+ "contexte": "Niveau de boss d'action RPG dans Godot 4.7.2 (le héros tire sur un golem géant, dans un saloon agrandi).",
+ "pas": [
+  {
+   "id": "e3_bras_ressort",
+   "etape": 3,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "J'ajoute la caméra à la troisième personne du héros. Elle ne doit jamais traverser un mur quand le héros recule contre une paroi. Qu'est-ce que Godot fournit pour ça ?",
+   "pensee": "Avant d'écrire une caméra qui lance ses propres rayons, je cherche si Godot a déjà un nœud qui le fait.",
+   "outil": {"genre": "rag", "requete": "caméra troisième personne qui ne traverse pas les murs SpringArm3D", "n": 5},
+   "attendu": ["## SpringArm3D  (classes/class_springarm3d.rst)"],
+   "lecture": "Le premier résultat est la classe elle-même : « ## SpringArm3D  (classes/class_springarm3d.rst) ». Viennent ensuite Camera3D et des caméras de démos officielles.",
+   "decision": "Un pivot (Node3D) porte le lacet, un SpringArm3D enfant porte l'inclinaison, la Camera3D est au bout du bras : le bras lance son rayon et s'arrête devant le mur. Je ne réécris pas ce que le moteur fait déjà."
+  },
+  {
+   "id": "e3_longueur_tenue",
+   "etape": 3,
+   "sujet": "Création de tests",
+   "type": "analyse",
+   "situation": "Ma caméra a un SpringArm3D. Je veux un test qui prouve qu'un mur derrière le héros raccourcit le bras. Comment lire la longueur réellement tenue par le bras ?",
+   "pensee": "spring_length est la longueur voulue, pas celle tenue devant un obstacle. Je cherche le membre qui rend la longueur effective.",
+   "outil": {"genre": "rag", "requete": "SpringArm3D get_hit_length margin", "n": 1},
+   "attendu": ["SpringArm3D.get_hit_length"],
+   "lecture": "La page du membre est rendue : « Returns the spring arm's current length. »",
+   "decision": "Le test pose un vrai StaticBody3D derrière le héros, laisse passer quelques images de physique (le bras lance son rayon pendant la physique), puis vérifie que get_hit_length() est plus court que la distance réglée."
+  },
+  {
+   "id": "e3_souris_capturee",
+   "etape": 3,
+   "sujet": "Contrôle à la manette",
+   "type": "analyse",
+   "situation": "La caméra doit tourner au stick droit et à la souris. Est-ce que nos projets ont déjà une règle vérifiée pour la souris ?",
+   "pensee": "Un exemple qui compile déjà dans nos cours vaut mieux qu'un souvenir : je cherche dans le RAG, qui indexe aussi nos cours.",
+   "outil": {"genre": "rag", "requete": "tourner la caméra avec la souris capturée", "n": 4},
+   "attendu": ["test_la_souris_capturee_fait_tourner_la_camera"],
+   "lecture": "Le cours du kart a déjà un test vérifié : « test_la_souris_capturee_fait_tourner_la_camera ».",
+   "decision": "Je reprends sa règle : la souris ne tourne la caméra que lorsqu'elle est capturée (Input.mouse_mode), et son déplacement se multiplie par une sensibilité en degrés par pixel, jamais par delta (sinon la souris ralentirait quand le jeu accélère)."
+  },
+  {
+   "id": "e5_base_globale",
+   "etape": 5,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Pour viser au centre de l'écran, je veux l'axe avant de la caméra dans le repère du monde. Est-ce que Node3D a une propriété global_basis en 4.7.2, ou dois-je passer par global_transform.basis ?",
+   "pensee": "Je vérifie le membre dans l'API réelle de la version, pas de mémoire.",
+   "outil": {"genre": "vocab", "classe": "Node3D", "membre": "global_basis"},
+   "attendu": ["global_basis"],
+   "lecture": "Le membre existe : « propriété [Node3D] global_basis: Basis ».",
+   "decision": "L'avant de la caméra est -aim_camera.global_basis.z : le centre de l'écran n'a besoin d'aucune projection."
+  },
+  {
+   "id": "e5_rayon_zones",
+   "etape": 5,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Mes projectiles lancent un rayon par image. Les cibles sont des Area3D (zones qui reçoivent les tirs). Le rayon les voit-il par défaut ?",
+   "pensee": "Je vérifie l'option du rayon dans la documentation de PhysicsRayQueryParameters3D.",
+   "outil": {"genre": "rag", "requete": "PhysicsRayQueryParameters3D.collide_with_areas", "n": 1},
+   "attendu": ["collide_with_areas = false", "If true, the query will take Area3Ds into account."],
+   "lecture": "Par défaut, non : « collide_with_areas = false », et « If true, the query will take Area3Ds into account. »",
+   "decision": "La requête du projectile met collide_with_areas à true. La documentation ne dit rien de monitoring : je n'en déduis rien et j'écris le plus petit test qui le tranche (une zone mince à monitoring = false doit arrêter le tir)."
+  },
+  {
+   "id": "e5_monitorable",
+   "etape": 5,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Les zones qui reçoivent les tirs n'ont pas besoin de détecter quoi que ce soit : je voudrais mettre monitoring à false pour économiser. Est-ce que monitorable compte pour les rayons ?",
+   "pensee": "Je lis ce que dit vraiment la documentation de monitorable avant de toucher aux deux réglages.",
+   "outil": {"genre": "rag", "requete": "Area3D monitorable", "n": 1},
+   "attendu": ["If true, other monitoring areas can detect this area."],
+   "lecture": "monitorable parle des autres zones : « If true, other monitoring areas can detect this area. » Rien sur les rayons.",
+   "decision": "Je laisse monitorable à sa valeur par défaut, je coupe monitoring (la zone ne surveille rien : ce sont les rayons qui la trouvent), et un test confirme qu'un rayon touche bien la zone."
+  },
+  {
+   "id": "e6_jolt_statique",
+   "etape": 6,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Ma zone de coup (Area3D) ne détecte pas la victime StaticBody3D posée dedans : trois cas de test échouent. Est-ce un réglage connu ?",
+   "pensee": "Je cherche dans la documentation si des Area3D ignorent des corps statiques.",
+   "outil": {"genre": "rag", "requete": "areas detect static bodies Jolt", "n": 3},
+   "attendu": ["areas_detect_static_bodies"],
+   "lecture": "Le guide de migration parle d'un réglage de Jolt (« areas_detect_static_bodies ») : avec Jolt, ces chevauchements sont toujours signalés depuis 4.5.",
+   "decision": "Cette réponse vaut pour Jolt : je vérifie d'abord quel moteur physique le projet utilise avant de m'en servir. Le moteur par défaut est GodotPhysics3D ; le héros est un CharacterBody3D, et le test refait avec une victime CharacterBody3D passe. Un test de collision emploie les mêmes types de corps que le jeu."
+  },
+  {
+   "id": "e7_brume_au_sol",
+   "etape": 7,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "laurent veut de la brume au ras du sol, comme de la carboglace, en plus du brouillard léger de la salle. Comment faire une brume dense en bas qui disparaît en hauteur ?",
+   "pensee": "Le brouillard volumétrique de l'environnement est uniforme. Je cherche le réglage de hauteur des FogVolume.",
+   "outil": {"genre": "rag", "requete": "FogMaterial.height_falloff", "n": 1},
+   "attendu": ["A value of 0.0 results in uniform-density fog."],
+   "lecture": "« A value of 0.0 results in uniform-density fog. The height threshold is determined by the height of the associated FogVolume. »",
+   "decision": "Un FogVolume de 3 m de haut sur toute la salle, un FogMaterial dense (0,6) avec height_falloff à 1,2, et un NoiseTexture3D sans couture pour l'effilocher. Le volume touche le sol (son bas à y = 0)."
+  },
+  {
+   "id": "e7_texture_orm",
+   "etape": 7,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Je convertis les matériaux du saloon : occlusion, rugosité et métal sont dans des cartes séparées. Puis-je les donner à Godot en une seule texture ?",
+   "pensee": "Je vérifie le membre dans l'API de la version.",
+   "outil": {"genre": "vocab", "classe": "BaseMaterial3D", "membre": "orm_texture"},
+   "attendu": ["orm_texture"],
+   "lecture": "Le membre existe : « propriété [BaseMaterial3D] orm_texture: Texture2D ».",
+   "decision": "Chaque matériau devient un ORMMaterial3D : une texture dont le rouge est l'occlusion, le vert la rugosité, le bleu le métal ; on recompose les cartes du paquet dans cet ordre."
+  },
+  {
+   "id": "e7_enregistrer_chemin",
+   "etape": 7,
+   "sujet": "Plugins et leur usage",
+   "type": "analyse",
+   "situation": "Mon script d'outil enregistre chaque maillage dans sa ressource, puis construit une scène qui doit désigner ces fichiers au lieu de recopier les maillages dedans. Comment faire pour que la ressource enregistrée prenne son chemin ?",
+   "pensee": "Je cherche le drapeau de ResourceSaver qui donne à la ressource le chemin où elle vient d'être enregistrée.",
+   "outil": {"genre": "vocab", "classe": "ResourceSaver", "membre": "FLAG_CHANGE_PATH"},
+   "attendu": ["FLAG_CHANGE_PATH"],
+   "lecture": "La valeur existe : « valeur d'énumération [ResourceSaver] SaverFlags.FLAG_CHANGE_PATH = 4 ».",
+   "decision": "ResourceSaver.save(maillage, chemin, ResourceSaver.FLAG_CHANGE_PATH) : le maillage garde son chemin, et la scène enregistrée ensuite le désigne comme ressource externe."
+  }
+ ]
+}

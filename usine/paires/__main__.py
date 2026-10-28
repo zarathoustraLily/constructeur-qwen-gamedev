@@ -9,6 +9,7 @@
     python -m usine.paires creation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires lecture
     python -m usine.paires rag
+    python -m usine.paires demarche
     python -m usine.paires points [--cours kart] [--etapes 1,2]
     python -m usine.paires maillage [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires morceaux [--cours batiments_proceduraux] [--par-etape N] [--graine G] [--etapes 1,2]
@@ -58,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
+    sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
     pt = sous.add_parser("points", help="réaliser un point de l'étape d'après sa description (tests rouges sans, verts avec)")
     pt.add_argument("--cours", default="kart", choices=["kart", "roguelike", "atelier"])
     pt.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
@@ -135,6 +137,13 @@ def main(argv: list[str] | None = None) -> int:
         from usine.paires.rag import generer as generer_rag
         bilan = generer_rag()
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
+        return 0 if bilan["paires"] else 1
+    if args.famille == "demarche":
+        from usine.paires.demarche import generer as generer_demarche
+        bilan = generer_demarche()
+        print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
+        for r in bilan["rejets"]:
+            print("rejet :", r)
         return 0 if bilan["paires"] else 1
     if args.famille == "points":
         from usine.paires.points import generer as generer_points

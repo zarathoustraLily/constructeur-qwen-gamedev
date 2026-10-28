@@ -2282,6 +2282,14 @@ animations, zones de coup, bouclier, points faibles, phase 2, mort) ; effets et 
 paires tirées du cours (familles de création, RAG, **recherche de sources**, sessions longues). L'entrée du saloon est
 surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler avec les lumières.
 
+**Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal
+`cours/boss_action_rpg/demarche.json` (un pas par décision, outil réellement employé, fragments attendus, lecture qui
+cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
+`mcp_serveur.outils.Outils`, pas écarté si un fragment ou une citation manque, paire au format d'OpenCode), branché dans
+`volume.py` ; `tests/test_paires_demarche.py` 4 passés. Premier état : 10 paires (7 au palier 1, 3 au palier 2),
+0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
+lisent des fichiers, sessions longues, pas « plan ».
+
 **Pièges de cette passe** (détail et remèdes dans `demarche.md`)
 - Une variable `before` dans une suite GdUnit masque `GdUnitTestSuite.before()` (déjà en mémoire, refait une fois).
 - Un `Vector3` garde ses composantes en float32 : comparer avec une tolérance.

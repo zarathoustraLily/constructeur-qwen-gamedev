@@ -90,6 +90,9 @@ def lancer(seulement: list[str] | None = None, journal_fichier: Path | None = No
     from usine.paires.rag import generer as rag
     bilan["rag"] = {k: v for k, v in rag(journal=journal).items() if k != "rejets"}
     journal(f"paires RAG : {bilan['rag']['paires']}")
+    from usine.paires.demarche import generer as demarche
+    bilan["demarche"] = {k: v for k, v in demarche(journal=journal).items() if k != "rejets"}
+    journal(f"paires de démarche : {bilan['demarche']['paires']}")
     for n in (1, 2):
         c = assembler(n, journal=journal)
         bilan[f"palier_{n}"] = {k: c[k] for k in ("paires", "rejets", "trous", "jetons", "duree_estimee_5090_h",
