@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TreeSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/tree_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+trunk_length = 2.0
+trunk_radius = 0.18
+depth = 3
+children = 3
+length_ratio = 0.7
+radius_ratio = 0.6
+spread_degrees = 35.0
+jitter_degrees = 8.0
+leaves_per_tip = 4
+random_seed = 7

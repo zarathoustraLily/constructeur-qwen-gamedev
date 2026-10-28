@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://6_assets/Mesh/Procedural/NATURE/tree_generator.gd" id="1_generator"]
+[ext_resource type="Resource" path="res://5_data/DECORS/NATURE/tree.tres" id="2_settings"]
+
+[node name="Tree" type="Node3D"]
+script = ExtResource("1_generator")
+settings = ExtResource("2_settings")

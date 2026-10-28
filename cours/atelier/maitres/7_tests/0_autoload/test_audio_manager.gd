@@ -2,6 +2,9 @@ extends GdUnitTestSuite
 ## Règles du service audio : les bus de la musique et des effets existent dès le départ ; un bus demandé est
 ## créé une seule fois, envoyé vers Master ; un volume se règle et se relit de 0 à 1, 0 coupe le bus, et chaque
 ## changement est annoncé.
+#@ 9+
+## Une fois préparé, il joue des effets sur la réserve de voix et la musique en fondu ; avant, il ne fait rien.
+#@ all
 
 const TEST_BUS: StringName = &"AtelierTest"
 
@@ -59,3 +62,21 @@ func test_chaque_changement_est_annonce() -> void:
 	AudioManager.set_volume(AudioManager.MUSIC, 0.25)
 	AudioManager.volume_changed.disconnect(listener)
 	assert_array(received).is_equal([[AudioManager.MUSIC, 0.25]])
+#@ 9+
+
+
+func test_prepare_il_joue_effets_et_musique() -> void:
+	AudioManager.setup(preload("res://5_data/audio/audio.tres"))
+	assert_bool(AudioManager.is_ready()).is_true()
+	AudioManager.setup(preload("res://5_data/audio/audio.tres"))
+	assert_int(AudioManager.get_children().size()).is_equal(2)
+	var sound: AudioStreamWAV = preload("res://7_tests/1_core/audio/test_sfx_pool.gd").silence(1.0)
+	AudioManager.play_sfx(sound)
+	var playing: int = AudioManager.sfx().voices().filter(func(v: AudioStreamPlayer) -> bool: return v.playing).size()
+	assert_int(playing).is_equal(1)
+	AudioManager.play_music(sound)
+	assert_that(AudioManager.music().current().stream).is_same(sound)
+	for voice: AudioStreamPlayer in AudioManager.sfx().voices():
+		voice.stop()
+	AudioManager.music().current().stop()
+#@ all

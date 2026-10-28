@@ -1,7 +1,9 @@
 ;@ 1
 [gd_scene load_steps=4 format=3]
-;@ 2+
+;@ 2-8
 [gd_scene load_steps=5 format=3]
+;@ 9+
+[gd_scene load_steps=6 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -9,10 +11,15 @@
 [ext_resource type="PackedScene" path="res://4_ui/menus/options_menu.tscn" id="3_options"]
 ;@ 2+
 [ext_resource type="PackedScene" path="res://4_ui/menus/remap_menu.tscn" id="4_remap"]
+;@ 9+
+[ext_resource type="Resource" path="res://5_data/audio/audio.tres" id="5_audio"]
 ;@ all
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
+;@ 9+
+audio_settings = ExtResource("5_audio")
+;@ all
 
 [node name="MainMenu" parent="." instance=ExtResource("2_menu")]
 

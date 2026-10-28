@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GalaxySettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/galaxy_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+star_count = 4000
+arms = 3
+radius = 60.0
+winding = 1.2
+arm_spread = 0.08
+thickness = 2.0
+core_color = Color(1, 0.85, 0.6, 1)
+edge_color = Color(0.55, 0.7, 1, 1)
+random_seed = 3

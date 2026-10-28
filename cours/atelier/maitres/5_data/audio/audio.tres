@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AudioSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/audio_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+sfx_voices = 8
+pitch_variation = 0.08
+volume_variation_db = 1.5
+crossfade_time = 1.5
+random_seed = 5

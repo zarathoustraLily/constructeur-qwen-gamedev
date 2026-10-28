@@ -7,6 +7,11 @@ extends Node
 ## menus au service audio et aux commandes : les menus disent ce que le joueur veut, elle le fait.
 #@ all
 
+#@ 9+
+## Les réglages du son, donnés au service audio au démarrage.
+@export var audio_settings: AudioSettings
+
+#@ all
 @onready var _main_menu: MainMenu = $MainMenu
 @onready var _options: OptionsMenu = $OptionsMenu
 #@ 2+
@@ -15,6 +20,9 @@ extends Node
 
 
 func _ready() -> void:
+#@ 9+
+	AudioManager.setup(audio_settings)
+#@ all
 	_main_menu.options_requested.connect(_open_options)
 #@ 2+
 	_main_menu.controls_requested.connect(_open_remap)

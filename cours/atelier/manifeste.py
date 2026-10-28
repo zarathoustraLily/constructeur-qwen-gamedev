@@ -14,7 +14,7 @@ l'atelier n'a ni modèle ni texture ni son importés.
 GENRE = "jeu"
 PREFIXE = "atelier"
 SOURCE = "kart"
-DERNIERE = 7
+DERNIERE = 9
 
 ETAPES = [
     {"piste": "Interface + Audio + Manette", "titre": "Le menu principal, les options de volume, la navigation à la manette"},
@@ -24,13 +24,15 @@ ETAPES = [
     {"piste": "Graphisme 3D", "titre": "La caméra qui suit et le cycle jour-nuit"},
     {"piste": "VFX", "titre": "Particules en code, tremblement de caméra, éclair d'un coup"},
     {"piste": "Procédural + VFX", "titre": "Les ondulations : une grille de maillage et une onde d'impact"},
+    {"piste": "Procédural", "titre": "Un arbre, un champ de nuages et une galaxie, générés en code"},
+    {"piste": "Audio", "titre": "Une réserve de voix pour les effets et les fondus enchaînés de musique"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -115,4 +117,29 @@ FICHIERS = {
     "7_tests/1_core/procedural/test_grid_mesh.gd": "7+",
     "7_tests/1_core/procedural/test_ripple.gd": "7+",
     "7_tests/3_entities/effects/test_ripple_surface.gd": "7+",
+    "1_core/data/tree_settings.gd": "8+",
+    "1_core/data/cloud_settings.gd": "8+",
+    "1_core/data/galaxy_settings.gd": "8+",
+    "1_core/procedural/tree_builder.gd": "8+",
+    "1_core/procedural/scatter.gd": "8+",
+    "1_core/procedural/galaxy.gd": "8+",
+    "5_data/DECORS/NATURE/tree.tres": "8+",
+    "5_data/DECORS/NATURE/clouds.tres": "8+",
+    "5_data/DECORS/NATURE/galaxy.tres": "8+",
+    "6_assets/Mesh/Procedural/NATURE/tree_generator.gd": "8+",
+    "6_assets/Mesh/Procedural/NATURE/cloud_field.gd": "8+",
+    "6_assets/Mesh/Procedural/NATURE/galaxy_generator.gd": "8+",
+    "6_assets/Mesh/Procedural/NATURE/tree.tscn": "8+",
+    "6_assets/Mesh/Procedural/NATURE/clouds.tscn": "8+",
+    "6_assets/Mesh/Procedural/NATURE/galaxy.tscn": "8+",
+    "7_tests/1_core/procedural/test_tree_builder.gd": "8+",
+    "7_tests/1_core/procedural/test_scatter.gd": "8+",
+    "7_tests/1_core/procedural/test_galaxy.gd": "8+",
+    "7_tests/6_assets/Mesh/Procedural/NATURE/test_nature_generators.gd": "8+",
+    "1_core/data/audio_settings.gd": "9+",
+    "1_core/audio/sfx_pool.gd": "9+",
+    "1_core/audio/music_fader.gd": "9+",
+    "5_data/audio/audio.tres": "9+",
+    "7_tests/1_core/audio/test_sfx_pool.gd": "9+",
+    "7_tests/1_core/audio/test_music_fader.gd": "9+",
 }

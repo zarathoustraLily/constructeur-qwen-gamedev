@@ -9,6 +9,11 @@ signal volume_changed(bus: StringName, linear: float)
 const MUSIC: StringName = &"Music"
 ## Le bus des effets sonores.
 const SFX: StringName = &"SFX"
+#@ 9+
+
+var _sfx: SfxPool
+var _music: MusicFader
+#@ all
 
 
 func _ready() -> void:
@@ -43,3 +48,49 @@ func volume(bus_name: StringName) -> float:
 	if index < 0 or AudioServer.is_bus_mute(index):
 		return 0.0
 	return Volume.to_linear(AudioServer.get_bus_volume_db(index))
+#@ 9+
+
+
+## Prépare les effets (une réserve de voix) et la musique (deux lecteurs pour les fondus) avec `audio_settings`,
+## donnés par la scène principale ; un second appel ne refait rien.
+func setup(audio_settings: AudioSettings) -> void:
+	if is_ready():
+		return
+	_sfx = SfxPool.new()
+	_sfx.name = "Sfx"
+	_sfx.bus = SFX
+	_sfx.settings = audio_settings
+	add_child(_sfx)
+	_music = MusicFader.new()
+	_music.name = "Music"
+	_music.bus = MUSIC
+	_music.settings = audio_settings
+	add_child(_music)
+
+
+## Vrai une fois `setup` fait.
+func is_ready() -> bool:
+	return _sfx != null
+
+
+## Joue l'effet `stream` ; rien avant `setup`.
+func play_sfx(stream: AudioStream) -> void:
+	if is_ready():
+		_sfx.play(stream)
+
+
+## Lance le morceau `stream` en fondu enchaîné ; rien avant `setup`.
+func play_music(stream: AudioStream) -> void:
+	if is_ready():
+		_music.play(stream)
+
+
+## La réserve d'effets (null avant `setup`).
+func sfx() -> SfxPool:
+	return _sfx
+
+
+## Les lecteurs de musique (null avant `setup`).
+func music() -> MusicFader:
+	return _music
+#@ all
