@@ -153,8 +153,12 @@ les réglages stricts du projet (typer tout, pas de division entière).
 ## 7. L'étape 9 : l'interface du genre (ce qu'on sait déjà)
 
 L'étape 8 (le héros animé) est faite : note `cours/boss_action_rpg/notes/etape_008.md`, `demarche.md` étape 12.
-Ce qu'elle laisse : le fusil est fait de primitives (aucun modèle d'arme dans les sources) ; le soin joue le
-rechargement (aucun clip ne boit) ; chercher les deux, avec l'accord de laurent pour tout téléchargement. Sa chaîne :
+Ce qu'elle laisse : le fusil est fait de primitives ; le soin joue le rechargement. Depuis (accord de laurent),
+trois paquets CC0 téléchargés dans `source_telecharges/`, extraits dans `source_extraites/` : `ultimate_gun_pack`
+(Quaternius : fusils, candidats importés dans `6_assets/Weapons/Candidates/`, planche `captures/etape_008/fusils.png`,
+les Bullpup proposés à laurent), `hit_fx_free` et `muzzle_flash_vfx` (Binbun : effets Godot 4, scripts **non typés** :
+à reprendre typés, ne pas copier leurs `.import`/`.uid`). Détail : `inventaire_sources.md`, `demarche.md` étape 13.
+Geste de soin : Mixamo, compte de laurent (« drink »). Sa chaîne :
 `outils/recibler_heros.gd` (cartes d'os UE4/UE5 → `SkeletonProfileHumanoid`, écrites dans les `.import`), `--import`,
 `outils/heros_textures.py`, `outils/construire_heros.gd` (→ `6_assets/Characters/Hero/hero_model.tscn`,
 `hero_animations.tres`) ; mesures `outils/mesurer_clips.gd`, `outils/mesurer_foulee.gd` ; images
