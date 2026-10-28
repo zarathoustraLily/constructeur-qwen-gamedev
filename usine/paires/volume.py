@@ -18,12 +18,12 @@ from typing import Any, Callable
 
 from usine import config as cfg
 
-COURS = ("kart", "roguelike", "batiments_proceduraux")
+COURS = ("kart", "roguelike", "atelier", "batiments_proceduraux")
 # (famille, fautes ou fonctions tirées par étape) : assez pour épuiser les candidats de chaque étape (dédoublonnés
 # d'une étape à l'autre), sans dépasser les cibles du PLAN.
-PAR_ETAPE = {"creation": 30, "execution": 30, "compilation": 150, "shader": 60}
+PAR_ETAPE = {"creation": 30, "execution": 30, "compilation": 150, "shader": 60, "maillage": 30, "morceaux": 40, "bloc": 60}
 NIVEAUX = {"timing": (13, 300), "editeur": (12, 300)}   # (jeux ou niveaux au plus, paires visées)
-ORDRE = ("creation", "execution", "compilation", "shader", "timing", "editeur")
+ORDRE = ("creation", "maillage", "morceaux", "bloc", "execution", "compilation", "shader", "timing", "editeur")
 
 
 def _familles(nom: str, cours: tuple[str, ...] = COURS) -> list[tuple[str, Callable[[], dict[str, Any]]]]:
@@ -36,6 +36,18 @@ def _familles(nom: str, cours: tuple[str, ...] = COURS) -> list[tuple[str, Calla
     if nom == "creation":
         from usine.paires.creation import generer
         return [(f"creation {c}", lambda c=c: generer(c, PAR_ETAPE[nom])) for c in cours]
+    if nom == "maillage":
+        # Les bâtiments seulement : leur juge est l'empreinte des maillages (maillage.py).
+        from usine.paires.maillage import generer
+        if "batiments_proceduraux" not in cours:
+            return []
+        return [("maillage batiments_proceduraux", lambda: generer(PAR_ETAPE[nom]))]
+    if nom == "morceaux":
+        from usine.paires.morceaux import generer
+        return [(f"morceaux {c}", lambda c=c: generer(c, PAR_ETAPE[nom])) for c in cours]
+    if nom == "bloc":
+        from usine.paires.bloc import generer
+        return [(f"bloc {c}", lambda c=c: generer(c, PAR_ETAPE[nom])) for c in cours]
     if nom == "timing":
         from usine.paires.timing import generer
         return [("timing", lambda: generer(NIVEAUX[nom][0], cible=NIVEAUX[nom][1]))]

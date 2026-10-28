@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DummySettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/dummy_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+hit_stun_time = 0.3
+hit_tilt = 0.35
+defeated_tilt = 1.5708
+tilt_speed = 12.0

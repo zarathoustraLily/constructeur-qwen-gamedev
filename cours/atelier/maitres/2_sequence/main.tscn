@@ -1,0 +1,22 @@
+;@ 1
+[gd_scene load_steps=4 format=3]
+;@ 2+
+[gd_scene load_steps=5 format=3]
+;@ all
+
+[ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://4_ui/menus/main_menu.tscn" id="2_menu"]
+[ext_resource type="PackedScene" path="res://4_ui/menus/options_menu.tscn" id="3_options"]
+;@ 2+
+[ext_resource type="PackedScene" path="res://4_ui/menus/remap_menu.tscn" id="4_remap"]
+;@ all
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="MainMenu" parent="." instance=ExtResource("2_menu")]
+
+[node name="OptionsMenu" parent="." instance=ExtResource("3_options")]
+;@ 2+
+
+[node name="RemapMenu" parent="." instance=ExtResource("4_remap")]

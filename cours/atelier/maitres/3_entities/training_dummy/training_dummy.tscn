@@ -1,0 +1,45 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://3_entities/training_dummy/training_dummy.gd" id="1_dummy"]
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="2_health"]
+[ext_resource type="Resource" path="res://5_data/gameplay/dummy_health.tres" id="3_health_settings"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="4_machine"]
+[ext_resource type="Script" path="res://1_core/state_machine/state.gd" id="5_state"]
+[ext_resource type="Script" path="res://3_entities/training_dummy/dummy_hit_state.gd" id="6_hit"]
+[ext_resource type="Resource" path="res://5_data/gameplay/dummy.tres" id="7_dummy_settings"]
+[ext_resource type="Script" path="res://3_entities/training_dummy/training_dummy_view.gd" id="8_view"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_body"]
+top_radius = 0.3
+bottom_radius = 0.35
+height = 1.6
+
+[node name="TrainingDummy" type="Node3D"]
+script = ExtResource("1_dummy")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+settings = ExtResource("3_health_settings")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("4_machine")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("5_state")
+
+[node name="Hit" type="Node" parent="StateMachine"]
+script = ExtResource("6_hit")
+settings = ExtResource("7_dummy_settings")
+
+[node name="Defeated" type="Node" parent="StateMachine"]
+script = ExtResource("5_state")
+
+[node name="View" type="Node3D" parent="." node_paths=PackedStringArray("dummy")]
+script = ExtResource("8_view")
+dummy = NodePath("..")
+settings = ExtResource("7_dummy_settings")
+
+[node name="Body" type="MeshInstance3D" parent="View"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CylinderMesh_body")

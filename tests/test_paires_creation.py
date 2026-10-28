@@ -85,5 +85,10 @@ def test_godot_une_paire_de_creation_verifiee():
 	p, raison = creation.paire(sessions.Projet("kart", 5, apres), rel, f, suites_pour(apres, rel), "UI", {})
 	assert p is not None, raison
 	assert p["preuve"]["palier"] == 1 and p["messages"][0]["role"] == "user" and p["jetons"] <= 1024
-	reponse = p["messages"][-1]["content"]
-	assert "Input.mouse_mode" in reponse and "--check-only" in reponse and "GdUnitCmdTool" in reponse
+	# La boucle : la réponse écrit et appelle l'analyse et les tests ; les vrais retours ; la lecture.
+	assert [m["role"] for m in p["messages"]] == ["user", "assistant", "tool", "tool", "assistant"]
+	ecrire = p["messages"][1]
+	commandes = [c["function"]["arguments"]["command"] for c in ecrire["tool_calls"]]
+	assert "Input.mouse_mode" in ecrire["content"] and "--check-only" in commandes[0] and "GdUnitCmdTool" in commandes[1]
+	assert p["messages"][2]["content"].endswith("Command exited with code 0.")
+	assert p["messages"][-1]["content"].startswith("**Lire.** Analyse propre")

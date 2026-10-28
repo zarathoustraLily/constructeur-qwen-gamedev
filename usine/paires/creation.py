@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
+from usine.paires import boucle
 from usine.paires import format as fmt
 
 PLAFOND = 2048
@@ -200,7 +201,7 @@ def usages(texte_f: str, script: str) -> list[str]:
 
 
 def paire(projet: Any, rel: str, f: Any, suites: list[str], sujet: str,
-          passe: dict[str, bool]) -> tuple[dict[str, Any] | None, str]:
+          passe: dict[str, Any]) -> tuple[dict[str, Any] | None, str]:
     """La paire d'une fonction de l'étape, ou (None, raison du rejet). `passe` : suite → passe-t-elle sur l'état
     d'origine (gardé d'une fonction à l'autre de la même étape)."""
     from usine.cours.base import godot, profil, sessions
@@ -217,54 +218,66 @@ def paire(projet: Any, rel: str, f: Any, suites: list[str], sujet: str,
         if compile_ok is None:
             return None, "le script au corps vidé ne passe pas l'analyse"
         rouge = None
+        sortie_rouge = ""
         for suite in suites[:3]:
             s = godot.tester_gdunit(projet.chemin, ["res://" + suite])
             if not profil.test_reussi(s.code, s.texte, attendus):
-                rouge = suite
+                rouge, sortie_rouge = suite, s.texte
                 break
         if rouge is None:
             return None, "aucune suite n'échoue sans le corps : les tests ne jugent pas cette fonction"
         projet.remettre()
         if rouge not in passe:
-            v = godot.tester_gdunit(projet.chemin, ["res://" + rouge])
-            passe[rouge] = profil.test_reussi(v.code, v.texte, attendus)
-        if not passe[rouge]:
-            return None, "la suite ne passe pas avec la fonction d'origine"
+            passe[rouge] = boucle.suite_passe(projet, rouge, attendus)
+        if passe[rouge] is not True:
+            return None, f"la suite ne passe pas avec la fonction d'origine ({passe[rouge]})"
         analyse = godot.verifier_script(projet.chemin, "res://" + rel)
-        tests = godot.tester_gdunit(projet.chemin, ["res://" + rouge])
+        # Seulement les cas qui jugent la fonction (ceux qui échouaient sans elle) : les autres écartés par `-i`.
+        cas = boucle.cas_rouges(projet.apres[rouge], sortie_rouge, rouge)
+        tests = godot.tester_gdunit(projet.chemin, ["res://" + rouge], ignorer=boucle.ecartes(projet.apres[rouge], cas, rouge))
     finally:
         projet.remettre()
     fonction = texte_fonction(original.split("\n"), f)
     tete = (f"Projet Godot 4.7.2. Dans `res://{rel}`, écris le corps de `{f.nom}` d'après son contrat (les commentaires "
             f"`##`). Les tests de `res://{rouge}` le vérifient.")
-    reponse = [f"**Écrire.** `{f.nom}`, d'après son contrat :", f"```gdscript\n{fonction}\n```"]
+    ecrire = [f"**Écrire.** `{f.nom}`, d'après son contrat :", f"```gdscript\n{fonction}\n```"]
     u = usages(fonction, original)
-    if u:
-        reponse += ["", "**Vérifier l'API.** Les appels de Godot employés, relus dans `extension_api.json` (4.7.2) :"] + u
-    reponse += ["", "**Tester.** J'analyse le script, puis je lance les tests qui le couvrent :",
-                f"```\n$ {analyse.commande}\n$ {tests.commande}\n```"]
+    api = ["", "**Vérifier l'API.** Les appels de Godot employés, relus dans `extension_api.json` (4.7.2) :"] + u if u else []
+    tester = ["", "**Tester.** J'analyse le script, puis je lance " + boucle.phrase_cas(projet.apres[rouge], cas)]
+    reponse = ecrire + api + tester
+    # La boucle de vérification (boucle.py) : les vraies sorties, puis leur lecture.
+    sorties = [(analyse, "analyse"), (tests, "test")]
+    lire = boucle.lecture(sorties, f"`{f.nom}`", cas, rouge)
+    if lire is None:
+        return None, "la sortie de vérification ne passe pas la lecture"
     preuve = {"etape": f"{projet.ville}-{projet.n:03d}", "fichier": rel, "fonction": f.nom, "suite": rouge,
-              "masque_compile": True, "rouge_sans_corps": True, "vert_avec": True,
+              "masque_compile": True, "rouge_sans_corps": True, "vert_avec": True, "cas_rouges": cas,
               "commande_analyse": analyse.commande, "sortie_analyse": analyse.texte,
               "commande_tests": tests.commande, "code_tests": tests.code}
     ailleurs = employes_ailleurs(original, f, projet.apres)
     ailleurs = f"\n\nCe que la fonction emploie d'autres scripts du projet :\n{ailleurs}" if ailleurs else ""
-    # Palier 1 quand le plan n'y joue aucun rôle (section 3) : le contexte réduit à ce que la fonction emploie.
+
+    def faire(demande: str, palier: int, texte: list[str] = reponse) -> dict[str, Any]:
+        return fmt.paire_tours(FAMILLE, sujet, "création",
+                               boucle.tours(f"verif_{f.nom}", demande, "\n".join(texte), sorties, lire),
+                               dict(preuve, palier=palier), systeme=fmt.plan() if palier == 2 else None)
+
+    # Palier 1 quand le plan n'y joue aucun rôle (section 3) : le contexte réduit à ce que la fonction emploie ; si la
+    # boucle de vérification ne tient pas dans 1 024 jetons, la même sans la vérification de l'API.
     if sans_convention(fonction, projet.apres, original):
-        courte = fmt.paire(FAMILLE, sujet, "création", f"{tete} Ce que le script déclare et que la fonction "
-                           f"emploie :\n```gdscript\n{contexte_minimal(original, f)}```{ailleurs}", "\n".join(reponse),
-                           dict(preuve, palier=1))
-        if courte["jetons"] <= PLAFOND_COURT:
-            return courte, ""
-    longue = fmt.paire(FAMILLE, sujet, "création", f"{tete} Le script (les autres fonctions réduites à leur signature) :"
-                       f"\n```gdscript\n{script_a_trou(original, f.nom)}```{ailleurs}", "\n".join(reponse),
-                       dict(preuve, palier=2), systeme=fmt.plan())
+        demande = (f"{tete} Ce que le script déclare et que la fonction emploie :\n```gdscript\n"
+                   f"{contexte_minimal(original, f)}```{ailleurs}")
+        for texte in (reponse, ecrire + tester):
+            courte = faire(demande, 1, texte)
+            if courte["jetons"] <= PLAFOND_COURT:
+                return courte, ""
+    longue = faire(f"{tete} Le script (les autres fonctions réduites à leur signature) :\n```gdscript\n"
+                   f"{script_a_trou(original, f.nom)}```{ailleurs}", 2)
     if longue["jetons"] <= PLAFOND:
         return longue, ""
     # Script trop long pour être montré entier : le plan, et seulement ce que la fonction emploie.
-    return fmt.paire(FAMILLE, sujet, "création", f"{tete} Ce que le script déclare et que la fonction emploie :\n"
-                     f"```gdscript\n{contexte_minimal(original, f)}```{ailleurs}", "\n".join(reponse),
-                     dict(preuve, palier=2), systeme=fmt.plan()), ""
+    return faire(f"{tete} Ce que le script déclare et que la fonction emploie :\n```gdscript\n"
+                 f"{contexte_minimal(original, f)}```{ailleurs}", 2), ""
 
 
 def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: list[int] | None = None,

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DaySettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/day_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+day_length = 120.0
+noon_energy = 1.2
+dawn_color = Color(1, 0.55, 0.3, 1)
+noon_color = Color(1, 0.97, 0.9, 1)
+start_time = 0.3

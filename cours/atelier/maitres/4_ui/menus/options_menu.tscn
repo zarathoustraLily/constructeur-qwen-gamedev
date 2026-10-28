@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://4_ui/menus/options_menu.gd" id="1_options"]
+[ext_resource type="Resource" path="res://5_data/ui/menu_settings.tres" id="2_settings"]
+
+[node name="OptionsMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_options")
+settings = ExtResource("2_settings")
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Rows" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Music" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Center/Rows/Music"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Musique"
+
+[node name="Slider" type="HSlider" parent="Center/Rows/Music"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Value" type="Label" parent="Center/Rows/Music"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+
+[node name="Sfx" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Center/Rows/Sfx"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Effets"
+
+[node name="Slider" type="HSlider" parent="Center/Rows/Sfx"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Value" type="Label" parent="Center/Rows/Sfx"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+
+[node name="Back" type="Button" parent="Center/Rows"]
+layout_mode = 2
+text = "Retour"

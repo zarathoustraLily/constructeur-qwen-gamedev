@@ -1,0 +1,31 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://3_entities/player/player.gd" id="1_player"]
+[ext_resource type="Resource" path="res://5_data/gameplay/player_move.tres" id="2_move"]
+[ext_resource type="Script" path="res://3_entities/player/player_input.gd" id="3_input"]
+[ext_resource type="Resource" path="res://5_data/input/gamepad_settings.tres" id="4_gamepad"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.35
+height = 1.6
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.35
+height = 1.6
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+settings = ExtResource("2_move")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="Input" type="Node" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("3_input")
+player = NodePath("..")
+gamepad = ExtResource("4_gamepad")

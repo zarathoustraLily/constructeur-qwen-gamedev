@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RippleSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/ripple_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+amplitude = 0.25
+wavelength = 1.2
+speed = 3.0
+distance_damping = 0.6
+time_damping = 0.8
+size = Vector2(10, 10)
+cells = Vector2i(40, 40)

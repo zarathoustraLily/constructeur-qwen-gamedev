@@ -46,6 +46,8 @@ JEUX = {
     "kart": ("un jeu de kart sur une île, au clavier et à la manette : eau, herbe, effets et objets", "le jeu"),
     "roguelike": ("un roguelike d'action en 3D, au clavier, à la souris et à la manette : combat, ennemis, vagues et "
                   "boutique", "le jeu"),
+    "atelier": ("un jeu d'action en 3D construit sujet par sujet : menus et options, manette, gameplay, physique, "
+                "caméra, effets visuels", "le jeu"),
 }
 
 

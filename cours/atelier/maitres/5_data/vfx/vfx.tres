@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="VfxSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/vfx_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+spark_amount = 24
+spark_lifetime = 0.4
+spark_speed = Vector2(4, 9)
+spark_spread = 50.0
+spark_colors = PackedColorArray(1, 0.85, 0.4, 1, 1, 0.3, 0.05, 0)
+dust_amount = 12
+dust_lifetime = 0.9
+shake_max_offset = 0.3
+shake_decay = 1.5
+shake_frequency = 18.0
+flash_color = Color(1, 1, 1, 0.8)
+flash_duration = 0.12
