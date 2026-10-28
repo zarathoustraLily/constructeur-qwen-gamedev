@@ -29,27 +29,23 @@ suivante avant.
 - [x] 6. Santé du héros, fioles, mort et recommencement
 #@ 1-6
 - [ ] 7. Golem : machine à états (réveil, approche, attaque, récupération)
-#@ 7+
+#@ 7
 - [x] 7. Golem : machine à états (réveil, approche, attaque, récupération)
+#@ 8+
+- [x] 7. Le saloon d'un géant et son gardien : décor, ambiance, golem animé
+- [x] 8. Le héros animé : le soldat reciblé, son arbre d'animation branché sur ses états
+- [ ] 9. Interface du genre : vie, endurance, fioles, surchauffe, barre du boss
+- [ ] 10. Combat du golem : machine à états, attaques, zones de coup, bouclier, points faibles, phase 2, mort
+- [ ] 11. Effets visuels et sons
+- [ ] 12. Optimisation et mesures
 #@ 1-7
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles
-#@ 8+
-- [x] 8. Attaques du golem, zones de coup, bouclier et points faibles
-#@ 1-8
 - [ ] 9. Phase 2 et mort du golem
-#@ 9+
-- [x] 9. Phase 2 et mort du golem
-#@ 1-9
 - [ ] 10. Interface : vie, endurance, fioles, surchauffe, barre du boss, écrans
-#@ 10+
-- [x] 10. Interface : vie, endurance, fioles, surchauffe, barre du boss, écrans
-#@ 1-10
 - [ ] 11. Arène en maquette grise, à l'échelle dramatique
-#@ 11+
-- [x] 11. Arène en maquette grise, à l'échelle dramatique
-#@ all
 - [ ] 12. Modèles et animations du golem
 - [ ] 13. Modèle et animations du héros
 - [ ] 14. Saloon agrandi, éclairage, environnement
 - [ ] 15. Effets visuels et sons
 - [ ] 16. Optimisation et mesures
+#@ all

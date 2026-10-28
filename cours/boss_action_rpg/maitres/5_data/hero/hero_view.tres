@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HeroViewSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/hero_view_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+run_clip_speed = 4.23
+sprint_clip_speed = 6.02
+aim_walk_clip_speed = 2.1
+state_blend_time = 0.12
+aim_blend_time = 0.15
+fire_fade_in = 0.03
+fire_fade_out = 0.12

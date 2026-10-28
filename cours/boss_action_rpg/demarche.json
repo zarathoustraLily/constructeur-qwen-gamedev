@@ -120,6 +120,54 @@
    "attendu": ["FLAG_CHANGE_PATH"],
    "lecture": "La valeur existe : « valeur d'énumération [ResourceSaver] SaverFlags.FLAG_CHANGE_PATH = 4 ».",
    "decision": "ResourceSaver.save(maillage, chemin, ResourceSaver.FLAG_CHANGE_PATH) : le maillage garde son chemin, et la scène enregistrée ensuite le désigne comme ressource externe."
+  },
+  {
+   "id": "e8_recibler_a_l_import",
+   "etape": 8,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Le soldat de laurent a le squelette du mannequin d'Unreal 4 (68 os, pas d'os root) ; ses animations de roulade, de course et de tir viennent du mannequin d'Unreal 5 (root, spine_01 à 05). Les noms communs ne suffisent pas : les repos des os diffèrent. Comment faire jouer ces animations au soldat ?",
+   "pensee": "Je cherche dans la documentation comment Godot 4 recible un squelette à l'import, et ce qui unifie les repos des os.",
+   "outil": {"genre": "rag", "requete": "retargeting 3D skeletons rest fixer overwrite axis", "n": 3},
+   "attendu": ["Overwrite Axis", "Bone Rests"],
+   "lecture": "Le tutoriel « Retargeting 3D Skeletons » : « Unifies the models' Bone Rests by overwriting it to match the reference poses ».",
+   "decision": "Reciblage à l'import : une BoneMap vers SkeletonProfileHumanoid pour chaque squelette (UE4 pour le soldat, UE5 pour les clips), écrite dans le .import de chaque FBX (retarget/bone_map). Godot renomme les os d'après le profil, nomme le squelette GeneralSkeleton et réécrit les repos : les pistes deviennent %GeneralSkeleton:Hips des deux côtés."
+  },
+  {
+   "id": "e8_ligne_de_temps",
+   "etape": 8,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "La roulade du paquet dure 1,17 s ; l'état Roll du héros, testé depuis l'étape 4, dure 0,5 s. La course de gaspfix est une boucle sur place dont la foulée vaut 4,23 m/s ; le héros court à 5,5 m/s. Comment accorder l'animation à la logique sans toucher à la logique ?",
+   "pensee": "Je cherche si un nœud d'animation de l'AnimationTree peut étirer un clip sur une durée choisie.",
+   "outil": {"genre": "vocab", "classe": "AnimationNodeAnimation", "membre": "stretch_time_scale"},
+   "attendu": ["stretch_time_scale"],
+   "lecture": "Le membre existe : « stretch_time_scale », avec timeline_length et use_custom_timeline sur le même nœud.",
+   "decision": "Chaque AnimationNodeAnimation reçoit sa ligne de temps : la roulade dure roll_duration, le soin heal_duration, chaque boucle de marche longueur × foulée ÷ vitesse du corps. Les foulées mesurées vont dans 5_data/hero/hero_view.tres."
+  },
+  {
+   "id": "e8_recul_du_tir",
+   "etape": 8,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "À chaque tir (signal HeroGun.fired), le soldat doit jouer un recul du fusil, par-dessus la course, sans arrêter les jambes. Comment relancer une animation ponctuelle dans l'AnimationTree depuis le code ?",
+   "pensee": "Un AnimationNodeOneShot joue un clip une fois par-dessus son entrée. Je cherche comment on le déclenche.",
+   "outil": {"genre": "rag", "requete": "AnimationNodeOneShot request fire", "n": 1},
+   "attendu": ["ONE_SHOT_REQUEST_FIRE"],
+   "lecture": "La documentation : « animation_tree.set(\"parameters/OneShot/request\", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE) ».",
+   "decision": "Un OneShot « fire » au-dessus du mélange de course, filtré sur l'os Spine et ses descendants (le haut du corps) ; la vue pose parameters/fire/request à ONE_SHOT_REQUEST_FIRE à chaque HeroGun.fired."
+  },
+  {
+   "id": "e8_bouche_apres_la_pose",
+   "etape": 8,
+   "sujet": "Création de tests",
+   "type": "analyse",
+   "situation": "Le test « la bouche de l'arme suit celle du fusil » échoue : pendant une roulade, l'arme du héros est à 0,256 m du canon que tient le modèle. La vue recopie la position du canon dans _physics_process. Pourquoi ce retard, et quand faut-il recopier ?",
+   "pensee": "La pose du squelette se calcule peut-être après la physique. Je cherche un signal émis quand la pose finale est prête.",
+   "outil": {"genre": "rag", "requete": "Skeleton3D skeleton_updated signal final pose", "n": 1},
+   "attendu": ["skeleton_updated"],
+   "lecture": "« Emitted when the final pose has been calculated will be applied to the skin in the update process. »",
+   "decision": "La vue se branche sur skeleton_updated et y recalcule la bouche depuis l'os RightHand (pose de l'os × place du fusil), sans dépendre de l'ordre des abonnés. Le test passe."
   }
  ]
 }

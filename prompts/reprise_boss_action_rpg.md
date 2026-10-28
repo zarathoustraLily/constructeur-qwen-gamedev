@@ -16,9 +16,8 @@ l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 > 4. `SUIVIS_PROGRESSION\demarche.md` (chaque étape, ses recherches, ses erreurs) et `conception.md` (le combat voulu) ;
 > 5. `D:\constructeur-qwen-gamedev\ETAT.md`, section « Cours boss_action_rpg — 2026-10-28 ».
 >
-> Puis fais l'étape 8 du cours : **le héros animé** (le soldat du paquet `scifitroopermanv3`, ses textures, les
-> roulades de `sourse.zip`, les animations au fusil de `lyra.zip` et `gaspfix.zip` reciblées sur son squelette),
-> branché sur les états déjà écrits (Move, Roll, Hit, Heal, Dead, tir), avec la même méthode que les étapes 1 à 7 :
+> Puis fais l'étape 9 du cours : **l'interface du genre** (vie, endurance, fioles, surchauffe, nom et barre du boss),
+> branchée sur les composants déjà écrits, avec la même méthode que les étapes 1 à 8 :
 > maîtres balisés dans `cours/boss_action_rpg/`, tests d'abord, fabrication, import, tests GdUnit4 dont chaque ligne
 > est lue, captures du rendu, report dans le dossier du jeu, note d'étape détaillée, pas de démarche ajoutés au journal
 > (`cours/boss_action_rpg/demarche.json`), mise à jour de `suivi.md`, `demarche.md` et `ETAT.md`, commit.
@@ -66,7 +65,7 @@ l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
   sons muets dans les projets qui produisent les données.
 - Vocabulaire Godot : tout membre vérifié (`python -m usine.vocab lookup <Classe> <membre>`) ; documentation par le
   RAG (`python -m usine.rag chercher "<requête>" -n N [--json]`).
-- Disque **D: presque plein** (≈ 24 Go libres) : chaque étape du cours à partir de la 7 recopie ≈ 200 Mo.
+- Disque **D: presque plein** (≈ 24 Go libres le 2026-10-28 après l'étape 8) : chaque étape du cours à partir de la 7 recopie ≈ 200 Mo.
 
 ## 4. Où sont les choses
 
@@ -82,7 +81,8 @@ l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 | Journal de démarche (paires) | `D:\constructeur-qwen-gamedev\cours\boss_action_rpg\demarche.json` |
 | Projets fabriqués des étapes | `D:\constructeur-qwen-gamedev\donnees\cours\boss_action_rpg\projets\boss_etape_00N\` |
 | Paires générées | `D:\constructeur-qwen-gamedev\donnees\paires\<famille>\` |
-| Branche du dépôt | `claude/observation-visuelle` (derniers commits : `c890c7c` étape 7, `cd5be34` démarche) |
+| Branche du dépôt | `claude/observation-visuelle` (commits : `c890c7c` étape 7, `cd5be34` démarche, puis l'étape 8) |
+| Héros (modèle, animations, reciblage) | `…\6_assets\Characters\Hero\` (hero_model.tscn, hero_animations.tres, Models, Animations/Source et Clips, Retarget, Textures, Materials, Meshes, Skins) |
 
 Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe` (éditeur : sans `_console`).
 
@@ -99,12 +99,13 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 | 5 | Tir : visée au centre de l'écran, projectiles à rayon par image en réserve de 32, zones « cibles », surchauffe | 105 |
 | 6 | Santé du héros, zone de coup du boss, états Hit, Heal, Dead, trois fioles punissables, recommencement | 122 |
 | 7 | Le saloon d'un géant et son gardien : décor Quixel converti de la scène Unity, échelle 4, ambiance (lune, lampes, brouillard, brume au sol), golem animé (25 animations), plancher à y = 0 | 129 |
+| 8 | Le héros animé : soldat reciblé (UE4 et UE5 → profil humanoïde), 13 clips, fusil sur l'os de la main, vue `hero_view.gd` (transition par état, course et marche visée, recul du tir sur le haut du corps, durées des états, bouche de l'arme à `skeleton_updated`) | 139 |
 
-Ce qui n'existe pas encore : le héros animé (c'est encore une capsule), l'interface, l'IA du golem (il joue
+Ce qui n'existe pas encore : l'interface, l'IA du golem (il joue
 l'attente, ne bouge pas, ne frappe pas), les effets, les sons, la musique, l'optimisation. L'entrée du saloon est
 surexposée (plan émissif extérieur, `M_Emissive`, énergie 4) : à régler avec les lumières.
 
-**Ordre accepté par laurent** (« oui vas y ») : décor et golem (fait) → **héros animé** → interface du genre →
+**Ordre accepté par laurent** (« oui vas y ») : décor et golem (fait) → héros animé (fait) → **interface du genre** →
 combat du golem (machine à états, attaques sur ses vraies animations, zones de coup, bouclier, points faibles,
 phase 2, mort) → effets et sons → optimisation → paires et sessions longues.
 
@@ -144,32 +145,30 @@ Outils de `SUIVIS_PROGRESSION\outils\` : `unity_scene_extraire.py`, `unity_scene
 `unity_materiaux_vers_json.py`, `unity_extraire_fichiers.py`, `textures_vers_godot.py`, `completer_murs.py`,
 `golem_textures.py`, `construire_saloon.gd`, `construire_golem.gd`, `construire_ambiance.gd`, `inspecter_scene.gd`
 (décrit une scène importée : nœuds, maillages, squelette, animations), `capturer.gd`, `capturer_jeu.gd`,
-`apercu_arene.gd`, `reporter.py`, `refaire_arene.py` (refait toute la chaîne du décor et du golem avec les paramètres
+`apercu_arene.gd`, `reporter.py`, `refaire_arene.py`, et pour le héros : `recibler_heros.gd`, `heros_textures.py`,
+`construire_heros.gd`, `mesurer_clips.gd`, `mesurer_foulee.gd`, `planche_poses.gd`, `capturer_heros.gd` (refait toute la chaîne du décor et du golem avec les paramètres
 retenus : échelle 4, décalage `-85.4,4.288,2.49`, lampes 9). Les scripts GDScript lancés par `-s` sont compilés avec
 les réglages stricts du projet (typer tout, pas de division entière).
 
-## 7. L'étape 8 : le héros animé (ce qu'on sait déjà)
+## 7. L'étape 9 : l'interface du genre (ce qu'on sait déjà)
 
-- **Le modèle** : `source_extraites\scifitroopermanv3\Assets\Sci-FI_Trooper_Man_v.3\Meshes\SK_SciFiTrooperManV3.fbx`,
-  textures `Textures\T_SciFiTrooperV3_{top,bottom}_{a,n,emissive,RGBA}.png` (le `RGBA` est probablement un masque
-  Unity : lire le `.mat` et, s'il le faut, le shader, comme pour le saloon, avant de composer l'ORM). Commencer par
-  `inspecter_scene.gd` sur le FBX importé : squelette (noms des os : de type Unreal ?), taille, surfaces.
-- **Les roulades** : `source_extraites\sourse\RM_Roll_*.fbx` (8 directions, « RM » = mouvement porté par
-  l'animation). Identifier leur squelette ; le code fait déjà le déplacement (état Roll : 7 m/s pendant 0,5 s) :
-  soit retirer la translation de la racine, soit la lire (`AnimationMixer.root_motion_track`) et l'aligner sur la
-  durée de l'état.
-- **Les animations au fusil** : `source_extraites\lyra\Lyra\Rifle\*.FBX` (`MF_Rifle_Idle_ADS`, `MF_Rifle_Idle_Hipfire`,
-  `MF_Rifle_Jog_*`…), `source_extraites\gaspfix\GaspFix\_FixedRifle\` et `_FixedPistol\` (extensions en **.FBX**
-  majuscules : chercher sans tenir compte de la casse). Squelette du mannequin d'Unreal : recibler dans Godot par les
-  réglages d'import (`BoneMap` + `SkeletonProfileHumanoid`, onglet « Retarget » de l'import), vérifier sur l'image.
-- **Le branchement** : une vue séparée de la logique (`3_entities/hero/hero_view.gd` : la règle du plan, logique /
-  `_view` / `_input` distincts) qui lit l'état de la machine (Move, Roll, Hit, Heal, Dead), la vitesse, la visée, le
-  tir, et pilote un `AnimationTree` (machine à états d'animation, mélange de déplacement 2D, couche haute de tir).
-  L'arme : un `BoneAttachment3D` sur l'os de la main ; la bouche de l'arme (`Gun` du héros) doit suivre la bouche du
-  modèle.
-- **Les tests** : la vue joue la bonne animation pour chaque état ; la roulade dure ce que dure l'état ; l'arme suit la
-  main ; aucune erreur à l'import ; captures (héros vu par la caméra, en course, en visée, en roulade).
-- Le héros mesure 1,8 m (le décor et le golem sont à l'échelle 4) : garder cette taille.
+L'étape 8 (le héros animé) est faite : note `cours/boss_action_rpg/notes/etape_008.md`, `demarche.md` étape 12.
+Ce qu'elle laisse : le fusil est fait de primitives (aucun modèle d'arme dans les sources) ; le soin joue le
+rechargement (aucun clip ne boit) ; chercher les deux, avec l'accord de laurent pour tout téléchargement. Sa chaîne :
+`outils/recibler_heros.gd` (cartes d'os UE4/UE5 → `SkeletonProfileHumanoid`, écrites dans les `.import`), `--import`,
+`outils/heros_textures.py`, `outils/construire_heros.gd` (→ `6_assets/Characters/Hero/hero_model.tscn`,
+`hero_animations.tres`) ; mesures `outils/mesurer_clips.gd`, `outils/mesurer_foulee.gd` ; images
+`outils/planche_poses.gd`, `outils/capturer_heros.gd`.
+
+L'étape 9, selon l'ordre accepté : **l'interface du genre**, originale (ne pas copier celle de Dark Souls) : vie et
+endurance en haut à gauche, fioles en bas à gauche, surchauffe de l'arme près du réticule, nom et barre du boss en bas.
+- Ce qu'elle lit (signaux déjà là) : `HealthComponent.damaged/healed/died` et `ratio()` ; `StaminaComponent.changed`
+  et `ratio()` ; `FlaskComponent.changed(charges, maximum)` ; `HeatComponent.changed/overheated/cooled_down` et
+  `ratio()`. La santé du golem : son `Health` (1 500).
+- Règle du plan : l'interface est une vue (`4_ui/` ou le dossier que le plan prévoit : lire `godot/socle_jeu/AGENTS.md`
+  du dépôt) qui écoute, ne décide rien ; ses valeurs (couleurs, durées de la barre « dégâts récents ») dans `5_data`.
+- Tests : chaque barre suit son composant ; la barre du boss apparaît au réveil (à décider avec la conception) ;
+  captures de l'écran de jeu.
 
 ## 8. Le golem ensuite (préparé)
 
@@ -213,3 +212,12 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - Heredoc et antislash : `\n` devient un vrai saut de ligne ; écrire les scripts par l'outil d'écriture de fichiers.
 - `cygpath` de la machine est cassé (anaconda) : passer les chemins Windows tels quels.
 - Sorties Python avec des caractères accentués ou des flèches : `PYTHONIOENCODING=utf-8`.
+- `Skeleton3D.get_bone_global_pose` ne voit pas une pose qu'on vient de poser (`set_bone_pose_rotation`) : composer
+  la pose de parent en parent avec `get_bone_pose` (étape 8 : foulées à 0, fusil placé sur la pose de repos).
+- La pose du squelette se finit après la physique : ce qui doit suivre un os (la bouche de l'arme) se recale au
+  signal `Skeleton3D.skeleton_updated`.
+- Le reciblage s'écrit dans le `.import` sous `_subresources` → `nodes` → `"PATH:<chemin du squelette dans la scène
+  brute>"` ; effacer les `.md5` de `.godot/imported/` pour que `--import` le refasse.
+- Godot 4.7.2 avertit pour un point d'espace de mélange sans nom (`add_blend_point(nœud, pos, -1, &"nom")`).
+- Python `write_text` sous Windows écrit des CRLF : écrire des octets (`write_bytes`) dans le dépôt ; et un `\\`
+  dans un heredoc passé à Python peut se perdre : éditer les chemins Windows par l'outil d'édition.

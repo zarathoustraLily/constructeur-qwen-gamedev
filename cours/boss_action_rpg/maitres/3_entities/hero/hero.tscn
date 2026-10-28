@@ -30,11 +30,16 @@
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_hit_state.gd" id="17_hit"]
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_heal_state.gd" id="18_heal"]
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_dead_state.gd" id="19_dead"]
+;@ 8+
+[ext_resource type="Script" path="res://3_entities/hero/hero_view.gd" id="20_view"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_view.tres" id="21_view_settings"]
+[ext_resource type="PackedScene" path="res://6_assets/Characters/Hero/hero_model.tscn" id="22_model"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
 height = 1.8
+;@ 2-7
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
 radius = 0.35
@@ -45,6 +50,7 @@ size = Vector3(0.2, 0.2, 0.3)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nose"]
 albedo_color = Color(0.9, 0.5, 0.1, 1)
+;@ all
 
 [node name="Hero" type="CharacterBody3D"]
 script = ExtResource("1_hero")
@@ -53,6 +59,7 @@ settings = ExtResource("2_settings")
 [node name="Shape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_body")
+;@ 2-7
 
 [node name="Body" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
@@ -62,6 +69,7 @@ mesh = SubResource("CapsuleMesh_body")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.4)
 mesh = SubResource("BoxMesh_nose")
 surface_material_override/0 = SubResource("StandardMaterial3D_nose")
+;@ all
 
 [node name="Input" type="Node" parent="." node_paths=PackedStringArray("hero")]
 script = ExtResource("3_input")
@@ -120,4 +128,18 @@ hero = NodePath("../..")
 [node name="Dead" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
 script = ExtResource("19_dead")
 hero = NodePath("../..")
+;@ all
+;@ 8+
+
+[node name="View" type="Node3D" parent="." node_paths=PackedStringArray("hero", "machine", "gun")]
+script = ExtResource("20_view")
+hero = NodePath("..")
+machine = NodePath("../StateMachine")
+gun = NodePath("../Gun")
+settings = ExtResource("21_view_settings")
+
+[node name="Model" parent="View" instance=ExtResource("22_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+
+[node name="AnimationTree" type="AnimationTree" parent="View"]
 ;@ all

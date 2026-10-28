@@ -2263,7 +2263,16 @@ lue ; les étapes précédentes refabriquées et revérifiées à chaque fois) :
 4. machine à états du héros, endurance, roulade, sprint (66) ; 5. tir, projectiles à rayon en réserve, surchauffe
 (105) ; 6. santé, zone de coup du boss, fioles, chute et recommencement (122 ; rechargement joué sans fenêtre) ;
 7. le saloon d'un géant et son gardien (129) : décor Quixel converti depuis la scène Unity du paquet, échelle 4,
-ambiance (lune, lampes, brouillard, brume au sol), golem animé (25 animations, armes sur les os d'arme).
+ambiance (lune, lampes, brouillard, brume au sol), golem animé (25 animations, armes sur les os d'arme) ;
+8. le héros animé (139) : soldat de `scifitroopermanv3` reciblé à l'import (BoneMap UE4 et UE5 →
+`SkeletonProfileHumanoid`, écrite dans les `.import` par `SUIVIS_PROGRESSION/outils/recibler_heros.gd`), 13 clips de
+Lyra, gaspfix et `sourse` sans l'os Root, fusil fait de primitives sur l'os de la main (aucun modèle d'arme dans les
+sources) ; vue `3_entities/hero/hero_view.gd` qui écoute la machine à états et l'arme : transition par état, course
+mêlée par la vitesse et fondue vers la marche visée, recul du tir filtré sur le haut du corps, roulade et soin étirés
+sur la durée de leurs états, boucles à la vitesse du corps (foulées mesurées : course 4,23 m/s, sprint 6,02), bouche
+de l'arme recalée au signal `skeleton_updated`. Étapes 1 à 7 : rendu des maîtres identique ; 6 et 7 refabriquées et
+retestées (122, 129). Captures envoyées à laurent (`SUIVIS_PROGRESSION/captures/etape_008/`). `plan.md` du cours suit
+l'ordre réel à partir de l'étape 8.
 
 **Réorientation** : après l'étape 6, laurent a jugé la maquette grise trop loin de sa référence (vidéo de Dark Souls 1,
 https://www.youtube.com/watch?v=fsVcMukmQNU) ; le visuel passe en tête (décor et golem, puis héros animé, puis
@@ -2274,9 +2283,8 @@ sol (« carboglace »).
 (`.res`, `.scn`) ; test `test_une_ressource_binaire_amene_les_ressources_qu_elle_designe` ; `tests/test_cours_jeu.py`
 8 passés.
 
-**Reste à faire**, dans l'ordre accepté par laurent : étape 8, le héros animé (le soldat de `scifitroopermanv3`, les
-roulades de `sourse.zip`, les animations de `lyra.zip` et `gaspfix.zip` à recibler sur son squelette ; laurent : « tu
-utilises les sources que j'ai prises ») ; l'interface du genre ; le golem (machine à états, attaques sur ses vraies
+**Reste à faire**, dans l'ordre accepté par laurent : étape 9, l'interface du genre ; un modèle de fusil et un geste
+de soin (le soin joue le rechargement), à chercher avec l'accord de laurent ; le golem (machine à états, attaques sur ses vraies
 animations, zones de coup, bouclier, points faibles, phase 2, mort) ; effets et sons (sons TII : jeu final seulement,
 « No AI Training ») ; musique à chercher (accord de laurent pour chaque téléchargement) ; optimisation ; puis les
 paires tirées du cours (familles de création, RAG, **recherche de sources**, sessions longues). L'entrée du saloon est
@@ -2289,7 +2297,7 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
 `mcp_serveur.outils.Outils`, pas écarté si un fragment ou une citation manque, paire au format d'OpenCode), branché dans
 `volume.py` ; `tests/test_paires_demarche.py` 4 passés. Premier état : 10 paires (7 au palier 1, 3 au palier 2),
-0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
+0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
 lisent des fichiers, sessions longues, pas « plan ».
 
 **Pièges de cette passe** (détail et remèdes dans `demarche.md`)
@@ -2298,6 +2306,10 @@ lisent des fichiers, sessions longues, pas « plan ».
 - Un temps décompté image par image n'arrive pas à zéro (0,1 − 6 × 1/60 = 3e-17) : `is_zero_approx`.
 - Avec GodotPhysics3D (moteur par défaut en 4.7.2), une `Area3D` n'a pas signalé un `StaticBody3D` posé dans son
   volume ; un `CharacterBody3D`, si.
+- `Skeleton3D.get_bone_global_pose` ne voit pas une pose posée à l'instant (`set_bone_pose_rotation`) : composer de
+  parent en parent avec `get_bone_pose`. La pose finale du squelette arrive après la physique : suivre un os au
+  signal `skeleton_updated`.
+- Points d'espace de mélange sans nom : avertissement de Godot 4.7.2 ; les nommer.
 - Sous GdUnit, la scène courante est le lanceur : un rechargement de scène se vérifie en jouant le niveau sans fenêtre.
 - Un script lancé par `-s` dans un projet est compilé avec ses réglages stricts (division entière refusée).
 - Le YAML des `MeshCollider` de Quixel est mal indenté ; les matériaux Quixel se lisent dans leur graphe de shader.

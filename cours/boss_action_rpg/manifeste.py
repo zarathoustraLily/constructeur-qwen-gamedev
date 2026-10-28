@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 7
+DERNIERE = 8
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -25,13 +25,14 @@ ETAPES = [
     {"piste": "Gameplay + Physique + Optimisation", "titre": "Le tir : visée au centre de l'écran, projectiles en réserve, surchauffe"},
     {"piste": "Gameplay + Architecture", "titre": "La santé du héros : coups reçus, fioles, chute et recommencement"},
     {"piste": "Graphisme 3D + Optimisation", "titre": "Le saloon d'un géant et son gardien : décor et boss tirés de paquets Unity, ambiance"},
+    {"piste": "Graphisme 3D + Gameplay", "titre": "Le héros animé : un soldat reciblé, son arbre d'animation branché sur ses états"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -110,4 +111,8 @@ FICHIERS = {
     "3_entities/boss/golem.gd": "7+",
     "3_entities/boss/golem.tscn": "7+",
     "7_tests/3_entities/boss/test_golem.gd": "7+",
+    "1_core/data/hero_view_settings.gd": "8+",
+    "5_data/hero/hero_view.tres": "8+",
+    "3_entities/hero/hero_view.gd": "8+",
+    "7_tests/3_entities/hero/test_hero_view.gd": "8+",
 }
