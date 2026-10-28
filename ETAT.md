@@ -2164,6 +2164,76 @@ python -m pytest -q tests/test_mcp_serveur.py tests/test_retour_vues.py tests/te
 - Deux éditeurs lancés en même temps se disputent `editor_settings-4.7.tres` : la commande est relancée.
 - Le shell de l'outil Bash réduit `\\` en `\` dans un heredoc : écrire les scripts de correction dans un fichier.
 
+### Premier LoRA et création multipliée — 2026-10-28 (branche `claude/observation-visuelle`, machine de laurent)
+
+**Fait**
+- **Étape 1 de l'entraînement (C2)** : palier 1 (1 579 paires), 99 pas, 1 h 26, code 0, adaptateur de 467 Mo
+  (`donnees/entrainement/lora_etape_1/`). Perte 1,18 → 0,012 (apprentissage par cœur probable des lectures de sortie,
+  très répétitives). Deux essais perdus avant : arrêt du pilote (TDR) au pas 44 après 6 h 16 sans sauvegarde, puis un
+  réglage de mémoire qui a aggravé.
+- **Cause du débordement** : PyTorch ne vide sa réserve qu'après un refus de mémoire (`num_alloc_retries`, « cache
+  flush and retry », `torch/cuda/memory.py`) ; sous Windows, la carte pleine ne refuse rien (le pilote prête la
+  mémoire du PC) : la réserve grossit, les pas passent de 45 à 510 s, puis TDR. `max_split_size_mb:256,
+  garbage_collection_threshold:0.8` aggrave (14 760 Mio partagés avant la fin du pas 1). Correctif :
+  `set_per_process_memory_fraction` (libre au départ moins 2 000 Mio) dans `usine/entrainement/suivi_memoire.py`,
+  relevé par pas (`memoire.jsonl`) ; besoin réel 22,8 Go, réserve plafonnée 29,7 Go, 4 vidages, 47 à 60 s par pas.
+  Sauvegarde tous les 10 pas, reprise seule par LLaMA-Factory (`parser.py`, `get_last_checkpoint`).
+- **Conversion GGUF (C3)** : `usine/rft/convertir_lora.py` lance le `convert_lora_to_gguf.py` de la build
+  tq-src-0831 de laurent avec une correction : `_reorder_v_heads` (têtes V de l'attention linéaire qwen35) appliqué
+  aux facteurs du LoRA (lignes de B, colonnes de A) ; le script d'origine lève NotImplementedError sur out_proj.
+  Vérifié : la permutation des facteurs redonne exactement la permutation de W. Sortie : `lora_etape_1-f16.gguf`
+  (992 tenseurs, 233 Mo) ; lanceur `START-QWEN38-OPENCODE-LORA_ETAPE_1.bat` (copie du lanceur LoRA de laurent, seul
+  `--lora` change). Non chargé : llama-server attend l'accord de laurent. La build tq-src-1010 ne convertit pas
+  (`ModelBase.example` absent : son paquet `conversion` ne va pas avec le gguf installé).
+- **Création multipliée** (demande de laurent : de 89 à plus de 7 000 paires, « d'excellente qualité ») :
+  - `boucle.py` : chaque création appelle l'analyse et les tests par l'outil `shell` (Godot par son chemin complet),
+    reçoit les vraies sorties (tests : seulement les cas qui jugent, les autres écartés par `-i`), puis les lit. Si
+    la boucle ne tient pas en 1 024 jetons : la paire au palier 1 sans boucle (commandes en fin de réponse) et au
+    palier 2 avec boucle et plan.
+  - `bloc.py` : les lignes qui manquent à une fonction (une instruction de premier niveau, `if`/`for` compris) ;
+    le juge compile une version neutre (bloc retiré, déclaration à la valeur nulle, retour neutre) ; atelier 31/38.
+  - `test_cas.py` : écrire un cas GdUnit4 ; gardé s'il passe seul et échoue quand une fonction qu'il appelle est
+    vidée ; atelier 24/26.
+  - `maillage.py` : fonctions des générateurs des bâtiments, juge par empreinte SHA-256 des maillages construits
+    sans fenêtre (`surface_get_arrays` garde les sommets sans rendu, vérifié) ; 212 paires avant la boucle.
+  - `morceaux.py` : un changement d'étape rattaché à un point de note (bâtiments : empreinte ; jeux : tests).
+  - `shader_fonction.py` : fonction de shader des bâtiments, juge par l'image (`visuel.comparer`) ; 44 candidates ;
+    pas encore lancé (rend des images).
+  - `rag.py` : tirée de toutes les créations GDScript, fonctions de `@GlobalScope` comprises (hors petites
+    fonctions de calcul) ; au palier 1, la recherche sans la boucle quand la boucle ne tient pas.
+  - Suites qui échouaient parfois sur l'état de l'étape : seconde tentative (`boucle.suite_passe`), suppression du
+    rapport de GdUnit4 sous Windows quand les lancements se suivent.
+- **Cours « atelier »** (`cours/atelier/`, écrit par Claude, demande de laurent : UI, audio, manette, effets…) : 7
+  étapes vérifiées par Godot 4.7.2, 143 cas GdUnit4 verts sans ERROR ni WARNING : menus et volume (bus audio) ;
+  manette (zone morte ronde, vibrations, remappage avec échange) ; santé et machine à états (mannequin) ; physique du
+  joueur (CharacterBody3D, coyote time, mémoire d'appui, couches nommées) ; caméra (SpringArm3D) et jour-nuit ; VFX
+  en code (ParticleProcessMaterial, traumatisme et bruit, éclair par Tween) ; ondulations (grille SurfaceTool, onde
+  d'impact). Projets dans `donnees/cours/atelier/projets/`.
+- **Compte à 13 h 30** : 1 544 paires de création (767 au palier 1), contre 89 ce matin ; régénération complète avec
+  les deux paliers en cours (bâtiments, kart, roguelike).
+
+**Pourquoi la création manque** : une étape de cours donne jusqu'à 150 fautes de compilation (`volume.PAR_ETAPE`)
+mais une dizaine de fonctions ; garder toutes les paires vérifiées du palier 1 (8 662) au 40/40/20 demanderait environ
+1,7 million de jetons de création (≈ 4 700 paires). Ne pas lancer les familles de débogage sur l'atelier.
+
+**Reste à faire**
+- Lancer `shader_fonction` (carte libre), puis `rag` sur toutes les créations, puis assembler les paliers et relancer
+  l'étape 1 de l'entraînement sur le nouveau palier 1.
+- Atelier, étapes 8 à 12 : procédural (arbres, nuages, galaxie), audio (pool d'effets, fondu de musique), mémoire
+  (pool d'objets, cache), optimisation (grille spatiale, mise à jour échelonnée), sauvegarde (ConfigFile).
+- Charger le LoRA de l'étape 1 dans llama-server (accord de laurent).
+
+**Pièges**
+- `wrap` est une fonction intégrée de GDScript : un paramètre de ce nom est une erreur (shadowed_global_identifier).
+- Un signal déclaré dans une classe de base et émis seulement par les classes filles : `unused_signal` ; l'émettre
+  dans une méthode de la base (`State.finish`).
+- `Dictionary.keys()` rend un tableau sans type : `assign` dans un `Array[StringName]` avant de le rendre.
+- Une composante de `Vector2` est un flottant 32 bits : 0,2 y vaut 0,200000003 (un test au bord exact d'un seuil
+  flotte).
+- Ne pas lancer Godot sur un projet en cours de fabrication : la console ouvre une boîte d'alerte (« no main scene »)
+  sur l'écran de laurent.
+- `creation --cours X` prend 4 fonctions par étape par défaut : passer `--par-etape 30`.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.

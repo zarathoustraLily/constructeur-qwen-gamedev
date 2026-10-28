@@ -20,16 +20,16 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | B3 | Paires : erreur à l'exécution → correction | générateur fait (2026-10-27), palier 2 avec le plan (délégation) ; volume en B9 | Claude, fil principal | | essai kart et roguelike : 26 paires vérifiées sur 31, 0 trop longue (ETAT) |
 | B4 | Paires : lire une sortie de Godot | générateur fait (2026-10-27), tiré de B1 à B3 sans relancer Godot | Claude, fil principal | | essai : 36 lectures, 18 échecs, 18 réussites, ≤ 980 jetons (ETAT) |
 | B5 | Paires : création courte | fonction d'après son contrat : 105 (58 au palier 1) ; **source épuisée** (blocs, fonctions non jugées, exemples de la doc : sans suite, ETAT) | Claude, fil principal | | `volume.log`, ETAT |
-| B6 | Paires : RAG | en attente de A5, R1, R2 | | | |
+| B6 | Paires : RAG | fait ; tirée de toutes les créations GDScript (fonctions, blocs, maillage), @GlobalScope compris | Claude, fil principal | 2026-10-28 | `donnees/paires/rag/bilan.json` |
 | B7 | Paires : images, 4 niveaux | à faire | | | |
 | B8 | Assembleur du palier 1 | fait ; sujet sans création gardé entier (laurent, 2026-10-27) | Claude, fil principal | | `controles_palier_1.json` : 1 579 paires, 0 problème |
 | B9 | Génération du palier 1 sur le PC | fait (2026-10-27, 2 h 08 puis 54 min) | Claude, fil principal | | `donnees/paires/volume.log` |
 | C1 | Réglages de LLaMA-Factory | faite (2026-10-27) | Claude, fil principal | | `python -m usine.entrainement reglages` ; tests (ETAT) |
-| C2 | Entraînement d'essai (≈ 6 000 paires) | en attente de B1-B4, C1 | | | |
-| C3 | Conversion GGUF et chargement | en attente de C2 | | | |
+| C2 | Entraînement d'essai (étape 1) | fait : 99 pas, 1 h 26, perte 1,18 → 0,012 ; plafond de mémoire de PyTorch | Claude, fil principal | 2026-10-28 | `donnees/entrainement/lora_etape_1/bilan.json`, `memoire.jsonl` |
+| C3 | Conversion GGUF et chargement | converti (`usine/rft/convertir_lora.py`, correction des têtes V) ; chargement : accord de laurent | Claude, fil principal | 2026-10-28 | `lora_etape_1-f16.gguf`, `START-QWEN38-OPENCODE-LORA_ETAPE_1.bat` |
 | C4 | Courte campagne de contrôle | proposé, attend laurent | | | |
 | C5 | Étape 1 complète | en attente de B9, C3 | | | |
-| D1 | Morceaux de jeu point par point | « fonction d'après son contrat » : 47 au palier 2 ; reste les points des notes | Claude, fil principal | | `volume.log`, ETAT |
+| D1 | Morceaux de jeu et création multipliée | familles creation_fonction, creation_bloc, creation_test, creation_maillage, creation_morceau (boucle de vérification, deux paliers) ; creation_shader écrite, non lancée | Claude, fil principal | 2026-10-28 | `donnees/paires/creation_*/bilan_*.json`, ETAT |
 | D2 | Morceaux tirés des démos | à faire | | | |
 | D3 | Séquences de 5 images | en attente de B7 | | | |
 | D4 | Assembleur du palier 2 | fait | Claude, fil principal | | `controles_palier_2.json` : 278 paires, 0 problème |

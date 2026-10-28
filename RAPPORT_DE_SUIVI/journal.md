@@ -83,3 +83,14 @@ avec un relevé par pas (`memoire.jsonl`). Pas 1 à 6 : 47 à 60 s, besoin réel
 2026-10-28 — B8 — Claude (fil principal) — constat — création au palier 1 : 89 paires (58 fonctions, 31 RAG). Fonctions
 des cours : kart 266 (81 candidates, 50 paires), roguelike 187 (69, 55), bâtiments 324 (226 candidates, 0 paire :
 aucun test ne juge une fonction). Proposé à laurent : un juge « même maillage » pour les fonctions des bâtiments
+2026-10-28 — C2 — Claude (fil principal) — fait — étape 1 : 99 pas en 1 h 26 avec le plafond de PyTorch, code 0,
+adaptateur 467 Mo ; perte 1,18 → 0,012
+2026-10-28 — C3 — Claude (fil principal) — converti — `usine/rft/convertir_lora.py` : la build tq-src-0831 de laurent
+ne convertit pas les têtes V de l'attention linéaire d'un LoRA (NotImplementedError) ; permutation appliquée aux
+facteurs, vérifiée égale à celle de W ; GGUF de 233 Mo et lanceur prêts, chargement en attente de l'accord de laurent
+2026-10-28 — D1 — laurent — demande — « passer de 89 à plus de 7 000 paires » de création « d'excellente qualité »,
+« codage de l'interface aussi, de l'audio », « contrôle manette aussi », particules et ondulations
+2026-10-28 — D1 — Claude (fil principal) — fait — familles bloc, test_cas, maillage, morceaux, shader_fonction ;
+boucle de vérification (vraies sorties puis lecture) ; deux paliers quand la boucle ne tient pas en 1 024 jetons ;
+1 544 paires de création à 13 h 30
+2026-10-28 — D6 — Claude (fil principal) — en cours — cours « atelier », étapes 1 à 7 vérifiées (143 cas GdUnit4)

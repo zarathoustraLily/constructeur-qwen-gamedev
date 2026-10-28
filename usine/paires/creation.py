@@ -244,7 +244,6 @@ def paire(projet: Any, rel: str, f: Any, suites: list[str], sujet: str,
     u = usages(fonction, original)
     api = ["", "**Vérifier l'API.** Les appels de Godot employés, relus dans `extension_api.json` (4.7.2) :"] + u if u else []
     tester = ["", "**Tester.** J'analyse le script, puis je lance " + boucle.phrase_cas(projet.apres[rouge], cas)]
-    reponse = ecrire + api + tester
     # La boucle de vérification (boucle.py) : les vraies sorties, puis leur lecture.
     sorties = [(analyse, "analyse"), (tests, "test")]
     lire = boucle.lecture(sorties, f"`{f.nom}`", cas, rouge)
@@ -257,27 +256,19 @@ def paire(projet: Any, rel: str, f: Any, suites: list[str], sujet: str,
     ailleurs = employes_ailleurs(original, f, projet.apres)
     ailleurs = f"\n\nCe que la fonction emploie d'autres scripts du projet :\n{ailleurs}" if ailleurs else ""
 
-    def faire(demande: str, palier: int, texte: list[str] = reponse) -> dict[str, Any]:
-        return fmt.paire_tours(FAMILLE, sujet, "création",
-                               boucle.tours(f"verif_{f.nom}", demande, "\n".join(texte), sorties, lire),
-                               dict(preuve, palier=palier), systeme=fmt.plan() if palier == 2 else None)
-
-    # Palier 1 quand le plan n'y joue aucun rôle (section 3) : le contexte réduit à ce que la fonction emploie ; si la
-    # boucle de vérification ne tient pas dans 1 024 jetons, la même sans la vérification de l'API.
-    if sans_convention(fonction, projet.apres, original):
-        demande = (f"{tete} Ce que le script déclare et que la fonction emploie :\n```gdscript\n"
-                   f"{contexte_minimal(original, f)}```{ailleurs}")
-        for texte in (reponse, ecrire + tester):
-            courte = faire(demande, 1, texte)
-            if courte["jetons"] <= PLAFOND_COURT:
-                return courte, ""
-    longue = faire(f"{tete} Le script (les autres fonctions réduites à leur signature) :\n```gdscript\n"
-                   f"{script_a_trou(original, f.nom)}```{ailleurs}", 2)
-    if longue["jetons"] <= PLAFOND:
-        return longue, ""
-    # Script trop long pour être montré entier : le plan, et seulement ce que la fonction emploie.
-    return faire(f"{tete} Ce que le script déclare et que la fonction emploie :\n```gdscript\n"
-                 f"{contexte_minimal(original, f)}```{ailleurs}", 2), ""
+    # Palier 1 quand le plan n'y joue aucun rôle (section 3) : le contexte réduit à ce que la fonction emploie. Au
+    # palier 2, le script entier (les autres fonctions réduites à leur signature), sauf s'il est trop long.
+    minimale = (f"{tete} Ce que le script déclare et que la fonction emploie :\n```gdscript\n"
+                f"{contexte_minimal(original, f)}```{ailleurs}")
+    entiere = (f"{tete} Le script (les autres fonctions réduites à leur signature) :\n```gdscript\n"
+               f"{script_a_trou(original, f.nom)}```{ailleurs}")
+    palier_1 = sans_convention(fonction, projet.apres, original)
+    for demande_2 in (entiere, minimale):
+        qs, raison = boucle.paire(FAMILLE, sujet, f"verif_{f.nom}", minimale, ecrire, api, tester, sorties, lire,
+                                  preuve, palier_1, demande_2)
+        if any(q["preuve"]["palier"] == 2 for q in qs) or (qs and demande_2 is minimale):
+            return qs, ""
+    return qs, raison
 
 
 def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: list[int] | None = None,
@@ -313,10 +304,10 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
                     break
                 essais += 1
                 p, raison = paire(projet, rel, f, suites_pour(apres, rel), _sujet(ville, n, rel), passe)
-                if p is None:
+                if not p:
                     rejets.append(f"{ville}-{n:03d} {rel} {f.nom} : {raison}")
                     continue
-                paires.append(p)
+                paires.extend(p if isinstance(p, list) else [p])
                 vues.add(cle)
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{essais} paires")

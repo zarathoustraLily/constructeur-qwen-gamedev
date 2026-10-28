@@ -173,10 +173,10 @@ def generer(cours: str = "batiments_proceduraux", par_etape: int = 40, graine: i
                 juge = ({"scenes": scenes, "reference": reference, "test": test, "sortie_test": t}
                         if batiments else {"suites": suites_pour(apres, m.fichier), "passe": passe})
                 q, raison = paire(projet, note, p, sans, m.fichier, juge, _sujet(ville, n, m.fichier))
-                if q is None:
+                if not q:
                     rejets.append(f"{ville}-{n:03d} {m.fichier}:{m.n1 + 1} (point {p.numero}) : {raison}")
                     continue
-                paires.append(q)
+                paires.extend(q if isinstance(q, list) else [q])
                 vues.add(cle)
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{essais} paires")

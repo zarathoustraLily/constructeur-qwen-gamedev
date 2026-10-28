@@ -108,28 +108,40 @@ def lecture(sorties: list[tuple[Any, str]], quoi: str, cas: list[str], suite: st
 
 
 def paire(famille: str, sujet: str, ident: str, demande: str, ecrire: list[str], api: list[str], tester: list[str],
-          sorties: list[tuple[Any, str]], lire: str, preuve: dict[str, Any],
-          palier_1: bool) -> tuple[dict[str, Any] | None, str]:
-    """La paire de création avec sa boucle : au palier 1 (sans le plan, `palier_1` : le plan n'y joue aucun rôle) si
-    elle tient dans 1 024 jetons, au besoin sans la vérification de l'API ; sinon au palier 2, plan compris."""
+          sorties: list[tuple[Any, str]], lire: str, preuve: dict[str, Any], palier_1: bool,
+          demande_2: str | None = None) -> tuple[list[dict[str, Any]], str]:
+    """Les paires de création d'un même travail vérifié, et la raison s'il n'y en a aucune :
+    - au palier 1 (sans le plan, `palier_1` : le plan n'y joue aucun rôle), avec sa boucle si elle tient dans 1 024
+      jetons, au besoin sans la vérification de l'API ; c'est alors la seule ;
+    - sinon, au palier 1 sans la boucle (les commandes écrites en fin de réponse, leur sortie non écrite, règle 7.2),
+      et au palier 2 avec la boucle et le plan (`demande_2` : la demande du palier 2, par défaut la même). Le palier 1
+      garde ainsi toute la création ; le palier 2 reçoit la version qui vérifie (2026-10-28)."""
     from usine.paires import creation as cf
 
     def faire(texte: list[str], palier: int) -> dict[str, Any]:
-        return fmt.paire_tours(famille, sujet, "création", tours(ident, demande, "\n".join(texte), sorties, lire),
+        d = demande if palier == 1 or demande_2 is None else demande_2
+        return fmt.paire_tours(famille, sujet, "création", tours(ident, d, "\n".join(texte), sorties, lire),
                                dict(preuve, palier=palier), systeme=fmt.plan() if palier == 2 else None)
 
+    sortie: list[dict[str, Any]] = []
     if palier_1:
         for texte in (ecrire + api + tester, ecrire + tester):
             q = faire(texte, 1)
             if q["jetons"] <= cf.PLAFOND_COURT:
-                return q, ""
-    q = faire(ecrire + api + tester, 2)
-    if q["jetons"] <= cf.PLAFOND:
-        return q, ""
-    q = faire(ecrire + tester, 2)
-    if q["jetons"] <= cf.PLAFOND:
-        return q, ""
-    return None, f"trop longue ({q['jetons']} jetons)"
+                return [q], ""
+        commandes = ["```", *(f"$ {s.commande}" for s, _ in sorties), "```"]
+        for texte in (ecrire + api + tester, ecrire + tester):
+            court = fmt.paire(famille, sujet, "création", demande, "\n".join(texte + commandes),
+                              dict(preuve, palier=1, boucle=False))
+            if court["jetons"] <= cf.PLAFOND_COURT:
+                sortie.append(court)
+                break
+    for texte in (ecrire + api + tester, ecrire + tester):
+        q = faire(texte, 2)
+        if q["jetons"] <= cf.PLAFOND:
+            sortie.append(q)
+            break
+    return sortie, "" if sortie else f"trop longue ({q['jetons']} jetons)"
 
 
 def tours(ident: str, demande: str, texte: str, sorties: list[tuple[Any, str]], lire: str) -> list[dict[str, Any]]:

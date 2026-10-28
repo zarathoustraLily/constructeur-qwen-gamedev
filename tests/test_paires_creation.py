@@ -82,8 +82,9 @@ def test_godot_une_paire_de_creation_verifiee():
 	_, apres = etats.etats("kart", 5)
 	rel = "1_core/camera/camera_input.gd"
 	f = lire_script(apres[rel]).fonction("set_captured")
-	p, raison = creation.paire(sessions.Projet("kart", 5, apres), rel, f, suites_pour(apres, rel), "UI", {})
-	assert p is not None, raison
+	qs, raison = creation.paire(sessions.Projet("kart", 5, apres), rel, f, suites_pour(apres, rel), "UI", {})
+	assert qs, raison
+	p = qs[0]
 	assert p["preuve"]["palier"] == 1 and p["messages"][0]["role"] == "user" and p["jetons"] <= 1024
 	# La boucle : la réponse écrit et appelle l'analyse et les tests ; les vrais retours ; la lecture.
 	assert [m["role"] for m in p["messages"]] == ["user", "assistant", "tool", "tool", "assistant"]

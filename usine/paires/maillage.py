@@ -184,10 +184,10 @@ def generer(par_etape: int = 30, graine: int = 1, etapes: list[int] | None = Non
                     break
                 essais += 1
                 p, raison = paire(projet, rel, f, test, scenes, reference, _sujet(ville, n, rel))
-                if p is None:
+                if not p:
                     rejets.append(f"{ville}-{n:03d} {rel} {f.nom} : {raison}")
                     continue
-                paires.append(p)
+                paires.extend(p if isinstance(p, list) else [p])
                 vues.add(cle)
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{essais} paires")

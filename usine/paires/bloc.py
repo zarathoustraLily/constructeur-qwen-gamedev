@@ -241,10 +241,10 @@ def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: l
                 essais += 1
                 juge = juge_batiment or {"suites": suites_pour(apres, rel), "passe": passe}
                 q, raison = paire(projet, rel, f, debut, fin, juge, _sujet(ville, n, rel))
-                if q is None:
+                if not q:
                     rejets.append(f"{ville}-{n:03d} {rel} {f.nom} l.{debut + 1} : {raison}")
                     continue
-                paires.append(q)
+                paires.extend(q if isinstance(q, list) else [q])
                 vues.add(cle)
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{essais} paires")
