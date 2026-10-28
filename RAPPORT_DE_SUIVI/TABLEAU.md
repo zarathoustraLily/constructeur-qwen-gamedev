@@ -35,6 +35,7 @@ Une ligne par étape de `PLAN.md`. Mettre à jour en même temps que `journal.md
 | D4 | Assembleur du palier 2 | fait | Claude, fil principal | | `controles_palier_2.json` : 278 paires, 0 problème |
 | D5 | Génération du palier 2 sur le PC | fait avec B9 | Claude, fil principal | | `donnees/paires/volume.log` |
 | D6 | Étape 2 | en attente de C5, D5 | | | |
+| D7 | Cours « atelier » (UI, audio, manette, gameplay, physique, caméra, VFX, ondulations ; puis procédural, mémoire, optimisation, sauvegarde) | étapes 1 à 7 faites (143 cas verts) ; 8 à 12 à écrire | Claude, fil principal | 2026-10-28 | `cours/atelier/`, `donnees/cours/atelier/projets/` |
 | E1 | Regénérer les 732 sessions | en attente de A1, A2, A4 | | | |
 | E2 | Nouvelles sessions OpenCode | en attente de A5, R1, R2 | | | |
 | E3 | Assembleur des sessions | en attente de E1, E2 | | | |

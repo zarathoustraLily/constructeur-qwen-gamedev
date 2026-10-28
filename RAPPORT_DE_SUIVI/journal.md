@@ -93,4 +93,4 @@ facteurs, vérifiée égale à celle de W ; GGUF de 233 Mo et lanceur prêts, ch
 2026-10-28 — D1 — Claude (fil principal) — fait — familles bloc, test_cas, maillage, morceaux, shader_fonction ;
 boucle de vérification (vraies sorties puis lecture) ; deux paliers quand la boucle ne tient pas en 1 024 jetons ;
 1 544 paires de création à 13 h 30
-2026-10-28 — D6 — Claude (fil principal) — en cours — cours « atelier », étapes 1 à 7 vérifiées (143 cas GdUnit4)
+2026-10-28 — D7 — Claude (fil principal) — en cours — cours « atelier », étapes 1 à 7 vérifiées (143 cas GdUnit4)
