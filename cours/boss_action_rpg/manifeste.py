@@ -15,18 +15,19 @@ dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) quand les mod
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "kart"
-DERNIERE = 2
+DERNIERE = 3
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
     {"piste": "Gameplay + Physique", "titre": "Le héros en maquette grise : courir par rapport à la caméra"},
+    {"piste": "Graphisme 3D + Contrôles", "titre": "La caméra à la troisième personne et le verrouillage de cible"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2]
+PRETES = [1, 2, 3]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -50,4 +51,12 @@ FICHIERS = {
     "5_data/hero/hero_settings.tres": "2+",
     "7_tests/1_core/physics/test_motion.gd": "2+",
     "7_tests/3_entities/hero/test_hero.gd": "2+",
+    "1_core/data/camera_settings.gd": "3+",
+    "1_core/camera/lock_on.gd": "3+",
+    "1_core/camera/orbit_camera.gd": "3+",
+    "1_core/camera/camera_input.gd": "3+",
+    "1_core/camera/orbit_camera.tscn": "3+",
+    "5_data/camera/camera_settings.tres": "3+",
+    "7_tests/1_core/camera/test_lock_on.gd": "3+",
+    "7_tests/1_core/camera/test_orbit_camera.gd": "3+",
 }

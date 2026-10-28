@@ -1,12 +1,22 @@
 ;@ 1
 [gd_scene load_steps=6 format=3]
-;@ 2+
+;@ 2
 [gd_scene load_steps=7 format=3]
+;@ 3+
+[gd_scene load_steps=10 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
 ;@ 2+
 [ext_resource type="PackedScene" path="res://3_entities/hero/hero.tscn" id="2_hero"]
+;@ 3+
+[ext_resource type="PackedScene" path="res://1_core/camera/orbit_camera.tscn" id="3_orbit"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_target"]
+size = Vector3(1.5, 3, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_target"]
+albedo_color = Color(0.7, 0.2, 0.2, 1)
 ;@ all
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
@@ -43,10 +53,26 @@ mesh = SubResource("PlaneMesh_floor")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_floor")
 
+;@ 1-2
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 0, 6, 12)
-;@ 2+
+;@ 2
 
 [node name="Hero" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_hero")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 camera = NodePath("../Camera")
+;@ 3+
+[node name="Hero" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_hero")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+camera = NodePath("../OrbitCamera")
+
+[node name="OrbitCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_orbit")]
+target = NodePath("../Hero")
+
+[node name="Target" type="StaticBody3D" parent="." groups=["lockable"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -8)
+collision_layer = 4
+
+[node name="Mesh" type="MeshInstance3D" parent="Target"]
+mesh = SubResource("BoxMesh_target")
+surface_material_override/0 = SubResource("StandardMaterial3D_target")

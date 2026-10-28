@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://1_core/camera/orbit_camera.gd" id="1_orbit"]
+[ext_resource type="Resource" path="res://5_data/camera/camera_settings.tres" id="2_settings"]
+[ext_resource type="Script" path="res://1_core/camera/camera_input.gd" id="3_input"]
+
+[node name="OrbitCamera" type="Node3D"]
+script = ExtResource("1_orbit")
+settings = ExtResource("2_settings")
+
+[node name="Arm" type="SpringArm3D" parent="."]
+margin = 0.2
+
+[node name="Camera" type="Camera3D" parent="Arm"]
+fov = 70.0
+
+[node name="Input" type="Node" parent="." node_paths=PackedStringArray("orbit")]
+script = ExtResource("3_input")
+orbit = NodePath("..")

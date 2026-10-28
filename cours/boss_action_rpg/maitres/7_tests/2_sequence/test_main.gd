@@ -26,4 +26,19 @@ func test_une_lumiere_qui_fait_des_ombres_et_un_ciel() -> void:
 
 func test_sa_camera_est_active() -> void:
 	var main: Node3D = _main()
+#@ 1-2
 	assert_that(main.get_viewport().get_camera_3d()).is_same(main.get_node("Camera"))
+#@ 3+
+	assert_that(main.get_viewport().get_camera_3d()).is_same(main.get_node("OrbitCamera/Arm/Camera"))
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+#@ all
+#@ 3+
+
+
+func test_le_heros_court_par_rapport_a_la_camera_qui_le_suit() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	assert_that((main.get_node("Hero") as Hero).camera).is_same(main.get_node("OrbitCamera"))
+	assert_that((main.get_node("OrbitCamera") as OrbitCamera).target).is_same(main.get_node("Hero"))
+	assert_bool(main.get_node("Target").is_in_group(LockOn.GROUP)).is_true()
+#@ all
