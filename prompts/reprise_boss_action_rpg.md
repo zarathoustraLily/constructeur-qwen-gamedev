@@ -155,8 +155,7 @@ les réglages stricts du projet (typer tout, pas de division entière).
 L'étape 8 (le héros animé) est faite : note `cours/boss_action_rpg/notes/etape_008.md`, `demarche.md` étape 12.
 Ce qu'elle laisse : le fusil est fait de primitives ; le soin joue le rechargement. Depuis (accord de laurent),
 trois paquets CC0 téléchargés dans `source_telecharges/`, extraits dans `source_extraites/` : `ultimate_gun_pack`
-(Quaternius : fusils, candidats importés dans `6_assets/Weapons/Candidates/`, planche `captures/etape_008/fusils.png`,
-les Bullpup proposés à laurent), `hit_fx_free` et `muzzle_flash_vfx` (Binbun : effets Godot 4, scripts **non typés** :
+(Quaternius : laurent a choisi le **Bullpup_3**, monté sur la main du soldat, `6_assets/Characters/Hero/Weapon/`), `hit_fx_free` et `muzzle_flash_vfx` (Binbun : effets Godot 4, scripts **non typés** :
 à reprendre typés, ne pas copier leurs `.import`/`.uid`). Détail : `inventaire_sources.md`, `demarche.md` étape 13.
 Geste de soin : Mixamo, compte de laurent (« drink »). Sa chaîne :
 `outils/recibler_heros.gd` (cartes d'os UE4/UE5 → `SkeletonProfileHumanoid`, écrites dans les `.import`), `--import`,
@@ -222,6 +221,12 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   signal `Skeleton3D.skeleton_updated`.
 - Le reciblage s'écrit dans le `.import` sous `_subresources` → `nodes` → `"PATH:<chemin du squelette dans la scène
   brute>"` ; effacer les `.md5` de `.godot/imported/` pour que `--import` le refasse.
+- `ResourceSaver.save(…, FLAG_CHANGE_PATH)` laisse `resource_path` vide sous Godot 4.7.2 : la scène recopie la
+  ressource. Faire `save` puis `take_over_path(chemin)` (`construire_heros.gd`, `_ranger`). **À corriger** dans
+  `construire_golem.gd` (golem_model.tscn : 6,7 Mo) et `construire_saloon.gd` (saloon.tscn : 40 Mo), puis refabriquer
+  et retester les étapes 7 et 8 ; corriger aussi le pas `e7_enregistrer_chemin` de `demarche.json`.
+- `reporter.py` efface tout dossier qu'il ne garde pas : y ajouter chaque nouveau dossier hors du jeu
+  (`source_telecharges` ajouté après avoir perdu ses archives, retéléchargées).
 - Godot 4.7.2 avertit pour un point d'espace de mélange sans nom (`add_blend_point(nœud, pos, -1, &"nom")`).
 - Python `write_text` sous Windows écrit des CRLF : écrire des octets (`write_bytes`) dans le dépôt ; et un `\\`
   dans un heredoc passé à Python peut se perdre : éditer les chemins Windows par l'outil d'édition.

@@ -37,8 +37,9 @@ importés, ce que Godot en tire (`inspecter_scene.gd` : nœuds, os, animations).
   `root`. Roulades, Lyra et gaspfix ont celui d'Unreal 5 : `root`, `spine_01` à `05`, `neck_01` et `02` (89 à 161 os).
   Les noms communs ne suffisent pas : les repos des os (leur orientation au repos) diffèrent ; une animation copiée
   telle quelle tord les membres ;
-- **aucun modèle d'arme.** Les paquets n'ont que des animations au fusil. Le fusil est donc fait de primitives (boîtes,
-  un cylindre, un voyant), à remplacer quand un vrai modèle sera trouvé.
+- **aucun modèle d'arme.** Les paquets n'ont que des animations au fusil. On cherche sur internet une arme sous
+  licence CC0 (les licences « No AI » sont exclues : ces projets servent à entraîner un modèle) ; laurent accepte le
+  téléchargement de l'Ultimate Gun Pack de Quaternius ; 12 fusils rendus côte à côte, il choisit le Bullpup_3.
 
 ### 2. Recibler à l'import, avec l'outil de Godot
 
@@ -94,9 +95,17 @@ façon.
   `heros_textures.py` en fait une ORM pour Godot (R occlusion, G rugosité = 1 − lissé, B métal), en 2 048 px. Quel
   matériau va sur quel maillage : les noms du FBX (« 02 - Default », « 03 - Default ») ne le disent pas ; le `.meta`
   du FBX, dans le paquet Unity, si (`externalObjects` : « 02 - Default » → `M_Bottom`, « 03 - Default » → `M_Top`) ;
-- **le fusil**, sur l'os `RightHand` (`BoneAttachment3D`). Sa place se calcule dans la pose de visée : poignée à la
-  main droite, canon vers la main gauche, dessus vers le haut ; puis on l'exprime dans le repère de l'os, qui la garde
-  dans toutes les animations. Sa bouche est un `Marker3D` nommé `Muzzle`, nœud unique ;
+- **le fusil** (Bullpup_3), sur l'os `RightHand` (`BoneAttachment3D`). On mesure d'abord le maillage
+  (`mesurer_arme.gd`) : modélisé cent fois trop grand, canon le long de +X, dessus le long de +Z ; la bouche est le
+  centre des sommets du bout du canon ; la poignée se trouve en regardant ce qui pend sous le corps de l'arme, tranche
+  par tranche (à l'arrière le chargeur, devant la poignée, comme sur tout bullpup). On le ramène à 85 cm (à 75, la
+  main gauche des clips de Lyra dépassait le canon : vu sur la planche de côté). Sa place se calcule dans la pose de
+  visée : poignée à la main droite, canon vers la main gauche, dessus vers le haut ; puis on l'exprime dans le repère
+  de l'os, qui la garde dans toutes les animations. Sa bouche est un `Marker3D` nommé `Muzzle`, nœud unique ;
+- **les ressources rangées à part** : sous Godot 4.7.2, `ResourceSaver.save(…, FLAG_CHANGE_PATH)` rend OK mais laisse
+  `resource_path` vide (vérifié par un test de quelques lignes) ; la scène recopiait alors maillages, peaux et clips
+  (4 Mo). Le remède : `take_over_path(chemin)` après l'enregistrement ; la scène tombe à 27 Ko et désigne ses
+  ressources ;
 - **la bibliothèque** : 13 clips renommés (`idle`, `aim_idle`, `aim_walk_f/b/l/r`, `run`, `sprint`, `fire`, `roll`,
   `hit`, `heal`, `death`), **sans la piste de l'os Root** : c'est le code qui déplace le corps ; le mouvement porté
   par l'animation ferait sortir le modèle de sa capsule.

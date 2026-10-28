@@ -2310,6 +2310,14 @@ lisent des fichiers, sessions longues, pas « plan ».
   parent en parent avec `get_bone_pose`. La pose finale du squelette arrive après la physique : suivre un os au
   signal `skeleton_updated`.
 - Points d'espace de mélange sans nom : avertissement de Godot 4.7.2 ; les nommer.
+- `ResourceSaver.save(…, FLAG_CHANGE_PATH)` laisse `resource_path` vide sous Godot 4.7.2 (vérifié) : les scènes
+  construites par les outils recopiaient leurs ressources. Héros corrigé par `take_over_path` (4 Mo → 27 Ko) ; golem
+  (6,7 Mo), saloon (40 Mo) et le pas de démarche `e7_enregistrer_chemin` restent à corriger.
+
+**Fusil du héros** (2026-10-28, accord de laurent) : trois paquets CC0 téléchargés (Ultimate Gun Pack de Quaternius,
+Hit FX Free et Muzzle Flash VFX de Binbun ; empreintes dans `SUIVIS_PROGRESSION/inventaire_sources.md`) ; laurent
+choisit le Bullpup_3, monté sur la main du soldat (85 cm) ; étape 8 refabriquée, 139 cas verts. Geste de soin : à
+prendre sur Mixamo par laurent. Effets de Binbun : scripts non typés, à reprendre à l'étape des effets.
 - Sous GdUnit, la scène courante est le lanceur : un rechargement de scène se vérifie en jouant le niveau sans fenêtre.
 - Un script lancé par `-s` dans un projet est compilé avec ses réglages stricts (division entière refusée).
 - Le YAML des `MeshCollider` de Quixel est mal indenté ; les matériaux Quixel se lisent dans leur graphe de shader.
