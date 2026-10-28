@@ -19,7 +19,8 @@ SUJETS_PISTES = {"Contrôles": "contrôle à la manette", "Manette": "contrôle 
                  "IA": "gameplay", "Données": "gameplay", "Architecture": "gameplay", "Shader": "shaders",
                  "Shader de calcul": "shaders", "VFX": "VFX", "Interface": "UI", "Audio": "audio",
                  "Animation": "graphisme 3D", "Monde": "graphisme 3D", "Graphisme 3D": "graphisme 3D",
-                 "Physique": "physique", "Procédural": "procédural"}
+                 "Physique": "physique", "Procédural": "procédural",
+                 "Mémoire": "gestion de la mémoire", "Optimisation": "optimisation", "Sauvegarde": "gameplay"}
 
 
 def sujet(e: dict) -> str:

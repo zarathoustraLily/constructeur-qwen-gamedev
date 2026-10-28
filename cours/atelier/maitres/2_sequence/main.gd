@@ -10,6 +10,12 @@ extends Node
 #@ 9+
 ## Les réglages du son, donnés au service audio au démarrage.
 @export var audio_settings: AudioSettings
+#@ 12+
+## Le fichier des réglages du joueur (volumes, boutons) : relu au démarrage, réécrit à chaque changement.
+@export var settings_path: String = "user://reglages.cfg"
+
+var _store: SettingsStore
+#@ 9+
 
 #@ all
 @onready var _main_menu: MainMenu = $MainMenu
@@ -22,6 +28,11 @@ extends Node
 func _ready() -> void:
 #@ 9+
 	AudioManager.setup(audio_settings)
+#@ 12+
+	_store = SettingsStore.new(settings_path)
+	_restore_settings()
+	AudioManager.volume_changed.connect(_on_settings_changed.unbind(2))
+	_remap.rebound.connect(_on_settings_changed.unbind(2))
 #@ all
 	_main_menu.options_requested.connect(_open_options)
 #@ 2+
@@ -58,4 +69,21 @@ func _open_remap() -> void:
 func _close_remap() -> void:
 	_remap.hide()
 	_main_menu.open()
+#@ all
+#@ 12+
+
+
+func _restore_settings() -> void:
+	var volumes: Dictionary[StringName, float] = _store.load_volumes()
+	for bus: StringName in volumes:
+		AudioManager.set_volume(bus, volumes[bus])
+	ActionRemap.from_config(_store.load_bindings())
+
+
+func _on_settings_changed() -> void:
+	var volumes: Dictionary[StringName, float] = {
+		AudioManager.MUSIC: AudioManager.volume(AudioManager.MUSIC),
+		AudioManager.SFX: AudioManager.volume(AudioManager.SFX),
+	}
+	_store.save(volumes, ActionRemap.to_config(_remap.settings.remappable_actions))
 #@ all

@@ -14,7 +14,7 @@ l'atelier n'a ni modèle ni texture ni son importés.
 GENRE = "jeu"
 PREFIXE = "atelier"
 SOURCE = "kart"
-DERNIERE = 9
+DERNIERE = 12
 
 ETAPES = [
     {"piste": "Interface + Audio + Manette", "titre": "Le menu principal, les options de volume, la navigation à la manette"},
@@ -26,13 +26,16 @@ ETAPES = [
     {"piste": "Procédural + VFX", "titre": "Les ondulations : une grille de maillage et une onde d'impact"},
     {"piste": "Procédural", "titre": "Un arbre, un champ de nuages et une galaxie, générés en code"},
     {"piste": "Audio", "titre": "Une réserve de voix pour les effets et les fondus enchaînés de musique"},
+    {"piste": "Mémoire", "titre": "Réserve d'objets, cache de ressources, références faibles, branchements uniques"},
+    {"piste": "Optimisation", "titre": "Grille spatiale, mise à jour échelonnée, niveaux de détail par distance"},
+    {"piste": "Sauvegarde", "titre": "Réglages du joueur et sauvegarde de partie versionnée"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -142,4 +145,23 @@ FICHIERS = {
     "5_data/audio/audio.tres": "9+",
     "7_tests/1_core/audio/test_sfx_pool.gd": "9+",
     "7_tests/1_core/audio/test_music_fader.gd": "9+",
+    "1_core/data/pool_settings.gd": "10+",
+    "1_core/memory/object_pool.gd": "10+",
+    "1_core/memory/resource_cache.gd": "10+",
+    "1_core/memory/weak_listeners.gd": "10+",
+    "1_core/memory/connections.gd": "10+",
+    "3_entities/projectile/projectile.gd": "10+",
+    "3_entities/projectile/projectile.tscn": "10+",
+    "5_data/memory/projectile_pool.tres": "10+",
+    "7_tests/1_core/memory/test_object_pool.gd": "10+",
+    "7_tests/1_core/memory/test_memory_tools.gd": "10+",
+    "1_core/optimization/spatial_grid.gd": "11+",
+    "1_core/optimization/time_slicer.gd": "11+",
+    "1_core/optimization/distance_lod.gd": "11+",
+    "7_tests/1_core/optimization/test_spatial_grid.gd": "11+",
+    "7_tests/1_core/optimization/test_scheduling.gd": "11+",
+    "1_core/save/settings_store.gd": "12+",
+    "1_core/save/save_game.gd": "12+",
+    "7_tests/1_core/save/test_settings_store.gd": "12+",
+    "7_tests/1_core/save/test_save_game.gd": "12+",
 }
