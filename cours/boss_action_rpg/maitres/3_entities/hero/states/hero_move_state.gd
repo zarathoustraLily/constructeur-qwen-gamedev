@@ -5,6 +5,8 @@ class_name HeroMoveState extends State
 ## remontée.
 #@ 5+
 ## Gâchette tenue, l'arme tire à sa cadence ; pas pendant une roulade (l'état Roll ne tire pas).
+#@ 6+
+## Un soin demandé part s'il reste une fiole (Heal).
 #@ all
 
 ## Le héros piloté.
@@ -24,6 +26,11 @@ func physics_update(delta: float) -> void:
 	if hero.stamina.can_spend() and hero.roll_buffer.consume():
 		finish(&"Roll")
 		return
+#@ 6+
+	if hero.flasks.has_charge() and hero.heal_buffer.consume():
+		finish(&"Heal")
+		return
+#@ all
 	if not hero.dodge_held:
 		winded = false
 	hero.sprinting = (hero.dodge_held and not winded and not hero.aiming and not hero.stick.is_zero_approx()

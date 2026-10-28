@@ -2,8 +2,10 @@
 [gd_scene load_steps=8 format=3]
 ;@ 4
 [gd_scene load_steps=14 format=3]
-;@ 5+
+;@ 5
 [gd_scene load_steps=18 format=3]
+;@ 6+
+[gd_scene load_steps=24 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://3_entities/hero/hero.gd" id="1_hero"]
@@ -21,6 +23,13 @@
 [ext_resource type="Resource" path="res://5_data/hero/hero_gun.tres" id="11_gun_settings"]
 [ext_resource type="Script" path="res://1_core/components/heat_component.gd" id="12_heat"]
 [ext_resource type="Resource" path="res://5_data/hero/hero_gun_heat.tres" id="13_heat_settings"]
+;@ 6+
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="14_health"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_health.tres" id="15_health_settings"]
+[ext_resource type="Script" path="res://1_core/components/flask_component.gd" id="16_flasks"]
+[ext_resource type="Script" path="res://3_entities/hero/states/hero_hit_state.gd" id="17_hit"]
+[ext_resource type="Script" path="res://3_entities/hero/states/hero_heal_state.gd" id="18_heal"]
+[ext_resource type="Script" path="res://3_entities/hero/states/hero_dead_state.gd" id="19_dead"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -87,4 +96,28 @@ settings = ExtResource("11_gun_settings")
 [node name="Heat" type="Node" parent="Gun"]
 script = ExtResource("12_heat")
 settings = ExtResource("13_heat_settings")
+;@ all
+;@ 6+
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("14_health")
+settings = ExtResource("15_health_settings")
+
+[node name="Flasks" type="Node" parent="."]
+script = ExtResource("16_flasks")
+
+[node name="HealBuffer" type="Node" parent="."]
+script = ExtResource("6_buffer")
+
+[node name="Hit" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
+script = ExtResource("17_hit")
+hero = NodePath("../..")
+
+[node name="Heal" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
+script = ExtResource("18_heal")
+hero = NodePath("../..")
+
+[node name="Dead" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
+script = ExtResource("19_dead")
+hero = NodePath("../..")
 ;@ all

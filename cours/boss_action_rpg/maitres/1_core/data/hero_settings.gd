@@ -34,4 +34,19 @@ class_name HeroSettings extends Resource
 @export_range(0.0, 100.0, 1.0) var roll_cost: float = 25.0
 ## Mémoire d'appui : une roulade pressée au plus tant de secondes trop tôt part dès que possible.
 @export_range(0.0, 1.0, 0.01) var roll_buffer_time: float = 0.25
+#@ 6+
+## Le nombre de fioles de soin au début du combat.
+@export_range(0, 10, 1) var flask_count: int = 3
+## Ce qu'une fiole rend, en points de vie.
+@export_range(0.0, 500.0, 1.0) var heal_amount: float = 45.0
+## Le temps pour boire une fiole, immobile, en secondes.
+@export_range(0.1, 5.0, 0.05) var heal_duration: float = 1.1
+## Quand le soin arrive pendant la gorgée, en secondes : un coup reçu avant fait perdre la fiole.
+@export_range(0.0, 5.0, 0.05) var heal_moment: float = 0.7
+## Mémoire d'appui du soin, en secondes.
+@export_range(0.0, 1.0, 0.01) var heal_buffer_time: float = 0.25
+## Le temps pendant lequel un coup le fait chanceler, sans pouvoir agir, en secondes.
+@export_range(0.0, 2.0, 0.01) var hit_stun_time: float = 0.35
+## La vitesse du recul au moment du coup, en m/s ; elle retombe à zéro pendant le chancellement.
+@export_range(0.0, 30.0, 0.1) var knockback_speed: float = 5.0
 #@ all

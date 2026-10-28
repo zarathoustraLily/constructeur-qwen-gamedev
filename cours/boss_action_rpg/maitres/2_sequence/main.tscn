@@ -4,8 +4,10 @@
 [gd_scene load_steps=7 format=3]
 ;@ 3-4
 [gd_scene load_steps=10 format=3]
-;@ 5+
+;@ 5
 [gd_scene load_steps=16 format=3]
+;@ 6+
+[gd_scene load_steps=17 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -19,6 +21,9 @@
 [ext_resource type="Script" path="res://1_core/components/health_component.gd" id="6_health"]
 [ext_resource type="Resource" path="res://5_data/target/target_health.tres" id="7_target_health"]
 [ext_resource type="PackedScene" path="res://1_core/combat/projectile.tscn" id="8_projectile"]
+;@ 6+
+[ext_resource type="Resource" path="res://5_data/encounter/encounter.tres" id="9_encounter"]
+;@ 5+
 ;@ 3+
 
 [sub_resource type="BoxMesh" id="BoxMesh_target"]
@@ -49,6 +54,9 @@ sky = SubResource("Sky_sky")
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
+;@ 6+
+settings = ExtResource("9_encounter")
+;@ all
 
 [node name="World" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_world")
@@ -113,4 +121,9 @@ shape = SubResource("BoxShape3D_target")
 script = ExtResource("4_pool")
 scene = ExtResource("8_projectile")
 size = 32
+;@ all
+;@ 6+
+
+[node name="RestartTimer" type="Timer" parent="."]
+one_shot = true
 ;@ all

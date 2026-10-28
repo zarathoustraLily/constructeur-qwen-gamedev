@@ -19,4 +19,7 @@ func _physics_process(_delta: float) -> void:
 		hero.roll_buffer.press()
 #@ 5+
 	hero.trigger = Input.is_action_pressed(Actions.SHOOT)
+#@ 6+
+	if Input.is_action_just_pressed(Actions.HEAL):
+		hero.heal_buffer.press()
 #@ all

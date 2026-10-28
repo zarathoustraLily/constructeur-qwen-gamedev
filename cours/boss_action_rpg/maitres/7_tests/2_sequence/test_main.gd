@@ -4,6 +4,8 @@ extends GdUnitTestSuite
 #@ 5+
 ## Le héros a sa réserve de projectiles et sa caméra de visée ; la cible reçoit les tirs ; tirer sur elle lui retire
 ## de la vie.
+#@ 6+
+## Quand le héros tombe, le niveau recommence après le délai de la rencontre.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -78,4 +80,17 @@ func test_tirer_sur_la_cible_lui_retire_de_la_vie() -> void:
 	hero.trigger = false
 	var health: HealthComponent = main.get_node("Target/Health") as HealthComponent
 	assert_float(health.health).is_less(health.settings.max_health)
+#@ all
+#@ 6+
+
+
+func test_quand_le_heros_tombe_le_niveau_recommence_apres_un_delai() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var timer: Timer = main.get_node("RestartTimer") as Timer
+	assert_bool(timer.is_stopped()).is_true()
+	(main.get_node("Hero") as Hero).take_hit(1000.0, Vector3.ZERO)
+	assert_bool(timer.is_stopped()).is_false()
+	assert_float(timer.wait_time).is_equal(3.0)
+	timer.stop()
 #@ all

@@ -18,4 +18,12 @@ roll_duration = 0.5
 roll_invulnerable_time = 0.3
 roll_cost = 25.0
 roll_buffer_time = 0.25
+;@ 6+
+flask_count = 3
+heal_amount = 45.0
+heal_duration = 1.1
+heal_moment = 0.7
+heal_buffer_time = 0.25
+hit_stun_time = 0.35
+knockback_speed = 5.0
 ;@ all

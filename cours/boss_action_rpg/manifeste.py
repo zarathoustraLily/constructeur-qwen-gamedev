@@ -15,7 +15,7 @@ dossier du jeu lui-même (clé « boss_action_rpg » de [sources]) quand les mod
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "kart"
-DERNIERE = 5
+DERNIERE = 6
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -23,13 +23,14 @@ ETAPES = [
     {"piste": "Graphisme 3D + Contrôles", "titre": "La caméra à la troisième personne et le verrouillage de cible"},
     {"piste": "Gameplay + Contrôles", "titre": "L'endurance et la roulade à invincibilité : la machine à états du héros"},
     {"piste": "Gameplay + Physique + Optimisation", "titre": "Le tir : visée au centre de l'écran, projectiles en réserve, surchauffe"},
+    {"piste": "Gameplay + Architecture", "titre": "La santé du héros : coups reçus, fioles, chute et recommencement"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5]
+PRETES = [1, 2, 3, 4, 5, 6]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -92,4 +93,14 @@ FICHIERS = {
     "7_tests/1_core/combat/test_projectile.gd": "5+",
     "7_tests/1_core/combat/test_aim.gd": "5+",
     "7_tests/3_entities/hero/test_hero_gun.gd": "5+",
+    "1_core/combat/hitbox.gd": "6+",
+    "1_core/components/flask_component.gd": "6+",
+    "5_data/hero/hero_health.tres": "6+",
+    "1_core/data/encounter_settings.gd": "6+",
+    "5_data/encounter/encounter.tres": "6+",
+    "3_entities/hero/states/hero_hit_state.gd": "6+",
+    "3_entities/hero/states/hero_heal_state.gd": "6+",
+    "3_entities/hero/states/hero_dead_state.gd": "6+",
+    "7_tests/1_core/combat/test_hitbox.gd": "6+",
+    "7_tests/1_core/components/test_flask_component.gd": "6+",
 }

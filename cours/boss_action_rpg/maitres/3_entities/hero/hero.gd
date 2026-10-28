@@ -7,6 +7,12 @@ class_name Hero extends CharacterBody3D
 ## appelle les mouvements ci-dessous ; l'endurance et la mémoire d'appui sont ses composants.
 #@ 5+
 ## Il tire avec son arme (Gun) vers le point qu'il vise au centre de l'écran.
+#@ 6+
+## Il a une santé et des fioles : un coup le fait chanceler (Hit), une fiole se boit immobile (Heal), le dernier coup
+## le fait tomber (Dead).
+
+## Le héros vient de tomber : le niveau va recommencer (la scène principale l'écoute).
+signal defeated
 #@ all
 
 ## Vitesses, accélérations, virage, gravité.
@@ -34,6 +40,9 @@ var invulnerable: bool = false
 #@ 5+
 ## Vrai tant que la gâchette est tenue : l'arme tire à sa cadence (état Move).
 var trigger: bool = false
+#@ 6+
+## D'où venait le dernier coup reçu : le recul l'en éloigne.
+var last_hit_from: Vector3 = Vector3.ZERO
 #@ 4+
 
 ## L'endurance : la roulade et le sprint la dépensent.
@@ -45,6 +54,13 @@ var trigger: bool = false
 #@ 5+
 ## L'arme : sa bouche est à la main droite.
 @onready var gun: HeroGun = $Gun
+#@ 6+
+## La santé : les coups du boss la retirent, les fioles la rendent.
+@onready var health: HealthComponent = $Health
+## Les fioles de soin.
+@onready var flasks: FlaskComponent = $Flasks
+## La mémoire d'appui du soin.
+@onready var heal_buffer: InputBuffer = $HealBuffer
 #@ all
 
 
@@ -58,6 +74,10 @@ func _ready() -> void:
 	roll_buffer.window = settings.roll_buffer_time
 #@ 5+
 	gun.pool = projectiles
+#@ 6+
+	heal_buffer.window = settings.heal_buffer_time
+	flasks.fill(settings.flask_count)
+	health.died.connect(_on_died)
 #@ 2-3
 
 
@@ -135,4 +155,34 @@ func slide(delta: float, horizontal: Vector3) -> void:
 	if not is_on_floor():
 		velocity.y -= settings.gravity * delta
 	move_and_slide()
+#@ all
+#@ 6+
+
+
+## Reçoit un coup de `amount` points venu de `from` et rend les dégâts faits : rien pendant l'invulnérabilité de la
+## roulade, le répit qui suit un coup, ou une fois tombé. Un coup qui porte le fait chanceler (Hit) ; le dernier le
+## fait tomber (Dead).
+func take_hit(amount: float, from: Vector3) -> float:
+	if invulnerable or health.is_dead():
+		return 0.0
+	var dealt: float = health.take_damage(amount)
+	if dealt > 0.0 and not health.is_dead():
+		last_hit_from = from
+		machine.transition_to(&"Hit")
+	return dealt
+
+
+## La direction du recul (au sol, longueur 1) : à l'opposé du dernier coup ; un coup venu de sa propre position le
+## fait reculer vers l'arrière de son corps.
+func knockback_direction() -> Vector3:
+	var away: Vector3 = global_position - last_hit_from
+	away.y = 0.0
+	if away.is_zero_approx():
+		return -Motion.forward_of(rotation.y)
+	return away.normalized()
+
+
+func _on_died() -> void:
+	machine.transition_to(&"Dead")
+	defeated.emit()
 #@ all

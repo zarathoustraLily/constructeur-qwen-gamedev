@@ -10,6 +10,11 @@ extends GdUnitTestSuite
 #@ 5+
 ## Gâchette tenue, il tire à sa cadence puis surchauffe ; pendant une roulade, il ne tire pas ; en visant, il se
 ## tourne vers la caméra, même en reculant.
+#@ 6+
+## Un coup retire de la vie et le fait reculer en chancelant ; pendant la roulade, aucun coup ne porte ; juste après
+## un coup, le suivant ne porte pas ; une fiole se boit immobile et soigne au bon moment ; sans fiole, pas de soin ;
+## un coup pendant qu'il boit fait perdre la fiole ; le dernier coup le fait tomber, une seule fois, et il ne bouge
+## plus.
 #@ all
 
 const HERO := preload("res://3_entities/hero/hero.tscn")
@@ -24,6 +29,8 @@ var _rolls: int = 0
 #@ 5+
 var _pool: ProjectilePool
 var _shots: int = 0
+#@ 6+
+var _defeats: int = 0
 #@ all
 
 
@@ -44,6 +51,9 @@ func before_test() -> void:
 	_rolls = 0
 #@ 5+
 	_shots = 0
+#@ 6+
+	_defeats = 0
+#@ 5+
 	_pool = ProjectilePool.new()
 	_pool.scene = PROJECTILE
 	_world.add_child(_pool)
@@ -272,4 +282,96 @@ func test_en_visant_il_se_tourne_vers_la_camera_meme_en_reculant() -> void:
 	await _frames(60)
 	assert_float(absf(angle_difference(hero.rotation.y, PI / 2.0))).is_less(0.01)
 	assert_float(hero.position.x).is_greater(0.5)
+#@ all
+#@ 6+
+
+
+func _count_defeat() -> void:
+	_defeats += 1
+
+
+func test_un_coup_retire_de_la_vie_et_le_fait_reculer_en_chancelant() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	var start_z: float = hero.position.z
+	assert_float(hero.take_hit(20.0, hero.global_position + Vector3(0.0, 0.0, -2.0))).is_equal(20.0)
+	assert_float(hero.health.health).is_equal(hero.health.settings.max_health - 20.0)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Hit"))
+	await _frames(10)
+	assert_float(hero.position.z).is_greater(start_z + 0.3)
+	await _frames(20)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Move"))
+
+
+func test_pendant_la_roulade_aucun_coup_ne_porte() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.roll_buffer.press()
+	await _frames(5)
+	assert_float(hero.take_hit(20.0, Vector3.ZERO)).is_equal(0.0)
+	assert_float(hero.health.health).is_equal(hero.health.settings.max_health)
+
+
+func test_juste_apres_un_coup_le_suivant_ne_porte_pas() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.take_hit(20.0, Vector3.ZERO)
+	assert_float(hero.take_hit(20.0, Vector3.ZERO)).is_equal(0.0)
+	assert_float(hero.health.health).is_equal(hero.health.settings.max_health - 20.0)
+
+
+func test_une_fiole_se_boit_immobile_et_soigne_au_bon_moment() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.take_hit(50.0, Vector3.ZERO)
+	await _frames(30)
+	hero.stick = Vector2(0.0, -1.0)
+	hero.heal_buffer.press()
+	await _frames(5)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Heal"))
+	assert_int(hero.flasks.charges).is_equal(hero.settings.flask_count - 1)
+	assert_float(hero.health.health).is_equal(50.0)
+	assert_float(Vector2(hero.velocity.x, hero.velocity.z).length()).is_equal(0.0)
+	await _frames(45)
+	assert_float(hero.health.health).is_equal(50.0 + hero.settings.heal_amount)
+	await _frames(30)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Move"))
+
+
+func test_sans_fiole_pas_de_soin() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.flasks.fill(0)
+	hero.heal_buffer.press()
+	await _frames(5)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Move"))
+
+
+func test_un_coup_pendant_qu_il_boit_fait_perdre_la_fiole() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.take_hit(50.0, Vector3.ZERO)
+	await _frames(45)
+	hero.heal_buffer.press()
+	await _frames(10)
+	assert_float(hero.take_hit(10.0, Vector3.ZERO)).is_equal(10.0)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Hit"))
+	await _frames(60)
+	assert_float(hero.health.health).is_equal(40.0)
+	assert_int(hero.flasks.charges).is_equal(hero.settings.flask_count - 1)
+
+
+func test_le_dernier_coup_le_fait_tomber_une_fois_et_il_ne_bouge_plus() -> void:
+	var hero: Hero = _hero()
+	hero.defeated.connect(_count_defeat)
+	await _frames(10)
+	hero.take_hit(1000.0, Vector3.ZERO)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Dead"))
+	assert_float(hero.take_hit(10.0, Vector3.ZERO)).is_equal(0.0)
+	hero.stick = Vector2(0.0, -1.0)
+	hero.roll_buffer.press()
+	await _frames(30)
+	assert_that(hero.machine.current).is_same(hero.machine.get_node("Dead"))
+	assert_float(Vector2(hero.velocity.x, hero.velocity.z).length()).is_equal(0.0)
+	assert_int(_defeats).is_equal(1)
 #@ all
