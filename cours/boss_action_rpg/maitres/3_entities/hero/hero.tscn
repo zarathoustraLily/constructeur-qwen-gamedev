@@ -6,8 +6,10 @@
 [gd_scene load_steps=18 format=3]
 ;@ 6-12
 [gd_scene load_steps=24 format=3]
-;@ 13+
+;@ 13-15
 [gd_scene load_steps=25 format=3]
+;@ 16+
+[gd_scene load_steps=26 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://3_entities/hero/hero.gd" id="1_hero"]
@@ -38,6 +40,8 @@
 [ext_resource type="PackedScene" path="res://6_assets/Characters/Hero/hero_model.tscn" id="22_model"]
 ;@ 13+
 [ext_resource type="Material" path="res://5_data/vfx/hit_flash_material.tres" id="23_flash"]
+;@ 16+
+[ext_resource type="Script" path="res://3_entities/hero/states/hero_jump_state.gd" id="24_jump"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -149,4 +153,13 @@ hit_flash = ExtResource("23_flash")
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="AnimationTree" type="AnimationTree" parent="View"]
+;@ all
+;@ 16+
+
+[node name="JumpBuffer" type="Node" parent="."]
+script = ExtResource("6_buffer")
+
+[node name="Jump" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
+script = ExtResource("24_jump")
+hero = NodePath("../..")
 ;@ all

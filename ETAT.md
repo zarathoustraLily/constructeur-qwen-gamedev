@@ -35,11 +35,12 @@
 - [ ] Décision 19.7 : relever par la capture d'OpenCode la forme exacte d'un appel du Code Mode dans `execute` (requêtes au RAG et captures des paires courtes) ; à la sortie de Godot 4.8 stable, comparer les `extension_api.json` de 4.7.2 et 4.8 et compter les différences utiles
 - [x] Retirer les espaces de fin des messages (étape A4, 2026-10-27) : le gabarit de Qwen 3.8 rogne chaque message (`|trim`), LLaMA-Factory (`qwen3_5`) non ; la différence de l'essai du 2026-10-22 était le saut de ligne final du message système, écrit à la main pour l'essai. Les bases des cours passaient déjà par `opencode.vers_sharegpt`, qui rogne tout (kart 203/203, roguelike 155/155 rendus identiques) ; les paires courtes rognent maintenant aussi le système et s'exportent par `format.vers_llamafactory` (430/430 identiques, images comprises ; `tests/test_paires_format.py`)
 - [ ] Cours `boss_action_rpg` (demande de laurent du 2026-10-28 : niveau de boss d'action RPG « à la Dark Souls », le
-  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **15 étapes faites et vérifiées**
-  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216 cas verts) ; la suite porte sur l'optimisation
-  (consigne de laurent du 2026-10-29 : le niveau doit pouvoir être joué sur un petit PC). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
+  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **16 étapes faites et vérifiées**
+  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220 cas verts) ; suite : les retours de
+  laurent après avoir joué (effets des tirs, effets du boss, son et musique), puis l'optimisation (consigne de laurent
+  du 2026-10-29 : le niveau doit pouvoir être joué sur un petit PC). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
   (section « Réorientation » et « Reprendre ici ») ; démarche : `demarche.md` du même dossier. Paires de ce cours :
-  29 paires de démarche (`demarche.json`), les autres familles pas encore générées
+  33 paires de démarche (`demarche.json`), les autres familles pas encore générées
 - [x] Décision 20 (2026-10-28) : aucun réentraînement tant que les paires ne sont pas finies
 
 ## Bilan des 6 sessions (2026-10-05)
@@ -2307,6 +2308,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 15 (2026-10-29)** : deux qualités graphiques, choisies d'après la carte (`--qualite=`, puis `user://reglages.cfg`, puis carte intégrée → basse). Basse : SDFGI, SSIL, SSAO, brouillard volumétrique coupés (brume de repli : trois nappes éclairées), 3D à 0,67 et FSR 1, ombres aux deux lumières les plus proches (demi-sphères, cubes en Compatibilité), portées 22 m, ambiance ×2,5. En 1280 × 720 sur la 5090 : appels de dessin 2 933 → 617, primitives 15 M → 3,6 M, carte 2,1 → 0,37 ms, rendu processeur 2,0 → 0,54 ms, mémoire vidéo 893 → 377 Mo, passes d'ombre 64 → 3. 216 cas verts, dans le cours et dans le jeu ; images en Forward+ et en Compatibilité (`SUIVIS_PROGRESSION/captures/etape_015/`). Prochaine : étape 16 (distances de visibilité des petits objets, occulteurs), puis la mesure sur le petit PC lui-même.
 
+**Étape 16 (2026-10-30)**, après les retours de laurent qui a joué (pas de saut, tir qui part vers le sol, ni effets ni sons) : le saut (A, Espace ; la roulade passe sur B, Maj) : 1 m, 15 d'endurance, contrôle en l'air 0,35, appui gardé 0,15 s, foulée de course tenue faute de clip. La visée : verrouillé, le tir va à la cible ; en visée, au rayon de l'écran ; sinon droit devant à l'horizontale (la caméra, inclinée de 15° vers le bas, envoyait le rayon du centre de l'écran sur le plancher). Un `SkeletonModifier3D` incline le buste de l'angle du tir : le canon pointe à moins de 12° de la cible. 220 cas verts, dans le cours et dans le jeu, 0 ligne d'erreur ; étapes 1 à 15 identiques au commit précédent. Prochaine : étape 17 (effets des tirs), puis 18 (effets et coups magiques du boss), 19 (son et musique), puis l'optimisation reprend.
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal
@@ -2314,7 +2317,7 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
 `mcp_serveur.outils.Outils`, pas écarté si un fragment ou une citation manque, paire au format d'OpenCode), branché dans
 `volume.py` ; `tests/test_paires_demarche.py` 4 passés. Premier état : 10 paires (7 au palier 1, 3 au palier 2),
-0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 12 : 22 pas, 22 paires (16 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 13 : 25 pas, 25 paires (19 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 14 : 27 pas, 27 paires (20 au palier 1, 7 au palier 2), 0 écartée. Après l'étape 15 : 29 pas, 29 paires (21 au palier 1, 8 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
+0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 12 : 22 pas, 22 paires (16 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 13 : 25 pas, 25 paires (19 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 14 : 27 pas, 27 paires (20 au palier 1, 7 au palier 2), 0 écartée. Après l'étape 15 : 29 pas, 29 paires (21 au palier 1, 8 au palier 2), 0 écartée. Après l'étape 16 : 33 pas, 33 paires (25 au palier 1, 8 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
 lisent des fichiers, sessions longues, pas « plan ».
 
 **Pièges de cette passe** (détail et remèdes dans `demarche.md`)

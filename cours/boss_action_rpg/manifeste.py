@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 15
+DERNIERE = 16
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -33,13 +33,14 @@ ETAPES = [
     {"piste": "VFX + Shaders", "titre": "Les effets des coups : onde de poussière, traînée du marteau, étincelles, flash, braise de la seconde phase"},
     {"piste": "Optimisation + Gestion de la mémoire", "titre": "Mesurer le combat sans fenêtre : aucune allocation en combat, le temps de chaque image"},
     {"piste": "Optimisation + Graphisme 3D", "titre": "Deux qualités graphiques, choisies selon la carte : la basse pour un petit PC"},
+    {"piste": "Gameplay + Contrôles", "titre": "Le saut, et un tir qui part là où pointe le canon"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -205,4 +206,6 @@ FICHIERS = {
     "5_data/environment/mist_layers_material.tres": "15+",
     "7_tests/1_core/graphics/test_graphics_quality_applier.gd": "15+",
     "7_tests/perf/mesurer_rendu.gd": "15+",
+    "3_entities/hero/states/hero_jump_state.gd": "16+",
+    "3_entities/hero/hero_aim_modifier.gd": "16+",
 }

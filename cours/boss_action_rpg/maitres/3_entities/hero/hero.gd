@@ -61,6 +61,9 @@ var last_hit_from: Vector3 = Vector3.ZERO
 @onready var flasks: FlaskComponent = $Flasks
 ## La mémoire d'appui du soin.
 @onready var heal_buffer: InputBuffer = $HealBuffer
+#@ 16+
+## La mémoire d'appui du saut.
+@onready var jump_buffer: InputBuffer = $JumpBuffer
 #@ all
 
 
@@ -76,6 +79,9 @@ func _ready() -> void:
 	gun.pool = projectiles
 #@ 6+
 	heal_buffer.window = settings.heal_buffer_time
+#@ 16+
+	jump_buffer.window = settings.jump_buffer_time
+#@ 6+
 	flasks.fill(settings.flask_count)
 	health.died.connect(_on_died)
 #@ 2-3
@@ -128,13 +134,26 @@ func facing_direction(direction: Vector3) -> Vector3:
 	return direction
 
 
+#@ 5-15
 ## Le point visé : ce que touche le rayon du centre de l'écran ; sans caméra de visée, droit devant le corps, à
 ## portée.
-#@ 7+
+#@ 7-15
 ## Le rayon ne compte les obstacles qu'à partir de la profondeur du héros : ce qui se trouve entre la caméra et lui
 ## (un chambranle, une chaise, derrière son dos) ne peut pas être visé.
+#@ 16+
+## Le point visé. Verrouillé sur une cible : la cible. En visée : ce que touche le rayon du centre de l'écran, à partir
+## de la profondeur du héros (ce qui se trouve entre la caméra et lui ne peut pas être visé). Sinon (tir de hanche),
+## droit devant le corps, à l'horizontale, à hauteur de l'arme : la caméra regarde le héros d'en haut, et le centre de
+## l'écran tombait sur le plancher ; le tir partait vers le sol.
 #@ 5+
 func aim_point() -> Vector3:
+#@ 16+
+	var orbit: OrbitCamera = camera as OrbitCamera
+	if orbit != null and orbit.locked != null and is_instance_valid(orbit.locked):
+		return orbit.locked.global_position
+	if not aiming:
+		return gun.global_position + Motion.forward_of(rotation.y) * gun.settings.aim_range
+#@ 5+
 	if aim_camera == null:
 		return gun.global_position + Motion.forward_of(rotation.y) * gun.settings.aim_range
 	var forward: Vector3 = -aim_camera.global_basis.z
@@ -195,4 +214,11 @@ func knockback_direction() -> Vector3:
 func _on_died() -> void:
 	machine.transition_to(&"Dead")
 	defeated.emit()
+#@ all
+#@ 16+
+
+
+## La vitesse verticale d'un saut qui monte de `jump_height` sous la gravité du héros.
+func jump_speed() -> float:
+	return sqrt(2.0 * settings.gravity * settings.jump_height)
 #@ all

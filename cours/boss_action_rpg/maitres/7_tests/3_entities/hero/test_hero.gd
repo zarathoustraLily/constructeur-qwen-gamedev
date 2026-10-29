@@ -397,3 +397,34 @@ func test_un_obstacle_entre_la_camera_et_le_heros_n_arrete_pas_la_visee() -> voi
 	await _frames(3)
 	assert_float(hero.aim_point().z).is_less(-20.0)
 #@ all
+#@ 16+
+
+
+func test_il_saute_de_la_hauteur_voulue_et_retombe_en_course() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	var sol: float = hero.global_position.y
+	var endurance: float = hero.stamina.stamina
+	var vus: Array[StringName] = []
+	hero.machine.state_changed.connect(func(_from: StringName, to: StringName) -> void: vus.append(to))
+	hero.jump_buffer.press()
+	var plus_haut: float = sol
+	var moins_d_endurance: float = endurance
+	for _i: int in 90:
+		await get_tree().physics_frame
+		plus_haut = maxf(plus_haut, hero.global_position.y)
+		moins_d_endurance = minf(moins_d_endurance, hero.stamina.stamina)
+	assert_array(vus).contains_exactly([&"Jump", &"Move"])
+	assert_float(plus_haut - sol).is_equal_approx(hero.settings.jump_height, 0.1)
+	assert_float(moins_d_endurance).is_equal_approx(endurance - hero.settings.jump_cost, 0.5)
+	assert_bool(hero.is_on_floor()).is_true()
+
+
+func test_sans_endurance_pas_de_saut() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.stamina.spend(1000.0)
+	hero.jump_buffer.press()
+	await _frames(5)
+	assert_str(hero.machine.current.name).is_equal("Move")
+#@ all

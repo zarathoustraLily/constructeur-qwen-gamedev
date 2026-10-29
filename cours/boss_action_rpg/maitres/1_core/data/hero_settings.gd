@@ -50,3 +50,13 @@ class_name HeroSettings extends Resource
 ## La vitesse du recul au moment du coup, en m/s ; elle retombe à zéro pendant le chancellement.
 @export_range(0.0, 30.0, 0.1) var knockback_speed: float = 5.0
 #@ all
+#@ 16+
+## La hauteur du saut, en mètres (sous les pieds, au plus haut).
+@export_range(0.1, 5.0, 0.05) var jump_height: float = 1.0
+## L'endurance que coûte un saut.
+@export_range(0.0, 100.0, 0.5) var jump_cost: float = 15.0
+## En l'air, la part de l'accélération au sol qui reste pour se diriger (0 : aucune).
+@export_range(0.0, 1.0, 0.01) var air_control: float = 0.35
+## Un appui sur le saut un peu avant de toucher le sol compte encore pendant autant de secondes.
+@export_range(0.0, 1.0, 0.01) var jump_buffer_time: float = 0.15
+#@ all

@@ -22,8 +22,16 @@ const CAMERA_DOWN: StringName = &"camera_down"
 const AIM: StringName = &"aim"
 ## Tirer (gâchette droite, clic gauche).
 const SHOOT: StringName = &"shoot"
+#@ 1-15
 ## Rouler (B, Espace).
+#@ 16+
+## Rouler, et sprinter en le tenant (B, Maj).
+#@ all
 const DODGE: StringName = &"dodge"
+#@ 16+
+## Sauter (A, Espace).
+const JUMP: StringName = &"jump"
+#@ all
 ## Verrouiller la cible (clic du stick droit, clic de la molette).
 const LOCK_ON: StringName = &"lock_on"
 ## Boire une fiole de soin (X, E).
@@ -34,7 +42,11 @@ const PAUSE: StringName = &"pause"
 
 ## Les actions du combat, celles qui doivent marcher à la manette comme au clavier et à la souris.
 static func gameplay() -> Array[StringName]:
+#@ 1-15
 	return [MOVE_LEFT, MOVE_RIGHT, MOVE_FORWARD, MOVE_BACK, AIM, SHOOT, DODGE, LOCK_ON, HEAL, PAUSE]
+#@ 16+
+	return [MOVE_LEFT, MOVE_RIGHT, MOVE_FORWARD, MOVE_BACK, AIM, SHOOT, DODGE, JUMP, LOCK_ON, HEAL, PAUSE]
+#@ all
 
 
 ## Vrai si l'action `action` a au moins une entrée de manette (bouton ou axe).

@@ -239,3 +239,28 @@ func test_les_effets_ont_la_camera_du_heros_et_ses_tirs() -> void:
 	assert_that((main.get_node("Golem/Effects") as GolemEffects).camera).is_same(main.get_node("OrbitCamera"))
 	assert_that((main.get_node("ImpactSparks") as ImpactSparks).pool).is_same(main.get_node("Projectiles"))
 #@ all
+#@ 16+
+
+
+func test_le_tir_part_droit_devant_ou_vers_la_cible_verrouillee_et_le_canon_suit() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var hero: Hero = main.get_node("Hero") as Hero
+	var orbit: OrbitCamera = main.get_node("OrbitCamera") as OrbitCamera
+	hero.get_node("Input").free()
+	orbit.get_node("Input").free()
+	await get_tree().physics_frame
+	assert_float(hero.aim_point().y).is_equal_approx(hero.gun.global_position.y, 0.001)
+	var golem: Golem = main.get_node("Golem") as Golem
+	orbit.lock(golem.lock_point)
+	assert_vector(hero.aim_point()).is_equal(golem.lock_point.global_position)
+	hero.trigger = true
+	var view: HeroView = hero.get_node("View") as HeroView
+	for _i: int in 30:
+		await get_tree().physics_frame
+	var vers: Vector3 = hero.gun.global_position.direction_to(golem.lock_point.global_position)
+	assert_float(view.aim_pitch.pitch).is_equal_approx(asin(vers.y), 0.05)
+	var canon: Vector3 = -(view.muzzle.get_parent() as Node3D).global_basis.z.normalized()
+	assert_float(rad_to_deg(canon.angle_to(vers))).is_less(12.0)
+	hero.trigger = false
+#@ all

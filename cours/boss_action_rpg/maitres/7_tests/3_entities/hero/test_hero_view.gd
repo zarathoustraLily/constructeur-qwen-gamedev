@@ -202,3 +202,18 @@ func test_un_coup_recu_fait_flasher_le_soldat_puis_s_eteint() -> void:
 	view.update(view.settings.hit_flash_time)
 	assert_float(view.flash).is_equal(0.0)
 #@ all
+#@ 16+
+
+
+func test_il_epaule_des_qu_il_tire_et_le_saut_a_sa_pose() -> void:
+	var hero: Hero = _hero()
+	var view: HeroView = _view(hero)
+	hero.trigger = true
+	for _i: int in 30:
+		view.update(1.0 / 60.0)
+	assert_float(view.aim_weight).is_equal_approx(1.0, 0.001)
+	hero.trigger = false
+	hero.machine.transition_to(&"Jump")
+	assert_str(_shown(view)).is_equal("jump")
+
+#@ all

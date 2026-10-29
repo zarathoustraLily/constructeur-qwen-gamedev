@@ -526,6 +526,79 @@
    ],
    "lecture": "La méthode existe : « méthode [RenderingServer] viewport_get_measured_render_time_gpu(viewport: RID) -> float ».",
    "decision": "7_tests/perf/mesurer_rendu.gd active la mesure (viewport_set_measure_render_time) sur la fenêtre racine, lit ce temps à chaque image après l'échauffement et en garde la médiane, avec les appels de dessin, les primitives et la mémoire vidéo du moteur. En 1280 × 720 sur la 5090 : 2,1 ms en haute, 0,37 ms en basse, deux mesures concordantes."
+  },
+  {
+   "id": "e16_tir_vers_le_sol",
+   "etape": 16,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "laurent, en jouant : « parfois le joueur tire en bas ». Le point visé du tir de hanche vient du rayon du centre de l'écran, et la caméra regarde le héros d'en haut, inclinée de 15° vers le bas. D'où part ce rayon, et dans quelle direction ?",
+   "pensee": "Je vérifie la méthode qui donne la direction du rayon d'un point de l'écran.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Camera3D",
+    "membre": "project_ray_normal"
+   },
+   "attendu": [
+    "project_ray_normal(screen_point: Vector2) -> Vector3"
+   ],
+   "lecture": "La méthode rend une direction depuis un point de l'écran : « méthode [Camera3D] project_ray_normal(screen_point: Vector2) -> Vector3 ».",
+   "decision": "Le rayon du centre suit l'axe de la caméra : 15° vers le bas. Il passe au-dessus du héros puis touche le plancher quelques mètres devant lui, et le tir part du fusil vers ce point du sol. aim_point() distingue trois cas : verrouillé, la cible ; en visée, le rayon de l'écran ; sinon, droit devant le corps, à l'horizontale, à la hauteur de l'arme."
+  },
+  {
+   "id": "e16_buste_vers_le_tir",
+   "etape": 16,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Verrouillé sur le golem, le tir monte vers sa poitrine, mais le clip de visée tient le fusil à l'horizontale : le canon et le tir ne pointent pas dans la même direction. Je veux incliner le buste du héros vers le point visé, par-dessus l'animation. Qu'est-ce que Godot fournit pour modifier un os après l'animation ?",
+   "pensee": "Je cherche dans la documentation un nœud qui modifie les os d'un squelette après la lecture de l'animation.",
+   "outil": {
+    "genre": "rag",
+    "requete": "SkeletonModifier3D modifier un os après l'animation",
+    "n": 3
+   },
+   "attendu": [
+    "## SkeletonModifier3D  (classes/class_skeletonmodifier3d.rst)",
+    "If there is an AnimationMixer, a modification always performs after playback process of the AnimationMixer."
+   ],
+   "lecture": "Le premier résultat est la classe : « If there is an AnimationMixer, a modification always performs after playback process of the AnimationMixer. »",
+   "decision": "HeroAimModifier étend SkeletonModifier3D : dans _process_modification_with_delta, il fait tourner l'os Chest autour de l'axe latéral de l'angle vertical du tir, asin(direction.y), pondéré par le poids de la visée. La vue l'ajoute au squelette avant l'IK de la main gauche. Le test vérifie l'angle du buste et que le canon pointe à moins de 12° de la cible."
+  },
+  {
+   "id": "e16_foulee_tenue",
+   "etape": 16,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Le jeu n'a pas de clip de saut. En l'air, je veux montrer une foulée de course figée, jambes écartées, plutôt que la course qui continue. Comment faire partir un clip d'un instant choisi dans l'arbre d'animation ?",
+   "pensee": "AnimationNodeAnimation porte le clip dans l'arbre : je vérifie s'il a un décalage de départ.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "AnimationNodeAnimation",
+    "membre": "start_offset"
+   },
+   "attendu": [
+    "start_offset: float"
+   ],
+   "lecture": "La propriété existe : « propriété [AnimationNodeAnimation] start_offset: float ».",
+   "decision": "Un second nœud du clip run, avec use_custom_timeline, part de 30 % de sa durée (start_offset = longueur × 0,3) et passe par un AnimationNodeTimeScale à 0,15 : la foulée reste presque figée pendant le saut."
+  },
+  {
+   "id": "e16_reprendre_a_zero",
+   "etape": 16,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "La foulée tenue du saut est une entrée du nœud de transition des états. Au second saut, elle doit repartir de sa pose de départ, pas de là où le premier saut l'avait laissée. Comment le demander à la transition ?",
+   "pensee": "Je vérifie dans le vocabulaire la méthode qui règle la remise à zéro d'une entrée de transition.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "AnimationNodeTransition",
+    "membre": "set_input_reset"
+   },
+   "attendu": [
+    "set_input_reset(input: int, enable: bool)"
+   ],
+   "lecture": "La méthode existe : « méthode [AnimationNodeTransition] set_input_reset(input: int, enable: bool) ».",
+   "decision": "Après avoir branché les entrées, build_tree appelle state.set_input_reset(index de jump, true) : chaque saut repart de la foulée choisie."
   }
  ]
 }

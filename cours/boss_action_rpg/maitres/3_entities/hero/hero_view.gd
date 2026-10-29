@@ -15,9 +15,20 @@ class_name HeroView extends Node3D
 #@ all
 
 ## L'état du héros → l'entrée du nœud de transition qui le montre.
+#@ 1-15
 const STATES: Dictionary[StringName, StringName] = {
 	&"Move": &"move", &"Roll": &"roll", &"Hit": &"hit", &"Heal": &"heal", &"Dead": &"dead",
 }
+#@ 16+
+const STATES: Dictionary[StringName, StringName] = {
+	&"Move": &"move", &"Roll": &"roll", &"Hit": &"hit", &"Heal": &"heal", &"Dead": &"dead", &"Jump": &"jump",
+}
+## Le saut n'a pas de clip : une foulée de course tenue (le clip de course, à partir de cette part de sa durée,
+## presque arrêté).
+const JUMP_STRIDE: float = 0.3
+## La vitesse de la foulée tenue en l'air (1 : celle du clip).
+const JUMP_TIME_SCALE: float = 0.15
+#@ all
 
 ## Le héros montré : sa vitesse, sa visée, ses réglages.
 @export var hero: Hero
@@ -39,6 +50,10 @@ var clip_nodes: Dictionary[StringName, AnimationNodeAnimation] = {}
 #@ 13+
 ## Le flash du moment, de 0 à 1.
 var flash: float = 0.0
+#@ 16+
+## Le buste incliné vers le point visé.
+var aim_pitch: HeroAimModifier
+#@ 13+
 ## La couche du flash propre à ce héros.
 var flash_material: ShaderMaterial
 #@ all
@@ -79,6 +94,14 @@ func _ready() -> void:
 		(piece as MeshInstance3D).material_overlay = flash_material
 	# Le héros est prêt après sa vue : sa santé se prend par son chemin.
 	(hero.get_node(^"Health") as HealthComponent).damaged.connect(_on_damaged)
+#@ 16+
+	# Le buste s'incline avant que l'IK de la main gauche ne pose la main sur le fusil.
+	aim_pitch = HeroAimModifier.new()
+	aim_pitch.name = "AimPitch"
+	_skeleton.add_child(aim_pitch)
+	_skeleton.move_child(aim_pitch, left_hand_ik.get_index())
+	tree.set(&"parameters/jump/scale", JUMP_TIME_SCALE)
+#@ 13+
 #@ all
 
 
@@ -93,7 +116,15 @@ func update(delta: float) -> void:
 	var ground: Vector2 = Vector2(local.x, -local.z)
 	tree.set(&"parameters/locomotion/blend_position", ground.length())
 	tree.set(&"parameters/strafe/blend_position", (ground / hero.settings.aim_speed).limit_length(1.0))
+#@ 1-15
 	aim_weight = move_toward(aim_weight, 1.0 if hero.aiming else 0.0, delta / settings.aim_blend_time)
+#@ 16+
+	# Il épaule dès qu'il vise ou qu'il tire : le fusil pointe alors droit devant, là où part le tir de hanche.
+	var shouldered: bool = hero.aiming or hero.trigger
+	aim_weight = move_toward(aim_weight, 1.0 if shouldered else 0.0, delta / settings.aim_blend_time)
+	var toward: Vector3 = gun.global_position.direction_to(hero.aim_point())
+	aim_pitch.pitch = asin(clampf(toward.y, -1.0, 1.0)) * aim_weight
+#@ all
 	tree.set(&"parameters/aim/blend_amount", aim_weight)
 	var grip: float = 1.0 if machine.current.name == &"Move" else 0.0
 	left_hand_ik.influence = move_toward(left_hand_ik.influence, grip, delta / settings.state_blend_time)
@@ -155,9 +186,22 @@ func build_tree() -> AnimationNodeBlendTree:
 	var state: AnimationNodeTransition = AnimationNodeTransition.new()
 	state.xfade_time = settings.state_blend_time
 	root.add_node(&"state", state)
+#@ 1-15
 	var inputs: Dictionary[StringName, StringName] = {
 		&"move": &"fire", &"roll": &"roll", &"hit": &"hit", &"heal": &"heal", &"dead": &"dead",
 	}
+#@ 16+
+	var inputs: Dictionary[StringName, StringName] = {
+		&"move": &"fire", &"roll": &"roll", &"hit": &"hit", &"heal": &"heal", &"dead": &"dead", &"jump": &"jump",
+	}
+	var stride: AnimationNodeAnimation = _clip(&"run")
+	stride.use_custom_timeline = true
+	stride.start_offset = _player.get_animation(&"run").length * JUMP_STRIDE
+	stride.timeline_length = _player.get_animation(&"run").length
+	root.add_node(&"jump_stride", stride)
+	root.add_node(&"jump", AnimationNodeTimeScale.new())
+	root.connect_node(&"jump", 0, &"jump_stride")
+#@ all
 	root.add_node(&"roll", _timed(&"roll", hero.settings.roll_duration))
 	root.add_node(&"hit", _clip(&"hit"))
 	root.add_node(&"heal", _timed(&"heal", hero.settings.heal_duration))
@@ -168,6 +212,9 @@ func build_tree() -> AnimationNodeBlendTree:
 		root.connect_node(&"state", index, inputs[input])
 		index += 1
 	root.connect_node(&"output", 0, &"state")
+#@ 16+
+	state.set_input_reset(inputs.keys().find(&"jump"), true)
+#@ all
 	return root
 
 

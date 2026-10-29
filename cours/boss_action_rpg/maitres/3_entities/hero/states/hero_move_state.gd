@@ -38,6 +38,10 @@ func physics_update(delta: float) -> void:
 	if hero.sprinting:
 		hero.stamina.spend(hero.settings.sprint_cost * delta)
 		winded = not hero.stamina.can_spend()
+#@ 16+
+	if hero.is_on_floor() and hero.stamina.can_spend() and hero.jump_buffer.consume():
+		finish(&"Jump")
+		return
 #@ 5+
 	if hero.trigger:
 		hero.gun.pull(hero.aim_point())

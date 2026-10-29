@@ -26,4 +26,9 @@ heal_moment = 0.7
 heal_buffer_time = 0.25
 hit_stun_time = 0.35
 knockback_speed = 5.0
+;@ 16+
+jump_height = 1.0
+jump_cost = 15.0
+air_control = 0.35
+jump_buffer_time = 0.15
 ;@ all
