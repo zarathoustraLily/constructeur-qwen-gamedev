@@ -152,9 +152,11 @@ les réglages stricts du projet (typer tout, pas de division entière).
 
 ## 7. Où en est le cours (2026-10-29)
 
-Étapes 1 à 12 faites et vérifiées. Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
-les spectres, squelettes procéduraux, à 70 % de la vie du golem (183) ; 12, le combat du Gardien (199). Notes :
-`cours/boss_action_rpg/notes/etape_009.md` à `etape_012.md` ; `demarche.md` étapes 14 à 17.
+Étapes 1 à 13 faites et vérifiées. Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
+les spectres, squelettes procéduraux, à 70 % de la vie du golem (183) ; 12, le combat du Gardien (199) ; 13, les
+effets des coups (209). Notes : `cours/boss_action_rpg/notes/etape_009.md` à `etape_013.md` ; `demarche.md` étapes 14
+à 18. Effets : `3_entities/boss/golem_effects.gd`, `1_core/combat/impact_sparks.gd`, `6_assets/Shader/VFX/`,
+`6_assets/VFX/`, `5_data/vfx/` ; tremblement : `OrbitCamera.shake`.
 
 Le combat (étape 12) : `3_entities/boss/golem.gd` (logique), `states/` (Dormant, Wake, Approach, Attack, Recover,
 PhaseShift, Dead), `golem_view.gd` (clips, penché, bouclier jeté), `golem_strike_modifier.gd` (buste penché par-dessus
@@ -165,11 +167,10 @@ Ce qui reste des sources : le soin joue le rechargement (geste « drink » à pr
 de Binbun (`hit_fx_free`, `muzzle_flash_vfx`, scripts **non typés** : à reprendre typés, ne pas copier leurs
 `.import`/`.uid`). Détail : `inventaire_sources.md`, `demarche.md` étape 13.
 
-**Prochaine étape : 13, les effets visuels (et sons) des attaques**, demande de laurent (« ajoute des VFX ») : onde de
-choc et poussière aux impacts (signal `slammed(point, radius)`), traînée du marteau pendant la fenêtre de frappe
-(`attack_started`, `GolemAttack.strike_start/end`), étincelles quand un tir touche le bouclier, éclats sur le héros
-touché, fissures qui brillent en seconde phase (émission des matériaux du golem), effondrement à la mort ; réserves
-préparées d'avance (aucune instanciation en combat). Puis 14, optimisation et mesures ; puis les paires tirées du cours.
+**Prochaine étape : 14, optimisation et mesures** (conception : 60 images/s à 1080p sur la 5090, réserves, aucune
+allocation en combat ; la traînée du marteau refait un `ImmediateMesh` à chaque image : à mesurer). Les sons restent à
+part : les sons TII sont « No AI Training », jeu final seulement, jamais dans le cours. Puis les paires tirées du
+cours.
 
 Outils d'image et de mesure (`SUIVIS_PROGRESSION/outils/`) : `capturer_spectres.gd` ; `mesurer_golem.gd` (clips,
 marteau, `-- trajectoires`) ; `trace_golem.gd` (chemin du marteau, dessus et profil) ; `planche_golem.gd` et
@@ -191,7 +192,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - **Journal de démarche** : `cours/boss_action_rpg/demarche.json`, un pas par décision réellement prise ; générateur
   `python -m usine.paires demarche` (`usine/paires/demarche.py`) : outil rejoué (RAG, vocabulaire), pas écarté si un
   fragment attendu ou une citation « … » manque à la sortie réelle ; paires au format d'OpenCode (outil `execute` du
-  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 22 paires à
+  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 25 paires à
   ce jour. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
   un fichier, pas « plan » (du prompt à la liste des étapes, vérifiée contre le manifeste), sessions longues.
 - **Autres familles à tirer du cours** (`usine/paires/` : `creation`, `bloc`, `test_cas`, `morceaux`, `rag`) : ajouter
@@ -248,3 +249,8 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   (`outils/carte_arene.gd`) : posé dans un meuble, il ne bouge plus.
 - Une zone placée d'avance (pour voir les corps déjà dedans) doit l'être là où sera l'impact, pas là où est le corps.
 - `rm -f $W/*.png` est refusé par la sécurité de Claude Code : écrire dans un nouveau dossier plutôt qu'effacer.
+- Un enfant est prêt avant son parent : une vue enfant ne lit pas les `@onready` de son parent dans son `_ready`
+  (nuls) ; prendre le nœud par son chemin.
+- Les matériaux du golem sont des `ORMMaterial3D` : transtyper en `BaseMaterial3D`, pas en `StandardMaterial3D`.
+- Allumer l'émission des matériaux du golem blanchit tout (cartes grises) : une couche par-dessus (`ember_lines`)
+  n'allume que les lignes claires ; une carte lue comme donnée se déclare sans `source_color`.

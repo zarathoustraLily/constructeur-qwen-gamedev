@@ -399,6 +399,61 @@
    ],
    "lecture": "La requête existe : « méthode [PhysicsDirectSpaceState3D] cast_motion(parameters: PhysicsShapeQueryParameters3D) -> PackedFloat32Array ».",
    "decision": "Golem.path_clear glisse la forme de son corps, soulevée de 0,3 m (le plancher ne compte pas), vers sa cible, sur la longueur que portera le clip, contre la couche du décor seule ; il ne choisit le coup que si la part libre vaut 1. Un test pose un mur entre le golem et sa cible : il ne bondit plus."
+  },
+  {
+   "id": "e13_salve_d_impact",
+   "etape": 13,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "laurent veut des effets sur les attaques du golem. À chaque impact au sol, je veux un nuage de poussière et des éclats de pierre qui partent tous en même temps du point d'impact, sans créer de nœud en combat. Comment Godot fait-il partir une salve unique, et la relancer ?",
+   "pensee": "C'est un effet courant : je cherche d'abord dans le RAG un exemple vérifié de salve de particules plutôt que de deviner les réglages.",
+   "outil": {
+    "genre": "rag",
+    "requete": "Particules d impact GPUParticles3D salve unique",
+    "n": 2
+   },
+   "attendu": [
+    "particules.global_position = ou",
+    "particules.restart()"
+   ],
+   "lecture": "Le second résultat est l'exemple vérifié particules_impact : la salve est posée au point touché (« particules.global_position = ou ») puis relancée (« particules.restart() »).",
+   "decision": "Les salves du golem (poussière, éclats) et les étincelles sont des GPUParticles3D en one_shot, explosiveness 1 (ou 0,9 pour la poussière), préparées avec lui et posées dans le monde (top_level). À l'impact, GolemEffects les pose au point et les relance ; un test vérifie qu'aucun nœud n'est créé pendant un coup."
+  },
+  {
+   "id": "e13_trainee_3d",
+   "etape": 13,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "Je veux une traînée lumineuse derrière la tête du marteau pendant sa fenêtre de frappe. Godot 4.7.2 a-t-il un nœud de traînée en 3D ?",
+   "pensee": "Je vérifie dans le RAG ce que dit la fiche de l'effet de traînée sur la 3D, avant d'écrire ma propre bande.",
+   "outil": {
+    "genre": "rag",
+    "requete": "traînée 3D Trail3D Godot 4.7 nœud de traînée",
+    "n": 2
+   },
+   "attendu": [
+    "En 3D, Godot 4.7 n'a pas de nœud de traînée"
+   ],
+   "lecture": "La fiche de l'effet de traînée le dit : « En 3D, Godot 4.7 n'a pas de nœud de traînée ; Godot 4.8 ajoute `Trail3D` ».",
+   "decision": "La traînée du marteau est un ruban ImmediateMesh (bande en PRIMITIVE_TRIANGLE_STRIP) refait à chaque image : une position par image (le bout du marteau et un point vers le manche) pendant la fenêtre de frappe élargie, gardées dans des tableaux de taille fixe ; l'âge de chaque position va dans l'alpha de la couleur des sommets, que le shader additif lit."
+  },
+  {
+   "id": "e13_couche_par_dessus",
+   "etape": 13,
+   "sujet": "Shaders",
+   "type": "analyse",
+   "situation": "En seconde phase, j'ai allumé l'émission du matériau de l'armure du golem : il est devenu une silhouette orange uniforme, sa carte d'émission étant grise presque partout. Je veux n'allumer que ses jointures, sans toucher au matériau importé. Comment poser un second matériau par-dessus un maillage ?",
+   "pensee": "Une couche dessinée par-dessus le matériau existant suffirait : je vérifie la propriété qui la pose.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "GeometryInstance3D",
+    "membre": "material_overlay"
+   },
+   "attendu": [
+    "material_overlay: BaseMaterial3D,ShaderMaterial"
+   ],
+   "lecture": "La propriété existe : « propriété [GeometryInstance3D] material_overlay: BaseMaterial3D,ShaderMaterial ».",
+   "decision": "Un shader additif (ember_lines.gdshader), posé en material_overlay sur les huit pièces d'armure, lit la carte d'émission de l'armure sans source_color et n'allume que ce qui dépasse un seuil (0,25, montée douce sur 0,35 : vues de loin, les lignes fines se mêlent à leur entourage sombre dans les niveaux réduits de la texture). Le matériau de l'armure reste éteint ; l'image montre des braises sur les jointures."
   }
  ]
 }
