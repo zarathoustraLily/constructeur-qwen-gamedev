@@ -174,10 +174,15 @@ health = NodePath("../Health")
 
 [node name="Shape" type="CollisionShape3D" parent="Target/Hurtbox"]
 shape = SubResource("BoxShape3D_target")
-;@ 7+
+;@ 7-11
 
 [node name="Golem" parent="." instance=ExtResource("11_golem")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -1)
+;@ 12+
+
+[node name="Golem" parent="." node_paths=PackedStringArray("target") instance=ExtResource("11_golem")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -1)
+target = NodePath("../Hero")
 ;@ 5+
 
 [node name="Projectiles" type="Node3D" parent="."]
@@ -208,10 +213,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 3.5, 7)
 [node name="Spectre3" parent="Spectres" instance=ExtResource("17_spectre")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3, 6)
 
+;@ 11
 [node name="SpectreCall" type="Node" parent="." node_paths=PackedStringArray("health", "spectres", "prey", "prey_health")]
 script = ExtResource("18_call")
 settings = ExtResource("19_spectre_settings")
 health = NodePath("../Golem/Health")
+;@ 12+
+[node name="SpectreCall" type="Node" parent="." node_paths=PackedStringArray("golem", "spectres", "prey", "prey_health")]
+script = ExtResource("18_call")
+settings = ExtResource("19_spectre_settings")
+golem = NodePath("../Golem")
+;@ 11+
 spectres = [NodePath("../Spectres/Spectre1"), NodePath("../Spectres/Spectre2"), NodePath("../Spectres/Spectre3")]
 prey = NodePath("../Hero")
 prey_health = NodePath("../Hero/Health")

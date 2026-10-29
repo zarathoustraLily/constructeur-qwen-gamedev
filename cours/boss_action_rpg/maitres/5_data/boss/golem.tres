@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="GolemSettings" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/golem_settings.gd" id="1_settings"]
+[ext_resource type="Script" path="res://1_core/data/golem_attack.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://5_data/boss/attacks/sweep.tres" id="3_sweep"]
+[ext_resource type="Resource" path="res://5_data/boss/attacks/backhand.tres" id="4_backhand"]
+[ext_resource type="Resource" path="res://5_data/boss/attacks/crush.tres" id="5_crush"]
+[ext_resource type="Resource" path="res://5_data/boss/attacks/leap.tres" id="6_leap"]
+
+[resource]
+script = ExtResource("1_settings")
+wake_distance = 8.0
+wake_time = 2.0
+walk_speed = 2.0
+turn_speed = 1.4
+walk_cone = 0.8
+attacks = Array[ExtResource("2_attack")]([ExtResource("3_sweep"), ExtResource("4_backhand"), ExtResource("5_crush"), ExtResource("6_leap")])
+phase_two_ratio = 0.7
+phase_shift_time = 2.5
+phase_two_chain = 2
+phase_two_speed = 1.15

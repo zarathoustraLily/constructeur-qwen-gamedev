@@ -15,8 +15,13 @@ extends Node3D
 ## Quand le héros tombe, le niveau recommence après un délai : tout repart de zéro (héros, fioles, cible, et le boss
 ## quand il sera là), en rechargeant la scène.
 #@ 9+
+#@ 9-11
 ## Elle branche l'interface (4_ui ne connaît pas les entités) : vie, endurance, fioles du héros, chaleur de son arme,
 ## vie du boss ; et montre l'écran de chute quand le héros tombe.
+#@ 12+
+## Elle branche l'interface (4_ui ne connaît pas les entités) : vie, endurance, fioles du héros, chaleur de son arme ;
+## la vie du boss quand il se réveille ; et montre l'écran de chute quand le héros tombe.
+#@ 9+
 #@ all
 #@ 1-2
 
@@ -48,7 +53,11 @@ func _ready() -> void:
 	_hud.bind_stamina(_hero.stamina)
 	_hud.bind_heat(_hero.gun.heat)
 	_hud.bind_flasks(_hero.flasks)
+#@ 9-11
 	_hud.bind_boss(_golem.health)
+#@ 12+
+	_golem.woke.connect(_on_golem_woke)
+#@ 9+
 #@ 6+
 
 
@@ -61,4 +70,9 @@ func _on_hero_defeated() -> void:
 
 func _restart() -> void:
 	get_tree().reload_current_scene()
+#@ 12+
+
+
+func _on_golem_woke() -> void:
+	_hud.bind_boss(_golem.health)
 #@ all

@@ -4,7 +4,9 @@
 
 [resource]
 script = ExtResource("1_settings")
-summon_ratio = 0.66
+;@ 11
+summon_ratio = 0.7
+;@ all
 stagger = 1.2
 hover_height = 2.6
 hover_radius = 6.0

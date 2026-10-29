@@ -19,8 +19,11 @@ extends GdUnitTestSuite
 #@ 10+
 ## La carboglace est une nappe posée sur le plancher, plus basse que le héros, faite par le shader de brouillard, avec
 ## son bruit et sa dérive.
-#@ 11+
+#@ 11
 ## Trois spectres dorment au départ ; quand la vie du golem passe sous le seuil, ils sortent tous et chassent le héros.
+#@ 12+
+## La jauge du boss n'apparaît qu'à son réveil. Trois spectres dorment au départ ; quand la seconde phase du golem
+## commence (il a perdu 30 % de sa vie), ils sortent tous et chassent le héros.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -167,8 +170,15 @@ func test_l_interface_suit_le_heros_et_le_golem() -> void:
 	assert_float(hud.heat_bar.ratio).is_greater(0.0)
 	hero.flasks.use()
 	assert_int(hud.flasks.charges).is_equal(hero.settings.flask_count - 1)
+#@ 9-11
 	assert_bool(hud.boss_bar.visible).is_true()
+#@ 12+
+	assert_bool(hud.boss_bar.visible).is_false()
+#@ 9+
 	(main.get_node("Golem/Hurtbox") as Hurtbox).receive(150.0)
+#@ 12+
+	assert_bool(hud.boss_bar.visible).is_true()
+#@ 9+
 	assert_float(hud.boss_bar.bar.ratio).is_less(1.0)
 
 
@@ -199,7 +209,11 @@ func test_la_carboglace_est_une_nappe_basse_en_volutes() -> void:
 #@ 11+
 
 
+#@ 11
 func test_sous_le_seuil_du_golem_les_spectres_sortent_et_chassent_le_heros() -> void:
+#@ 12+
+func test_a_la_seconde_phase_du_golem_les_spectres_sortent_et_chassent_le_heros() -> void:
+#@ 11+
 	var main: Node3D = _main()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var spectres: Array[Node] = main.get_node("Spectres").get_children()

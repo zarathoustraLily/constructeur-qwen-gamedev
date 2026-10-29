@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 11
+DERNIERE = 12
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -29,13 +29,14 @@ ETAPES = [
     {"piste": "UI + Architecture", "titre": "L'interface du genre : jauges à traîne, fioles, barre du boss, écran de chute"},
     {"piste": "VFX + Shaders", "titre": "La carboglace : une brume au sol en volutes, par un shader de brouillard"},
     {"piste": "Gameplay + Procédural + Shaders", "titre": "Les spectres : squelettes bleus et transparents appelés par le Gardien"},
+    {"piste": "Gameplay + Graphisme 3D", "titre": "Le combat du Gardien : attaques recalées sur le héros, bouclier, point faible, seconde phase, chute"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -158,4 +159,20 @@ FICHIERS = {
     "6_assets/Mesh/Procedural/spectre/spectre_model.gd": "11+",
     "7_tests/1_core/procedural/test_mesh_builder.gd": "11+",
     "7_tests/6_assets/Mesh/Procedural/spectre/test_spectre_bones.gd": "11+",
+    "3_entities/boss/golem_strike_modifier.gd": "12+",
+    "1_core/data/golem_attack.gd": "12+",
+    "1_core/data/golem_settings.gd": "12+",
+    "5_data/boss/golem.tres": "12+",
+    "5_data/boss/attacks/sweep.tres": "12+",
+    "5_data/boss/attacks/backhand.tres": "12+",
+    "5_data/boss/attacks/crush.tres": "12+",
+    "5_data/boss/attacks/leap.tres": "12+",
+    "3_entities/boss/states/golem_dormant_state.gd": "12+",
+    "3_entities/boss/states/golem_wake_state.gd": "12+",
+    "3_entities/boss/states/golem_approach_state.gd": "12+",
+    "3_entities/boss/states/golem_attack_state.gd": "12+",
+    "3_entities/boss/states/golem_recover_state.gd": "12+",
+    "3_entities/boss/states/golem_phase_shift_state.gd": "12+",
+    "3_entities/boss/states/golem_dead_state.gd": "12+",
+    "3_entities/boss/golem_view.gd": "12+",
 }

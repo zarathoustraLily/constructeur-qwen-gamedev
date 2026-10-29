@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="GolemAttack" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/golem_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+id = &"backhand"
+clip = &"attack2"
+min_range = 0.0
+max_range = 6.5
+from_phase = 1
+track_until = 0.9
+strike_start = 1.2
+strike_end = 1.36
+damage = 30.0
+bend = 0.8
+bend_start = 0.75
+bend_end = 1.85
+recover = 1.4

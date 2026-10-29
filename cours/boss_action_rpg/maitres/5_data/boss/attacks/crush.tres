@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="GolemAttack" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/golem_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+id = &"crush"
+clip = &"attack4"
+min_range = 5.0
+max_range = 11.0
+from_phase = 1
+track_until = 1.4
+strike_start = 2.38
+strike_end = 2.6
+damage = 40.0
+bend = 0.9
+bend_start = 1.7
+bend_end = 2.9
+slam = true
+slam_time = 2.5
+slam_offset = Vector2(0.0, 3.3)
+slam_radius = 3.5
+slam_damage = 25.0
+recover = 2.0

@@ -6,7 +6,7 @@ le soldat du héros de l'effet ; laurent : « c'est excellent mais je voudrais p
 ou monstres volants ». Il a choisi un **squelette fait par le code** plutôt qu'un modèle téléchargé : rien à
 télécharger, aucune licence à vérifier, et le squelette s'anime par le code.
 
-Ce qu'on obtient : quand la vie du Gardien passe sous les deux tiers, trois squelettes spectraux sortent un par un. Ils
+Ce qu'on obtient : quand le Gardien a perdu 30 % de sa vie, trois squelettes spectraux sortent un par un. Ils
 sont bleus, lumineux et transparents, drapés d'un linceul en lambeaux. Ils planent en cercle au-dessus du héros. Chacun,
 à son tour, se cabre bras et mâchoire grands ouverts en s'illuminant, puis plonge sur lui, couché, griffes en avant, le
 linceul étiré derrière. Trois tirs en dissipent un pour de bon.
@@ -14,7 +14,7 @@ linceul étiré derrière. Trois tirs en dissipent un pour de bon.
 ## Ouvrir le projet
 
 1. Dans Godot 4.7.2, importer ce dossier, en rendu Forward+ (la brume de l'étape 10 l'exige).
-2. F5 : tirer sur le Gardien jusqu'à ce que sa jauge passe sous les deux tiers ; les spectres sortent.
+2. F5 : tirer sur le Gardien jusqu'à ce que sa jauge passe sous 70 % ; les spectres sortent.
 3. Les tests : `7_tests/lancer_tests.bat`, ou le panneau GdUnit4.
 
 ## Les fichiers du projet

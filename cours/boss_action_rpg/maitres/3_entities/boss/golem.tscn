@@ -1,10 +1,29 @@
+;@ 7-11
 [gd_scene load_steps=8 format=3]
+;@ 12+
+[gd_scene load_steps=28 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://3_entities/boss/golem.gd" id="1_golem"]
 [ext_resource type="PackedScene" path="res://6_assets/Characters/Golem/golem_model.tscn" id="2_model"]
 [ext_resource type="Script" path="res://1_core/components/health_component.gd" id="3_health"]
 [ext_resource type="Resource" path="res://5_data/boss/golem_health.tres" id="4_health_settings"]
 [ext_resource type="Script" path="res://1_core/combat/hurtbox.gd" id="5_hurtbox"]
+;@ 12+
+[ext_resource type="Resource" path="res://5_data/boss/golem.tres" id="6_settings"]
+[ext_resource type="AnimationLibrary" path="res://6_assets/Characters/Golem/golem_animations.tres" id="7_animations"]
+[ext_resource type="Script" path="res://1_core/combat/hitbox.gd" id="8_hitbox"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="9_machine"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_dormant_state.gd" id="10_dormant"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_wake_state.gd" id="11_wake"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_approach_state.gd" id="12_approach"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_attack_state.gd" id="13_attack"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_recover_state.gd" id="14_recover"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_phase_shift_state.gd" id="15_phase_shift"]
+[ext_resource type="Script" path="res://3_entities/boss/states/golem_dead_state.gd" id="16_dead"]
+[ext_resource type="Script" path="res://3_entities/boss/golem_view.gd" id="17_view"]
+[ext_resource type="Script" path="res://3_entities/boss/golem_strike_modifier.gd" id="18_bend"]
+;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 1.6
@@ -13,9 +32,27 @@ height = 7.0
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
 radius = 1.8
 height = 7.4
+;@ 12+
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hammer"]
+radius = 0.28
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_shield"]
+size = Vector3(0.6, 0.35, 1.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_back"]
+size = Vector3(2.2, 2.6, 0.6)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_slam"]
+radius = 3.5
+;@ all
 
 [node name="Golem" type="CharacterBody3D"]
 script = ExtResource("1_golem")
+;@ 12+
+settings = ExtResource("6_settings")
+animations = ExtResource("7_animations")
+;@ all
 
 [node name="Shape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
@@ -38,3 +75,78 @@ shape = SubResource("CapsuleShape3D_hurt")
 
 [node name="LockPoint" type="Node3D" parent="." groups=["lockable"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, 0)
+;@ 12+
+
+[node name="BackWeakPoint" type="Area3D" parent="." node_paths=PackedStringArray("health")]
+script = ExtResource("5_hurtbox")
+health = NodePath("../Health")
+multiplier = 2.0
+
+[node name="Shape" type="CollisionShape3D" parent="BackWeakPoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.4, 1.9)
+shape = SubResource("BoxShape3D_back")
+
+[node name="StrikeBend" type="SkeletonModifier3D" parent="Model/Skeleton3D"]
+script = ExtResource("18_bend")
+
+[node name="HammerHit" type="Area3D" parent="Model/Skeleton3D/WeaponR"]
+script = ExtResource("8_hitbox")
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Skeleton3D/WeaponR/HammerHit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.074, -0.18, 0.4)
+shape = SubResource("SphereShape3D_hammer")
+
+[node name="ShieldGuard" type="Area3D" parent="Model/Skeleton3D/WeaponL" node_paths=PackedStringArray("health")]
+script = ExtResource("5_hurtbox")
+health = NodePath("../../../../Health")
+multiplier = 0.0
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Skeleton3D/WeaponL/ShieldGuard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, -0.116, -0.074)
+shape = SubResource("BoxShape3D_shield")
+
+[node name="SlamZone" type="Area3D" parent="."]
+top_level = true
+script = ExtResource("8_hitbox")
+
+[node name="Shape" type="CollisionShape3D" parent="SlamZone"]
+shape = SubResource("SphereShape3D_slam")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("9_machine")
+initial_state = NodePath("Dormant")
+
+[node name="Dormant" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("10_dormant")
+golem = NodePath("../..")
+
+[node name="Wake" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("11_wake")
+golem = NodePath("../..")
+
+[node name="Approach" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("12_approach")
+golem = NodePath("../..")
+
+[node name="Attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("13_attack")
+golem = NodePath("../..")
+
+[node name="Recover" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("14_recover")
+golem = NodePath("../..")
+
+[node name="PhaseShift" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("15_phase_shift")
+golem = NodePath("../..")
+
+[node name="Dead" type="Node" parent="StateMachine" node_paths=PackedStringArray("golem")]
+script = ExtResource("16_dead")
+golem = NodePath("../..")
+
+[node name="View" type="Node3D" parent="." node_paths=PackedStringArray("golem", "machine", "model")]
+script = ExtResource("17_view")
+golem = NodePath("..")
+machine = NodePath("../StateMachine")
+model = NodePath("../Model")
+;@ all

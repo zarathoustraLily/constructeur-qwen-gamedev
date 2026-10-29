@@ -1,9 +1,15 @@
 class_name SpectreSettings extends Resource
+#@ 11
 ## Réglages des spectres : quand le boss les appelle, comment ils planent autour du héros, annoncent et font leur
 ## plongée, ce qu'elle coûte au héros, et combien de tirs les dissipent.
 
-## Le boss les appelle quand sa vie passe sous cette part (de 0 à 1).
-@export_range(0.0, 1.0, 0.01) var summon_ratio: float = 0.66
+## Le boss les appelle quand sa vie passe sous cette part (de 0 à 1) : 0,7, quand il en a perdu 30 %.
+@export_range(0.0, 1.0, 0.01) var summon_ratio: float = 0.7
+#@ 12+
+## Réglages des spectres : comment ils sortent (le boss les appelle à sa seconde phase), planent autour du héros,
+## annoncent et font leur plongée, ce qu'elle coûte au héros, et combien de tirs les dissipent.
+
+#@ all
 ## Le temps entre la sortie de deux spectres, en secondes : ils ne plongent pas ensemble.
 @export_range(0.0, 10.0, 0.1) var stagger: float = 1.2
 ## La hauteur à laquelle ils planent au-dessus du héros, en mètres.

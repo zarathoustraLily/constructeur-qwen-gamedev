@@ -345,6 +345,60 @@
    ],
    "lecture": "La méthode existe : « méthode [SurfaceTool] generate_normals(flip: bool=false) ».",
    "decision": "Le test construit une boule et un tube avec l'outil, recharge le maillage dans un SurfaceTool (create_from), lui fait calculer ses normales, puis vérifie que chaque normale de Godot est presque celle de l'outil (produit scalaire au-dessus de 0,8), en associant les sommets par leur position. Le test passe : les triangles tournent dans le sens des aiguilles d'une montre vus de l'extérieur."
+  },
+  {
+   "id": "e12_poser_apres_animation",
+   "etape": 12,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Les clips d'attaque du golem frappent à sa propre hauteur : mesuré, le marteau passe à 4 m du sol, au-dessus d'un héros de 1,8 m quatre fois plus petit. Je veux pencher son buste pendant la frappe, par-dessus l'animation, sans refaire les clips. Où Godot 4.7.2 laisse-t-il retoucher la pose après l'animation ?",
+   "pensee": "Godot 4.7 range les retouches de squelette dans des SkeletonModifier3D, appliqués après l'animation. Je vérifie la méthode qu'un modificateur écrit en GDScript doit redéfinir.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "SkeletonModifier3D",
+    "membre": "_process_modification_with_delta"
+   },
+   "attendu": [
+    "_process_modification_with_delta(delta: float)"
+   ],
+   "lecture": "La méthode existe : « méthode [SkeletonModifier3D] _process_modification_with_delta(delta: float) ».",
+   "decision": "GolemStrikeModifier (enfant du Skeleton3D du golem) tourne l'os spine_01 d'un angle `bend` autour de l'axe +X du squelette (le golem y regarde vers +Z), en composant la pose globale de l'os et celle de son parent. Le penché de chaque coup est mesuré, pas deviné : un scénario rejoue chaque clip pour plusieurs angles et relève la hauteur du marteau devant le golem (0,9 rad pour le balayage : 0,91 m)."
+  },
+  {
+   "id": "e12_deplacement_du_clip",
+   "etape": 12,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Trois clips du golem portent un déplacement sur l'os root (un bond de 15,5 m, un pas de 4,1 m, un recul de 10,9 m). Le modèle s'éloigne alors de son corps physique. Comment garder le modèle sur le corps, et faire avancer le corps comme le clip ?",
+   "pensee": "Le déplacement porté par un clip s'appelle root motion : je cherche ce que fait la propriété de l'AnimationMixer qui le désigne.",
+   "outil": {
+    "genre": "rag",
+    "requete": "AnimationMixer root_motion_track root motion",
+    "n": 1
+   },
+   "attendu": [
+    "the transformation will be canceled visually, and the animation will appear to stay in place"
+   ],
+   "lecture": "La référence de la classe : avec une piste de position, « the transformation will be canceled visually, and the animation will appear to stay in place ».",
+   "decision": "La vue pose root_motion_track sur la piste « Skeleton3D:root » : le modèle reste sur le corps. La logique du golem lit la même piste dans la ressource Animation (position_track_interpolate), multipliée par l'échelle du modèle (4) et tournée d'un demi-tour, et déplace le corps (move_and_slide) d'image en image : déterministe, testable sans fenêtre, et le corps s'arrête contre un mur au lieu de le traverser."
+  },
+  {
+   "id": "e12_chemin_libre",
+   "etape": 12,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Joué dans le niveau, le bond du golem s'est arrêté net : sa capsule de 1,6 m de rayon a buté contre l'encadrement de la porte d'entrée, que le héros, plus mince, franchissait. Comment savoir, avant de choisir un coup qui porte son corps, s'il pourra aller au bout ?",
+   "pensee": "Il faut faire glisser la forme de son corps le long du déplacement, sans la bouger, et savoir jusqu'où elle passe : je vérifie la requête de l'espace physique qui fait cela.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "PhysicsDirectSpaceState3D",
+    "membre": "cast_motion"
+   },
+   "attendu": [
+    "cast_motion(parameters: PhysicsShapeQueryParameters3D) -> PackedFloat32Array"
+   ],
+   "lecture": "La requête existe : « méthode [PhysicsDirectSpaceState3D] cast_motion(parameters: PhysicsShapeQueryParameters3D) -> PackedFloat32Array ».",
+   "decision": "Golem.path_clear glisse la forme de son corps, soulevée de 0,3 m (le plancher ne compte pas), vers sa cible, sur la longueur que portera le clip, contre la couche du décor seule ; il ne choisit le coup que si la part libre vaut 1. Un test pose un mur entre le golem et sa cible : il ne bondit plus."
   }
  ]
 }
