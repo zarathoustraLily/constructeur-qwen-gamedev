@@ -2294,6 +2294,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 9 (2026-10-29)** : interface du genre (jauges à traîne, fioles, jauge du boss, écran de chute), branchée par la scène principale sur les composants de 1_core ; étirement `canvas_items` ; 161 cas verts. Captures en Compatibilité et petites : Qwen tourne en même temps (llama-server : 29 Go de la carte graphique).
 
+**Étape 10 (2026-10-29)** : la carboglace, shader de brouillard (`6_assets/Shader/Environment/ground_mist.gdshader`, réglages `5_data/environment/dry_ice_mist.tres`), 162 cas verts ; ne se voit qu'en Forward+.
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal

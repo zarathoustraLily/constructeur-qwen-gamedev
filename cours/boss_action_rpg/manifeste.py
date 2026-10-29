@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 9
+DERNIERE = 10
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -27,13 +27,14 @@ ETAPES = [
     {"piste": "Graphisme 3D + Optimisation", "titre": "Le saloon d'un géant et son gardien : décor et boss tirés de paquets Unity, ambiance"},
     {"piste": "Graphisme 3D + Gameplay", "titre": "Le héros animé : un soldat reciblé, son arbre d'animation branché sur ses états"},
     {"piste": "UI + Architecture", "titre": "L'interface du genre : jauges à traîne, fioles, barre du boss, écran de chute"},
+    {"piste": "VFX + Shaders", "titre": "La carboglace : une brume au sol en volutes, par un shader de brouillard"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -107,7 +108,7 @@ FICHIERS = {
     "7_tests/1_core/combat/test_hitbox.gd": "6+",
     "7_tests/1_core/components/test_flask_component.gd": "6+",
     "5_data/environment/arena_environment.tres": "7+",
-    "5_data/environment/ground_mist.tres": "7+",
+    "5_data/environment/ground_mist.tres": "7-9",
     "5_data/boss/golem_health.tres": "7+",
     "3_entities/boss/golem.gd": "7+",
     "3_entities/boss/golem.tscn": "7+",
@@ -132,4 +133,6 @@ FICHIERS = {
     "7_tests/4_ui/hud/flask_counter/test_flask_counter.gd": "9+",
     "7_tests/4_ui/hud/boss_bar/test_boss_bar.gd": "9+",
     "7_tests/4_ui/overlays/defeat_screen/test_defeat_screen.gd": "9+",
+    "6_assets/Shader/Environment/ground_mist.gdshader": "10+",
+    "5_data/environment/dry_ice_mist.tres": "10+",
 }

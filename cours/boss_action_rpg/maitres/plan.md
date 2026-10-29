@@ -39,10 +39,15 @@ suivante avant.
 - [ ] 9. Interface du genre : vie, endurance, fioles, surchauffe, barre du boss, écran de chute
 #@ 9+
 - [x] 9. Interface du genre : vie, endurance, fioles, surchauffe, barre du boss, écran de chute
-#@ 7+
+#@ 7-9
 - [ ] 10. Combat du golem : machine à états, attaques, zones de coup, bouclier, points faibles, phase 2, mort
 - [ ] 11. Effets visuels et sons
 - [ ] 12. Optimisation et mesures
+#@ 10+
+- [x] 10. La carboglace : une brume au sol en volutes (shader de brouillard)
+- [ ] 11. Combat du golem : machine à états, attaques, zones de coup, bouclier, points faibles, phase 2, mort
+- [ ] 12. Effets visuels et sons
+- [ ] 13. Optimisation et mesures
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles
 - [ ] 9. Phase 2 et mort du golem

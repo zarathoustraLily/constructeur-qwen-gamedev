@@ -290,6 +290,24 @@
    ],
    "lecture": "Le guide « Multiple resolutions » le dit : « wish to have a high resolution 3D viewport, you should use the canvas_items stretch mode instead of the viewport stretch mode ».",
    "decision": "Dans project.godot : window/stretch/mode = \"canvas_items\" et window/stretch/aspect = \"expand\". L'interface s'étire avec la fenêtre, la 3D garde la résolution réelle. Revérifié sur une nouvelle capture en 960 × 540 : jauges en haut à gauche, fioles en bas à gauche, boss en bas au centre, sans chevauchement."
+  },
+  {
+   "id": "e10_shader_brouillard",
+   "etape": 10,
+   "sujet": "Shaders",
+   "type": "analyse",
+   "situation": "laurent veut une brume au ras du sol, comme de la carboglace : dense sur moins d'un mètre, en volutes qui bougent. Un FogMaterial ne donne qu'un voile uniforme. Qu'est-ce qu'un shader de brouillard peut lire pour faire une nappe qui dépend de la hauteur ?",
+   "pensee": "Je cherche les variables intégrées des shaders de brouillard (shader_type fog) dans la documentation.",
+   "outil": {
+    "genre": "rag",
+    "requete": "fog shader built-ins WORLD_POSITION DENSITY ALBEDO UVW",
+    "n": 3
+   },
+   "attendu": [
+    "Position of current froxel cell in world space."
+   ],
+   "lecture": "La documentation des shaders de brouillard donne WORLD_POSITION : « Position of current froxel cell in world space. », avec OBJECT_POSITION, SIZE et UVW pour le volume, et DENSITY, ALBEDO, EMISSION en sortie.",
+   "decision": "La densité tombe en carré sur 0,9 m au-dessus du bas du volume (OBJECT_POSITION.y - SIZE.y / 2), un bruit 3D lu à WORLD_POSITION - drift × TIME fait des volutes qui glissent, la distance aux bords (UVW × SIZE) l'efface. Sur l'image, la nappe mince ne se voyait pas : densité portée à 8 et une lueur propre légère (EMISSION) pour qu'elle se lise dans une salle sombre."
   }
  ]
 }

@@ -16,6 +16,9 @@ extends GdUnitTestSuite
 #@ 9+
 ## L'interface est branchée : un coup au héros baisse sa vie, un tir chauffe l'arme, une fiole bue se compte, un coup au
 ## golem baisse sa jauge (montrée à son nom) ; la chute montre l'écran de chute.
+#@ 10+
+## La carboglace est une nappe posée sur le plancher, plus basse que le héros, faite par le shader de brouillard, avec
+## son bruit et sa dérive.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -59,7 +62,11 @@ func test_une_lune_qui_fait_des_ombres_un_brouillard_et_une_brume_au_sol() -> vo
 	assert_bool((main.get_node("Moon") as DirectionalLight3D).shadow_enabled).is_true()
 	assert_bool((main.get_node("World") as WorldEnvironment).environment.volumetric_fog_enabled).is_true()
 	var mist: FogVolume = main.get_node("GroundMist") as FogVolume
+#@ 7-9
 	assert_object(mist.material as FogMaterial).is_not_null()
+#@ 10+
+	assert_object(mist.material as ShaderMaterial).is_not_null()
+#@ 7+
 	assert_float(mist.global_position.y - mist.size.y / 2.0).is_less_equal(0.0)
 #@ all
 
@@ -169,4 +176,21 @@ func test_la_chute_montre_l_ecran_de_chute() -> void:
 	(main.get_node("Hero") as Hero).take_hit(1000.0, Vector3.ZERO)
 	assert_bool((main.get_node("Hud") as Hud).defeat.visible).is_true()
 	(main.get_node("RestartTimer") as Timer).stop()
+#@ all
+#@ 10+
+
+
+func test_la_carboglace_est_une_nappe_basse_en_volutes() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var mist: FogVolume = main.get_node("GroundMist") as FogVolume
+	var material: ShaderMaterial = mist.material as ShaderMaterial
+	assert_str(material.shader.resource_path).is_equal("res://6_assets/Shader/Environment/ground_mist.gdshader")
+	assert_float(mist.global_position.y - mist.size.y / 2.0).is_equal_approx(0.0, 0.01)
+	var layer: float = material.get_shader_parameter(&"layer_height")
+	assert_float(layer).is_less_equal(mist.size.y)
+	assert_float(layer).is_less(1.8)
+	assert_object(material.get_shader_parameter(&"noise") as NoiseTexture3D).is_not_null()
+	var drift: Vector3 = material.get_shader_parameter(&"drift")
+	assert_float(drift.length()).is_greater(0.0)
 #@ all
