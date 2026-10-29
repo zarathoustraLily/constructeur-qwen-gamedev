@@ -14,8 +14,10 @@
 [gd_scene load_steps=13 format=3]
 ;@ 11-12
 [gd_scene load_steps=16 format=3]
-;@ 13+
+;@ 13-14
 [gd_scene load_steps=18 format=3]
+;@ 15+
+[gd_scene load_steps=24 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -52,6 +54,12 @@
 ;@ 13+
 [ext_resource type="Script" path="res://1_core/combat/impact_sparks.gd" id="20_sparks"]
 [ext_resource type="PackedScene" path="res://6_assets/VFX/combat/hit_sparks.tscn" id="21_hit_sparks"]
+;@ 15+
+[ext_resource type="Script" path="res://1_core/graphics/graphics_quality_applier.gd" id="22_quality"]
+[ext_resource type="Resource" path="res://5_data/graphics/quality_high.tres" id="23_high"]
+[ext_resource type="Resource" path="res://5_data/graphics/quality_low.tres" id="24_low"]
+[ext_resource type="Material" path="res://5_data/environment/mist_layers_material.tres" id="25_mist_layers"]
+;@ 13+
 ;@ 11+
 ;@ 9+
 ;@ 7+
@@ -82,6 +90,10 @@ sky_material = SubResource("ProceduralSkyMaterial_sky")
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 2
 sky = SubResource("Sky_sky")
+;@ 15+
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_mist"]
+size = Vector2(44, 38)
 ;@ all
 
 [node name="Main" type="Node3D"]
@@ -247,4 +259,37 @@ pool = NodePath("../Projectiles")
 [node name="Burst3" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
 
 [node name="Burst4" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+;@ all
+;@ 15+
+
+[node name="MistLayers" type="Node3D" parent="."]
+visible = false
+
+[node name="Low" type="MeshInstance3D" parent="MistLayers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.15, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_mist")
+material_override = ExtResource("25_mist_layers")
+
+[node name="Middle" type="MeshInstance3D" parent="MistLayers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.4, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_mist")
+material_override = ExtResource("25_mist_layers")
+
+[node name="High" type="MeshInstance3D" parent="MistLayers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.7, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_mist")
+material_override = ExtResource("25_mist_layers")
+
+[node name="GraphicsQuality" type="Node" parent="." node_paths=PackedStringArray("world", "lights_root", "focus", "mist", "mist_fallback")]
+script = ExtResource("22_quality")
+high = ExtResource("23_high")
+low = ExtResource("24_low")
+world = NodePath("../World")
+lights_root = NodePath("../Saloon")
+focus = NodePath("../Golem")
+mist = NodePath("../GroundMist")
+mist_fallback = NodePath("../MistLayers")
 ;@ all

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="GraphicsQuality" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/graphics_quality.gd" id="1_quality"]
+
+[resource]
+script = ExtResource("1_quality")
+id = &"haute"
+sdfgi = true
+ssil = true
+ssao = true
+glow = true
+volumetric_fog = true
+scale_3d = 1.0
+fsr = false
+shadow_lights = 64
+cheap_omni_shadows = false
+shadow_atlas = 4096
+directional_shadow = 4096
+light_range_max = 0.0
+ambient_scale = 1.0

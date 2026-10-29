@@ -9,6 +9,10 @@ extends SceneTree
 ## - objets et nœuds au début et à la fin de la fenêtre ;
 ## - ce qui se dessine (compté dans l'arbre : en headless, le moteur ne dessine rien) : instances visibles, surfaces,
 ##   couches par-dessus, émetteurs de particules, lumières qui font des ombres.
+#@ 15+
+## - la qualité graphique appliquée et les passes d'ombre qu'elle peut demander par image ; `--qualite=basse` (après
+##   les deux nombres) choisit la qualité basse.
+#@ 14+
 ## Résultat : une ligne « @@MESURE@@<json> ».
 ##   godot --headless --fixed-fps 60 --path <projet> -s res://7_tests/perf/mesurer_combat.gd -- <échauffement> <fenêtre>
 
@@ -104,6 +108,11 @@ func _conclure(allocations: int) -> void:
 		"golem_etat": String(_golem.machine.current.name),
 	}
 	resultat.merge(dessins)
+#@ 15+
+	var reglage: GraphicsQualityApplier = _scene.get_node("GraphicsQuality") as GraphicsQualityApplier
+	resultat["qualite"] = String(reglage.current.id)
+	resultat["passes_ombres"] = reglage.shadow_passes()
+#@ 14+
 	print(MARQUEUR + JSON.stringify(resultat))
 
 

@@ -152,7 +152,8 @@ les réglages stricts du projet (typer tout, pas de division entière).
 
 ## 7. Où en est le cours (2026-10-29)
 
-Étapes 1 à 14 faites et vérifiées (14 : mesures sans fenêtre, 0 allocation en combat, 213 cas). Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
+Étapes 1 à 15 faites et vérifiées (14 : mesures sans fenêtre, 0 allocation en combat, 213 cas ; 15 : deux qualités
+graphiques, la basse pour un petit PC, 216 cas). Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
 les spectres, squelettes procéduraux, à 70 % de la vie du golem (183) ; 12, le combat du Gardien (199) ; 13, les
 effets des coups (209). Notes : `cours/boss_action_rpg/notes/etape_009.md` à `etape_013.md` ; `demarche.md` étapes 14
 à 18. Effets : `3_entities/boss/golem_effects.gd`, `1_core/combat/impact_sparks.gd`, `6_assets/Shader/VFX/`,
@@ -170,8 +171,12 @@ de Binbun (`hit_fx_free`, `muzzle_flash_vfx`, scripts **non typés** : à repren
 **Consigne de laurent (2026-10-29)** : « accentue particulierement le travail et l'entrainnement sur l'optimisation des performances il faut que le niveau puisse etre joue sur un petit pc ». **Suite proposée** : étapes d'optimisation mesurées
 avant et après, une par levier : les ombres (15 lumières en font : budget), ce qui se dessine (distances de
 visibilité, occulteurs), une qualité basse (échelle 3D, effets d'écran, brume de repli sans brouillard volumétrique),
-les textures et la mémoire vidéo ; puis la mesure sur la carte graphique et sur le petit PC lui-même. Outil :
-`7_tests/perf/mesurer_combat.gd` (`-- <échauffement> <fenêtre>`). Les sons restent à
+les textures et la mémoire vidéo ; puis la mesure sur la carte graphique et sur le petit PC lui-même. Outils :
+`7_tests/perf/mesurer_combat.gd` (`-- <échauffement> <fenêtre> [--qualite=basse]`, sans fenêtre : allocations, temps,
+passes d'ombre) et `7_tests/perf/mesurer_rendu.gd` (fenêtre hors de l'écran : temps de la carte graphique, appels de
+dessin, primitives, mémoire vidéo). Fait : étape 15 (qualités). **Prochaine : 16**, les distances de visibilité des
+petits objets (bouteilles, verres, assiettes : des centaines) et des occulteurs (comptoir, murs) ; puis la mesure sur
+le petit PC lui-même (le test qui fait foi). Les sons restent à
 part : les sons TII sont « No AI Training », jeu final seulement, jamais dans le cours. Puis les paires tirées du
 cours.
 
@@ -195,7 +200,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - **Journal de démarche** : `cours/boss_action_rpg/demarche.json`, un pas par décision réellement prise ; générateur
   `python -m usine.paires demarche` (`usine/paires/demarche.py`) : outil rejoué (RAG, vocabulaire), pas écarté si un
   fragment attendu ou une citation « … » manque à la sortie réelle ; paires au format d'OpenCode (outil `execute` du
-  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 27 paires à
+  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 29 paires à
   ce jour. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
   un fichier, pas « plan » (du prompt à la liste des étapes, vérifiée contre le manifeste), sessions longues.
 - **Autres familles à tirer du cours** (`usine/paires/` : `creation`, `bloc`, `test_cas`, `morceaux`, `rag`) : ajouter
@@ -261,3 +266,10 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   temps avec `Time.get_ticks_usec`.
 - Mesurer les allocations dans un test GdUnit : sans `await` dans la boucle mesurée (un `await` crée un objet).
 - `PhysicsRayQueryParameters3D.create` rend une requête neuve à chaque appel : la garder et la réutiliser.
+- Le moteur Compatibilité n'a pas les ombres omnidirectionnelles en demi-sphères (une erreur par image) : garder les
+  cubes avec lui (`RenderingServer.get_current_rendering_method()`).
+- Une brume faite de plans transparents non éclairés brille dans une salle sombre : les éclairer comme le décor.
+- Le temps de la carte graphique dépend de ce qui tourne à côté (llama-server) : comparer deux réglages lancés l'un
+  après l'autre.
+- Un heredoc bash qui contient beaucoup d'apostrophes peut casser (« unexpected EOF ») : écrire le script Python dans un
+  fichier par l'outil d'écriture.

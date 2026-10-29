@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/Environment/mist_layers.gdshader" id="1_shader"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_mist"]
+frequency = 0.03
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_mist"]
+width = 256
+height = 256
+seamless = true
+noise = SubResource("FastNoiseLite_mist")
+
+[resource]
+render_priority = -1
+shader = ExtResource("1_shader")
+shader_parameter/mist_color = Color(0.55, 0.57, 0.62, 1)
+shader_parameter/opacity = 0.2
+shader_parameter/noise = SubResource("NoiseTexture2D_mist")
+shader_parameter/noise_scale = 0.07
+shader_parameter/drift = Vector2(0.02, 0.008)
+shader_parameter/wisp_low = 0.4
+shader_parameter/wisp_high = 0.9
+shader_parameter/contact_fade = 0.6
+shader_parameter/edge_fade = 0.08

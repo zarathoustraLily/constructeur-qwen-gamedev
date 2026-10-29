@@ -65,7 +65,12 @@ suivante avant.
 - [ ] 14. Optimisation et mesures
 #@ 14+
 - [x] 14. Mesures sans fenêtre : aucune allocation en combat, le temps de chaque image
+#@ 14
 - [ ] 15. Mesures sur la carte graphique : images par seconde en 1920 × 1080
+#@ 15+
+- [x] 15. Deux qualités graphiques, choisies selon la carte : la basse pour un petit PC
+- [ ] 16. Ce qui se dessine : distances de visibilité des petits objets, occulteurs
+- [ ] 17. Le petit PC lui-même : mesure en conditions réelles
 #@ 12+
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles

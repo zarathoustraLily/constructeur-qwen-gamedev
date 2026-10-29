@@ -490,6 +490,42 @@
    ],
    "lecture": "create est une méthode qui rend une requête neuve : « create(from: Vector3, to: Vector3, collision_mask: int=4294967295, exclude: typedarray::RID=Array[RID]([])) -> PhysicsRayQueryParameters3D ».",
    "decision": "Aim garde une requête créée une fois (static var) et en change from, to et collision_mask à chaque appel ; Golem.path_clear garde la sienne de même ; les deux Tween du combat (braise, chute du bouclier) deviennent des interpolations faites à la main. Nouvelle mesure, seconde phase en pleine fenêtre : 0 allocation en 600 images. Le test test_sans_allocation.gd, rouge sur l'étape précédente, est vert."
+  },
+  {
+   "id": "e15_choisir_selon_la_carte",
+   "etape": 15,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "laurent veut que le niveau puisse être joué sur un petit PC. J'ai une qualité haute et une qualité basse. Sans menu, comment le jeu peut-il choisir lui-même la basse sur une carte graphique intégrée ?",
+   "pensee": "Le serveur de rendu connaît la carte utilisée : je vérifie la méthode qui en donne le type.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "RenderingServer",
+    "membre": "get_video_adapter_type"
+   },
+   "attendu": [
+    "get_video_adapter_type() -> enum::RenderingDevice.DeviceType"
+   ],
+   "lecture": "La méthode existe et rend un type de carte : « méthode [RenderingServer] get_video_adapter_type() -> enum::RenderingDevice.DeviceType ».",
+   "decision": "GraphicsQualityApplier.choose prend, dans l'ordre, l'argument --qualite=…, le choix enregistré dans user://reglages.cfg, puis le type de carte : intégrée, logicielle ou virtuelle donnent la qualité basse. La fonction reçoit ces trois valeurs en paramètres : un test les essaie toutes sans dépendre de la carte de la machine."
+  },
+  {
+   "id": "e15_temps_de_la_carte",
+   "etape": 15,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Je veux comparer le coût des deux qualités sur la carte graphique elle-même, pas seulement compter les lumières et les surfaces. Comment lire, depuis le jeu, le temps que la carte passe à rendre une image ?",
+   "pensee": "Le serveur de rendu sait mesurer le temps de rendu d'une fenêtre : je vérifie la méthode qui le lit, après l'avoir activée.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "RenderingServer",
+    "membre": "viewport_get_measured_render_time_gpu"
+   },
+   "attendu": [
+    "viewport_get_measured_render_time_gpu(viewport: RID) -> float"
+   ],
+   "lecture": "La méthode existe : « méthode [RenderingServer] viewport_get_measured_render_time_gpu(viewport: RID) -> float ».",
+   "decision": "7_tests/perf/mesurer_rendu.gd active la mesure (viewport_set_measure_render_time) sur la fenêtre racine, lit ce temps à chaque image après l'échauffement et en garde la médiane, avec les appels de dessin, les primitives et la mémoire vidéo du moteur. En 1280 × 720 sur la 5090 : 2,1 ms en haute, 0,37 ms en basse, deux mesures concordantes."
   }
  ]
 }
