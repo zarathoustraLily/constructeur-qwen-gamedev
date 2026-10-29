@@ -1,0 +1,66 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://4_ui/hud/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://4_ui/hud/stat_bar/stat_bar.gd" id="2_bar"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/flask_counter/flask_counter.tscn" id="3_flasks"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/boss_bar/boss_bar.tscn" id="4_boss"]
+[ext_resource type="PackedScene" path="res://4_ui/overlays/defeat_screen/defeat_screen.tscn" id="5_defeat"]
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Health" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 48.0
+offset_top = 40.0
+offset_right = 568.0
+offset_bottom = 58.0
+script = ExtResource("2_bar")
+
+[node name="Stamina" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 48.0
+offset_top = 66.0
+offset_right = 448.0
+offset_bottom = 78.0
+script = ExtResource("2_bar")
+fill_color = Color(0.36, 0.5, 0.2, 1)
+trail_color = Color(0.7, 0.75, 0.45, 1)
+
+[node name="Heat" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 48.0
+offset_top = 86.0
+offset_right = 308.0
+offset_bottom = 94.0
+script = ExtResource("2_bar")
+fill_color = Color(0.92, 0.45, 0.1, 1)
+trail_color = Color(1, 0.75, 0.4, 1)
+
+[node name="Flasks" parent="." instance=ExtResource("3_flasks")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = -170.0
+offset_right = 112.0
+offset_bottom = -74.0
+grow_vertical = 0
+
+[node name="BossBar" parent="." instance=ExtResource("4_boss")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -550.0
+offset_top = -130.0
+offset_right = 550.0
+offset_bottom = -70.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Defeat" parent="." instance=ExtResource("5_defeat")]

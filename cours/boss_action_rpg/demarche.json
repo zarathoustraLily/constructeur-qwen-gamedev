@@ -272,6 +272,24 @@
    ],
    "lecture": "Le réglage existe : « propriété [SkeletonModifier3D] influence: float ».",
    "decision": "Le TwoBoneIK3D de la main gauche (cible sous le garde-main, coude orienté par un pôle) reste sur le modèle ; la vue fait glisser son influence vers 1 quand la machine du héros est dans Move et vers 0 dans les autres états, en un fondu, et un test le vérifie dans les deux sens."
+  },
+  {
+   "id": "e9_etirement",
+   "etape": 9,
+   "sujet": "UI",
+   "type": "analyse",
+   "situation": "Mon interface est placée en pixels pour un écran de 1920 × 1080. Sur une capture en 960 × 540, la jauge du boss déborde et son nom chevauche les fioles. Comment faire suivre l'interface à la taille de la fenêtre, sans baisser la résolution de la 3D ?",
+   "pensee": "C'est le réglage d'étirement du projet ; je cherche ce que la documentation recommande pour un jeu 3D.",
+   "outil": {
+    "genre": "rag",
+    "requete": "multiple resolutions stretch mode canvas_items aspect expand",
+    "n": 3
+   },
+   "attendu": [
+    "you should use the canvas_items stretch mode instead of the viewport stretch mode"
+   ],
+   "lecture": "Le guide « Multiple resolutions » le dit : « wish to have a high resolution 3D viewport, you should use the canvas_items stretch mode instead of the viewport stretch mode ».",
+   "decision": "Dans project.godot : window/stretch/mode = \"canvas_items\" et window/stretch/aspect = \"expand\". L'interface s'étire avec la fenêtre, la 3D garde la résolution réelle. Revérifié sur une nouvelle capture en 960 × 540 : jauges en haut à gauche, fioles en bas à gauche, boss en bas au centre, sans chevauchement."
   }
  ]
 }

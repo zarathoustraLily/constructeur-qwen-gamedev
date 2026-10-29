@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 8
+DERNIERE = 9
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -26,13 +26,14 @@ ETAPES = [
     {"piste": "Gameplay + Architecture", "titre": "La santé du héros : coups reçus, fioles, chute et recommencement"},
     {"piste": "Graphisme 3D + Optimisation", "titre": "Le saloon d'un géant et son gardien : décor et boss tirés de paquets Unity, ambiance"},
     {"piste": "Graphisme 3D + Gameplay", "titre": "Le héros animé : un soldat reciblé, son arbre d'animation branché sur ses états"},
+    {"piste": "UI + Architecture", "titre": "L'interface du genre : jauges à traîne, fioles, barre du boss, écran de chute"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -115,4 +116,20 @@ FICHIERS = {
     "5_data/hero/hero_view.tres": "8+",
     "3_entities/hero/hero_view.gd": "8+",
     "7_tests/3_entities/hero/test_hero_view.gd": "8+",
+    "1_core/data/hud_settings.gd": "9+",
+    "5_data/ui/hud.tres": "9+",
+    "4_ui/hud/hud.gd": "9+",
+    "4_ui/hud/hud.tscn": "9+",
+    "4_ui/hud/stat_bar/stat_bar.gd": "9+",
+    "4_ui/hud/flask_counter/flask_counter.gd": "9+",
+    "4_ui/hud/flask_counter/flask_counter.tscn": "9+",
+    "4_ui/hud/boss_bar/boss_bar.gd": "9+",
+    "4_ui/hud/boss_bar/boss_bar.tscn": "9+",
+    "4_ui/overlays/defeat_screen/defeat_screen.gd": "9+",
+    "4_ui/overlays/defeat_screen/defeat_screen.tscn": "9+",
+    "7_tests/4_ui/hud/test_hud.gd": "9+",
+    "7_tests/4_ui/hud/stat_bar/test_stat_bar.gd": "9+",
+    "7_tests/4_ui/hud/flask_counter/test_flask_counter.gd": "9+",
+    "7_tests/4_ui/hud/boss_bar/test_boss_bar.gd": "9+",
+    "7_tests/4_ui/overlays/defeat_screen/test_defeat_screen.gd": "9+",
 }

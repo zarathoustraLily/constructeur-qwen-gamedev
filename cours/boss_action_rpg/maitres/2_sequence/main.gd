@@ -14,6 +14,9 @@ extends Node3D
 #@ 6+
 ## Quand le héros tombe, le niveau recommence après un délai : tout repart de zéro (héros, fioles, cible, et le boss
 ## quand il sera là), en rechargeant la scène.
+#@ 9+
+## Elle branche l'interface (4_ui ne connaît pas les entités) : vie, endurance, fioles du héros, chaleur de son arme,
+## vie du boss ; et montre l'écran de chute quand le héros tombe.
 #@ all
 #@ 1-2
 
@@ -29,6 +32,9 @@ func _ready() -> void:
 
 @onready var _hero: Hero = $Hero
 @onready var _restart_timer: Timer = $RestartTimer
+#@ 9+
+@onready var _hud: Hud = $Hud
+@onready var _golem: Golem = $Golem
 #@ 3+
 
 
@@ -37,10 +43,20 @@ func _ready() -> void:
 #@ 6+
 	_hero.defeated.connect(_on_hero_defeated)
 	_restart_timer.timeout.connect(_restart)
+#@ 9+
+	_hud.bind_health(_hero.health)
+	_hud.bind_stamina(_hero.stamina)
+	_hud.bind_heat(_hero.gun.heat)
+	_hud.bind_flasks(_hero.flasks)
+	_hud.bind_boss(_golem.health)
+#@ 6+
 
 
 func _on_hero_defeated() -> void:
 	_restart_timer.start(settings.restart_delay)
+#@ 9+
+	_hud.show_defeat()
+#@ 6+
 
 
 func _restart() -> void:

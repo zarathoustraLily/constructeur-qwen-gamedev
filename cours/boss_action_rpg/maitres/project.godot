@@ -56,6 +56,10 @@ gdscript/warnings/unsafe_call_argument=0
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+;@ 9+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+;@ all
 
 [editor]
 

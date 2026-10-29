@@ -2292,6 +2292,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 8 vérifiée (2026-10-29)** : refabriquée à part, 139 cas (commit de l'autre session), 141 avec la main gauche (IK dosée par la vue) et le fusil en visée, committés ; étape 7 à 129 avec les ressources actuelles. Deux erreurs de l'étape 7 corrigées par l'autre session et maintenant écrites : plancher visible 0,4 m au-dessus de la collision (décalage 4,1885), `FLAG_CHANGE_PATH` sans effet sous 4.7.2 (`take_over_path`) ; le pas de démarche `e7_enregistrer_chemin` qui enseignait le contraire est corrigé. Limite du système de démarche : il vérifie les sorties citées, pas la justesse de la décision (à couvrir par des pas qui lancent Godot).
 
+**Étape 9 (2026-10-29)** : interface du genre (jauges à traîne, fioles, jauge du boss, écran de chute), branchée par la scène principale sur les composants de 1_core ; étirement `canvas_items` ; 161 cas verts. Captures en Compatibilité et petites : Qwen tourne en même temps (llama-server : 29 Go de la carte graphique).
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal

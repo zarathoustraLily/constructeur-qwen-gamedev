@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://4_ui/hud/flask_counter/flask_counter.gd" id="1_counter"]
+
+[node name="FlaskCounter" type="Control"]
+custom_minimum_size = Vector2(64, 96)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 64.0
+offset_bottom = 96.0
+script = ExtResource("1_counter")
+
+[node name="Count" type="Label" parent="."]
+layout_mode = 0
+offset_left = 52.0
+offset_top = 52.0
+offset_right = 120.0
+offset_bottom = 96.0
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "0"

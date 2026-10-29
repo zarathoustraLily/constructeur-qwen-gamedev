@@ -13,6 +13,9 @@ extends GdUnitTestSuite
 ## lui lui retire de la vie.
 #@ 6+
 ## Quand le héros tombe, le niveau recommence après le délai de la rencontre.
+#@ 9+
+## L'interface est branchée : un coup au héros baisse sa vie, un tir chauffe l'arme, une fiole bue se compte, un coup au
+## golem baisse sa jauge (montrée à son nom) ; la chute montre l'écran de chute.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -140,4 +143,30 @@ func test_quand_le_heros_tombe_le_niveau_recommence_apres_un_delai() -> void:
 	assert_bool(timer.is_stopped()).is_false()
 	assert_float(timer.wait_time).is_equal(3.0)
 	timer.stop()
+#@ all
+#@ 9+
+
+
+func test_l_interface_suit_le_heros_et_le_golem() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var hud: Hud = main.get_node("Hud") as Hud
+	var hero: Hero = main.get_node("Hero") as Hero
+	hero.take_hit(20.0, Vector3.ZERO)
+	assert_float(hud.health_bar.ratio).is_less(1.0)
+	hero.gun.heat.add(30.0)
+	assert_float(hud.heat_bar.ratio).is_greater(0.0)
+	hero.flasks.use()
+	assert_int(hud.flasks.charges).is_equal(hero.settings.flask_count - 1)
+	assert_bool(hud.boss_bar.visible).is_true()
+	(main.get_node("Golem/Hurtbox") as Hurtbox).receive(150.0)
+	assert_float(hud.boss_bar.bar.ratio).is_less(1.0)
+
+
+func test_la_chute_montre_l_ecran_de_chute() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	(main.get_node("Hero") as Hero).take_hit(1000.0, Vector3.ZERO)
+	assert_bool((main.get_node("Hud") as Hud).defeat.visible).is_true()
+	(main.get_node("RestartTimer") as Timer).stop()
 #@ all
