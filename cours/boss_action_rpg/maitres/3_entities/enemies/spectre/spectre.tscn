@@ -1,0 +1,84 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/spectre.gd" id="1_spectre"]
+[ext_resource type="Resource" path="res://5_data/enemies/spectre.tres" id="2_settings"]
+[ext_resource type="Script" path="res://1_core/components/health_component.gd" id="3_health"]
+[ext_resource type="Resource" path="res://5_data/enemies/spectre_health.tres" id="4_health_settings"]
+[ext_resource type="Script" path="res://1_core/combat/hurtbox.gd" id="5_hurtbox"]
+[ext_resource type="Script" path="res://1_core/combat/hitbox.gd" id="6_hitbox"]
+[ext_resource type="Script" path="res://1_core/state_machine/state_machine.gd" id="7_machine"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/states/spectre_idle_state.gd" id="8_idle"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/states/spectre_hover_state.gd" id="9_hover"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/states/spectre_windup_state.gd" id="10_windup"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/states/spectre_dive_state.gd" id="11_dive"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/states/spectre_recover_state.gd" id="12_recover"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/states/spectre_fade_state.gd" id="13_fade"]
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/spectre_view.gd" id="14_view"]
+[ext_resource type="Script" path="res://6_assets/Mesh/Procedural/spectre/spectre_model.gd" id="15_model"]
+[ext_resource type="Material" path="res://5_data/enemies/spectre_material.tres" id="16_material"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
+radius = 0.5
+height = 1.8
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hit"]
+radius = 0.9
+
+[node name="Spectre" type="Node3D"]
+script = ExtResource("1_spectre")
+settings = ExtResource("2_settings")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+settings = ExtResource("4_health_settings")
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("health")]
+script = ExtResource("5_hurtbox")
+health = NodePath("../Health")
+
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_hurt")
+
+[node name="Hitbox" type="Area3D" parent="."]
+script = ExtResource("6_hitbox")
+
+[node name="Shape" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("SphereShape3D_hit")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("7_machine")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("8_idle")
+
+[node name="Hover" type="Node" parent="StateMachine" node_paths=PackedStringArray("spectre")]
+script = ExtResource("9_hover")
+spectre = NodePath("../..")
+
+[node name="Windup" type="Node" parent="StateMachine" node_paths=PackedStringArray("spectre")]
+script = ExtResource("10_windup")
+spectre = NodePath("../..")
+
+[node name="Dive" type="Node" parent="StateMachine" node_paths=PackedStringArray("spectre")]
+script = ExtResource("11_dive")
+spectre = NodePath("../..")
+
+[node name="Recover" type="Node" parent="StateMachine" node_paths=PackedStringArray("spectre")]
+script = ExtResource("12_recover")
+spectre = NodePath("../..")
+
+[node name="Fade" type="Node" parent="StateMachine" node_paths=PackedStringArray("spectre")]
+script = ExtResource("13_fade")
+spectre = NodePath("../..")
+
+[node name="View" type="Node3D" parent="." node_paths=PackedStringArray("spectre", "machine")]
+script = ExtResource("14_view")
+spectre = NodePath("..")
+machine = NodePath("../StateMachine")
+material = ExtResource("16_material")
+
+[node name="Model" type="Node3D" parent="View"]
+script = ExtResource("15_model")

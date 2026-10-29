@@ -19,6 +19,8 @@ extends GdUnitTestSuite
 #@ 10+
 ## La carboglace est une nappe posée sur le plancher, plus basse que le héros, faite par le shader de brouillard, avec
 ## son bruit et sa dérive.
+#@ 11+
+## Trois spectres dorment au départ ; quand la vie du golem passe sous le seuil, ils sortent tous et chassent le héros.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -193,4 +195,22 @@ func test_la_carboglace_est_une_nappe_basse_en_volutes() -> void:
 	assert_object(material.get_shader_parameter(&"noise") as NoiseTexture3D).is_not_null()
 	var drift: Vector3 = material.get_shader_parameter(&"drift")
 	assert_float(drift.length()).is_greater(0.0)
+#@ all
+#@ 11+
+
+
+func test_sous_le_seuil_du_golem_les_spectres_sortent_et_chassent_le_heros() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var spectres: Array[Node] = main.get_node("Spectres").get_children()
+	assert_int(spectres.size()).is_equal(3)
+	for s: Node in spectres:
+		assert_bool((s as Spectre).is_active()).is_false()
+	(main.get_node("Golem/Hurtbox") as Hurtbox).receive(600.0)
+	var appel: SpectreCall = main.get_node("SpectreCall") as SpectreCall
+	appel.tick(appel.settings.stagger * 2.0)
+	for s: Node in spectres:
+		assert_bool((s as Spectre).is_active()).is_true()
+		assert_that((s as Spectre).target).is_same(main.get_node("Hero"))
+		assert_that((s as Spectre).target_health).is_same(main.get_node("Hero/Health"))
 #@ all

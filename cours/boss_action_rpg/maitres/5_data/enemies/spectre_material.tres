@@ -1,0 +1,27 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/Characters/spectre.gdshader" id="1_shader"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_spectre"]
+frequency = 0.02
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_spectre"]
+width = 128
+height = 128
+seamless = true
+noise = SubResource("FastNoiseLite_spectre")
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_shader")
+shader_parameter/glow_color = Color(0.35, 0.65, 1, 1)
+shader_parameter/intensity = 1.6
+shader_parameter/core = 0.18
+shader_parameter/rim_power = 2.5
+shader_parameter/noise = SubResource("NoiseTexture2D_spectre")
+shader_parameter/flicker_speed = 3.0
+shader_parameter/sway = 0.07
+shader_parameter/sway_speed = 2.2
+shader_parameter/sway_waves = 3.0
+shader_parameter/trail = 0.0
+shader_parameter/fade_start = 0.45

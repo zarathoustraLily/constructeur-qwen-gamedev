@@ -308,6 +308,43 @@
    ],
    "lecture": "La documentation des shaders de brouillard donne WORLD_POSITION : « Position of current froxel cell in world space. », avec OBJECT_POSITION, SIZE et UVW pour le volume, et DENSITY, ALBEDO, EMISSION en sortie.",
    "decision": "La densité tombe en carré sur 0,9 m au-dessus du bas du volume (OBJECT_POSITION.y - SIZE.y / 2), un bruit 3D lu à WORLD_POSITION - drift × TIME fait des volutes qui glissent, la distance aux bords (UVW × SIZE) l'efface. Sur l'image, la nappe mince ne se voyait pas : densité portée à 8 et une lueur propre légère (EMISSION) pour qu'elle se lise dans une salle sombre."
+  },
+  {
+   "id": "e11_spectre_fresnel",
+   "etape": 11,
+   "sujet": "Shaders",
+   "type": "analyse",
+   "situation": "laurent veut des fantômes volants « de bleue luminosité transparente » qui aident le boss. Comment rendre une silhouette lumineuse et transparente, dont les bords brillent, sans cacher ce qui est derrière elle ?",
+   "pensee": "C'est un effet de surface connu : je cherche d'abord un exemple vérifié dans le RAG plutôt que d'inventer les réglages de rendu.",
+   "outil": {
+    "genre": "rag",
+    "requete": "shader Fresnel silhouette transparente additive bord brillant",
+    "n": 2
+   },
+   "attendu": [
+    "render_mode unshaded, blend_add, depth_draw_never, cull_back;",
+    "float fresnel = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), power);"
+   ],
+   "lecture": "Le premier résultat est l'exemple vérifié du bouclier : « render_mode unshaded, blend_add, depth_draw_never, cull_back; » et « float fresnel = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), power); ». Sa fiche dit que le mélange additif « éclaire ce qui est derrière sans le cacher ».",
+   "decision": "Le shader du spectre reprend ce rendu et cette formule. Il garde une part de lueur au cœur (core), ajoute un scintillement par un bruit qui défile, et lit dans la couleur des sommets trois poids posés par le générateur : l'ondulation, la dissolution du bas du linceul et l'éclat (éteint au fond des orbites, vif pour les feux des yeux)."
+  },
+  {
+   "id": "e11_sens_des_triangles",
+   "etape": 11,
+   "sujet": "Procédural",
+   "type": "analyse",
+   "situation": "Mon outil de maillage écrit lui-même les triangles et les normales du squelette du spectre. Avec cull_back, un triangle tourné à l'envers disparaît. Comment prouver dans un test, sans rendu, que mes triangles tournent dans le sens où Godot voit leur face avant ?",
+   "pensee": "Godot sait calculer des normales à partir de l'ordre des sommets de chaque triangle : si les miennes sont les siennes, mon sens est le sien. Je vérifie la méthode dans l'API.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "SurfaceTool",
+    "membre": "generate_normals"
+   },
+   "attendu": [
+    "generate_normals(flip: bool=false)"
+   ],
+   "lecture": "La méthode existe : « méthode [SurfaceTool] generate_normals(flip: bool=false) ».",
+   "decision": "Le test construit une boule et un tube avec l'outil, recharge le maillage dans un SurfaceTool (create_from), lui fait calculer ses normales, puis vérifie que chaque normale de Godot est presque celle de l'outil (produit scalaire au-dessus de 0,8), en associant les sommets par leur position. Le test passe : les triangles tournent dans le sens des aiguilles d'une montre vus de l'extérieur."
   }
  ]
 }

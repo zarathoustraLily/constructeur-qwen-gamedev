@@ -3,7 +3,8 @@ extends GdUnitTestSuite
 ## juste après extends et class_name, suivies d'une ligne vide), et chaque membre public (signal,
 ## constante, enum, variable ou fonction dont le nom ne commence pas par « _ ») a son commentaire ##
 ## juste au-dessus de lui, ou au-dessus de ses annotations. Les nœuds @onready en sont dispensés.
-## Ces commentaires forment l'aide intégrée de Godot (F1 dans l'éditeur).
+## Ces commentaires forment l'aide intégrée de Godot (F1 dans l'éditeur). Les dossiers que Godot ignore (ceux qui
+## contiennent un fichier .gdignore) ne font pas partie du jeu.
 
 const IGNORES: Array[String] = ["addons", "7_tests", "_sources"]
 const TEMOIN := "user://documentation_temoin.gd"
@@ -20,8 +21,11 @@ func after_test() -> void:
 
 func _scripts(dossier: String, sortie: Array[String]) -> void:
 	for nom in DirAccess.get_directories_at(dossier):
+		var sous_dossier := dossier.path_join(nom)
+		if FileAccess.file_exists(sous_dossier.path_join(".gdignore")):
+			continue
 		if not nom.begins_with(".") and nom not in IGNORES:
-			_scripts(dossier.path_join(nom), sortie)
+			_scripts(sous_dossier, sortie)
 	for nom in DirAccess.get_files_at(dossier):
 		if nom.ends_with(".gd"):
 			sortie.append(dossier.path_join(nom))

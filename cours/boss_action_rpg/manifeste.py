@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 10
+DERNIERE = 11
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -28,13 +28,14 @@ ETAPES = [
     {"piste": "Graphisme 3D + Gameplay", "titre": "Le héros animé : un soldat reciblé, son arbre d'animation branché sur ses états"},
     {"piste": "UI + Architecture", "titre": "L'interface du genre : jauges à traîne, fioles, barre du boss, écran de chute"},
     {"piste": "VFX + Shaders", "titre": "La carboglace : une brume au sol en volutes, par un shader de brouillard"},
+    {"piste": "Gameplay + Procédural + Shaders", "titre": "Les spectres : squelettes bleus et transparents appelés par le Gardien"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -135,4 +136,26 @@ FICHIERS = {
     "7_tests/4_ui/overlays/defeat_screen/test_defeat_screen.gd": "9+",
     "6_assets/Shader/Environment/ground_mist.gdshader": "10+",
     "5_data/environment/dry_ice_mist.tres": "10+",
+    "6_assets/Shader/Characters/spectre.gdshader": "11+",
+    "5_data/enemies/spectre_material.tres": "11+",
+    "1_core/data/spectre_settings.gd": "11+",
+    "5_data/enemies/spectre.tres": "11+",
+    "5_data/enemies/spectre_health.tres": "11+",
+    "3_entities/enemies/spectre/spectre.gd": "11+",
+    "3_entities/enemies/spectre/spectre.tscn": "11+",
+    "3_entities/enemies/spectre/spectre_view.gd": "11+",
+    "3_entities/enemies/spectre/states/spectre_idle_state.gd": "11+",
+    "3_entities/enemies/spectre/states/spectre_hover_state.gd": "11+",
+    "3_entities/enemies/spectre/states/spectre_windup_state.gd": "11+",
+    "3_entities/enemies/spectre/states/spectre_dive_state.gd": "11+",
+    "3_entities/enemies/spectre/states/spectre_recover_state.gd": "11+",
+    "3_entities/enemies/spectre/states/spectre_fade_state.gd": "11+",
+    "3_entities/boss/spectre_call.gd": "11+",
+    "7_tests/3_entities/enemies/spectre/test_spectre.gd": "11+",
+    "7_tests/3_entities/boss/test_spectre_call.gd": "11+",
+    "1_core/procedural/mesh_builder.gd": "11+",
+    "6_assets/Mesh/Procedural/spectre/spectre_bones.gd": "11+",
+    "6_assets/Mesh/Procedural/spectre/spectre_model.gd": "11+",
+    "7_tests/1_core/procedural/test_mesh_builder.gd": "11+",
+    "7_tests/6_assets/Mesh/Procedural/spectre/test_spectre_bones.gd": "11+",
 }

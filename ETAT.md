@@ -35,10 +35,10 @@
 - [ ] Décision 19.7 : relever par la capture d'OpenCode la forme exacte d'un appel du Code Mode dans `execute` (requêtes au RAG et captures des paires courtes) ; à la sortie de Godot 4.8 stable, comparer les `extension_api.json` de 4.7.2 et 4.8 et compter les différences utiles
 - [x] Retirer les espaces de fin des messages (étape A4, 2026-10-27) : le gabarit de Qwen 3.8 rogne chaque message (`|trim`), LLaMA-Factory (`qwen3_5`) non ; la différence de l'essai du 2026-10-22 était le saut de ligne final du message système, écrit à la main pour l'essai. Les bases des cours passaient déjà par `opencode.vers_sharegpt`, qui rogne tout (kart 203/203, roguelike 155/155 rendus identiques) ; les paires courtes rognent maintenant aussi le système et s'exportent par `format.vers_llamafactory` (430/430 identiques, images comprises ; `tests/test_paires_format.py`)
 - [ ] Cours `boss_action_rpg` (demande de laurent du 2026-10-28 : niveau de boss d'action RPG « à la Dark Souls », le
-  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **7 étapes sur 16 faites et vérifiées**
-  (17, 31, 43, 66, 105, 122, 129 cas verts). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
+  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **11 étapes sur 14 faites et vérifiées**
+  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183 cas verts). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
   (section « Réorientation » et « Reprendre ici ») ; démarche : `demarche.md` du même dossier. Paires de ce cours :
-  pas encore générées
+  19 paires de démarche (`demarche.json`), les autres familles pas encore générées
 - [x] Décision 20 (2026-10-28) : aucun réentraînement tant que les paires ne sont pas finies
 
 ## Bilan des 6 sessions (2026-10-05)
@@ -2296,6 +2296,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 10 (2026-10-29)** : la carboglace, shader de brouillard (`6_assets/Shader/Environment/ground_mist.gdshader`, réglages `5_data/environment/dry_ice_mist.tres`), 162 cas verts ; ne se voit qu'en Forward+.
 
+**Étape 11 (2026-10-29)** : les spectres, demande de laurent (« des ennemis fantôme volant […] bleue luminosité transparente […] pour aider le boss et se jeter sur le héros », puis « je voudrais plus des mesh de fantômes genre squelette ou monstres volants ») : trois squelettes spectraux faits par le code (son choix parmi trois proposés), appelés sous deux tiers de la vie du Gardien. Outil de maillage commun `1_core/procedural/mesh_builder.gd` (sens des triangles vérifié contre `SurfaceTool.generate_normals`), pièces `6_assets/Mesh/Procedural/spectre/` (partagées, lambeaux à graine fixe), poses par état sans clip, shader de Fresnel additif (exemple `bouclier_fresnel` du RAG) avec ondulation et étirement du linceul. 183 cas verts, dans le cours et dans le jeu ; images en Forward+ et en Compatibilité. Mesure : un héros immobile meurt en 10,6 s et les spectres plongeaient sur le corps (règle `prey_alive` ajoutée). Le test de documentation saute les dossiers à `.gdignore` (il lisait les outils de suivi dans le jeu). Fins de ligne : 36 fichiers du cours remis en LF (les écritures Python sous Windows les avaient passés en CRLF ; contenu dans git inchangé).
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal
@@ -2303,7 +2305,7 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
 `mcp_serveur.outils.Outils`, pas écarté si un fragment ou une citation manque, paire au format d'OpenCode), branché dans
 `volume.py` ; `tests/test_paires_demarche.py` 4 passés. Premier état : 10 paires (7 au palier 1, 3 au palier 2),
-0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
+0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
 lisent des fichiers, sessions longues, pas « plan ».
 
 **Pièges de cette passe** (détail et remèdes dans `demarche.md`)

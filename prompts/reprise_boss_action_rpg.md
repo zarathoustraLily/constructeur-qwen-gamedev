@@ -150,28 +150,25 @@ Outils de `SUIVIS_PROGRESSION\outils\` : `unity_scene_extraire.py`, `unity_scene
 retenus : échelle 4, décalage `-85.4,4.288,2.49`, lampes 9). Les scripts GDScript lancés par `-s` sont compilés avec
 les réglages stricts du projet (typer tout, pas de division entière).
 
-## 7. L'étape 9 : l'interface du genre (ce qu'on sait déjà)
+## 7. Où en est le cours (2026-10-29)
 
-L'étape 8 (le héros animé) est faite : note `cours/boss_action_rpg/notes/etape_008.md`, `demarche.md` étape 12.
-Ce qu'elle laisse : le fusil est fait de primitives ; le soin joue le rechargement. Depuis (accord de laurent),
-trois paquets CC0 téléchargés dans `source_telecharges/`, extraits dans `source_extraites/` : `ultimate_gun_pack`
-(Quaternius : laurent a choisi le **Bullpup_3**, monté sur la main du soldat, `6_assets/Characters/Hero/Weapon/`), `hit_fx_free` et `muzzle_flash_vfx` (Binbun : effets Godot 4, scripts **non typés** :
-à reprendre typés, ne pas copier leurs `.import`/`.uid`). Détail : `inventaire_sources.md`, `demarche.md` étape 13.
-Geste de soin : Mixamo, compte de laurent (« drink »). Sa chaîne :
-`outils/recibler_heros.gd` (cartes d'os UE4/UE5 → `SkeletonProfileHumanoid`, écrites dans les `.import`), `--import`,
-`outils/heros_textures.py`, `outils/construire_heros.gd` (→ `6_assets/Characters/Hero/hero_model.tscn`,
-`hero_animations.tres`) ; mesures `outils/mesurer_clips.gd`, `outils/mesurer_foulee.gd` ; images
-`outils/planche_poses.gd`, `outils/capturer_heros.gd`.
+Étapes 1 à 11 faites et vérifiées. Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace, shader de
+brouillard, visible en Forward+ seulement (162) ; 11, les spectres (183) : trois squelettes spectraux faits par le
+code (`1_core/procedural/mesh_builder.gd`, `6_assets/Mesh/Procedural/spectre/`), appelés sous deux tiers de la vie du
+Gardien (`3_entities/boss/spectre_call.gd`), qui planent, annoncent, plongent et se dissipent en trois tirs
+(`3_entities/enemies/spectre/`). Notes : `cours/boss_action_rpg/notes/etape_009.md` à `etape_011.md` ; `demarche.md`
+étapes 14 à 16.
 
-L'étape 9, selon l'ordre accepté : **l'interface du genre**, originale (ne pas copier celle de Dark Souls) : vie et
-endurance en haut à gauche, fioles en bas à gauche, surchauffe de l'arme près du réticule, nom et barre du boss en bas.
-- Ce qu'elle lit (signaux déjà là) : `HealthComponent.damaged/healed/died` et `ratio()` ; `StaminaComponent.changed`
-  et `ratio()` ; `FlaskComponent.changed(charges, maximum)` ; `HeatComponent.changed/overheated/cooled_down` et
-  `ratio()`. La santé du golem : son `Health` (1 500).
-- Règle du plan : l'interface est une vue (`4_ui/` ou le dossier que le plan prévoit : lire `godot/socle_jeu/AGENTS.md`
-  du dépôt) qui écoute, ne décide rien ; ses valeurs (couleurs, durées de la barre « dégâts récents ») dans `5_data`.
-- Tests : chaque barre suit son composant ; la barre du boss apparaît au réveil (à décider avec la conception) ;
-  captures de l'écran de jeu.
+Ce qui reste des sources : le soin joue le rechargement (geste « drink » à prendre sur Mixamo par laurent) ; effets
+de Binbun (`hit_fx_free`, `muzzle_flash_vfx`, scripts **non typés** : à reprendre typés, ne pas copier leurs
+`.import`/`.uid`). Détail : `inventaire_sources.md`, `demarche.md` étape 13.
+
+**Prochaine étape : 12, le combat du golem** (machine à états, attaques sur ses vraies animations, zones de coup,
+bouclier, points faibles, phase 2, mort). Puis 13, effets visuels et sons (entrée du saloon surexposée à régler) ;
+14, optimisation et mesures ; puis les paires tirées du cours.
+
+Outils d'image pour les spectres : `outils/capturer_spectres.gd` (le jeu, golem blessé sous le seuil à la première
+image ; `-- <image.png> <image> [<image> …]`).
 
 ## 8. Le golem ensuite (préparé)
 
@@ -188,7 +185,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - **Journal de démarche** : `cours/boss_action_rpg/demarche.json`, un pas par décision réellement prise ; générateur
   `python -m usine.paires demarche` (`usine/paires/demarche.py`) : outil rejoué (RAG, vocabulaire), pas écarté si un
   fragment attendu ou une citation « … » manque à la sortie réelle ; paires au format d'OpenCode (outil `execute` du
-  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 10 paires à
+  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 19 paires à
   ce jour. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
   un fichier, pas « plan » (du prompt à la liste des étapes, vérifiée contre le manifeste), sessions longues.
 - **Autres familles à tirer du cours** (`usine/paires/` : `creation`, `bloc`, `test_cas`, `morceaux`, `rag`) : ajouter
@@ -201,7 +198,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 
 ## 10. Pièges déjà rencontrés (ne pas les refaire)
 
-- `before` ou `name` comme nom de variable dans une suite GdUnit : casse la compilation stricte.
+- `before`, `name` ou `call` comme nom de variable dans une suite GdUnit : casse la compilation stricte.
 - `Vector3`/`Vector2` en float32 : comparer avec une tolérance.
 - Un temps décompté image par image n'atteint pas 0 : `is_zero_approx`.
 - GodotPhysics3D (moteur par défaut) : une `Area3D` n'a pas signalé un `StaticBody3D` posé dedans ; tester avec les
@@ -230,3 +227,9 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - Godot 4.7.2 avertit pour un point d'espace de mélange sans nom (`add_blend_point(nœud, pos, -1, &"nom")`).
 - Python `write_text` sous Windows écrit des CRLF : écrire des octets (`write_bytes`) dans le dépôt ; et un `\\`
   dans un heredoc passé à Python peut se perdre : éditer les chemins Windows par l'outil d'édition.
+- Dans un `SceneTree` lancé par `-s`, la scène ajoutée dans `_initialize` n'est pas prête (son `_ready` n'a pas eu
+  lieu) : agir à la première image ; et la déclarer `current_scene`, sinon `reload_current_scene` échoue.
+- Un shader additif n'assombrit rien : un creux (orbite) ne se lit que si son fond est éteint (poids d'éclat à 0).
+- Une rotation qui lève un bras qui pend : même signe, effet inverse une fois le bras au-dessus de l'horizontale.
+- Bash : `"$W\\$v"` laisse `$v` tel quel (l'antislash échappe le dollar) : écrire les chemins avec `/`.
+- Le test de documentation saute les dossiers à `.gdignore` (sinon il lit `SUIVIS_PROGRESSION/` dans le jeu).

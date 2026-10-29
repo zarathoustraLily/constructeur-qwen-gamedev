@@ -10,8 +10,10 @@
 [gd_scene load_steps=17 format=3]
 ;@ 7-8
 [gd_scene load_steps=11 format=3]
-;@ 9+
+;@ 9-10
 [gd_scene load_steps=13 format=3]
+;@ 11+
+[gd_scene load_steps=16 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -41,6 +43,11 @@
 ;@ 9+
 [ext_resource type="PackedScene" path="res://4_ui/hud/hud.tscn" id="14_hud"]
 [ext_resource type="Resource" path="res://5_data/ui/hud.tres" id="15_hud_settings"]
+;@ 11+
+[ext_resource type="PackedScene" path="res://3_entities/enemies/spectre/spectre.tscn" id="17_spectre"]
+[ext_resource type="Script" path="res://3_entities/boss/spectre_call.gd" id="18_call"]
+[ext_resource type="Resource" path="res://5_data/enemies/spectre.tres" id="19_spectre_settings"]
+;@ 9+
 ;@ 7+
 ;@ 3-6
 
@@ -187,4 +194,25 @@ one_shot = true
 
 [node name="Hud" parent="." instance=ExtResource("14_hud")]
 settings = ExtResource("15_hud_settings")
+;@ all
+;@ 11+
+
+[node name="Spectres" type="Node3D" parent="."]
+
+[node name="Spectre1" parent="Spectres" instance=ExtResource("17_spectre")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3, 6)
+
+[node name="Spectre2" parent="Spectres" instance=ExtResource("17_spectre")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 3.5, 7)
+
+[node name="Spectre3" parent="Spectres" instance=ExtResource("17_spectre")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3, 6)
+
+[node name="SpectreCall" type="Node" parent="." node_paths=PackedStringArray("health", "spectres", "prey", "prey_health")]
+script = ExtResource("18_call")
+settings = ExtResource("19_spectre_settings")
+health = NodePath("../Golem/Health")
+spectres = [NodePath("../Spectres/Spectre1"), NodePath("../Spectres/Spectre2"), NodePath("../Spectres/Spectre3")]
+prey = NodePath("../Hero")
+prey_health = NodePath("../Hero/Health")
 ;@ all
