@@ -35,10 +35,10 @@
 - [ ] Décision 19.7 : relever par la capture d'OpenCode la forme exacte d'un appel du Code Mode dans `execute` (requêtes au RAG et captures des paires courtes) ; à la sortie de Godot 4.8 stable, comparer les `extension_api.json` de 4.7.2 et 4.8 et compter les différences utiles
 - [x] Retirer les espaces de fin des messages (étape A4, 2026-10-27) : le gabarit de Qwen 3.8 rogne chaque message (`|trim`), LLaMA-Factory (`qwen3_5`) non ; la différence de l'essai du 2026-10-22 était le saut de ligne final du message système, écrit à la main pour l'essai. Les bases des cours passaient déjà par `opencode.vers_sharegpt`, qui rogne tout (kart 203/203, roguelike 155/155 rendus identiques) ; les paires courtes rognent maintenant aussi le système et s'exportent par `format.vers_llamafactory` (430/430 identiques, images comprises ; `tests/test_paires_format.py`)
 - [ ] Cours `boss_action_rpg` (demande de laurent du 2026-10-28 : niveau de boss d'action RPG « à la Dark Souls », le
-  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **12 étapes sur 14 faites et vérifiées**
-  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199 cas verts). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
+  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **13 étapes sur 14 faites et vérifiées**
+  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209 cas verts). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
   (section « Réorientation » et « Reprendre ici ») ; démarche : `demarche.md` du même dossier. Paires de ce cours :
-  22 paires de démarche (`demarche.json`), les autres familles pas encore générées
+  25 paires de démarche (`demarche.json`), les autres familles pas encore générées
 - [x] Décision 20 (2026-10-28) : aucun réentraînement tant que les paires ne sont pas finies
 
 ## Bilan des 6 sessions (2026-10-05)
@@ -2300,6 +2300,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 12 (2026-10-29)** : le combat du Gardien. Demande de laurent : « oui et n'oublie pas que les specteres n'apparaissent qua la seconde ^pahse d'attque du golem quand il a perdu 30 pour cent de ses vies et modifie les attaques ajoutes de VFX etc.. » Les spectres sortent à la seconde phase, à 70 % de la vie du golem (étape 11 recalée : 70 % au lieu des deux tiers, 183 cas). Gestes mesurés avant le réglage : les clips frappaient à 4 m du sol, au-dessus du héros ; attaques modifiées par un `SkeletonModifier3D` qui penche le buste (penché mesuré par coup) ; déplacement des clips par l'os racine (`root_motion_track` sur la vue, piste lue par la logique, corps déplacé par `move_and_slide`) ; quatre coups en ressources (`5_data/boss/attacks/`), sept états ; bouclier ×0, dos ×2 ; seconde phase par `phase_changed` (une seule source pour le seuil). Joué sans joueur : chemin vérifié par `cast_motion` (le bond butait contre la porte), bond visé, onde prévue à l'impact. 199 cas verts, dans le cours et dans le jeu. VFX des coups : étape 13.
 
+**Étape 13 (2026-10-29)** : les effets des coups, demande de laurent (« modifie les attaques ajoutes de VFX etc.. »). `GolemEffects` écoute le golem : onde de poussière (shader sur un plan au sol), nuage et éclats (salves `GPUParticles3D` préparées, recette `particules_impact` du RAG), tremblement de caméra (`OrbitCamera.shake`, par `h_offset`/`v_offset`), traînée du marteau (ruban `ImmediateMesh` : Godot 4.7 n'a pas de traînée 3D), étincelles sur le héros touché et aux impacts des tirs (`ImpactSparks`, relayés par la réserve de projectiles), flash du héros touché (couche additive), braise des jointures de l'armure en seconde phase (couche `ember_lines` par-dessus : allumer l'émission du matériau rendait le golem orange uniforme). Aucun nœud créé en combat. 209 cas verts, dans le cours et dans le jeu ; images Forward+ et Compatibilité (`SUIVIS_PROGRESSION/captures/etape_013/`). Prochaine : étape 14 (optimisation et mesures).
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal
@@ -2307,7 +2309,7 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
 `mcp_serveur.outils.Outils`, pas écarté si un fragment ou une citation manque, paire au format d'OpenCode), branché dans
 `volume.py` ; `tests/test_paires_demarche.py` 4 passés. Premier état : 10 paires (7 au palier 1, 3 au palier 2),
-0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 12 : 22 pas, 22 paires (16 au palier 1, 6 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
+0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 12 : 22 pas, 22 paires (16 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 13 : 25 pas, 25 paires (19 au palier 1, 6 au palier 2), 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
 lisent des fichiers, sessions longues, pas « plan ».
 
 **Pièges de cette passe** (détail et remèdes dans `demarche.md`)
