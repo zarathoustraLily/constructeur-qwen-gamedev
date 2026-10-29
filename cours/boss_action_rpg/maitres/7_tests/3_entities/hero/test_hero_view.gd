@@ -159,3 +159,28 @@ func test_la_bouche_de_l_arme_suit_celle_du_fusil() -> void:
 	hero.machine.transition_to(&"Roll")
 	await _frames(12)
 	assert_float(hero.gun.global_position.distance_to(view.muzzle.global_position)).is_less(0.001)
+
+
+func test_en_visee_le_fusil_pointe_droit_devant() -> void:
+	var hero: Hero = _hero()
+	var view: HeroView = _view(hero)
+	hero.aiming = true
+	for _i: int in 30:
+		view.update(1.0 / 60.0)
+	await _frames(20)
+	var barrel: Vector3 = -(view.muzzle.get_parent() as Node3D).global_basis.z.normalized()
+	assert_float(rad_to_deg(barrel.angle_to(Motion.forward_of(hero.rotation.y)))).is_less(10.0)
+
+
+func test_la_main_gauche_tient_le_fusil_en_course_et_le_lache_en_roulade() -> void:
+	var hero: Hero = _hero()
+	var view: HeroView = _view(hero)
+	view.update(view.settings.state_blend_time)
+	assert_float(view.left_hand_ik.influence).is_equal_approx(1.0, 0.001)
+	hero.machine.transition_to(&"Roll")
+	view.update(view.settings.state_blend_time)
+	assert_float(view.left_hand_ik.influence).is_equal_approx(0.0, 0.001)
+	hero.machine.transition_to(&"Move")
+	view.update(view.settings.state_blend_time)
+	assert_float(view.left_hand_ik.influence).is_equal_approx(1.0, 0.001)
+

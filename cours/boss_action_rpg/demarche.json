@@ -254,6 +254,24 @@
    ],
    "lecture": "« Emitted when the final pose has been calculated will be applied to the skin in the update process. »",
    "decision": "La vue se branche sur skeleton_updated et y recalcule la bouche depuis l'os RightHand (pose de l'os × place du fusil), sans dépendre de l'ordre des abonnés. Le test passe."
+  },
+  {
+   "id": "e8_main_gauche_ik",
+   "etape": 8,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Le soldat court fusil en main, mais sa main gauche ne tient pas le garde-main : ses mains sont plus écartées que celles du mannequin des clips. Une IK pose la main ; comment l'activer en course seulement, et la relâcher pendant une roulade ou une chute ?",
+   "pensee": "Une IK de Godot 4.7 est un SkeletonModifier3D : je vérifie qu'il a un réglage de dosage entre l'animation et l'IK.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "SkeletonModifier3D",
+    "membre": "influence"
+   },
+   "attendu": [
+    "influence"
+   ],
+   "lecture": "Le réglage existe : « propriété [SkeletonModifier3D] influence: float ».",
+   "decision": "Le TwoBoneIK3D de la main gauche (cible sous le garde-main, coude orienté par un pôle) reste sur le modèle ; la vue fait glisser son influence vers 1 quand la machine du héros est dans Move et vers 0 dans les autres états, en un fondu, et un test le vérifie dans les deux sens."
   }
  ]
 }

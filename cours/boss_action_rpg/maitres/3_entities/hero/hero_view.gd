@@ -7,7 +7,9 @@ class_name HeroView extends Node3D
 ##   directions) quand il vise ; chaque boucle joue à la vitesse du corps, pour que les pieds ne glissent pas ;
 ## - par-dessus, le recul d'un tir, sur le haut du corps seulement : les jambes gardent la course.
 ## Elle porte aussi la bouche de l'arme (Gun) à celle du fusil que tient le modèle, chaque fois que le squelette a fini
-## sa pose : les tirs partent du canon visible.
+## sa pose : les tirs partent du canon visible. Le fusil pointe droit devant ; la main gauche le tient par une IK
+## (LeftHandIK du modèle), que la vue active en course et au tir, et relâche dans les autres états (roulade, coup, soin,
+## chute : la main gauche suit alors l'animation).
 
 ## L'état du héros → l'entrée du nœud de transition qui le montre.
 const STATES: Dictionary[StringName, StringName] = {
@@ -34,6 +36,8 @@ var clip_nodes: Dictionary[StringName, AnimationNodeAnimation] = {}
 @onready var tree: AnimationTree = $AnimationTree
 ## La bouche du fusil que tient le modèle.
 @onready var muzzle: Node3D = model.get_node(^"%Muzzle")
+## L'IK qui pose la main gauche sur le garde-main.
+@onready var left_hand_ik: SkeletonModifier3D = model.get_node(^"%LeftHandIK")
 
 var _player: AnimationPlayer
 var _skeleton: Skeleton3D
@@ -62,7 +66,8 @@ func _physics_process(delta: float) -> void:
 	update(delta)
 
 
-## Avance de `delta` secondes : la vitesse au sol et la visée passent à l'arbre.
+## Avance de `delta` secondes : la vitesse au sol et la visée passent à l'arbre ; la main gauche rejoint le garde-main
+## en course (Move) et le lâche ailleurs, en un fondu d'état.
 func update(delta: float) -> void:
 	var local: Vector3 = hero.global_basis.inverse() * hero.velocity
 	var ground: Vector2 = Vector2(local.x, -local.z)
@@ -70,6 +75,8 @@ func update(delta: float) -> void:
 	tree.set(&"parameters/strafe/blend_position", (ground / hero.settings.aim_speed).limit_length(1.0))
 	aim_weight = move_toward(aim_weight, 1.0 if hero.aiming else 0.0, delta / settings.aim_blend_time)
 	tree.set(&"parameters/aim/blend_amount", aim_weight)
+	var grip: float = 1.0 if machine.current.name == &"Move" else 0.0
+	left_hand_ik.influence = move_toward(left_hand_ik.influence, grip, delta / settings.state_blend_time)
 
 
 ## Porte la bouche de l'arme à celle du fusil, calculée depuis l'os de la main droite : le squelette vient de finir sa

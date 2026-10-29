@@ -154,14 +154,39 @@ scène), au lieu de lire les `@onready` du héros, qui ne sont pas encore posés
 il dit ce qui a été fait (7 : le saloon et son gardien ; 8 : le héros animé) et ce qui vient (interface du genre,
 combat du golem, effets et sons, optimisation).
 
-### 7. Les tests
+### 7. La main gauche sur le garde-main
 
-`test_hero_view.gd` (10 cas) : squelette reciblé et fusil dans la main droite ; chaque clip présent, aucun avec l'os
+Sur la planche vue de côté, en course, la main gauche ne tenait pas le fusil : le soldat reciblé a les mains écartées
+de 39 cm, plus que le mannequin des clips. Les clips ne s'adaptent pas à un autre corps : c'est une **IK** qui pose la
+main. Le modèle a un `TwoBoneIK3D` « LeftHandIK » (bras, avant-bras, main gauche ; cible `LeftHandGrip` sous le
+garde-main, coude orienté par `LeftElbowPole`), construit par `construire_heros.gd`. La vue règle son `influence` (un
+`SkeletonModifier3D` : 0 = l'animation seule, 1 = l'IK seule) : 1 en course (Move), 0 dans les autres états (roulade,
+coup, soin, chute : la main suit alors l'animation), en un fondu de `state_blend_time`. Le fusil, lui, pointe droit
+devant en visée : le test mesure l'angle du canon avec l'avant du corps (moins de 10°).
+
+### 8. Le plancher qu'on voit et celui qu'on touche
+
+À l'étape 7, le plancher avait été recalé à y = 0 d'après des rayons contre **les collisions**. Avec le soldat posé
+dessus, on a vu ses pieds enfoncés : le plancher qu'on voit est fait de plaques de 10 cm d'épaisseur (le module de mur
+de Quixel posé à plat), dont le dessus est 0,4 m (à l'échelle 4) au-dessus de la collision. `mesurer_plancher_visible.gd`
+lance un rayon vertical contre **les triangles des maillages rendus** et l'affiche à côté du plancher de collision. Le
+saloon est reconstruit avec le décalage qui pose le dessus des plaques à y = 0 (4,1885 au lieu de 4,288) ; mesuré
+après : collision à 0,000, surface vue à 0,000 (dessous des plaques à −0,398), sous le héros comme ailleurs. Règle :
+**on vérifie le sol qu'on voit et le sol qu'on touche, pas l'un des deux**.
+
+En reconstruisant, on a corrigé les trois constructeurs (saloon, golem, héros) : `ResourceSaver.save(…,
+FLAG_CHANGE_PATH)` laisse `resource_path` vide sous 4.7.2 (vérifié par quelques lignes : un `BoxMesh` enregistré avec
+ce drapeau garde un chemin vide) ; les scènes recopiaient donc tous leurs maillages (le saloon faisait 40 Mo). Après
+`take_over_path(chemin)`, elles les désignent : 142 Ko pour le saloon, 43 Ko pour le golem, 27 Ko pour le héros.
+
+### 9. Les tests
+
+`test_hero_view.gd` (12 cas) : squelette reciblé et fusil dans la main droite ; chaque clip présent, aucun avec l'os
 Root ; au départ, la course ; chaque état (Roll, Hit, Heal, Dead) montre son entrée, le retour à Move remontre la
 course ; roulade et soin durent ce que durent leurs états ; course, sprint et marche visée à la vitesse du corps ; la
 vitesse au sol règle le mélange ; la visée se fond en `aim_blend_time` et revient ; un tir joue le recul du haut du
-corps seulement ; la bouche de l'arme suit celle du fusil pendant une roulade. Avec les cas des étapes précédentes :
-139 cas verts. Premier passage : deux corrections, toutes deux lues dans la sortie de Godot (le retard de 0,26 m de la
+corps seulement ; la bouche de l'arme suit celle du fusil pendant une roulade ; en visée, le fusil pointe droit devant ;
+la main gauche tient le fusil en course et le lâche en roulade. Avec les cas des étapes précédentes : 141 cas verts. Premier passage : deux corrections, toutes deux lues dans la sortie de Godot (le retard de 0,26 m de la
 bouche ; un avertissement de Godot, « No name provided, using safe index as reference », sur les points de mélange
 sans nom : on les nomme).
 
