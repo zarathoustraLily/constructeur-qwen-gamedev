@@ -1,7 +1,9 @@
 ;@ 7-11
 [gd_scene load_steps=8 format=3]
-;@ 12+
+;@ 12
 [gd_scene load_steps=28 format=3]
+;@ 13+
+[gd_scene load_steps=37 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://3_entities/boss/golem.gd" id="1_golem"]
@@ -23,6 +25,15 @@
 [ext_resource type="Script" path="res://3_entities/boss/states/golem_dead_state.gd" id="16_dead"]
 [ext_resource type="Script" path="res://3_entities/boss/golem_view.gd" id="17_view"]
 [ext_resource type="Script" path="res://3_entities/boss/golem_strike_modifier.gd" id="18_bend"]
+;@ 13+
+[ext_resource type="Script" path="res://3_entities/boss/golem_effects.gd" id="19_effects"]
+[ext_resource type="Resource" path="res://5_data/vfx/golem_vfx.tres" id="20_vfx"]
+[ext_resource type="Material" path="res://5_data/vfx/shockwave_material.tres" id="21_shockwave"]
+[ext_resource type="Material" path="res://5_data/vfx/hammer_trail_material.tres" id="22_trail"]
+[ext_resource type="PackedScene" path="res://6_assets/VFX/golem/slam_dust.tscn" id="23_dust"]
+[ext_resource type="PackedScene" path="res://6_assets/VFX/golem/slam_debris.tscn" id="24_debris"]
+[ext_resource type="PackedScene" path="res://6_assets/VFX/combat/hit_sparks.tscn" id="25_sparks"]
+[ext_resource type="Material" path="res://5_data/vfx/ember_lines_material.tres" id="26_ember"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -45,6 +56,10 @@ size = Vector3(2.2, 2.6, 0.6)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_slam"]
 radius = 3.5
+;@ 13+
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_shockwave"]
+size = Vector2(2, 2)
 ;@ all
 
 [node name="Golem" type="CharacterBody3D"]
@@ -149,4 +164,32 @@ script = ExtResource("17_view")
 golem = NodePath("..")
 machine = NodePath("../StateMachine")
 model = NodePath("../Model")
+;@ all
+;@ 13+
+
+[node name="Effects" type="Node3D" parent="." node_paths=PackedStringArray("golem")]
+script = ExtResource("19_effects")
+golem = NodePath("..")
+settings = ExtResource("20_vfx")
+ember = ExtResource("26_ember")
+
+[node name="Shockwave" type="MeshInstance3D" parent="Effects"]
+top_level = true
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_shockwave")
+material_override = ExtResource("21_shockwave")
+
+[node name="SlamDust" parent="Effects" instance=ExtResource("23_dust")]
+top_level = true
+
+[node name="SlamDebris" parent="Effects" instance=ExtResource("24_debris")]
+top_level = true
+
+[node name="HitSparks" parent="Effects" instance=ExtResource("25_sparks")]
+top_level = true
+
+[node name="HammerTrail" type="MeshInstance3D" parent="Effects"]
+top_level = true
+cast_shadow = 0
+material_override = ExtResource("22_trail")
 ;@ all

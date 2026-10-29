@@ -1,6 +1,12 @@
 class_name ProjectilePool extends Node3D
 ## La réserve des projectiles : tous sont créés au chargement du niveau, puis relancés sans fin. Aucun nœud n'est
 ## créé ni détruit pendant le combat : instancier en plein combat coûte des allocations, donc des saccades.
+#@ 13+
+## Elle relaie les impacts de ses projectiles (pour les étincelles).
+
+## Un de ses projectiles a touché en `point` (normale `normal`) ; `dealt` : les dégâts faits (0 : bloqué).
+signal impacted(point: Vector3, normal: Vector3, dealt: float)
+#@ all
 
 ## La scène d'un projectile (racine Projectile).
 @export var scene: PackedScene
@@ -15,6 +21,9 @@ func _ready() -> void:
 		var projectile: Projectile = scene.instantiate() as Projectile
 		add_child(projectile)
 		projectile.finished.connect(_on_finished)
+#@ 13+
+		projectile.impacted.connect(impacted.emit)
+#@ all
 		_idle.append(projectile)
 
 

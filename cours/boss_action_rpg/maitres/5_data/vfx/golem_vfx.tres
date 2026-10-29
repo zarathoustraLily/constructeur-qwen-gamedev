@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="GolemVfxSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/golem_vfx_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+shockwave_time = 0.7
+shockwave_reach = 1.3
+roar_radius = 7.0
+trail_time = 0.22
+trail_width = 1.4
+trail_margin = 0.12
+slam_shake = 0.35
+slam_shake_time = 0.45
+shake_range = 25.0
+roar_shake = 0.25
+roar_shake_time = 1.2
+glow_energy = 2.0
+glow_time = 1.5
+glow_pulse = 0.3
+glow_pulse_speed = 2.4

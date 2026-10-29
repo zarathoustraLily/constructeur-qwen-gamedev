@@ -57,7 +57,11 @@ suivante avant.
 - [ ] 14. Optimisation et mesures
 #@ 12+
 - [x] 12. Combat du Gardien : attaques recalées sur le héros, bouclier, point faible, seconde phase à 70 %, chute
+#@ 12
 - [ ] 13. Effets visuels et sons des attaques
+#@ 13+
+- [x] 13. Effets des coups : onde, traînée, étincelles, flash, braise de la seconde phase
+#@ 12+
 - [ ] 14. Optimisation et mesures
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles

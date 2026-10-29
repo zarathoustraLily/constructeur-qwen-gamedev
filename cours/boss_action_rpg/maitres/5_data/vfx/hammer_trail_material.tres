@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/hammer_trail.gdshader" id="1_shader"]
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_shader")
+shader_parameter/trail_color = Color(1, 0.8, 0.55, 1)
+shader_parameter/intensity = 1.4

@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/shockwave.gdshader" id="1_shader"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_dust"]
+frequency = 0.04
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_dust"]
+width = 128
+height = 128
+seamless = true
+noise = SubResource("FastNoiseLite_dust")
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_shader")
+shader_parameter/dust_color = Color(0.62, 0.55, 0.45, 0.85)
+shader_parameter/flash_color = Color(1, 0.72, 0.42, 1)
+shader_parameter/progress = 1.0
+shader_parameter/thickness = 0.18
+shader_parameter/noise = SubResource("NoiseTexture2D_dust")

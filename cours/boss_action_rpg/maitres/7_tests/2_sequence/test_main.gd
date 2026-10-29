@@ -24,6 +24,8 @@ extends GdUnitTestSuite
 #@ 12+
 ## La jauge du boss n'apparaît qu'à son réveil. Trois spectres dorment au départ ; quand la seconde phase du golem
 ## commence (il a perdu 30 % de sa vie), ils sortent tous et chassent le héros.
+#@ 13+
+## Les effets du golem font trembler la caméra du héros ; les étincelles montrent les impacts de ses tirs.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -227,4 +229,13 @@ func test_a_la_seconde_phase_du_golem_les_spectres_sortent_et_chassent_le_heros(
 		assert_bool((s as Spectre).is_active()).is_true()
 		assert_that((s as Spectre).target).is_same(main.get_node("Hero"))
 		assert_that((s as Spectre).target_health).is_same(main.get_node("Hero/Health"))
+#@ all
+#@ 13+
+
+
+func test_les_effets_ont_la_camera_du_heros_et_ses_tirs() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	assert_that((main.get_node("Golem/Effects") as GolemEffects).camera).is_same(main.get_node("OrbitCamera"))
+	assert_that((main.get_node("ImpactSparks") as ImpactSparks).pool).is_same(main.get_node("Projectiles"))
 #@ all

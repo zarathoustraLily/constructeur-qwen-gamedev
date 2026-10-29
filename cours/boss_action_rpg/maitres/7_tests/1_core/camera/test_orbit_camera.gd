@@ -4,6 +4,8 @@ extends GdUnitTestSuite
 ## raccourcit ; un mur raccourcit le bras ; la caméra est décalée vers l'épaule ; une cible libérée déverrouille.
 #@ 7+
 ## Au départ, elle se place derrière le héros, dans la direction où il regarde.
+#@ 13+
+## Elle tremble de moins en moins puis s'arrête ; un tremblement plus faible ne remplace pas celui en cours.
 #@ all
 
 const CAMERA := preload("res://1_core/camera/orbit_camera.tscn")
@@ -106,4 +108,22 @@ func test_au_depart_elle_regarde_ou_regarde_le_heros() -> void:
 	_hero.rotation.y = PI
 	var orbit: OrbitCamera = _camera()
 	assert_float(absf(angle_difference(orbit.yaw, PI))).is_less(0.0001)
+#@ all
+#@ 13+
+
+
+func test_elle_tremble_de_moins_en_moins_puis_s_arrete() -> void:
+	var orbit: OrbitCamera = _camera()
+	var camera: Camera3D = orbit.get_node("Arm/Camera") as Camera3D
+	orbit.shake(0.4, 0.5)
+	assert_float(orbit.current_shake()).is_equal_approx(0.4, 0.001)
+	orbit.follow(0.25)
+	assert_float(orbit.current_shake()).is_equal_approx(0.2, 0.001)
+	assert_float(Vector2(camera.h_offset, camera.v_offset).length()).is_greater(0.0)
+	orbit.shake(0.1, 1.0)
+	assert_float(orbit.current_shake()).is_equal_approx(0.2, 0.001)
+	orbit.follow(0.3)
+	assert_float(orbit.current_shake()).is_equal(0.0)
+	assert_float(camera.h_offset).is_equal(0.0)
+	assert_float(camera.v_offset).is_equal(0.0)
 #@ all

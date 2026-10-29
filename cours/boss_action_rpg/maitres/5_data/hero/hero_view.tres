@@ -11,3 +11,6 @@ state_blend_time = 0.12
 aim_blend_time = 0.15
 fire_fade_in = 0.03
 fire_fade_out = 0.12
+;@ 13+
+hit_flash_time = 0.3
+;@ all

@@ -6,6 +6,9 @@ extends GdUnitTestSuite
 ## marche visée jouent à la vitesse du corps (les pieds ne glissent pas) ; la vitesse au sol règle le mélange de
 ## course ; en visant, la course passe à la marche visée en un temps donné, et revient en lâchant ; un tir joue le
 ## recul du haut du corps seulement ; la bouche de l'arme du héros suit celle du fusil.
+#@ 13+
+## Un coup reçu fait flasher le soldat (une couche à lui, sur chaque maillage), puis le flash s'éteint.
+#@ all
 
 const HERO := preload("res://3_entities/hero/hero.tscn")
 const CLIPS: Array[StringName] = [&"idle", &"aim_idle", &"aim_walk_f", &"aim_walk_b", &"aim_walk_l", &"aim_walk_r",
@@ -183,4 +186,19 @@ func test_la_main_gauche_tient_le_fusil_en_course_et_le_lache_en_roulade() -> vo
 	hero.machine.transition_to(&"Move")
 	view.update(view.settings.state_blend_time)
 	assert_float(view.left_hand_ik.influence).is_equal_approx(1.0, 0.001)
+#@ 13+
 
+
+func test_un_coup_recu_fait_flasher_le_soldat_puis_s_eteint() -> void:
+	var hero: Hero = _hero()
+	var view: HeroView = _view(hero)
+	for piece: Node in view.model.find_children("*", "MeshInstance3D", true, false):
+		assert_object((piece as MeshInstance3D).material_overlay).is_same(view.flash_material)
+	assert_object(view.flash_material).is_not_same(view.hit_flash)
+	hero.take_hit(10.0, Vector3(0.0, 0.0, -5.0))
+	assert_float(view.flash).is_equal(1.0)
+	view.update(view.settings.hit_flash_time * 0.5)
+	assert_float(float(view.flash_material.get_shader_parameter(&"flash"))).is_equal_approx(0.5, 0.01)
+	view.update(view.settings.hit_flash_time)
+	assert_float(view.flash).is_equal(0.0)
+#@ all

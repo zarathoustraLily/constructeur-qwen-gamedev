@@ -21,6 +21,8 @@ extends Node3D
 #@ 12+
 ## Elle branche l'interface (4_ui ne connaît pas les entités) : vie, endurance, fioles du héros, chaleur de son arme ;
 ## la vie du boss quand il se réveille ; et montre l'écran de chute quand le héros tombe.
+#@ 13+
+## Elle donne la caméra aux effets du golem (ses impacts la font trembler).
 #@ 9+
 #@ all
 #@ 1-2
@@ -40,6 +42,9 @@ func _ready() -> void:
 #@ 9+
 @onready var _hud: Hud = $Hud
 @onready var _golem: Golem = $Golem
+#@ 13+
+@onready var _orbit: OrbitCamera = $OrbitCamera
+#@ 9+
 #@ 3+
 
 
@@ -57,6 +62,8 @@ func _ready() -> void:
 	_hud.bind_boss(_golem.health)
 #@ 12+
 	_golem.woke.connect(_on_golem_woke)
+#@ 13+
+	(_golem.get_node(^"Effects") as GolemEffects).camera = _orbit
 #@ 9+
 #@ 6+
 

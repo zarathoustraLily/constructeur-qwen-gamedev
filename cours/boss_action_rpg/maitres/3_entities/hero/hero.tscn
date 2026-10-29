@@ -4,8 +4,10 @@
 [gd_scene load_steps=14 format=3]
 ;@ 5
 [gd_scene load_steps=18 format=3]
-;@ 6+
+;@ 6-12
 [gd_scene load_steps=24 format=3]
+;@ 13+
+[gd_scene load_steps=25 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://3_entities/hero/hero.gd" id="1_hero"]
@@ -34,6 +36,8 @@
 [ext_resource type="Script" path="res://3_entities/hero/hero_view.gd" id="20_view"]
 [ext_resource type="Resource" path="res://5_data/hero/hero_view.tres" id="21_view_settings"]
 [ext_resource type="PackedScene" path="res://6_assets/Characters/Hero/hero_model.tscn" id="22_model"]
+;@ 13+
+[ext_resource type="Material" path="res://5_data/vfx/hit_flash_material.tres" id="23_flash"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -137,6 +141,9 @@ hero = NodePath("..")
 machine = NodePath("../StateMachine")
 gun = NodePath("../Gun")
 settings = ExtResource("21_view_settings")
+;@ 13+
+hit_flash = ExtResource("23_flash")
+;@ 8+
 
 [node name="Model" parent="View" instance=ExtResource("22_model")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)

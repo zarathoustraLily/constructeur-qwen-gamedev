@@ -12,8 +12,10 @@
 [gd_scene load_steps=11 format=3]
 ;@ 9-10
 [gd_scene load_steps=13 format=3]
-;@ 11+
+;@ 11-12
 [gd_scene load_steps=16 format=3]
+;@ 13+
+[gd_scene load_steps=18 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -47,6 +49,10 @@
 [ext_resource type="PackedScene" path="res://3_entities/enemies/spectre/spectre.tscn" id="17_spectre"]
 [ext_resource type="Script" path="res://3_entities/boss/spectre_call.gd" id="18_call"]
 [ext_resource type="Resource" path="res://5_data/enemies/spectre.tres" id="19_spectre_settings"]
+;@ 13+
+[ext_resource type="Script" path="res://1_core/combat/impact_sparks.gd" id="20_sparks"]
+[ext_resource type="PackedScene" path="res://6_assets/VFX/combat/hit_sparks.tscn" id="21_hit_sparks"]
+;@ 11+
 ;@ 9+
 ;@ 7+
 ;@ 3-6
@@ -227,4 +233,18 @@ golem = NodePath("../Golem")
 spectres = [NodePath("../Spectres/Spectre1"), NodePath("../Spectres/Spectre2"), NodePath("../Spectres/Spectre3")]
 prey = NodePath("../Hero")
 prey_health = NodePath("../Hero/Health")
+;@ all
+;@ 13+
+
+[node name="ImpactSparks" type="Node3D" parent="." node_paths=PackedStringArray("pool")]
+script = ExtResource("20_sparks")
+pool = NodePath("../Projectiles")
+
+[node name="Burst1" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+
+[node name="Burst2" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+
+[node name="Burst3" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+
+[node name="Burst4" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
 ;@ all

@@ -10,6 +10,9 @@ class_name HeroView extends Node3D
 ## sa pose : les tirs partent du canon visible. Le fusil pointe droit devant ; la main gauche le tient par une IK
 ## (LeftHandIK du modèle), que la vue active en course et au tir, et relâche dans les autres états (roulade, coup, soin,
 ## chute : la main gauche suit alors l'animation).
+#@ 13+
+## Un coup reçu fait flasher le soldat (une couche posée par-dessus ses matériaux), puis le flash s'éteint.
+#@ all
 
 ## L'état du héros → l'entrée du nœud de transition qui le montre.
 const STATES: Dictionary[StringName, StringName] = {
@@ -24,11 +27,21 @@ const STATES: Dictionary[StringName, StringName] = {
 @export var gun: HeroGun
 ## Vitesses de foulée des clips, fondus.
 @export var settings: HeroViewSettings
+#@ 13+
+## La couche du flash d'un coup reçu (copiée pour ce héros).
+@export var hit_flash: ShaderMaterial
+#@ all
 
 ## Le poids de la marche visée dans la course (0 : course, 1 : marche visée).
 var aim_weight: float = 0.0
 ## Les nœuds des clips de marche, par nom : leur ligne de temps règle leur vitesse.
 var clip_nodes: Dictionary[StringName, AnimationNodeAnimation] = {}
+#@ 13+
+## Le flash du moment, de 0 à 1.
+var flash: float = 0.0
+## La couche du flash propre à ce héros.
+var flash_material: ShaderMaterial
+#@ all
 
 ## Le soldat : squelette reciblé, fusil, bibliothèque d'animations.
 @onready var model: Node3D = $Model
@@ -60,6 +73,13 @@ func _ready() -> void:
 	machine.state_changed.connect(_on_state_changed)
 	gun.fired.connect(_on_fired)
 	show_state(machine.current.name)
+#@ 13+
+	flash_material = hit_flash.duplicate() as ShaderMaterial
+	for piece: Node in model.find_children("*", "MeshInstance3D", true, false):
+		(piece as MeshInstance3D).material_overlay = flash_material
+	# Le héros est prêt après sa vue : sa santé se prend par son chemin.
+	(hero.get_node(^"Health") as HealthComponent).damaged.connect(_on_damaged)
+#@ all
 
 
 func _physics_process(delta: float) -> void:
@@ -77,6 +97,10 @@ func update(delta: float) -> void:
 	tree.set(&"parameters/aim/blend_amount", aim_weight)
 	var grip: float = 1.0 if machine.current.name == &"Move" else 0.0
 	left_hand_ik.influence = move_toward(left_hand_ik.influence, grip, delta / settings.state_blend_time)
+#@ 13+
+	flash = move_toward(flash, 0.0, delta / settings.hit_flash_time)
+	flash_material.set_shader_parameter(&"flash", flash)
+#@ all
 
 
 ## Porte la bouche de l'arme à celle du fusil, calculée depuis l'os de la main droite : le squelette vient de finir sa
@@ -190,3 +214,9 @@ func _on_state_changed(_from: StringName, to: StringName) -> void:
 
 func _on_fired(_origin: Vector3, _direction: Vector3) -> void:
 	tree.set(&"parameters/fire/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+#@ 13+
+
+
+func _on_damaged(_amount: float, _remaining: float) -> void:
+	flash = 1.0
+#@ all

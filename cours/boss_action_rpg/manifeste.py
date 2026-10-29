@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 12
+DERNIERE = 13
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -30,13 +30,14 @@ ETAPES = [
     {"piste": "VFX + Shaders", "titre": "La carboglace : une brume au sol en volutes, par un shader de brouillard"},
     {"piste": "Gameplay + Procédural + Shaders", "titre": "Les spectres : squelettes bleus et transparents appelés par le Gardien"},
     {"piste": "Gameplay + Graphisme 3D", "titre": "Le combat du Gardien : attaques recalées sur le héros, bouclier, point faible, seconde phase, chute"},
+    {"piste": "VFX + Shaders", "titre": "Les effets des coups : onde de poussière, traînée du marteau, étincelles, flash, braise de la seconde phase"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -175,4 +176,21 @@ FICHIERS = {
     "3_entities/boss/states/golem_phase_shift_state.gd": "12+",
     "3_entities/boss/states/golem_dead_state.gd": "12+",
     "3_entities/boss/golem_view.gd": "12+",
+    "1_core/data/golem_vfx_settings.gd": "13+",
+    "5_data/vfx/golem_vfx.tres": "13+",
+    "5_data/vfx/shockwave_material.tres": "13+",
+    "5_data/vfx/hammer_trail_material.tres": "13+",
+    "5_data/vfx/hit_flash_material.tres": "13+",
+    "6_assets/Shader/VFX/shockwave.gdshader": "13+",
+    "6_assets/Shader/VFX/hammer_trail.gdshader": "13+",
+    "6_assets/Shader/VFX/hit_flash.gdshader": "13+",
+    "6_assets/Shader/VFX/ember_lines.gdshader": "13+",
+    "5_data/vfx/ember_lines_material.tres": "13+",
+    "6_assets/VFX/golem/slam_dust.tscn": "13+",
+    "6_assets/VFX/golem/slam_debris.tscn": "13+",
+    "6_assets/VFX/combat/hit_sparks.tscn": "13+",
+    "3_entities/boss/golem_effects.gd": "13+",
+    "1_core/combat/impact_sparks.gd": "13+",
+    "7_tests/3_entities/boss/test_golem_effects.gd": "13+",
+    "7_tests/1_core/combat/test_impact_sparks.gd": "13+",
 }

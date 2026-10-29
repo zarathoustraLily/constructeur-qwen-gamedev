@@ -17,3 +17,7 @@ class_name HeroViewSettings extends Resource
 @export_range(0.0, 0.5, 0.01) var fire_fade_in: float = 0.03
 ## Sortie du recul d'un tir, en secondes.
 @export_range(0.0, 0.5, 0.01) var fire_fade_out: float = 0.12
+#@ 13+
+## Le flash d'un coup reçu s'éteint en autant de secondes.
+@export_range(0.0, 2.0, 0.01) var hit_flash_time: float = 0.3
+#@ all
