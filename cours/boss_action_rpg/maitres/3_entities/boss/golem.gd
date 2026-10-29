@@ -48,6 +48,8 @@ var phase_two_due: bool = false
 var chained: int = 0
 
 var _next: int = 0
+#@ 14+
+var _path_query: PhysicsShapeQueryParameters3D
 #@ 7+
 
 ## La santé du golem.
@@ -72,6 +74,13 @@ func _ready() -> void:
 #@ 12+
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
+#@ 14+
+	# La requête du chemin est créée une fois : en créer une à chaque choix de coup était une allocation en combat.
+	_path_query = PhysicsShapeQueryParameters3D.new()
+	_path_query.shape = ($Shape as CollisionShape3D).shape
+	_path_query.collision_mask = Layers.bit(Layers.WORLD)
+	_path_query.exclude = [get_rid()]
+#@ 12+
 
 
 ## La distance au sol jusqu'à sa cible.
@@ -144,12 +153,18 @@ func path_clear(strike: GolemAttack) -> bool:
 	if toward.is_zero_approx():
 		return true
 	var body: CollisionShape3D = $Shape as CollisionShape3D
+#@ 12-13
 	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	query.shape = body.shape
+#@ 14+
+	var query: PhysicsShapeQueryParameters3D = _path_query
+#@ 12+
 	query.transform = body.global_transform.translated(Vector3.UP * PATH_LIFT)
 	query.motion = toward.normalized() * reach
+#@ 12-13
 	query.collision_mask = Layers.bit(Layers.WORLD)
 	query.exclude = [get_rid()]
+#@ 12+
 	return get_world_3d().direct_space_state.cast_motion(query)[0] >= 1.0
 
 

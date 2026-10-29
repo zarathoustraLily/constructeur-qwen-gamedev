@@ -61,8 +61,12 @@ suivante avant.
 - [ ] 13. Effets visuels et sons des attaques
 #@ 13+
 - [x] 13. Effets des coups : onde, traînée, étincelles, flash, braise de la seconde phase
-#@ 12+
+#@ 12-13
 - [ ] 14. Optimisation et mesures
+#@ 14+
+- [x] 14. Mesures sans fenêtre : aucune allocation en combat, le temps de chaque image
+- [ ] 15. Mesures sur la carte graphique : images par seconde en 1920 × 1080
+#@ 12+
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles
 - [ ] 9. Phase 2 et mort du golem

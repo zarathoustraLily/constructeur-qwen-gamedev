@@ -454,6 +454,42 @@
    ],
    "lecture": "La propriété existe : « propriété [GeometryInstance3D] material_overlay: BaseMaterial3D,ShaderMaterial ».",
    "decision": "Un shader additif (ember_lines.gdshader), posé en material_overlay sur les huit pièces d'armure, lit la carte d'émission de l'armure sans source_color et n'allume que ce qui dépasse un seuil (0,25, montée douce sur 0,35 : vues de loin, les lignes fines se mêlent à leur entourage sombre dans les niveaux réduits de la texture). Le matériau de l'armure reste éteint ; l'image montre des braises sur les jointures."
+  },
+  {
+   "id": "e14_compter_les_allocations",
+   "etape": 14,
+   "sujet": "Gestion de la mémoire",
+   "type": "analyse",
+   "situation": "La conception exige « aucune allocation en combat ». Je veux le mesurer sur un combat joué sans joueur. Le moniteur du nombre d'objets suffit-il, ou faut-il autre chose ?",
+   "pensee": "Le nombre d'objets vivants ne voit pas un objet créé puis libéré dans la même image. Il me faut un compteur qui monte à chaque création : l'identifiant d'un objet en porte un dans ses bits hauts. Je vérifie la méthode qui le donne.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Object",
+    "membre": "get_instance_id"
+   },
+   "attendu": [
+    "get_instance_id() -> int"
+   ],
+   "lecture": "La méthode existe : « méthode [Object] get_instance_id() -> int ».",
+   "decision": "L'outil 7_tests/perf/mesurer_combat.gd crée un objet témoin, lit les bits hauts de son identifiant (le compteur de l'ObjectDB) au début et à la fin de la fenêtre, et retire le témoin du second relevé. Première mesure : 600 allocations en 600 images, une par image ; sans tir, 0 ; en visant sans tirer, 0 : c'est le tir."
+  },
+  {
+   "id": "e14_requete_reutilisee",
+   "etape": 14,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Tant que la détente est tenue, l'état de course appelle chaque image hero.aim_point(), qui appelle Aim.point. Aim.point fabrique sa requête de rayon par PhysicsRayQueryParameters3D.create. Est-ce là l'objet créé à chaque image ?",
+   "pensee": "Je vérifie ce que rend create : si c'est une requête neuve, chaque appel est une allocation.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "PhysicsRayQueryParameters3D",
+    "membre": "create"
+   },
+   "attendu": [
+    "-> PhysicsRayQueryParameters3D"
+   ],
+   "lecture": "create est une méthode qui rend une requête neuve : « create(from: Vector3, to: Vector3, collision_mask: int=4294967295, exclude: typedarray::RID=Array[RID]([])) -> PhysicsRayQueryParameters3D ».",
+   "decision": "Aim garde une requête créée une fois (static var) et en change from, to et collision_mask à chaque appel ; Golem.path_clear garde la sienne de même ; les deux Tween du combat (braise, chute du bouclier) deviennent des interpolations faites à la main. Nouvelle mesure, seconde phase en pleine fenêtre : 0 allocation en 600 images. Le test test_sans_allocation.gd, rouge sur l'étape précédente, est vert."
   }
  ]
 }

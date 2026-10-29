@@ -27,6 +27,12 @@ const SHIELD_FALL: float = 0.7
 
 ## Le bouclier jeté, posé dans le monde (rien tant qu'il est dans sa main).
 var thrown_shield: Node3D
+#@ 14+
+
+var _shield_from: Transform3D = Transform3D.IDENTITY
+var _shield_to: Transform3D = Transform3D.IDENTITY
+var _shield_time: float = -1.0
+#@ 12+
 
 @onready var _player: AnimationPlayer = model.get_node(^"AnimationPlayer") as AnimationPlayer
 @onready var _bend: GolemStrikeModifier = model.get_node(^"Skeleton3D/StrikeBend") as GolemStrikeModifier
@@ -41,8 +47,14 @@ func _ready() -> void:
 	golem.phase_changed.connect(_on_phase_changed)
 
 
+#@ 12-13
 func _physics_process(_delta: float) -> void:
 	update()
+#@ 14+
+func _physics_process(delta: float) -> void:
+	update()
+	_fall_shield(delta)
+#@ 12+
 
 
 ## Montre l'instant : la marche ou l'attente quand il s'approche, le penché du buste quand il frappe.
@@ -74,6 +86,24 @@ func _on_phase_changed(phase: int) -> void:
 	thrown_shield = shield
 	var side: Vector3 = golem.global_basis.x * -3.0
 	var landing: Vector3 = Vector3(shield.global_position.x, golem.global_position.y + 0.2, shield.global_position.z) + side
+#@ 12-13
 	var fall: Tween = create_tween()
 	fall.tween_property(shield, ^"global_position", landing, SHIELD_FALL).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	fall.parallel().tween_property(shield, ^"rotation", Vector3(PI * 0.5, shield.rotation.y, 0.0), SHIELD_FALL)
+#@ 14+
+	# Sans Tween (des objets alloués en plein combat) : la chute avance dans _fall_shield, à chaque image.
+	_shield_from = shield.global_transform
+	var flat: Basis = Basis.from_euler(Vector3(PI * 0.5, shield.rotation.y, 0.0)).scaled(shield.global_basis.get_scale())
+	_shield_to = Transform3D(flat, landing)
+	_shield_time = 0.0
+#@ 12+
+#@ 14+
+
+
+func _fall_shield(delta: float) -> void:
+	if _shield_time < 0.0 or _shield_time >= SHIELD_FALL:
+		return
+	_shield_time = minf(_shield_time + delta, SHIELD_FALL)
+	var t: float = _shield_time / SHIELD_FALL
+	thrown_shield.global_transform = _shield_from.interpolate_with(_shield_to, t * t)
+#@ all

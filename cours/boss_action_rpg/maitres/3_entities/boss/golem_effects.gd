@@ -40,7 +40,11 @@ var _trail_heads: PackedVector3Array = PackedVector3Array()
 var _trail_grips: PackedVector3Array = PackedVector3Array()
 var _trail_mesh: ImmediateMesh
 var _shockwave_material: ShaderMaterial
+#@ 13
 var _glow_tween: Tween
+#@ 14+
+var _glow_target: float = 0.0
+#@ 13+
 
 @onready var _shockwave: MeshInstance3D = $Shockwave
 @onready var _dust: GPUParticles3D = $SlamDust
@@ -88,6 +92,9 @@ func update(delta: float) -> void:
 		_shockwave_material.set_shader_parameter(&"progress", shockwave_progress)
 		_shockwave.visible = shockwave_progress < 1.0
 	_update_trail()
+#@ 14+
+	glow = move_toward(glow, _glow_target, settings.glow_energy * delta / settings.glow_time)
+#@ 13+
 	ember_material.set_shader_parameter(&"glow", glow * (1.0 + settings.glow_pulse * sin(_clock * settings.glow_pulse_speed)))
 
 
@@ -141,10 +148,15 @@ func _shake(at: Vector3, strength: float, duration: float) -> void:
 
 
 func _fade_glow(to: float) -> void:
+#@ 13
 	if _glow_tween != null:
 		_glow_tween.kill()
 	_glow_tween = create_tween()
 	_glow_tween.tween_property(self, ^"glow", to, settings.glow_time)
+#@ 14+
+	# Sans Tween : en créer un en plein combat, c'est des objets alloués ; l'éclat rejoint sa cible dans update.
+	_glow_target = to
+#@ 13+
 
 
 ## La traînée : pendant la fenêtre du marteau (élargie de `trail_margin`), une position par image ; les plus vieilles

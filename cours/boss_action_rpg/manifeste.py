@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 13
+DERNIERE = 14
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -31,13 +31,14 @@ ETAPES = [
     {"piste": "Gameplay + Procédural + Shaders", "titre": "Les spectres : squelettes bleus et transparents appelés par le Gardien"},
     {"piste": "Gameplay + Graphisme 3D", "titre": "Le combat du Gardien : attaques recalées sur le héros, bouclier, point faible, seconde phase, chute"},
     {"piste": "VFX + Shaders", "titre": "Les effets des coups : onde de poussière, traînée du marteau, étincelles, flash, braise de la seconde phase"},
+    {"piste": "Optimisation + Gestion de la mémoire", "titre": "Mesurer le combat sans fenêtre : aucune allocation en combat, le temps de chaque image"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -193,4 +194,6 @@ FICHIERS = {
     "1_core/combat/impact_sparks.gd": "13+",
     "7_tests/3_entities/boss/test_golem_effects.gd": "13+",
     "7_tests/1_core/combat/test_impact_sparks.gd": "13+",
+    "7_tests/perf/mesurer_combat.gd": "14+",
+    "7_tests/perf/test_sans_allocation.gd": "14+",
 }
