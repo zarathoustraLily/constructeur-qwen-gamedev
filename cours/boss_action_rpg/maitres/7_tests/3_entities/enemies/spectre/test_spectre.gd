@@ -193,3 +193,42 @@ func test_dissipe_il_s_affaisse() -> void:
 	var debout: float = spectre.to_local(model.head.global_position).y
 	_poser(spectre, &"Fade")
 	assert_float(spectre.to_local(model.head.global_position).y).is_less(debout - 0.3)
+#@ 17+
+
+
+func test_il_laisse_une_traine_qui_s_etire_quand_il_file() -> void:
+	var spectre: Spectre = _spectre()
+	spectre.activate(_victim, 0.0)
+	spectre.machine.process_mode = Node.PROCESS_MODE_DISABLED
+	var view: SpectreView = spectre.get_node("View") as SpectreView
+	var trail: SpectreTrail = view.get_node("Trail") as SpectreTrail
+	# Il file à 10 m/s pendant une seconde : la traîne s'étend derrière lui sur à peu près vitesse × durée.
+	for _i: int in 60:
+		spectre.global_position += Vector3(10.0 / 60.0, 0.0, 0.0)
+		view.update(1.0 / 60.0)
+	assert_int(trail.count).is_greater(20)
+	assert_float(trail.span()).is_between(10.0 * spectre.settings.trail_time * 0.8, 10.0 * spectre.settings.trail_time * 1.1)
+	assert_float(trail.points[0].x).is_less(trail.points[trail.count - 1].x)
+	assert_int(trail.mesh.get_surface_count()).is_equal(1)
+	# Immobile plus longtemps que la durée de la traîne : elle se résorbe.
+	for _i: int in 40:
+		view.update(1.0 / 60.0)
+	assert_float(trail.span()).is_less(0.2)
+	# Dissipé, plus de traîne.
+	spectre.vanish()
+	view.update(1.0 / 60.0)
+	assert_int(trail.count).is_equal(0)
+	assert_int(trail.mesh.get_surface_count()).is_equal(0)
+
+
+func test_la_traine_a_son_propre_materiau_et_l_eclat_du_spectre() -> void:
+	var spectre: Spectre = _spectre()
+	var autre: Spectre = _spectre()
+	spectre.activate(_victim, 0.0)
+	_poser(spectre, &"Windup")
+	var trail: SpectreTrail = spectre.get_node("View/Trail") as SpectreTrail
+	var view: SpectreView = spectre.get_node("View") as SpectreView
+	assert_object(trail.material_override).is_not_same((autre.get_node("View/Trail") as SpectreTrail).material_override)
+	assert_float(float((trail.material_override as ShaderMaterial).get_shader_parameter(&"intensity"))).is_equal_approx(view.intensity, 0.001)
+	assert_bool(trail.top_level).is_true()
+#@ all

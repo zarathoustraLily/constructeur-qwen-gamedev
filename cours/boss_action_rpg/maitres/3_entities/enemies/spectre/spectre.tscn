@@ -1,4 +1,8 @@
+;@ 11-16
 [gd_scene load_steps=19 format=3]
+;@ 17+
+[gd_scene load_steps=21 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://3_entities/enemies/spectre/spectre.gd" id="1_spectre"]
 [ext_resource type="Resource" path="res://5_data/enemies/spectre.tres" id="2_settings"]
@@ -16,6 +20,10 @@
 [ext_resource type="Script" path="res://3_entities/enemies/spectre/spectre_view.gd" id="14_view"]
 [ext_resource type="Script" path="res://6_assets/Mesh/Procedural/spectre/spectre_model.gd" id="15_model"]
 [ext_resource type="Material" path="res://5_data/enemies/spectre_material.tres" id="16_material"]
+;@ 17+
+[ext_resource type="Script" path="res://3_entities/enemies/spectre/spectre_trail.gd" id="17_trail"]
+[ext_resource type="Material" path="res://5_data/vfx/spectre_trail_material.tres" id="18_trail_material"]
+;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
 radius = 0.5
@@ -82,3 +90,11 @@ material = ExtResource("16_material")
 
 [node name="Model" type="Node3D" parent="View"]
 script = ExtResource("15_model")
+;@ 17+
+
+[node name="Trail" type="MeshInstance3D" parent="View"]
+script = ExtResource("17_trail")
+top_level = true
+cast_shadow = 0
+material_override = ExtResource("18_trail_material")
+;@ all

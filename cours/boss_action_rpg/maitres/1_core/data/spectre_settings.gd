@@ -38,3 +38,11 @@ class_name SpectreSettings extends Resource
 @export_range(0.0, 200.0, 1.0) var damage: float = 18.0
 ## Le temps pour se dissiper une fois abattu, en secondes.
 @export_range(0.05, 5.0, 0.05) var fade_time: float = 0.8
+#@ 17+
+## Le temps minimal, tous spectres confondus, entre la fin d'une plongée et l'annonce de la suivante, en secondes.
+@export_range(0.0, 10.0, 0.1) var dive_gap: float = 2.0
+## La durée de la traîne : les positions plus vieilles s'effacent, en secondes.
+@export_range(0.05, 3.0, 0.05) var trail_time: float = 0.6
+## La largeur de la traîne à sa tête, en mètres ; elle s'effile jusqu'au bout.
+@export_range(0.05, 3.0, 0.05) var trail_width: float = 0.9
+#@ all

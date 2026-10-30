@@ -135,3 +135,42 @@ func test_l_appel_n_a_lieu_qu_une_fois() -> void:
 	_golem.phase_changed.emit(2)
 	assert_int(appels[0]).is_equal(1)
 #@ all
+#@ 17+
+
+
+func test_un_seul_spectre_plonge_a_la_fois_avec_un_ecart() -> void:
+	_golem.health.take_damage(_golem.health.settings.max_health * 0.31)
+	_golem.machine.process_mode = Node.PROCESS_MODE_DISABLED
+	var plongeait: bool = false
+	var debuts: Array[float] = []
+	var fins: Array[float] = []
+	var temps: float = 0.0
+	for _i: int in 60 * 12:
+		await get_tree().physics_frame
+		temps += 1.0 / 60.0
+		var plongent: int = 0
+		for s: Spectre in _call.spectres:
+			if s.is_diving():
+				plongent += 1
+		assert_int(plongent).is_less_equal(1)
+		if plongent == 1 and not plongeait:
+			debuts.append(temps)
+		elif plongent == 0 and plongeait:
+			fins.append(temps)
+		plongeait = plongent == 1
+	assert_int(debuts.size()).is_greater_equal(3)
+	for k: int in debuts.size() - 1:
+		assert_float(debuts[k + 1] - fins[k]).is_greater_equal(SETTINGS.dive_gap - 1.0 / 30.0)
+
+
+func test_pas_de_plongee_pendant_un_coup_du_gardien() -> void:
+	_golem.health.take_damage(_golem.health.settings.max_health * 0.31)
+	_golem.attack = _golem.settings.attacks[0]
+	_golem.machine.transition_to(&"Attack")
+	_golem.machine.process_mode = Node.PROCESS_MODE_DISABLED
+	_call.tick(SETTINGS.dive_gap + 1.0)
+	assert_bool(_call.claim_dive(_call.spectres[0])).is_false()
+	_golem.machine.transition_to(&"Recover")
+	assert_bool(_call.claim_dive(_call.spectres[0])).is_true()
+	assert_bool(_call.claim_dive(_call.spectres[1])).is_false()
+#@ all

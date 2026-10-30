@@ -264,3 +264,26 @@ func test_le_tir_part_droit_devant_ou_vers_la_cible_verrouillee_et_le_canon_suit
 	assert_float(rad_to_deg(canon.angle_to(vers))).is_less(12.0)
 	hero.trigger = false
 #@ all
+#@ 17+
+
+
+func test_immobile_le_heros_tient_dix_secondes_face_aux_spectres() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var hero: Hero = main.get_node("Hero") as Hero
+	hero.get_node("Input").free()
+	(main.get_node("Golem") as Golem).machine.process_mode = Node.PROCESS_MODE_DISABLED
+	var appel: SpectreCall = main.get_node("SpectreCall") as SpectreCall
+	var coups: Array[float] = []
+	var temps: Array[float] = [0.0]
+	hero.health.damaged.connect(func(_montant: float, _reste: float) -> void: coups.append(temps[0]))
+	appel.has_called = true
+	appel.tick(0.0)
+	for _i: int in 60 * 10:
+		await get_tree().physics_frame
+		temps[0] += 1.0 / 60.0
+	assert_bool(hero.health.is_dead()).is_false()
+	assert_int(coups.size()).is_between(1, 3)
+	for k: int in coups.size() - 1:
+		assert_float(coups[k + 1] - coups[k]).is_greater(appel.settings.dive_gap)
+#@ all

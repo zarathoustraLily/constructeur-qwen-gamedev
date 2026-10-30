@@ -74,11 +74,19 @@ suivante avant.
 - [ ] 17. Le petit PC lui-même : mesure en conditions réelles
 #@ 16+
 - [x] 16. Le saut, et un tir qui part là où pointe le canon
+#@ 16
 - [ ] 17. Les effets des tirs : bouche, traçantes, impacts
 - [ ] 18. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
 - [ ] 19. Le son et la musique
 - [ ] 20. Ce qui se dessine : distances de visibilité des petits objets, occulteurs
 - [ ] 21. Le petit PC lui-même : mesure en conditions réelles
+#@ 17+
+- [x] 17. Les spectres plongent chacun leur tour, et laissent une traîne
+- [ ] 18. Le son et la musique
+- [ ] 19. Les effets des tirs : bouche, traçantes, impacts
+- [ ] 20. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
+- [ ] 21. Ce qui se dessine : distances de visibilité des petits objets, occulteurs
+- [ ] 22. Le petit PC lui-même : mesure en conditions réelles
 #@ 12+
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles

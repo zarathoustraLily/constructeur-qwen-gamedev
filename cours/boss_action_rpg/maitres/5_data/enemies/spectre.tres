@@ -19,5 +19,14 @@ base_intensity = 1.6
 dive_speed = 18.0
 dive_max_time = 1.0
 recover_time = 1.2
+;@ 11-16
 damage = 18.0
+;@ 17+
+damage = 10.0
+;@ all
 fade_time = 0.8
+;@ 17+
+dive_gap = 2.0
+trail_time = 0.6
+trail_width = 0.9
+;@ all

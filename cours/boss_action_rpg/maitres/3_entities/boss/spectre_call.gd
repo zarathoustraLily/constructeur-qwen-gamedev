@@ -7,6 +7,9 @@ class_name SpectreCall extends Node
 ## L'appel des spectres par le Gardien : quand sa seconde phase commence (il a perdu 30 % de sa vie), les spectres
 ## préparés (créés avec le niveau, jamais en combat) sortent un par un, à `stagger` secondes d'écart, chacun à sa
 ## place sur le cercle autour du héros. Une seule fois par combat.
+#@ 17+
+## Il leur donne aussi le tour de plonger : un seul spectre à la fois, un écart entre deux plongées, et jamais pendant
+## un coup du Gardien.
 #@ all
 
 ## Le Gardien a appelé ses spectres.
@@ -34,8 +37,15 @@ signal called
 var has_called: bool = false
 ## Combien de spectres sont déjà sortis.
 var sent: int = 0
+#@ 17+
+## Le spectre qui a le tour de plonger (aucun : le tour est libre).
+var diver: Spectre
+#@ all
 
 var _clock: float = 0.0
+#@ 17+
+var _free_at: float = 0.0
+#@ all
 
 
 func _ready() -> void:
@@ -56,7 +66,16 @@ func tick(delta: float) -> void:
 	if not has_called:
 		return
 	_clock += delta
+#@ 17+
+	# Le spectre qui avait le tour a fini sa plongée (ou s'est dissipé) : le tour se libère après l'écart.
+	if diver != null and not diver.is_diving():
+		diver = null
+		_free_at = _clock + settings.dive_gap
+#@ all
 	while sent < spectres.size() and _clock >= sent * settings.stagger:
+#@ 17+
+		spectres[sent].pack = self
+#@ all
 		spectres[sent].activate(prey, TAU * sent / spectres.size(), prey_health)
 		sent += 1
 
@@ -73,4 +92,15 @@ func _on_phase_changed(new_phase: int) -> void:
 		has_called = true
 		called.emit()
 		tick(0.0)
+#@ all
+#@ 17+
+
+
+## Donne à `spectre` le tour de plonger et rend vrai, si le tour est libre, si l'écart depuis la dernière plongée est
+## passé et si le Gardien ne frappe pas.
+func claim_dive(spectre: Spectre) -> bool:
+	if diver != null or _clock < _free_at or golem.machine.current is GolemAttackState:
+		return false
+	diver = spectre
+	return true
 #@ all

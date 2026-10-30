@@ -599,6 +599,60 @@
    ],
    "lecture": "La méthode existe : « méthode [AnimationNodeTransition] set_input_reset(input: int, enable: bool) ».",
    "decision": "Après avoir branché les entrées, build_tree appelle state.set_input_reset(index de jump, true) : chaque saut repart de la foulée choisie."
+  },
+  {
+   "id": "e17_traine_face_camera",
+   "etape": 17,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "laurent veut une traîne derrière les spectres. Je la fais en bande plate, refaite à chaque image à partir des dernières positions du spectre. Vue de côté, une bande plate disparaît : il faut que sa largeur soit toujours tournée vers la caméra. Comment obtenir la caméra qui rend la scène ?",
+   "pensee": "La fenêtre qui affiche la scène connaît sa caméra 3D active : je vérifie la méthode qui la rend.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Viewport",
+    "membre": "get_camera_3d"
+   },
+   "attendu": [
+    "get_camera_3d() -> Camera3D"
+   ],
+   "lecture": "La méthode existe : « méthode [Viewport] get_camera_3d() -> Camera3D ».",
+   "decision": "SpectreTrail prend get_viewport().get_camera_3d() à chaque reconstruction. Le bord de la bande, en chaque point, est le produit vectoriel de la direction de la traîne et du vecteur vers l'œil de la caméra : la bande se présente toujours de face. Sans caméra (un test), l'œil est pris derrière la tête de la traîne."
+  },
+  {
+   "id": "e17_bande_refaite",
+   "etape": 17,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "La traîne d'un spectre change à chaque image. Le combat doit rester à 0 allocation (mesure de l'étape 14). Je ne veux pas créer un maillage neuf à chaque image. Comment vider et refaire le même maillage ?",
+   "pensee": "La traînée du marteau utilise déjà un ImmediateMesh : je vérifie la méthode qui en efface les surfaces.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "ImmediateMesh",
+    "membre": "clear_surfaces"
+   },
+   "attendu": [
+    "clear_surfaces()"
+   ],
+   "lecture": "La méthode existe : « méthode [ImmediateMesh] clear_surfaces() ».",
+   "decision": "Un seul ImmediateMesh par traîne, créé dans _ready. À chaque image : clear_surfaces, puis une bande (PRIMITIVE_TRIANGLE_STRIP) de deux sommets par position. Les positions et leurs instants sont dans des tableaux taillés une fois (48 places). La mesure du combat reste à 0 allocation."
+  },
+  {
+   "id": "e17_traine_dans_le_monde",
+   "etape": 17,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "Le nœud de la traîne est un enfant de la vue du spectre. Si ses sommets sont relatifs à lui, toute la traîne se déplace avec le spectre et ne reste jamais derrière. Comment faire pour qu'un nœud enfant ne suive pas les déplacements de son parent ?",
+   "pensee": "Un Node3D peut sortir de la chaîne des transformations de ses parents : je vérifie la propriété.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Node3D",
+    "membre": "top_level"
+   },
+   "attendu": [
+    "top_level: bool"
+   ],
+   "lecture": "La propriété existe : « propriété [Node3D] top_level: bool ».",
+   "decision": "Le nœud Trail a top_level = true et une transformation identité : ses sommets sont des positions du monde, ceux du bas du linceul aux images passées. Il reste dans l'arbre du spectre et sa visibilité suit toujours le spectre : dissipé, le spectre emporte sa traîne."
   }
  ]
 }

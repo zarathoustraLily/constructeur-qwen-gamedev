@@ -27,6 +27,12 @@ uniform float sway_waves : hint_range(0.0, 10.0) = 3.0;
 uniform float trail : hint_range(0.0, 2.0) = 0.0;
 // La dissolution : au-delà de ce poids, le linceul s'efface en volutes.
 uniform float fade_start : hint_range(0.0, 1.0) = 0.45;
+//@ 17+
+// Les distances à la caméra (en mètres) entre lesquelles il passe d'effacé à plein : un spectre qui frôle la caméra
+// ne couvre pas l'écran.
+uniform float near_fade_start : hint_range(0.0, 5.0) = 0.8;
+uniform float near_fade_end : hint_range(0.0, 10.0) = 3.0;
+//@ all
 
 varying vec3 local;
 varying vec3 weights;
@@ -47,6 +53,10 @@ void fragment() {
 	float flicker = 0.8 + 0.2 * sin(TIME * flicker_speed + n * 6.2832);
 	float tatters = 1.0 - smoothstep(fade_start, 1.0, weights.g + (n - 0.5) * 0.5);
 	float glow = (core + (1.0 - core) * fresnel) * flicker * tatters * weights.b * 2.0;
+//@ 17+
+	// VERTEX est ici la position du pixel vue de la caméra : -VERTEX.z, sa distance devant elle.
+	glow *= smoothstep(near_fade_start, near_fade_end, -VERTEX.z);
+//@ all
 	ALBEDO = glow_color * intensity * glow;
 	ALPHA = clamp(glow, 0.0, 1.0);
 }

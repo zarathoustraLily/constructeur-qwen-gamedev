@@ -3,6 +3,9 @@ class_name Spectre extends Node3D
 ## boss l'appelle (activate) ; sa machine à états le fait alors planer autour du héros (Hover), annoncer sa plongée en
 ## s'illuminant (Windup), plonger sur lui (Dive), remonter (Recover) ; abattu au fusil, il se dissipe (Fade) et se
 ## rendort pour de bon (Idle). Sa vue (spectre_view.gd) montre tout cela ; lui ne fait que bouger et décider.
+#@ 17+
+## Appelé par le Gardien, il plonge à son tour : un seul spectre à la fois (SpectreCall.claim_dive).
+#@ all
 
 ## Le spectre abattu s'est dissipé.
 signal dissipated
@@ -18,6 +21,10 @@ var target_health: HealthComponent
 var orbit_angle: float = 0.0
 ## Vrai une fois dissipé : il ne revient plus.
 var gone: bool = false
+#@ 17+
+## Le Gardien qui l'a appelé : il donne le tour de plonger (aucun : il plonge à son heure).
+var pack: SpectreCall
+#@ all
 
 ## Ce qu'il fait : Idle, Hover, Windup, Dive, Recover, Fade.
 @onready var machine: StateMachine = $StateMachine
@@ -94,3 +101,16 @@ func _on_died() -> void:
 	hitbox.deactivate()
 	hurtbox.collision_layer = 0
 	machine.transition_to(&"Fade")
+#@ 17+
+
+
+## Vrai s'il peut plonger maintenant : le Gardien qui l'a appelé lui en donne le tour (sans Gardien, toujours).
+func may_dive() -> bool:
+	return pack == null or pack.claim_dive(self)
+
+
+## Vrai pendant son annonce et sa plongée : il tient alors le tour de plonger.
+func is_diving() -> bool:
+	var etat: StringName = machine.current.name
+	return is_active() and (etat == &"Windup" or etat == &"Dive")
+#@ all

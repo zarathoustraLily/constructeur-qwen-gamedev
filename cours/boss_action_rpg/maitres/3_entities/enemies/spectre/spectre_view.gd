@@ -4,6 +4,9 @@ class_name SpectreView extends Node3D
 ## glissent en douceur, et une houle s'y ajoute (il flotte, ses bras se balancent). Pour annoncer sa plongée, il se
 ## cabre, bras et mâchoire grands ouverts, en s'illuminant ; il plonge couché, griffes en avant, le linceul étiré
 ## derrière lui ; il se relève ; dissipé, il s'affaisse en s'éteignant. Elle ne décide rien.
+#@ 17+
+## Une traîne de lumière le suit, partie du bas de son linceul (SpectreTrail).
+#@ all
 
 ## Une pose du squelette.
 class Pose:
@@ -51,6 +54,10 @@ class Pose:
 const CHEST: Vector3 = Vector3(0.0, 1.2, 0.0)
 ## La vitesse à laquelle les os rejoignent leur pose (par seconde).
 const POSE_SPEED: float = 8.0
+#@ 17+
+## Le point du modèle d'où part la traîne (le bas du linceul).
+const TRAIL_ANCHOR: Vector3 = Vector3(0.0, 0.6, 0.0)
+#@ all
 
 ## Le spectre montré.
 @export var spectre: Spectre
@@ -76,6 +83,9 @@ var _poses: Dictionary[StringName, Pose] = {
 var _clock: float = 0.0
 
 @onready var _model: SpectreModel = $Model
+#@ 17+
+@onready var _trail: SpectreTrail = $Trail
+#@ all
 
 
 func _ready() -> void:
@@ -87,6 +97,9 @@ func _ready() -> void:
 	intensity = spectre.settings.base_intensity
 	# Chaque spectre a sa houle, décalée par sa place de départ.
 	_clock = spectre.position.x
+#@ 17+
+	_trail.settings = spectre.settings
+#@ all
 
 
 func _process(delta: float) -> void:
@@ -108,6 +121,9 @@ func update(delta: float) -> void:
 	pose.blend_toward(_poses.get(etat, _poses[&"Hover"]), 1.0 - exp(-POSE_SPEED * delta))
 	_clock += delta
 	_show(etat)
+#@ 17+
+	_trail.follow(_model.global_transform * TRAIL_ANCHOR, delta, intensity)
+#@ all
 
 
 ## Pose les os : la pose du moment, plus la houle (le corps flotte, les bras se balancent, la mâchoire claque pendant

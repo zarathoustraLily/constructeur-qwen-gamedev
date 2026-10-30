@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/spectre_trail.gdshader" id="1_shader"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_trail"]
+frequency = 0.03
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_trail"]
+width = 128
+height = 64
+seamless = true
+noise = SubResource("FastNoiseLite_trail")
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_shader")
+shader_parameter/glow_color = Color(0.35, 0.65, 1, 1)
+shader_parameter/intensity = 1.6
+shader_parameter/strength = 0.8
+shader_parameter/noise = SubResource("NoiseTexture2D_trail")
+shader_parameter/flow_speed = 1.2

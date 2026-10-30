@@ -152,8 +152,9 @@ les réglages stricts du projet (typer tout, pas de division entière).
 
 ## 7. Où en est le cours (2026-10-29)
 
-Étapes 1 à 16 faites et vérifiées (14 : mesures sans fenêtre, 0 allocation en combat, 213 cas ; 15 : deux qualités
-graphiques, la basse pour un petit PC, 216 cas ; 16 : le saut et la visée réparée, 220 cas). Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
+Étapes 1 à 17 faites et vérifiées (14 : mesures sans fenêtre, 0 allocation en combat, 213 cas ; 15 : deux qualités
+graphiques, la basse pour un petit PC, 216 cas ; 16 : le saut et la visée réparée, 220 cas ; 17 : les spectres
+plongent chacun leur tour et laissent une traîne, 225 cas). Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
 les spectres, squelettes procéduraux, à 70 % de la vie du golem (183) ; 12, le combat du Gardien (199) ; 13, les
 effets des coups (209). Notes : `cours/boss_action_rpg/notes/etape_009.md` à `etape_013.md` ; `demarche.md` étapes 14
 à 18. Effets : `3_entities/boss/golem_effects.gd`, `1_core/combat/impact_sparks.gd`, `6_assets/Shader/VFX/`,
@@ -176,11 +177,11 @@ les textures et la mémoire vidéo ; puis la mesure sur la carte graphique et su
 passes d'ombre) et `7_tests/perf/mesurer_rendu.gd` (fenêtre hors de l'écran : temps de la carte graphique, appels de
 dessin, primitives, mémoire vidéo). Fait : étape 15 (qualités).
 
-**Retours de laurent après avoir joué (2026-10-29)**, dans l'ordre annoncé : saut et visée (**étape 16, faite**) ;
-**prochaine : 17**, les effets des tirs (bouche, traçantes, impacts ; sources Binbun déjà téléchargées) ; 18, les
-effets et coups magiques du boss (boules de feu, aura, éclairs annoncés), dans le budget de la qualité basse ; 19, le
-son et la musique (Kenney Impact et Sci-fi, « Epic Boss Battle », CC0, dans `source_extraites/`), bus audio, aucune
-allocation en combat ; puis l'optimisation reprend : les distances de visibilité des petits objets (bouteilles,
+**Retours de laurent après avoir joué (2026-10-29 et 30)** : saut et visée (**étape 16, faite**) ; spectres qui tuaient
+en rafale, et leur traîne (**étape 17, faite**) ; **prochaine : 18**, le son et la musique (il l'a redemandé : « toujours
+pas de son ? » ; Kenney Impact et Sci-fi, « Epic Boss Battle », CC0, dans `source_extraites/`), bus audio, aucune
+allocation en combat ; 19, les effets des tirs (bouche, traçantes, impacts ; sources Binbun déjà téléchargées) ; 20,
+les effets et coups magiques du boss (boules de feu, aura, éclairs annoncés), dans le budget de la qualité basse ; puis l'optimisation reprend : les distances de visibilité des petits objets (bouteilles,
 verres, assiettes : des centaines) et des occulteurs (comptoir, murs), puis la mesure sur le petit PC lui-même (le
 test qui fait foi). Sa question 7 (la caméra de Dark Souls est-elle automatique ?) : réponse donnée dans le fil, avec
 sources (stick droit et verrouillage au clic du stick). Les sons restent à
@@ -207,7 +208,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - **Journal de démarche** : `cours/boss_action_rpg/demarche.json`, un pas par décision réellement prise ; générateur
   `python -m usine.paires demarche` (`usine/paires/demarche.py`) : outil rejoué (RAG, vocabulaire), pas écarté si un
   fragment attendu ou une citation « … » manque à la sortie réelle ; paires au format d'OpenCode (outil `execute` du
-  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 33 paires à
+  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 36 paires à
   ce jour. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
   un fichier, pas « plan » (du prompt à la liste des étapes, vérifiée contre le manifeste), sessions longues.
 - **Autres familles à tirer du cours** (`usine/paires/` : `creation`, `bloc`, `test_cas`, `morceaux`, `rag`) : ajouter
@@ -285,3 +286,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   `usine.cours.jeu.rendre(texte, e, 1, n)` donne, pour chaque étape ancienne e, le même texte qu'au commit précédent.
 - La caméra regarde le héros d'en haut : le centre de l'écran tombe sur le plancher. Le tir de hanche ne doit pas
   viser par lui.
+- Le contrôle « étapes anciennes inchangées » ne compare un maître qu'à partir de l'étape où il apparaît (manifeste) :
+  avant, le fichier n'existe pas, et une balise `11-16` y crée de faux écarts.
+- Les spectres planent sur un cercle de 6 m autour du héros, qui passe par la place de la caméra : tout effet qui les
+  suit doit s'effacer tout près d'elle.
