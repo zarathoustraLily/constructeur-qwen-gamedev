@@ -653,6 +653,78 @@
    ],
    "lecture": "La propriété existe : « propriété [Node3D] top_level: bool ».",
    "decision": "Le nœud Trail a top_level = true et une transformation identité : ses sommets sont des positions du monde, ceux du bas du linceul aux images passées. Il reste dans l'arbre du spectre et sa visibilité suit toujours le spectre : dissipé, le spectre emporte sa traîne."
+  },
+  {
+   "id": "e18_un_son_cree_sa_lecture",
+   "etape": 18,
+   "sujet": "Gestion de la mémoire",
+   "type": "analyse",
+   "situation": "Le combat ne doit créer aucun objet (mesure de l'étape 14). J'ajoute des sons : 20 appels à AudioStreamPlayer3D.play() font monter le compteur d'allocations de 40 objets. D'où viennent-ils ?",
+   "pensee": "Chaque lecture d'un flux a son état (position, décodeur). Je vérifie la méthode qui crée cet état.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "AudioStream",
+    "membre": "instantiate_playback"
+   },
+   "attendu": [
+    "instantiate_playback() -> AudioStreamPlayback"
+   ],
+   "lecture": "La méthode existe et rend un objet de lecture : « méthode [AudioStream] instantiate_playback() -> AudioStreamPlayback ».",
+   "decision": "Le moteur crée la lecture de chaque son : on ne peut pas l'éviter, on le compte. SoundBoard compte les sons lancés (played). La mesure du combat retire deux objets par son : 63 sons, 126 allocations, 0 pour notre code. Un test vérifie exactement 40 objets pour 20 sons."
+  },
+  {
+   "id": "e18_bus_du_projet",
+   "etape": 18,
+   "sujet": "Audio",
+   "type": "analyse",
+   "situation": "Je veux deux bus, Music et SFX, qui existent dès le lancement du jeu et aussi dans les tests sans fenêtre. Où les déclarer ?",
+   "pensee": "Je cherche dans la documentation et les cours comment un projet désigne sa disposition des bus.",
+   "outil": {
+    "genre": "rag",
+    "requete": "audio/buses/default_bus_layout bus layout projet",
+    "n": 3
+   },
+   "attendu": [
+    "audio/buses/default_bus_layout"
+   ],
+   "lecture": "Le cours du roguelike fait déjà ainsi : « Les sons jouent sur le bus `SFX`, déclaré dans `5_data/audio/default_bus_layout.tres`. »",
+   "decision": "5_data/audio/bus_layout.tres déclare Music et SFX (SFX avec une réverbération légère, la salle du saloon), et project.godot le désigne dans [audio] buses/default_bus_layout. Un test vérifie, par AudioServer.get_bus_index, que les deux bus existent."
+  },
+  {
+   "id": "e18_musique_en_boucle",
+   "etape": 18,
+   "sujet": "Audio",
+   "type": "analyse",
+   "situation": "La musique du combat est un WAV « Seamlessly Looping » de 123 s. Importée telle quelle, elle s'arrête au bout. Comment savoir, depuis le jeu, si le flux chargé boucle ?",
+   "pensee": "Un AudioStreamWAV porte son mode de boucle : je vérifie la propriété.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "AudioStreamWAV",
+    "membre": "loop_mode"
+   },
+   "attendu": [
+    "loop_mode: int"
+   ],
+   "lecture": "La propriété existe : « propriété [AudioStreamWAV] loop_mode: int ».",
+   "decision": "L'import du WAV règle la boucle (edit/loop_mode=2, « Forward », dans son .import ; il valait 0, « Detect From WAV »). Après réimport, le flux chargé a loop_mode = LOOP_FORWARD et une fin de boucle à 5 443 200 échantillons, soit 123,4 s : le test le vérifie."
+  },
+  {
+   "id": "e18_fondu_sans_tween",
+   "etape": 18,
+   "sujet": "Audio",
+   "type": "analyse",
+   "situation": "La musique doit entrer en fondu au réveil du Gardien et sortir en fondu à la fin. Un Tween créé en combat, ce sont des objets alloués. Comment régler le volume d'un AudioStreamPlayer sur une échelle de 0 à 1, sans passer par les décibels ?",
+   "pensee": "Je vérifie si le lecteur a un volume linéaire.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "AudioStreamPlayer",
+    "membre": "volume_linear"
+   },
+   "attendu": [
+    "volume_linear: float"
+   ],
+   "lecture": "La propriété existe : « propriété [AudioStreamPlayer] volume_linear: float ».",
+   "decision": "MusicPlayer garde un niveau de 0 à 1 qui rejoint sa cible dans update (move_toward, sur la durée du fondu) et pose volume_linear = db_to_linear(volume plein) × niveau. Revenue au silence, la musique s'arrête. Aucun Tween."
   }
  ]
 }

@@ -16,8 +16,10 @@
 [gd_scene load_steps=16 format=3]
 ;@ 13-14
 [gd_scene load_steps=18 format=3]
-;@ 15+
+;@ 15-17
 [gd_scene load_steps=24 format=3]
+;@ 18+
+[gd_scene load_steps=30 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -59,6 +61,13 @@
 [ext_resource type="Resource" path="res://5_data/graphics/quality_high.tres" id="23_high"]
 [ext_resource type="Resource" path="res://5_data/graphics/quality_low.tres" id="24_low"]
 [ext_resource type="Material" path="res://5_data/environment/mist_layers_material.tres" id="25_mist_layers"]
+;@ 18+
+[ext_resource type="Script" path="res://1_core/audio/sound_board.gd" id="26_board"]
+[ext_resource type="Script" path="res://1_core/audio/music_player.gd" id="27_music"]
+[ext_resource type="Resource" path="res://5_data/audio/boss_music.tres" id="28_music_settings"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/Music/epic_boss_battle.wav" id="29_music_stream"]
+[ext_resource type="Script" path="res://2_sequence/combat_sounds.gd" id="30_sounds"]
+[ext_resource type="Resource" path="res://5_data/audio/combat_sounds.tres" id="31_sound_set"]
 ;@ 13+
 ;@ 11+
 ;@ 9+
@@ -292,4 +301,25 @@ lights_root = NodePath("../Saloon")
 focus = NodePath("../Golem")
 mist = NodePath("../GroundMist")
 mist_fallback = NodePath("../MistLayers")
+;@ all
+;@ 18+
+
+[node name="SoundBoard" type="Node3D" parent="."]
+script = ExtResource("26_board")
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("29_music_stream")
+bus = &"Music"
+script = ExtResource("27_music")
+settings = ExtResource("28_music_settings")
+
+[node name="CombatSounds" type="Node" parent="." node_paths=PackedStringArray("board", "music", "hero", "golem", "spectres", "projectiles")]
+script = ExtResource("30_sounds")
+sounds = ExtResource("31_sound_set")
+board = NodePath("../SoundBoard")
+music = NodePath("../Music")
+hero = NodePath("../Hero")
+golem = NodePath("../Golem")
+spectres = [NodePath("../Spectres/Spectre1"), NodePath("../Spectres/Spectre2"), NodePath("../Spectres/Spectre3")]
+projectiles = NodePath("../Projectiles")
 ;@ all

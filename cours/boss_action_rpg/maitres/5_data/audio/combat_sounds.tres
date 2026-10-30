@@ -1,0 +1,270 @@
+[gd_resource type="Resource" script_class="CombatSoundSet" load_steps=96 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/combat_sound_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://1_core/audio/sound_cue.gd" id="2_cue"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserSmall_000.ogg" id="3_laserSmall_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserSmall_001.ogg" id="4_laserSmall_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserSmall_002.ogg" id="5_laserSmall_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserSmall_003.ogg" id="6_laserSmall_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserSmall_004.ogg" id="7_laserSmall_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/footstep_wood_000.ogg" id="8_footstep_wood_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/footstep_wood_001.ogg" id="9_footstep_wood_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/footstep_wood_002.ogg" id="10_footstep_wood_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/footstep_wood_003.ogg" id="11_footstep_wood_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/footstep_wood_004.ogg" id="12_footstep_wood_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_medium_000.ogg" id="13_impactSoft_medium_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_medium_001.ogg" id="14_impactSoft_medium_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_medium_002.ogg" id="15_impactSoft_medium_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_medium_003.ogg" id="16_impactSoft_medium_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_medium_004.ogg" id="17_impactSoft_medium_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactPunch_heavy_000.ogg" id="18_impactPunch_heavy_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactPunch_heavy_001.ogg" id="19_impactPunch_heavy_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactPunch_heavy_002.ogg" id="20_impactPunch_heavy_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactPunch_heavy_003.ogg" id="21_impactPunch_heavy_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactPunch_heavy_004.ogg" id="22_impactPunch_heavy_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_heavy_000.ogg" id="23_impactSoft_heavy_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_heavy_001.ogg" id="24_impactSoft_heavy_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_heavy_002.ogg" id="25_impactSoft_heavy_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_heavy_003.ogg" id="26_impactSoft_heavy_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactSoft_heavy_004.ogg" id="27_impactSoft_heavy_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_light_000.ogg" id="28_impactGlass_light_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_light_001.ogg" id="29_impactGlass_light_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_light_002.ogg" id="30_impactGlass_light_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_light_003.ogg" id="31_impactGlass_light_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_light_004.ogg" id="32_impactGlass_light_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactWood_light_000.ogg" id="33_impactWood_light_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactWood_light_001.ogg" id="34_impactWood_light_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactWood_light_002.ogg" id="35_impactWood_light_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactWood_light_003.ogg" id="36_impactWood_light_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactWood_light_004.ogg" id="37_impactWood_light_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_medium_000.ogg" id="38_impactMetal_medium_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_medium_001.ogg" id="39_impactMetal_medium_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_medium_002.ogg" id="40_impactMetal_medium_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_medium_003.ogg" id="41_impactMetal_medium_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_medium_004.ogg" id="42_impactMetal_medium_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_heavy_000.ogg" id="43_impactMetal_heavy_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_heavy_001.ogg" id="44_impactMetal_heavy_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_heavy_002.ogg" id="45_impactMetal_heavy_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_heavy_003.ogg" id="46_impactMetal_heavy_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMetal_heavy_004.ogg" id="47_impactMetal_heavy_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactTin_medium_000.ogg" id="48_impactTin_medium_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactTin_medium_001.ogg" id="49_impactTin_medium_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactTin_medium_002.ogg" id="50_impactTin_medium_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactTin_medium_003.ogg" id="51_impactTin_medium_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactTin_medium_004.ogg" id="52_impactTin_medium_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMining_000.ogg" id="53_impactMining_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMining_001.ogg" id="54_impactMining_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMining_002.ogg" id="55_impactMining_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMining_003.ogg" id="56_impactMining_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactMining_004.ogg" id="57_impactMining_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/lowFrequency_explosion_000.ogg" id="58_lowFrequency_explosion_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/lowFrequency_explosion_001.ogg" id="59_lowFrequency_explosion_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/explosionCrunch_000.ogg" id="60_explosionCrunch_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/explosionCrunch_001.ogg" id="61_explosionCrunch_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/explosionCrunch_002.ogg" id="62_explosionCrunch_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/explosionCrunch_003.ogg" id="63_explosionCrunch_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/explosionCrunch_004.ogg" id="64_explosionCrunch_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_000.ogg" id="65_forceField_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_001.ogg" id="66_forceField_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_002.ogg" id="67_forceField_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_003.ogg" id="68_forceField_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_004.ogg" id="69_forceField_004"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_000.ogg" id="70_impactGlass_medium_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_001.ogg" id="71_impactGlass_medium_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_002.ogg" id="72_impactGlass_medium_002"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_003.ogg" id="73_impactGlass_medium_003"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_004.ogg" id="74_impactGlass_medium_004"]
+
+[sub_resource type="Resource" id="Resource_shot"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("3_laserSmall_000"), ExtResource("4_laserSmall_001"), ExtResource("5_laserSmall_002"), ExtResource("6_laserSmall_003"), ExtResource("7_laserSmall_004")])
+volume_db = -10.0
+pitch_min = 0.8
+pitch_max = 0.95
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_hero_step"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("8_footstep_wood_000"), ExtResource("9_footstep_wood_001"), ExtResource("10_footstep_wood_002"), ExtResource("11_footstep_wood_003"), ExtResource("12_footstep_wood_004")])
+volume_db = -16.0
+pitch_min = 0.9
+pitch_max = 1.1
+max_distance = 20.0
+
+[sub_resource type="Resource" id="Resource_roll"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("13_impactSoft_medium_000"), ExtResource("14_impactSoft_medium_001"), ExtResource("15_impactSoft_medium_002"), ExtResource("16_impactSoft_medium_003"), ExtResource("17_impactSoft_medium_004")])
+volume_db = -10.0
+pitch_min = 0.8
+pitch_max = 1.0
+max_distance = 20.0
+
+[sub_resource type="Resource" id="Resource_jump"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("13_impactSoft_medium_000"), ExtResource("14_impactSoft_medium_001"), ExtResource("15_impactSoft_medium_002"), ExtResource("16_impactSoft_medium_003"), ExtResource("17_impactSoft_medium_004")])
+volume_db = -16.0
+pitch_min = 1.1
+pitch_max = 1.25
+max_distance = 20.0
+
+[sub_resource type="Resource" id="Resource_land"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("8_footstep_wood_000"), ExtResource("9_footstep_wood_001"), ExtResource("10_footstep_wood_002"), ExtResource("11_footstep_wood_003"), ExtResource("12_footstep_wood_004")])
+volume_db = -10.0
+pitch_min = 0.75
+pitch_max = 0.9
+max_distance = 20.0
+
+[sub_resource type="Resource" id="Resource_hero_hurt"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("18_impactPunch_heavy_000"), ExtResource("19_impactPunch_heavy_001"), ExtResource("20_impactPunch_heavy_002"), ExtResource("21_impactPunch_heavy_003"), ExtResource("22_impactPunch_heavy_004")])
+volume_db = -4.0
+pitch_min = 0.9
+pitch_max = 1.05
+max_distance = 30.0
+
+[sub_resource type="Resource" id="Resource_hero_down"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("23_impactSoft_heavy_000"), ExtResource("24_impactSoft_heavy_001"), ExtResource("25_impactSoft_heavy_002"), ExtResource("26_impactSoft_heavy_003"), ExtResource("27_impactSoft_heavy_004")])
+volume_db = -2.0
+pitch_min = 0.7
+pitch_max = 0.8
+max_distance = 30.0
+
+[sub_resource type="Resource" id="Resource_heal"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("28_impactGlass_light_000"), ExtResource("29_impactGlass_light_001"), ExtResource("30_impactGlass_light_002"), ExtResource("31_impactGlass_light_003"), ExtResource("32_impactGlass_light_004")])
+volume_db = -8.0
+pitch_min = 1.0
+pitch_max = 1.15
+max_distance = 20.0
+
+[sub_resource type="Resource" id="Resource_hit_decor"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("33_impactWood_light_000"), ExtResource("34_impactWood_light_001"), ExtResource("35_impactWood_light_002"), ExtResource("36_impactWood_light_003"), ExtResource("37_impactWood_light_004")])
+volume_db = -12.0
+pitch_min = 0.9
+pitch_max = 1.1
+max_distance = 30.0
+
+[sub_resource type="Resource" id="Resource_hit_golem"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("38_impactMetal_medium_000"), ExtResource("39_impactMetal_medium_001"), ExtResource("40_impactMetal_medium_002"), ExtResource("41_impactMetal_medium_003"), ExtResource("42_impactMetal_medium_004")])
+volume_db = -8.0
+pitch_min = 0.8
+pitch_max = 0.95
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_hit_weak_point"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("43_impactMetal_heavy_000"), ExtResource("44_impactMetal_heavy_001"), ExtResource("45_impactMetal_heavy_002"), ExtResource("46_impactMetal_heavy_003"), ExtResource("47_impactMetal_heavy_004")])
+volume_db = -4.0
+pitch_min = 0.7
+pitch_max = 0.85
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_hit_shield"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("48_impactTin_medium_000"), ExtResource("49_impactTin_medium_001"), ExtResource("50_impactTin_medium_002"), ExtResource("51_impactTin_medium_003"), ExtResource("52_impactTin_medium_004")])
+volume_db = -6.0
+pitch_min = 0.9
+pitch_max = 1.1
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_hit_spectre"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("28_impactGlass_light_000"), ExtResource("29_impactGlass_light_001"), ExtResource("30_impactGlass_light_002"), ExtResource("31_impactGlass_light_003"), ExtResource("32_impactGlass_light_004")])
+volume_db = -8.0
+pitch_min = 0.7
+pitch_max = 0.85
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_golem_step"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("53_impactMining_000"), ExtResource("54_impactMining_001"), ExtResource("55_impactMining_002"), ExtResource("56_impactMining_003"), ExtResource("57_impactMining_004")])
+volume_db = -6.0
+pitch_min = 0.5
+pitch_max = 0.6
+max_distance = 60.0
+
+[sub_resource type="Resource" id="Resource_golem_hammer"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("43_impactMetal_heavy_000"), ExtResource("44_impactMetal_heavy_001"), ExtResource("45_impactMetal_heavy_002"), ExtResource("46_impactMetal_heavy_003"), ExtResource("47_impactMetal_heavy_004")])
+volume_db = 0.0
+pitch_min = 0.55
+pitch_max = 0.65
+max_distance = 60.0
+
+[sub_resource type="Resource" id="Resource_golem_slam"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("58_lowFrequency_explosion_000"), ExtResource("59_lowFrequency_explosion_001")])
+volume_db = 0.0
+pitch_min = 0.8
+pitch_max = 0.9
+max_distance = 80.0
+
+[sub_resource type="Resource" id="Resource_golem_wake"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("58_lowFrequency_explosion_000"), ExtResource("59_lowFrequency_explosion_001")])
+volume_db = -2.0
+pitch_min = 0.6
+pitch_max = 0.65
+max_distance = 80.0
+
+[sub_resource type="Resource" id="Resource_golem_phase"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("60_explosionCrunch_000"), ExtResource("61_explosionCrunch_001"), ExtResource("62_explosionCrunch_002"), ExtResource("63_explosionCrunch_003"), ExtResource("64_explosionCrunch_004")])
+volume_db = 0.0
+pitch_min = 0.55
+pitch_max = 0.6
+max_distance = 80.0
+
+[sub_resource type="Resource" id="Resource_golem_down"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("60_explosionCrunch_000"), ExtResource("61_explosionCrunch_001"), ExtResource("62_explosionCrunch_002"), ExtResource("63_explosionCrunch_003"), ExtResource("64_explosionCrunch_004")])
+volume_db = 2.0
+pitch_min = 0.45
+pitch_max = 0.5
+max_distance = 80.0
+
+[sub_resource type="Resource" id="Resource_spectre_windup"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("65_forceField_000"), ExtResource("66_forceField_001"), ExtResource("67_forceField_002"), ExtResource("68_forceField_003"), ExtResource("69_forceField_004")])
+volume_db = -6.0
+pitch_min = 0.7
+pitch_max = 0.85
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_spectre_gone"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("70_impactGlass_medium_000"), ExtResource("71_impactGlass_medium_001"), ExtResource("72_impactGlass_medium_002"), ExtResource("73_impactGlass_medium_003"), ExtResource("74_impactGlass_medium_004")])
+volume_db = -6.0
+pitch_min = 0.6
+pitch_max = 0.7
+max_distance = 40.0
+
+[resource]
+script = ExtResource("1_set")
+shot = SubResource("Resource_shot")
+hero_step = SubResource("Resource_hero_step")
+roll = SubResource("Resource_roll")
+jump = SubResource("Resource_jump")
+land = SubResource("Resource_land")
+hero_hurt = SubResource("Resource_hero_hurt")
+hero_down = SubResource("Resource_hero_down")
+heal = SubResource("Resource_heal")
+hero_stride = 1.6
+hit_decor = SubResource("Resource_hit_decor")
+hit_golem = SubResource("Resource_hit_golem")
+hit_weak_point = SubResource("Resource_hit_weak_point")
+hit_shield = SubResource("Resource_hit_shield")
+hit_spectre = SubResource("Resource_hit_spectre")
+golem_step = SubResource("Resource_golem_step")
+golem_hammer = SubResource("Resource_golem_hammer")
+golem_slam = SubResource("Resource_golem_slam")
+golem_wake = SubResource("Resource_golem_wake")
+golem_phase = SubResource("Resource_golem_phase")
+golem_down = SubResource("Resource_golem_down")
+spectre_windup = SubResource("Resource_spectre_windup")
+spectre_gone = SubResource("Resource_spectre_gone")
+golem_stride = 2.6

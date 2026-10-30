@@ -4,6 +4,10 @@ extends SceneTree
 ## bouclier jeté) ; la vie du golem est remontée pour que le combat dure. Après l'échauffement, sur la fenêtre :
 ## - allocations : le compteur d'allocations de l'ObjectDB, lu au début et à la fin (les bits hauts de l'identifiant
 ##   d'un objet témoin, créé puis libéré) ; il voit chaque objet créé, même libéré aussitôt ;
+#@ 18+
+## - sons : les sons lancés par la table des sons ; le moteur crée deux objets par son (sa lecture), retirés pour
+##   donner les allocations de notre code (allocations_hors_sons) ;
+#@ 14+
 ## - temps : la durée de chaque image (Time.get_ticks_usec), en médiane et au plus haut (les moniteurs de temps du
 ##   moteur, TIME_PROCESS et TIME_PHYSICS_PROCESS, restent à 0 sous un script lancé par -s : on ne les lit pas) ;
 ## - objets et nœuds au début et à la fin de la fenêtre ;
@@ -30,6 +34,9 @@ var _objets_debut: int = 0
 var _noeuds_debut: int = 0
 var _tic: int = 0
 var _durees: PackedInt64Array = PackedInt64Array()
+#@ 18+
+var _sons_debut: int = 0
+#@ 14+
 
 
 func _initialize() -> void:
@@ -47,13 +54,20 @@ func _physics_process(_delta: float) -> bool:
 	_image += 1
 	if _image == 2:
 		_preparer()
+#@ 14-17
 	if _image > 2:
+#@ 18+
+	if _image > 2 and _image <= _echauffement + _fenetre:
+#@ 14+
 		_jouer()
 	var debut: int = _echauffement
 	if _image == debut:
 		_objets_debut = int(Performance.get_monitor(Performance.OBJECT_COUNT))
 		_noeuds_debut = int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
 		_compteur_debut = _compteur()
+#@ 18+
+		_sons_debut = (_scene.get_node("SoundBoard") as SoundBoard).played
+#@ 14+
 		_tic = Time.get_ticks_usec()
 	elif _image > debut and _image <= debut + _fenetre:
 		var maintenant: int = Time.get_ticks_usec()
@@ -62,7 +76,16 @@ func _physics_process(_delta: float) -> bool:
 		_tic = maintenant
 		if _image == debut + _fenetre:
 			_conclure(_compteur() - _compteur_debut - 1)
+#@ 14-17
 			return true
+#@ 18+
+			# Des sons jouent encore : quitter tout de suite les ferait fuir. On libère la scène et on laisse au serveur
+			# audio, qui tourne en temps réel, le temps de les relâcher (trois images de 30 ms).
+			_scene.queue_free()
+	elif _image > debut + _fenetre:
+		OS.delay_msec(30)
+		return _image >= debut + _fenetre + 3
+#@ 14+
 	return false
 
 
@@ -112,6 +135,10 @@ func _conclure(allocations: int) -> void:
 	var reglage: GraphicsQualityApplier = _scene.get_node("GraphicsQuality") as GraphicsQualityApplier
 	resultat["qualite"] = String(reglage.current.id)
 	resultat["passes_ombres"] = reglage.shadow_passes()
+#@ 18+
+	var sons: int = (_scene.get_node("SoundBoard") as SoundBoard).played - _sons_debut
+	resultat["sons"] = sons
+	resultat["allocations_hors_sons"] = allocations - 2 * sons
 #@ 14+
 	print(MARQUEUR + JSON.stringify(resultat))
 

@@ -82,7 +82,11 @@ suivante avant.
 - [ ] 21. Le petit PC lui-même : mesure en conditions réelles
 #@ 17+
 - [x] 17. Les spectres plongent chacun leur tour, et laissent une traîne
+#@ 17
 - [ ] 18. Le son et la musique
+#@ 18+
+- [x] 18. Le son et la musique du combat
+#@ 17+
 - [ ] 19. Les effets des tirs : bouche, traçantes, impacts
 - [ ] 20. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
 - [ ] 21. Ce qui se dessine : distances de visibilité des petits objets, occulteurs

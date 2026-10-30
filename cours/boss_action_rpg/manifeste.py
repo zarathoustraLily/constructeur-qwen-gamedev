@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 17
+DERNIERE = 18
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -35,13 +35,14 @@ ETAPES = [
     {"piste": "Optimisation + Graphisme 3D", "titre": "Deux qualités graphiques, choisies selon la carte : la basse pour un petit PC"},
     {"piste": "Gameplay + Contrôles", "titre": "Le saut, et un tir qui part là où pointe le canon"},
     {"piste": "Gameplay + VFX", "titre": "Les spectres plongent chacun leur tour, et laissent une traîne"},
+    {"piste": "Audio", "titre": "Le son et la musique du combat"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -212,4 +213,16 @@ FICHIERS = {
     "3_entities/enemies/spectre/spectre_trail.gd": "17+",
     "6_assets/Shader/VFX/spectre_trail.gdshader": "17+",
     "5_data/vfx/spectre_trail_material.tres": "17+",
+    "1_core/audio/sound_cue.gd": "18+",
+    "1_core/audio/sound_board.gd": "18+",
+    "1_core/audio/music_player.gd": "18+",
+    "1_core/data/music_settings.gd": "18+",
+    "1_core/data/combat_sound_set.gd": "18+",
+    "2_sequence/combat_sounds.gd": "18+",
+    "5_data/audio/bus_layout.tres": "18+",
+    "5_data/audio/boss_music.tres": "18+",
+    "5_data/audio/combat_sounds.tres": "18+",
+    "7_tests/1_core/audio/test_sound_board.gd": "18+",
+    "7_tests/1_core/audio/test_music_player.gd": "18+",
+    "7_tests/2_sequence/test_combat_sounds.gd": "18+",
 }

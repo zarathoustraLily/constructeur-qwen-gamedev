@@ -35,12 +35,12 @@
 - [ ] Décision 19.7 : relever par la capture d'OpenCode la forme exacte d'un appel du Code Mode dans `execute` (requêtes au RAG et captures des paires courtes) ; à la sortie de Godot 4.8 stable, comparer les `extension_api.json` de 4.7.2 et 4.8 et compter les différences utiles
 - [x] Retirer les espaces de fin des messages (étape A4, 2026-10-27) : le gabarit de Qwen 3.8 rogne chaque message (`|trim`), LLaMA-Factory (`qwen3_5`) non ; la différence de l'essai du 2026-10-22 était le saut de ligne final du message système, écrit à la main pour l'essai. Les bases des cours passaient déjà par `opencode.vers_sharegpt`, qui rogne tout (kart 203/203, roguelike 155/155 rendus identiques) ; les paires courtes rognent maintenant aussi le système et s'exportent par `format.vers_llamafactory` (430/430 identiques, images comprises ; `tests/test_paires_format.py`)
 - [ ] Cours `boss_action_rpg` (demande de laurent du 2026-10-28 : niveau de boss d'action RPG « à la Dark Souls », le
-  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **17 étapes faites et vérifiées**
-  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225 cas verts) ; suite : les retours de
-  laurent après avoir joué (son et musique, effets des tirs, effets du boss), puis l'optimisation (consigne de laurent
+  héros tire sur un golem, saloon agrandi, chaque étape enseignée à Qwen) : **18 étapes faites et vérifiées**
+  (17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240 cas verts) ; suite : les retours
+  de laurent après avoir joué (effets des tirs, effets du boss), puis l'optimisation (consigne de laurent
   du 2026-10-29 : le niveau doit pouvoir être joué sur un petit PC). Suivi détaillé, pour reprendre : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\suivi.md`
   (section « Réorientation » et « Reprendre ici ») ; démarche : `demarche.md` du même dossier. Paires de ce cours :
-  36 paires de démarche (`demarche.json`), les autres familles pas encore générées
+  40 paires de démarche (`demarche.json`), les autres familles pas encore générées
 - [x] Décision 20 (2026-10-28) : aucun réentraînement tant que les paires ne sont pas finies
 
 ## Bilan des 6 sessions (2026-10-05)
@@ -2312,6 +2312,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 17 (2026-10-30)**, après un second retour de laurent (« dès qu'un fantôme touche je suis mort », une traîne derrière les fantômes, toujours ni son ni effets) : les spectres plongent chacun leur tour : un seul annonce ou plonge à la fois, 2 s d'écart, jamais pendant un coup du Gardien (`SpectreCall.claim_dive`), 10 dégâts au lieu de 18. Mesure, héros immobile : avant, mort en 7 s (un coup toutes les 1,2 s) ; après, un coup toutes les 3,1 s, 30 points après 25 s. Une traîne de lumière les suit (`SpectreTrail`, bande refaite à chaque image, tournée vers la caméra) ; spectre et traîne s'effacent quand ils frôlent la caméra. 225 cas verts, dans le cours et dans le jeu, 0 ligne d'erreur ; étapes 1 à 16 identiques ; combat sans fenêtre à 0 allocation. Ordre revu : 18 le son et la musique, 19 les effets des tirs, 20 les effets et coups magiques du boss.
 
+**Étape 18 (2026-10-30)** : le son et la musique : 72 bruitages Kenney (CC0) et « Epic Boss Battle » de Juhani Junkala (CC0, boucle réglée à l'import, QOA 21,8 → 4,4 Mo) dans `6_assets/Audio/` ; bus `Music` et `SFX` (réverbération légère) ; `SoundBoard` (16 voix préparées), `CombatSounds` (un son par événement, les pas par foulée, la zone touchée choisit le son d'un tir), `MusicPlayer` (fondu au réveil du Gardien, fondu à la fin, sans Tween). Mesuré : le moteur crée 2 objets par son lu (`AudioStream.instantiate_playback`) ; combat : 63 sons, 126 allocations, 0 pour notre code ; 0,57 ms par image en médiane (0,50 avant). 240 cas verts, dans le cours et dans le jeu, 0 ligne d'erreur ; étapes 1 à 17 identiques. Prochaine : 19, les effets des tirs.
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal
@@ -2319,7 +2321,7 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 cite la sortie), générateur `python -m usine.paires demarche` (`usine/paires/demarche.py` : outil rejoué par
 `mcp_serveur.outils.Outils`, pas écarté si un fragment ou une citation manque, paire au format d'OpenCode), branché dans
 `volume.py` ; `tests/test_paires_demarche.py` 4 passés. Premier état : 10 paires (7 au palier 1, 3 au palier 2),
-0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 12 : 22 pas, 22 paires (16 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 13 : 25 pas, 25 paires (19 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 14 : 27 pas, 27 paires (20 au palier 1, 7 au palier 2), 0 écartée. Après l'étape 15 : 29 pas, 29 paires (21 au palier 1, 8 au palier 2), 0 écartée. Après l'étape 16 : 33 pas, 33 paires (25 au palier 1, 8 au palier 2), 0 écartée. Après l'étape 17 : 36 pas, 36 paires, 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
+0 écartée. Après l'étape 8 : 14 pas, 14 paires (9 au palier 1, 5 au palier 2), 0 écartée. Après l'étape 11 : 19 pas, 19 paires (13 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 12 : 22 pas, 22 paires (16 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 13 : 25 pas, 25 paires (19 au palier 1, 6 au palier 2), 0 écartée. Après l'étape 14 : 27 pas, 27 paires (20 au palier 1, 7 au palier 2), 0 écartée. Après l'étape 15 : 29 pas, 29 paires (21 au palier 1, 8 au palier 2), 0 écartée. Après l'étape 16 : 33 pas, 33 paires (25 au palier 1, 8 au palier 2), 0 écartée. Après l'étape 17 : 36 pas, 36 paires, 0 écartée. Après l'étape 18 : 40 pas, 40 paires, 0 écartée. À chaque nouvelle décision du niveau : ajouter son pas, relancer. À faire : pas qui lancent Godot et qui
 lisent des fichiers, sessions longues, pas « plan ».
 
 **Pièges de cette passe** (détail et remèdes dans `demarche.md`)

@@ -85,3 +85,13 @@ func test_la_seconde_phase_ne_cree_rien() -> void:
 	assert_float(view.thrown_shield.global_position.y).is_less(1.0)
 	assert_float(effets.glow).is_greater(0.0)
 	view.thrown_shield.queue_free()
+#@ 18+
+
+
+func test_un_son_ne_cree_que_sa_lecture_dans_le_moteur() -> void:
+	var board: SoundBoard = auto_free(SoundBoard.new())
+	add_child(board)
+	var cue: SoundCue = (load("res://5_data/audio/combat_sounds.tres") as CombatSoundSet).shot
+	var jouer: Callable = func() -> void: board.play(cue, Vector3.ZERO)
+	assert_int(_allocations(jouer, 20)).is_equal(2 * 20)
+#@ all

@@ -154,7 +154,7 @@ les réglages stricts du projet (typer tout, pas de division entière).
 
 Étapes 1 à 17 faites et vérifiées (14 : mesures sans fenêtre, 0 allocation en combat, 213 cas ; 15 : deux qualités
 graphiques, la basse pour un petit PC, 216 cas ; 16 : le saut et la visée réparée, 220 cas ; 17 : les spectres
-plongent chacun leur tour et laissent une traîne, 225 cas). Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
+plongent chacun leur tour et laissent une traîne, 225 cas ; 18 : le son et la musique, 240 cas). Les dernières : 9, l'interface du genre (161 cas) ; 10, la carboglace (162) ; 11,
 les spectres, squelettes procéduraux, à 70 % de la vie du golem (183) ; 12, le combat du Gardien (199) ; 13, les
 effets des coups (209). Notes : `cours/boss_action_rpg/notes/etape_009.md` à `etape_013.md` ; `demarche.md` étapes 14
 à 18. Effets : `3_entities/boss/golem_effects.gd`, `1_core/combat/impact_sparks.gd`, `6_assets/Shader/VFX/`,
@@ -178,9 +178,9 @@ passes d'ombre) et `7_tests/perf/mesurer_rendu.gd` (fenêtre hors de l'écran : 
 dessin, primitives, mémoire vidéo). Fait : étape 15 (qualités).
 
 **Retours de laurent après avoir joué (2026-10-29 et 30)** : saut et visée (**étape 16, faite**) ; spectres qui tuaient
-en rafale, et leur traîne (**étape 17, faite**) ; **prochaine : 18**, le son et la musique (il l'a redemandé : « toujours
-pas de son ? » ; Kenney Impact et Sci-fi, « Epic Boss Battle », CC0, dans `source_extraites/`), bus audio, aucune
-allocation en combat ; 19, les effets des tirs (bouche, traçantes, impacts ; sources Binbun déjà téléchargées) ; 20,
+en rafale, et leur traîne (**étape 17, faite**) ; le son et la musique (**étape 18, faite** : `6_assets/Audio/`,
+`SoundBoard`, `CombatSounds`, `MusicPlayer` ; le moteur crée 2 objets par son lu, comptés à part) ; **prochaine : 19**,
+les effets des tirs (bouche, traçantes, impacts ; sources Binbun déjà téléchargées) ; 20,
 les effets et coups magiques du boss (boules de feu, aura, éclairs annoncés), dans le budget de la qualité basse ; puis l'optimisation reprend : les distances de visibilité des petits objets (bouteilles,
 verres, assiettes : des centaines) et des occulteurs (comptoir, murs), puis la mesure sur le petit PC lui-même (le
 test qui fait foi). Sa question 7 (la caméra de Dark Souls est-elle automatique ?) : réponse donnée dans le fil, avec
@@ -208,7 +208,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - **Journal de démarche** : `cours/boss_action_rpg/demarche.json`, un pas par décision réellement prise ; générateur
   `python -m usine.paires demarche` (`usine/paires/demarche.py`) : outil rejoué (RAG, vocabulaire), pas écarté si un
   fragment attendu ou une citation « … » manque à la sortie réelle ; paires au format d'OpenCode (outil `execute` du
-  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 36 paires à
+  Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 40 paires à
   ce jour. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
   un fichier, pas « plan » (du prompt à la liste des étapes, vérifiée contre le manifeste), sessions longues.
 - **Autres familles à tirer du cours** (`usine/paires/` : `creation`, `bloc`, `test_cas`, `morceaux`, `rag`) : ajouter
@@ -290,3 +290,11 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   avant, le fichier n'existe pas, et une balise `11-16` y crée de faux écarts.
 - Les spectres planent sur un cercle de 6 m autour du héros, qui passe par la place de la caméra : tout effet qui les
   suit doit s'effacer tout près d'elle.
+- Lire un son crée deux objets dans le moteur (sa lecture), quelle que soit la voie (`play()`, `play_stream()`) : la
+  règle « 0 allocation en combat » vaut pour notre code ; `mesurer_combat.gd` retire 2 par son (`allocations_hors_sons`).
+- Un outil lancé par `-s` qui quitte pendant que des sons jouent les fait fuir à la sortie : libérer la scène, attendre
+  quelques images de 30 ms (comme `7_tests/1_core/silence_audio.gd`), puis quitter.
+- Je ne peux pas écouter les sons : je les choisis sur leur nom et leur durée ; les volumes sont à faire valider à
+  l'oreille par laurent.
+- Avant un rendu en fenêtre, lire la mémoire de la carte (`nvidia-smi`) : si elle est presque pleine (un autre
+  programme), ne pas lancer de rendu.
