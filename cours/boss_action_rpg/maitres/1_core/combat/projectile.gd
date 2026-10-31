@@ -3,6 +3,9 @@ class_name Projectile extends Node3D
 ## il ne traverse donc jamais un mur ni un bouclier fin, quelle que soit sa vitesse. Il touche le décor (il s'arrête)
 ## ou une zone qui reçoit les tirs (Hurtbox : elle prend les dégâts) ; sinon il s'éteint au bout de sa durée. Il
 ## n'est jamais détruit : il retourne à sa réserve (ProjectilePool), qui le relance.
+#@ 19+
+## Sa traçante s'étire derrière lui depuis la bouche de l'arme, jusqu'à sa longueur.
+#@ all
 
 ## Le projectile a fini (touché ou éteint) : sa réserve le reprend.
 signal finished(projectile: Projectile)
@@ -10,6 +13,11 @@ signal finished(projectile: Projectile)
 ## décor).
 signal impacted(point: Vector3, normal: Vector3, dealt: float)
 
+#@ 19+
+## La longueur de sa traçante, en mètres.
+@export_range(0.1, 30.0, 0.1) var tracer_length: float = 5.0
+
+#@ all
 ## Vrai pendant le vol.
 var active: bool = false
 ## Les dégâts du coup.
@@ -18,6 +26,11 @@ var damage: float = 0.0
 var _velocity: Vector3 = Vector3.ZERO
 var _left: float = 0.0
 var _query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+#@ 19+
+var _origin: Vector3 = Vector3.ZERO
+
+@onready var _tracer: Node3D = $Tracer
+#@ all
 
 
 ## Ce que touche un tir : le décor et les zones qui reçoivent les tirs.
@@ -48,6 +61,10 @@ func launch(origin: Vector3, direction: Vector3, speed: float, amount: float, li
 	active = true
 	visible = true
 	set_physics_process(true)
+#@ 19+
+	_origin = origin
+	_stretch_tracer()
+#@ all
 
 
 ## Avance de `delta` secondes : un rayon sur le trajet ; touché, il s'arrête au point touché et fait ses dégâts ; sa
@@ -69,6 +86,9 @@ func advance(delta: float) -> void:
 		_finish()
 		return
 	global_position = _query.to
+#@ 19+
+	_stretch_tracer()
+#@ all
 	_left -= delta
 	if _left <= 0.0:
 		_finish()
@@ -83,3 +103,10 @@ func _park() -> void:
 	active = false
 	visible = false
 	set_physics_process(false)
+#@ 19+
+
+
+## La traçante va du projectile vers la bouche de l'arme, sans la dépasser (échelle Z du plan : tracer.gdshader).
+func _stretch_tracer() -> void:
+	_tracer.scale.z = clampf(global_position.distance_to(_origin), 0.01, tracer_length)
+#@ all

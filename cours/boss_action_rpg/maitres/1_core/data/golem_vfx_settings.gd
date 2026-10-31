@@ -32,3 +32,9 @@ class_name GolemVfxSettings extends Resource
 @export_range(0.0, 1.0, 0.01) var glow_pulse: float = 0.3
 ## La vitesse de la palpitation, en radians par seconde.
 @export_range(0.0, 20.0, 0.1) var glow_pulse_speed: float = 2.4
+#@ 19+
+## L'éclat que donne aux jointures un tir qui porte.
+@export_range(0.0, 16.0, 0.1) var hit_glow: float = 3.5
+## Le temps pour que cet éclat retombe, en secondes.
+@export_range(0.01, 2.0, 0.01) var hit_glow_time: float = 0.2
+#@ all

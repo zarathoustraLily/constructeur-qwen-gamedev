@@ -7,6 +7,9 @@ class_name GolemEffects extends Node3D
 ## - À la seconde phase : une onde autour de lui, la caméra qui tremble, et les jointures de son armure qui s'allument,
 ##   braise qui palpite (une couche posée par-dessus l'armure, qui n'éclaire que les lignes claires de sa carte
 ##   d'émission). À sa chute : un nuage, et la braise s'éteint.
+#@ 19+
+## - Un tir qui porte (ni bloqué ni perdu) : les jointures brillent un instant, même en première phase.
+#@ all
 ## Tout est préparé avec lui : aucun effet n'est créé en combat. Les effets sont posés dans le monde (top_level).
 
 ## Le nombre de positions gardées pour la traînée (une par image).
@@ -27,6 +30,10 @@ const ARMOR_MATERIAL: String = "M_Golem_Armor.tres"
 var shockwave_progress: float = 1.0
 ## L'éclat des jointures de l'armure, sans la palpitation.
 var glow: float = 0.0
+#@ 19+
+## L'éclat d'un tir qui vient de porter, de 1 à 0.
+var hit_flash: float = 0.0
+#@ 13+
 ## Le nombre de positions de la traînée en ce moment.
 var trail_count: int = 0
 ## La couche de braise propre à ce golem, posée sur chaque pièce de son armure.
@@ -78,6 +85,10 @@ func _ready() -> void:
 	# Ses enfants sont prêts avant lui : ses zones de coup se prennent par leur chemin.
 	(golem.get_node(^"Model/Skeleton3D/WeaponR/HammerHit") as Hitbox).landed.connect(_on_landed)
 	(golem.get_node(^"SlamZone") as Hitbox).landed.connect(_on_landed)
+#@ 19+
+	(golem.get_node(^"Hurtbox") as Hurtbox).received.connect(_on_shot)
+	(golem.get_node(^"BackWeakPoint") as Hurtbox).received.connect(_on_shot)
+#@ 13+
 
 
 func _process(delta: float) -> void:
@@ -95,7 +106,13 @@ func update(delta: float) -> void:
 #@ 14+
 	glow = move_toward(glow, _glow_target, settings.glow_energy * delta / settings.glow_time)
 #@ 13+
+#@ 13-18
 	ember_material.set_shader_parameter(&"glow", glow * (1.0 + settings.glow_pulse * sin(_clock * settings.glow_pulse_speed)))
+#@ 19+
+	hit_flash = move_toward(hit_flash, 0.0, delta / settings.hit_glow_time)
+	var ember_glow: float = glow * (1.0 + settings.glow_pulse * sin(_clock * settings.glow_pulse_speed))
+	ember_material.set_shader_parameter(&"glow", ember_glow + hit_flash * settings.hit_glow)
+#@ 13+
 
 
 ## Une onde de poussière de rayon `radius` part de `point`.
@@ -135,6 +152,13 @@ func _on_landed(body: Node3D, dealt: float) -> void:
 		_burst(_sparks, body.global_position + Vector3.UP)
 
 
+#@ 19+
+func _on_shot(_amount: float, dealt: float) -> void:
+	if dealt > 0.0:
+		hit_flash = 1.0
+
+
+#@ 13+
 func _burst(particles: GPUParticles3D, at: Vector3) -> void:
 	particles.global_position = at
 	particles.restart()

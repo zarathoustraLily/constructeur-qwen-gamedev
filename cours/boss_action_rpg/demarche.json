@@ -725,6 +725,96 @@
    ],
    "lecture": "La propriété existe : « propriété [AudioStreamPlayer] volume_linear: float ».",
    "decision": "MusicPlayer garde un niveau de 0 à 1 qui rejoint sa cible dans update (move_toward, sur la durée du fondu) et pose volume_linear = db_to_linear(volume plein) × niveau. Revenue au silence, la musique s'arrête. Aucun Tween."
+  },
+  {
+   "id": "e19_rejouer_sans_animation",
+   "etape": 19,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Les effets de tirs de Binbun se rejouent par un AnimationPlayer et un script @tool non typé. L'arme tire dix fois par seconde et le combat ne doit créer aucun objet. Puis-je relancer leurs particules sans passer par une animation ?",
+   "pensee": "Je cherche ce que fait exactement une relance de GPUParticles3D, et ce qu'elle coupe.",
+   "outil": {
+    "genre": "rag",
+    "requete": "GPUParticles3D restart one_shot",
+    "n": 3
+   },
+   "attendu": [
+    "Restarts the particle emission cycle"
+   ],
+   "lecture": "La référence le dit : « Restarts the particle emission cycle, clearing existing particles. » Et l'exemple vérifié particules_impact pose la salve au point touché, puis la relance.",
+   "decision": "Un seul script typé, VfxBurst : play() relance ses enfants GPUParticles3D par restart() et update() éteint sa lueur et sa lumière. Aucun AnimationPlayer. La vie des particules de la bouche passe de 0,2 s à 0,1 s, l'intervalle entre deux tirs : un tir ne coupe plus le précédent à mi-vie. Un test rejoue les effets d'un tir et compte 0 objet créé."
+  },
+  {
+   "id": "e19_age_dans_l_alpha",
+   "etape": 19,
+   "sujet": "Shaders",
+   "type": "analyse",
+   "situation": "Le shader d'éclair de Binbun lit COLOR.a, et sa courbe alpha_curve monte de 0,19 à 1 : plus la particule vieillit, plus l'alpha grandit. Ce n'est donc pas une transparence. Que reçoit vraiment le shader ?",
+   "pensee": "Je lis la référence de alpha_curve, pour savoir où va cette valeur.",
+   "outil": {
+    "genre": "rag",
+    "requete": "ParticleProcessMaterial alpha_curve alpha value multiplied over lifetime",
+    "n": 3
+   },
+   "attendu": [
+    "alpha_curve multiplies the particle mesh's vertex colors"
+   ],
+   "lecture": "La référence : « The alpha value of each particle's color will be multiplied by this CurveTexture over its lifetime. » et « alpha_curve multiplies the particle mesh's vertex colors ». La courbe arrive donc dans COLOR.a, et le shader en fait ce qu'il veut.",
+   "decision": "Dans muzzle_flash.gdshader, impact_star.gdshader et impact_flash.gdshader, COLOR.a porte l'âge de la particule, écrit dans une courbe : l'éclair se ronge depuis sa base, l'étoile ouvre son anneau. Chaque shader le dit en tête de fichier."
+  },
+  {
+   "id": "e19_tracante_face_camera",
+   "etape": 19,
+   "sujet": "Shaders",
+   "type": "analyse",
+   "situation": "Une traçante de 5 m est un plan qui doit garder son axe et faire face à la caméra. Un seul angle pour tout le plan le tord : de près, le regard change beaucoup entre la tête et la queue. Il faut tourner chaque sommet, donc calculer sa position en vue moi-même. Comment empêcher Godot de la transformer une seconde fois ?",
+   "pensee": "Je cherche le mode de rendu qui coupe la transformation automatique des sommets.",
+   "outil": {
+    "genre": "rag",
+    "requete": "spatial shader render modes skip_vertex_transform VERTEX transformed manually",
+    "n": 3
+   },
+   "attendu": [
+    "Users can disable the built-in modelview transform"
+   ],
+   "lecture": "La référence des shaders spatiaux : « Users can disable the built-in modelview transform », par le mode de rendu skip_vertex_transform.",
+   "decision": "tracer.gdshader passe en skip_vertex_transform : le centre du sommet vient de MODELVIEW_MATRIX, le côté du produit vectoriel de l'axe et du regard, sommet par sommet. La longueur reste portée par l'échelle Z du nœud : Projectile la règle sur la distance parcourue, sans dépasser la bouche."
+  },
+  {
+   "id": "e19_mot_reserve_instance",
+   "etape": 19,
+   "sujet": "Shaders",
+   "type": "analyse",
+   "situation": "Les tests passent, code de sortie 0, mais la sortie contient « SHADER ERROR: Expected an identifier or '['. » sur la ligne « varying flat int instance; ». Le mot instance semble refusé comme nom : pourquoi ?",
+   "pensee": "Un identifiant refusé, c'est souvent un mot du langage. Je cherche où instance a un sens dans les shaders.",
+   "outil": {
+    "genre": "rag",
+    "requete": "Per-instance uniforms instance uniform keyword shader",
+    "n": 3
+   },
+   "attendu": [
+    "instance uniform"
+   ],
+   "lecture": "La référence de set_instance_shader_parameter : le paramètre doit être déclaré « with instance uniform ». instance est donc un mot du langage.",
+   "decision": "La varying s'appelle flame. Les tests ne compilent pas toujours un shader au point de le refuser : la lecture de la sortie compte. Le résumé de tester_etape.ps1 cherche désormais SHADER ERROR."
+  },
+  {
+   "id": "e19_une_lumiere_pour_les_impacts",
+   "etape": 19,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Les impacts de Binbun ont chacun leur lumière. Six salves, ce seraient six lumières qui bougent, pour un petit PC qui doit tenir. Dans une salle sombre, la lumière d'un impact se voit pourtant beaucoup. Combien en garder, et comment la régler pour qu'elle porte sans exploser près de l'impact ?",
+   "pensee": "Je lis comment une lumière omnidirectionnelle tombe avec la distance.",
+   "outil": {
+    "genre": "rag",
+    "requete": "OmniLight3D omni_attenuation",
+    "n": 3
+   },
+   "attendu": [
+    "Controls the distance attenuation function"
+   ],
+   "lecture": "La référence : « Controls the distance attenuation function for omnilights. » et « Use a value of 2.0 for physically accurate lights ».",
+   "decision": "Une seule lumière pour tous les impacts (ImpactSparks/Flare), qui saute au dernier, 80 cm devant la surface, sans ombres, atténuation 1,4 pour qu'elle porte un peu plus loin qu'une vraie. La qualité basse coupe les lumières des effets. Mesuré en tirant sans arrêt, en 1280 × 720 : carte 1,734 → 1,763 ms en haute, 0,333 → 0,336 ms en basse."
   }
  ]
 }

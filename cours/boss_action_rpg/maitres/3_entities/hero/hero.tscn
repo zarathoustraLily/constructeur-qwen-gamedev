@@ -8,8 +8,10 @@
 [gd_scene load_steps=24 format=3]
 ;@ 13-15
 [gd_scene load_steps=25 format=3]
-;@ 16+
+;@ 16-18
 [gd_scene load_steps=26 format=3]
+;@ 19+
+[gd_scene load_steps=27 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://3_entities/hero/hero.gd" id="1_hero"]
@@ -42,6 +44,8 @@
 [ext_resource type="Material" path="res://5_data/vfx/hit_flash_material.tres" id="23_flash"]
 ;@ 16+
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_jump_state.gd" id="24_jump"]
+;@ 19+
+[ext_resource type="PackedScene" path="res://6_assets/VFX/combat/muzzle_flash.tscn" id="25_flash"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -162,4 +166,7 @@ script = ExtResource("6_buffer")
 [node name="Jump" type="Node" parent="StateMachine" node_paths=PackedStringArray("hero")]
 script = ExtResource("24_jump")
 hero = NodePath("../..")
+;@ 19+
+
+[node name="MuzzleFlash" parent="Gun" instance=ExtResource("25_flash")]
 ;@ all

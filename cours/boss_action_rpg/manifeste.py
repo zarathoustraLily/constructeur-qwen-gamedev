@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 18
+DERNIERE = 19
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -36,13 +36,14 @@ ETAPES = [
     {"piste": "Gameplay + Contrôles", "titre": "Le saut, et un tir qui part là où pointe le canon"},
     {"piste": "Gameplay + VFX", "titre": "Les spectres plongent chacun leur tour, et laissent une traîne"},
     {"piste": "Audio", "titre": "Le son et la musique du combat"},
+    {"piste": "VFX + Shaders", "titre": "Les effets des tirs : éclair de bouche, traçantes, impacts"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -225,4 +226,19 @@ FICHIERS = {
     "7_tests/1_core/audio/test_sound_board.gd": "18+",
     "7_tests/1_core/audio/test_music_player.gd": "18+",
     "7_tests/2_sequence/test_combat_sounds.gd": "18+",
+    "1_core/vfx/vfx_burst.gd": "19+",
+    "5_data/vfx/flash_noise.tres": "19+",
+    "5_data/vfx/tracer_material.tres": "19+",
+    "5_data/vfx/muzzle_long_material.tres": "19+",
+    "5_data/vfx/muzzle_side_material.tres": "19+",
+    "5_data/vfx/muzzle_front_material.tres": "19+",
+    "5_data/vfx/impact_star_material.tres": "19+",
+    "5_data/vfx/impact_flash_material.tres": "19+",
+    "6_assets/Shader/VFX/tracer.gdshader": "19+",
+    "6_assets/Shader/VFX/muzzle_flash.gdshader": "19+",
+    "6_assets/Shader/VFX/impact_star.gdshader": "19+",
+    "6_assets/Shader/VFX/impact_flash.gdshader": "19+",
+    "6_assets/VFX/combat/muzzle_flash.tscn": "19+",
+    "6_assets/VFX/combat/shot_impact.tscn": "19+",
+    "7_tests/1_core/vfx/test_vfx_burst.gd": "19+",
 }

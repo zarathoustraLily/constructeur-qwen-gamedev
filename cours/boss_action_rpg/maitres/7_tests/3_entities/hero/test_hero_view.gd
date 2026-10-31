@@ -8,6 +8,8 @@ extends GdUnitTestSuite
 ## recul du haut du corps seulement ; la bouche de l'arme du héros suit celle du fusil.
 #@ 13+
 ## Un coup reçu fait flasher le soldat (une couche à lui, sur chaque maillage), puis le flash s'éteint.
+#@ 19+
+## Un tir allume l'éclair de bouche, à la bouche de l'arme, tourné dans la direction du tir.
 #@ all
 
 const HERO := preload("res://3_entities/hero/hero.tscn")
@@ -156,6 +158,20 @@ func test_un_tir_joue_le_recul_du_haut_du_corps_seulement() -> void:
 	assert_bool(fire.is_path_filtered(^"%GeneralSkeleton:LeftFoot")).is_false()
 
 
+#@ 19+
+func test_un_tir_allume_l_eclair_de_bouche_dans_sa_direction() -> void:
+	var hero: Hero = _hero()
+	var view: HeroView = _view(hero)
+	await _frames(2)
+	assert_bool(view.muzzle_flash.visible).is_false()
+	var direction: Vector3 = Vector3(1.0, 0.2, -1.0).normalized()
+	hero.gun.fired.emit(hero.gun.global_position, direction)
+	assert_bool(view.muzzle_flash.visible).is_true()
+	assert_vector(view.muzzle_flash.global_position).is_equal_approx(hero.gun.global_position, Vector3.ONE * 0.001)
+	assert_vector(-view.muzzle_flash.global_basis.z).is_equal_approx(direction, Vector3.ONE * 0.001)
+
+
+#@ all
 func test_la_bouche_de_l_arme_suit_celle_du_fusil() -> void:
 	var hero: Hero = _hero()
 	var view: HeroView = _view(hero)

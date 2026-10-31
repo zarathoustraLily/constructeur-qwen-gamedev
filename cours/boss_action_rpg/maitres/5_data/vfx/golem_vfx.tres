@@ -19,3 +19,7 @@ glow_energy = 2.0
 glow_time = 1.5
 glow_pulse = 0.3
 glow_pulse_speed = 2.4
+;@ 19+
+hit_glow = 3.5
+hit_glow_time = 0.2
+;@ all

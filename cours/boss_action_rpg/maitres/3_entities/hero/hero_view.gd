@@ -12,6 +12,8 @@ class_name HeroView extends Node3D
 ## chute : la main gauche suit alors l'animation).
 #@ 13+
 ## Un coup reçu fait flasher le soldat (une couche posée par-dessus ses matériaux), puis le flash s'éteint.
+#@ 19+
+## Un tir allume l'éclair de bouche, tourné dans la direction du tir.
 #@ all
 
 ## L'état du héros → l'entrée du nœud de transition qui le montre.
@@ -66,6 +68,10 @@ var flash_material: ShaderMaterial
 @onready var muzzle: Node3D = model.get_node(^"%Muzzle")
 ## L'IK qui pose la main gauche sur le garde-main.
 @onready var left_hand_ik: SkeletonModifier3D = model.get_node(^"%LeftHandIK")
+#@ 19+
+## L'éclair de bouche, enfant de l'arme : il suit la bouche du fusil.
+@onready var muzzle_flash: VfxBurst = gun.get_node(^"MuzzleFlash") as VfxBurst
+#@ all
 
 var _player: AnimationPlayer
 var _skeleton: Skeleton3D
@@ -259,8 +265,15 @@ func _on_state_changed(_from: StringName, to: StringName) -> void:
 	show_state(to)
 
 
+#@ 1-18
 func _on_fired(_origin: Vector3, _direction: Vector3) -> void:
 	tree.set(&"parameters/fire/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+#@ 19+
+func _on_fired(_origin: Vector3, direction: Vector3) -> void:
+	tree.set(&"parameters/fire/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+	var up: Vector3 = Vector3.UP if absf(direction.y) < 0.99 else Vector3.BACK
+	muzzle_flash.look_at(muzzle_flash.global_position + direction, up)
+	muzzle_flash.play()
 #@ 13+
 
 

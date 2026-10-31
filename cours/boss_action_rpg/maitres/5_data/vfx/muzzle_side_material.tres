@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/muzzle_flash.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/combat/Textures/flash_side_01.png" id="2_shape"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/flash_noise.tres" id="3_noise"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/shape = ExtResource("2_shape")
+shader_parameter/noise = ExtResource("3_noise")
+shader_parameter/noise_scroll = Vector2(0, 0)
+shader_parameter/noise_strength = 0.5
+shader_parameter/intensity = 4.0
+shader_parameter/base_erosion = 1.0
+shader_parameter/age_fade = 0.12
+shader_parameter/color_softness = 0.6
+shader_parameter/edge_softness = 0.4

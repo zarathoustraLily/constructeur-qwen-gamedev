@@ -5,6 +5,9 @@ class_name GraphicsQualityApplier extends Node
 ## graphique : intégrée, logicielle ou virtuelle, la basse ; sinon la haute. Appliquer, c'est régler l'environnement (une
 ## copie : la ressource partagée reste intacte), la fenêtre (échelle 3D, atlas d'ombres), les lumières du décor (qui
 ## fait des ombres, quelle portée) et la brume (volumétrique ou de repli).
+#@ 19+
+## Il dit aussi aux effets brefs (VfxBurst) s'ils ont droit à leur lumière.
+#@ all
 
 ## Le fichier des réglages du joueur.
 const SETTINGS_FILE: String = "user://reglages.cfg"
@@ -83,6 +86,10 @@ func apply(quality: GraphicsQuality, viewport: Viewport) -> void:
 			(light as SpotLight3D).spot_range = reach
 	mist.visible = quality.volumetric_fog
 	mist_fallback.visible = not quality.volumetric_fog
+#@ 19+
+	for burst: Node in get_tree().get_nodes_in_group(VfxBurst.GROUP):
+		(burst as VfxBurst).light_allowed = quality.effect_lights
+#@ all
 
 
 ## Le nombre de passes d'ombre qu'une image peut demander avec ce réglage : six par lumière omnidirectionnelle en cube,

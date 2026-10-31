@@ -1,6 +1,6 @@
 # Prompt de reprise — niveau de boss « Le Gardien du Comptoir » (Godot 4.7.2)
 
-Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 18. Une copie est
+Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 19. Une copie est
 dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 
 ---
@@ -8,8 +8,8 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 ## 1. Le prompt (à donner tel quel)
 
 > Tu reprends le niveau de boss d'action RPG de laurent (« Le Gardien du Comptoir », Godot 4.7.2) et l'enseignement de
-> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 18 du cours sont faites, rien n'est
-> commencé pour la 19.
+> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 19 du cours sont faites, rien n'est
+> commencé pour la 20.
 >
 > Avant toute action, lis dans cet ordre :
 > 1. `D:\constructeur-qwen-gamedev\CLAUDE.md` (les « Règles qui priment » l'emportent sur tout ; décision 20 : aucun
@@ -23,8 +23,6 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 > ouverts et sur quel projet.
 >
 > Puis termine, une étape à la fois, avec la méthode du § 6 :
-> - **étape 19, les effets des tirs**. laurent : « il n'y a aucun effets dans les tirs... c'est super laids,: trouve des
->   VFX impressionnant pour les tirs » ; il l'a redemandé : « pas de FX ? » ;
 > - **étape 20, les effets et les coups magiques du boss**. laurent : « le boss n'a aucun VFX non plus.. pas de boules de
 >   feux, pas d'aura magiques par d'eclaires lances... » ;
 > - **étapes 21 et 22, l'optimisation pour un petit PC**. laurent : « il faut que le niveau puisse etre joue sur un petit
@@ -41,13 +39,12 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## Où on s'est arrêté (2026-10-31) — à lire d'abord
 
-**Fait et envoyé** : étapes 1 à 18, branche `claude/observation-visuelle`, dernier commit d'étape `6a3bef2`, arbre git
-propre. Le jeu est à l'étape 18 : 240 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
+**Fait et envoyé** : étapes 1 à 19, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 19 :
+252 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
 
-**Étape 19 : aucun fichier écrit.** laurent a interrompu pendant que je lisais le code des tirs. Ce que cette lecture a
-appris est plus bas.
+**Étape 20 : à faire.** Ce qu'il faut en savoir est plus bas.
 
-**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 et 18. Son
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17, 18 et 19. Son
 dernier message après avoir joué parlait du son, des effets et des spectres. Ces étapes sont vérifiées par les tests et
 l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
 nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
@@ -68,45 +65,19 @@ nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les ha
 5. **Mes choix, déjà signalés comme tels, modifiables** : roulade déplacée sur B / Maj pour libérer Espace ; un spectre à
    la fois, 2 s d'écart, 10 dégâts.
 
-### Étape 19, les effets des tirs : ce qui est déjà lu
+### Ce que l'étape 19 laisse à la suivante
 
-Ce qui existe :
-- `1_core/combat/projectile.tscn` : une capsule de 0,04 × 0,6 m, orange, sans lumière ni traînée. Réserve de 32
-  (`projectile_pool.gd`).
-- `1_core/combat/impact_sparks.gd` et `6_assets/VFX/combat/hit_sparks.tscn` : 4 salves de 24 petites sphères, relancées à
-  tour de rôle par `restart()`, branchées sur `ProjectilePool.impacted(point, normal, dealt)`.
-- `3_entities/hero/hero_gun.gd` : signal `fired(origin, direction)`. `hero_view.gd` : `muzzle` (`%Muzzle`), suivi à
-  `skeleton_updated`, recul du tir. **Aucun éclair de bouche** : la recherche de « muzzle » ne trouve que ce suivi.
-
-Les sources, CC0, déjà téléchargées, dans `source_extraites/` (`inventaire_sources.md`) :
-- `muzzle_flash_vfx/assets/BinbunVFX/` : 24 éclairs (`muzzle_flash/effects/` : `big_flash`, `muzzle_flash`, `short_flash`,
-  `wide_flash`, 6 chacun), matériaux, 2 shaders, 17 textures, 2 scripts (`shared/script/vfx_controller.gd`, `vfx_light.gd`).
-  Une scène : `AnimationPlayer`, des `GPUParticles3D` en quads, une `OmniLight3D` (sans `shadow_enabled` dans
-  `muzzle_flash_01.tscn` ; à vérifier pour les autres).
-- `hit_fx_free/HitFXFree/assets/BinbunVFX_Vol2/StylizedHitFX/` : 6 impacts (`effects/hit`, `impact`, `big_impact`, 2 chacun),
-  10 shaders, 3 scripts. Une scène : `AnimationPlayer`, `Glow`, `GPUParticles3D`, `VFXOmniLightBB`, `AudioStreamPlayer3D`.
-
-Ce qu'il faudra respecter (règles du dépôt et mesures déjà faites) :
-- Leurs scripts ne sont pas typés (`var result = get_node_or_null(...)`), sont en `@tool` et ne passent pas les réglages
-  stricts : les reprendre typés, dans `1_core/` (`5_data/` et `6_assets/` restent sans code). Ne pas copier leurs
-  `.import` ni `.uid` ; réécrire les chemins `res://assets/BinbunVFX…` ; retirer les `uid=` et `unique_id=`.
-- Texte (`.tscn`, `.tres`, `.gdshader`) : des maîtres, inscrits dans `FICHIERS`. Binaires (textures) : dans le dossier du
-  jeu sous `6_assets/`, puis `--import` là-bas ; le cours les copie avec leur `.import`.
-- Retirer leur `AudioStreamPlayer3D` : le son passe par `CombatSounds`.
-- Rien de créé en combat : `allocations_hors_sons` de `mesurer_combat.gd` doit rester à 0 et `test_sans_allocation.gd`
-  doit couvrir le nouvel effet. `restart()` des particules est mesuré sans allocation ; un `AnimationPlayer` rejoué ne
-  l'est pas encore : à mesurer.
-- Une lumière par éclair et par impact, c'est le budget du petit PC : mesurer avant et après (`mesurer_rendu.gd`, hors de
-  l'écran), en qualité haute et basse ; la qualité basse peut les couper (`GraphicsQualityApplier`).
-- Les particules ne sont pas simulées sans fenêtre : les tests vérifient les réglages et les relances, l'image vérifie
-  le rendu. Après tout changement de shader : une image en Compatibilité (`--rendering-method gl_compatibility`).
-- Images : la caméra du jeu, comme `outils/voir_traines.gd` (une caméra posée à la main tombe souvent dans le décor :
-  `voir_saut_tir.gd` s'en sort, `voir_traines.gd` a dû y renoncer).
-
-Repères pour comparer (étape 18) :
-- combat sans fenêtre : 63 sons, 126 allocations, 0 hors sons, 0,57 ms par image en médiane, 1,2 à 1,3 ms au plus haut ;
-- rendu haute, 1280 × 720, llama-server actif : 2 933 appels de dessin, 15 M de primitives, carte 1,9 ms, 893 Mo ;
-- rendu basse (étape 15, carte presque libre) : 617 appels, 3,6 M de primitives, 0,37 ms, 377 Mo, 3 passes d'ombre.
+- `VfxBurst` (`1_core/vfx/vfx_burst.gd`) : un effet bref préparé d'avance. Ses enfants `GPUParticles3D` repartent par
+  `play()`, sa lueur (`Glow`) et sa lumière (`Light`) s'éteignent sur `duration`, il se cache quand tout est fini. Le groupe
+  `vfx_burst` reçoit `light_allowed` de `GraphicsQualityApplier` (`GraphicsQuality.effect_lights`, faux en basse).
+- Shaders en `blend_add` dont l'alpha de particule porte l'âge : `muzzle_flash`, `impact_star`, `impact_flash`, et la
+  texture de bruit partagée `5_data/vfx/flash_noise.tres`.
+- `tracer.gdshader` : un plan qui pivote vers la caméra autour de son axe, sommet par sommet. Il servira pour un éclair
+  ou une boule de feu qui file.
+- Une image de jeu ne suffit pas à juger un effet : une planche d'images consécutives, `outils/voir.ps1`, de loin et de près.
+- Repères de l'étape 19, en tirant sans arrêt, 1280 × 720 : carte 1,763 ms en haute, 0,336 ms en basse, 2 703 et 618 appels
+  de dessin, 897 et 381 Mo. Combat sans fenêtre : 63 sons, 126 allocations, 0 pour notre code, 0,58 ms par image.
+- Mes choix, à faire valider : le ton orangé des tirs, les durées, les lumières. La note et `suivi.md` le disent.
 
 ### Étape 20, les effets et les coups magiques du boss : ce qui compte
 
@@ -180,15 +151,15 @@ Repères pour comparer (étape 18) :
 | Journal de démarche (paires) | `D:\constructeur-qwen-gamedev\cours\boss_action_rpg\demarche.json` |
 | Projets fabriqués des étapes | `D:\constructeur-qwen-gamedev\donnees\cours\boss_action_rpg\projets\boss_etape_00N\` |
 | Paires générées | `D:\constructeur-qwen-gamedev\donnees\paires\<famille>\` |
-| Branche du dépôt | `claude/observation-visuelle` (dernier commit d'étape : `6a3bef2`, étape 18) |
+| Branche du dépôt | `claude/observation-visuelle` |
 | Héros (modèle, animations, reciblage) | `…\6_assets\Characters\Hero\` (hero_model.tscn, hero_animations.tres, Models, Animations/Source et Clips, Retarget, Textures, Materials, Meshes, Skins) |
 
 Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe` (éditeur : sans `_console`).
 
 ## 5. État exact (2026-10-31)
 
-Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 18
-(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240.
+Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 19
+(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252.
 
 | N | Étape |
 | --- | --- |
@@ -210,9 +181,9 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 | 16 | Le saut, et un tir qui part là où pointe le canon |
 | 17 | Les spectres plongent chacun leur tour, et laissent une traîne |
 | 18 | Le son et la musique du combat |
+| 19 | Les effets des tirs : éclair de bouche, traçantes, impacts |
 
-**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 19 les effets des tirs ; 20 les effets et coups
-magiques du boss ; 21 ce qui se dessine (distances de visibilité des petits objets, occulteurs) ; 22 le petit PC
+**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 20 les effets et coups magiques du boss ; 21 ce qui se dessine (distances de visibilité des petits objets, occulteurs) ; 22 le petit PC
 lui-même ; puis les paires tirées du cours (§ 9). Noté à l'étape 8 : l'entrée du saloon surexposée (plan émissif
 extérieur, `M_Emissive`). Une grande plage blanche reste à gauche des images de l'étape 17 : à regarder, laurent n'en a
 pas parlé.
@@ -290,8 +261,7 @@ dessin, primitives, mémoire vidéo). Fait : étape 15 (qualités).
 
 **Retours de laurent après avoir joué (2026-10-29 et 30)** : saut et visée (**étape 16, faite**) ; spectres qui tuaient
 en rafale, et leur traîne (**étape 17, faite**) ; le son et la musique (**étape 18, faite** : `6_assets/Audio/`,
-`SoundBoard`, `CombatSounds`, `MusicPlayer` ; le moteur crée 2 objets par son lu, comptés à part) ; **prochaine : 19**,
-les effets des tirs (bouche, traçantes, impacts ; sources Binbun déjà téléchargées) ; 20,
+`SoundBoard`, `CombatSounds`, `MusicPlayer` ; le moteur crée 2 objets par son lu, comptés à part) ; les effets des tirs (**étape 19, faite**) ; **prochaine : 20**,
 les effets et coups magiques du boss (boules de feu, aura, éclairs annoncés), dans le budget de la qualité basse ; puis l'optimisation reprend : les distances de visibilité des petits objets (bouteilles,
 verres, assiettes : des centaines) et des occulteurs (comptoir, murs), puis la mesure sur le petit PC lui-même (le
 test qui fait foi). Sa question 7 (la caméra de Dark Souls est-elle automatique ?) : réponse donnée dans le fil, avec
@@ -304,7 +274,10 @@ marteau, `-- trajectoires`) ; `trace_golem.gd` (chemin du marteau, dessus et pro
 `assembler_planche.py` (gestes image par image) ; `jouer_combat.gd` (combat sans joueur, journal des coups) ;
 `carte_arene.gd` (carte du sol en caractères) ; `verifier_etapes.py` (étapes anciennes inchangées) ; `voir_saut_tir.gd`,
 `voir_traines.gd` (une planche d'images) ; `trace_spectres.gd` (chaque coup reçu par un héros immobile, image et source) ;
-`mesurer_sons.gd` (objets créés par la lecture d'un son).
+`mesurer_sons.gd` (objets créés par la lecture d'un son) ; `voir_tirs.gd` et `voir.ps1` (une rafale rendue hors de l'écran, puis une
+planche ; vue du joueur, `pres`, `cote`, `verrou`, `--compat`, `--qualite=basse`) ; `planche.py`, `recadrer.py` ; `tester_etape.ps1` (fabrique,
+importe, teste, résume) ; `mesurer_rendu.ps1` (`--tir` : en tirant sans arrêt ; une étape récente peut mesurer une plus ancienne) ;
+`textures_tirs.py`.
 
 ## 8. Le golem ensuite (préparé)
 
@@ -419,5 +392,12 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   avertissement traité en erreur, le script ne se charge plus. Une seule suite cassée et GdUnit s'arrête (code 105).
 - Refabriquer sans `--import` : « Could not find type … » (classes globales nouvelles). Toujours importer après.
 - `git status --porcelain` montre un dossier nouveau comme une seule ligne : lister avec `-uall`.
+- `instance` est un mot du langage de shaders : `varying flat int instance;` échoue, et les tests restent verts, code 0.
+  Le résumé de `tester_etape.ps1` cherche `SHADER ERROR`.
+- Une note d'étape écrite après la fabrication manque au projet (son `README.md`), et le report le retire du jeu : fabriquer
+  de nouveau après la note.
+- `python -I` ne voit pas les paquets installés pour l'utilisateur (Pillow).
+- Le tonemap AgX blanchit les orangés très vifs : une lueur trop forte fait une boule de lait.
+- Verrouillé sur le Gardien, la caméra descend au ras du plancher : mauvaise vue pour juger un effet.
 - Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.
   Je l'ai lue dans `D:\sources\godot-docs\tutorials\shaders\shader_reference\spatial_shader.rst` et n'en ai pas fait de pas.

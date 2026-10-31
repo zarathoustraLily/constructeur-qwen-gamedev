@@ -4,6 +4,9 @@ extends GdUnitTestSuite
 ## réserve ; il fait ses dégâts, multipliés, à une zone mince qu'il ne traverse pas malgré sa vitesse ; une zone à
 ## multiplicateur nul l'arrête sans dégâts ; sa durée passée, il revient ; réserve vide, aucun tir ; tirer ne crée
 ## aucun nœud.
+#@ 19+
+## Sa traçante s'étire derrière lui, sans dépasser la bouche de l'arme, jusqu'à sa longueur.
+#@ all
 
 const PROJECTILE := preload("res://1_core/combat/projectile.tscn")
 const SPEED: float = 60.0
@@ -134,3 +137,16 @@ func test_tirer_ne_cree_aucun_noeud() -> void:
 		await _frames(5)
 	assert_float(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)).is_equal(nodes)
 	assert_int(_pool.get_child_count()).is_equal(4)
+#@ 19+
+
+
+func test_sa_tracante_s_etire_sans_depasser_la_bouche_jusqu_a_sa_longueur() -> void:
+	var projectile: Projectile = _fire(10.0, 2.0)
+	var tracante: Node3D = projectile.get_node("Tracer") as Node3D
+	await _frames(2)
+	var parcouru: float = absf(projectile.global_position.z)
+	assert_float(parcouru).is_less(projectile.tracer_length)
+	assert_float(tracante.scale.z).is_equal_approx(parcouru, 0.001)
+	await _frames(20)
+	assert_float(tracante.scale.z).is_equal(projectile.tracer_length)
+#@ all

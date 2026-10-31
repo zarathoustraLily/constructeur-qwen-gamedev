@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/muzzle_flash.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/combat/Textures/flash_front_05.png" id="2_shape"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/shape = ExtResource("2_shape")
+shader_parameter/noise_strength = 0.0
+shader_parameter/intensity = 4.0
+shader_parameter/base_erosion = 0.0
+shader_parameter/age_fade = 1.0
+shader_parameter/color_softness = 1.0
+shader_parameter/edge_softness = 0.8

@@ -5,6 +5,9 @@ extends GdUnitTestSuite
 ## phase, les jointures de son armure s'allument (une couche à lui, sur chaque pièce d'armure, le matériau de l'armure
 ## restant éteint) et s'éteignent à sa chute ; la
 ## caméra tremble à un impact proche, pas à un impact lointain ; aucun nœud n'est créé pendant un coup.
+#@ 19+
+## Un tir qui porte fait briller les jointures un instant, même en première phase ; un tir bloqué, non.
+#@ all
 
 const GOLEM := preload("res://3_entities/boss/golem.tscn")
 const CAMERA := preload("res://1_core/camera/orbit_camera.tscn")
@@ -133,3 +136,19 @@ func test_aucun_noeud_n_est_cree_pendant_un_coup() -> void:
 	for _i: int in 30:
 		effets.update(DT)
 	assert_int(golem.find_children("*", "", true, false).size()).is_equal(avant)
+#@ 19+
+
+
+func test_un_tir_qui_porte_fait_briller_les_jointures_un_instant_un_tir_bloque_non() -> void:
+	var golem: Golem = _golem()
+	var effets: GolemEffects = _effets(golem)
+	effets.process_mode = Node.PROCESS_MODE_DISABLED
+	golem.shield.receive(50.0)
+	effets.update(DT)
+	assert_float(float(effets.ember_material.get_shader_parameter(&"glow"))).is_equal(0.0)
+	(golem.get_node("Hurtbox") as Hurtbox).receive(50.0)
+	effets.update(0.0)
+	assert_float(float(effets.ember_material.get_shader_parameter(&"glow"))).is_equal_approx(effets.settings.hit_glow, 0.001)
+	effets.update(effets.settings.hit_glow_time)
+	assert_float(float(effets.ember_material.get_shader_parameter(&"glow"))).is_equal(0.0)
+#@ all

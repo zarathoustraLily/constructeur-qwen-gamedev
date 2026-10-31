@@ -7,6 +7,9 @@ extends GdUnitTestSuite
 
 const MASQUE: int = (1 << 39) - 1
 const GOLEM := preload("res://3_entities/boss/golem.tscn")
+#@ 19+
+const MAIN := preload("res://2_sequence/main.tscn")
+#@ all
 const DT: float = 1.0 / 60.0
 
 
@@ -94,4 +97,18 @@ func test_un_son_ne_cree_que_sa_lecture_dans_le_moteur() -> void:
 	var cue: SoundCue = (load("res://5_data/audio/combat_sounds.tres") as CombatSoundSet).shot
 	var jouer: Callable = func() -> void: board.play(cue, Vector3.ZERO)
 	assert_int(_allocations(jouer, 20)).is_equal(2 * 20)
+#@ 19+
+
+
+func test_rejouer_les_effets_d_un_tir_ne_cree_rien() -> void:
+	var main: Node3D = auto_free(MAIN.instantiate()) as Node3D
+	add_child(main)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var impacts: ImpactSparks = main.get_node("ImpactSparks") as ImpactSparks
+	var eclair: VfxBurst = main.get_node("Hero/Gun/MuzzleFlash") as VfxBurst
+	var jouer: Callable = func() -> void:
+		eclair.play()
+		eclair.update(DT)
+		impacts.play(Vector3(1.0, 1.0, 1.0), Vector3.BACK, 12.0)
+	assert_int(_allocations(jouer, 40)).is_equal(0)
 #@ all

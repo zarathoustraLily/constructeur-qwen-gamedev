@@ -4,6 +4,9 @@ extends GdUnitTestSuite
 ## coûteux et le brouillard volumétrique (la brume de repli prend sa place), rend la 3D plus petite (FSR), ne laisse des
 ## ombres qu'aux lumières les plus proches du combat, en demi-sphères, et ramène les portées ; la ressource
 ## d'environnement partagée reste intacte ; revenir à la haute rend tout.
+#@ 19+
+## La qualité basse coupe la lumière des effets brefs, la haute la rend.
+#@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
 
@@ -72,3 +75,21 @@ func test_revenir_a_la_haute_rend_tout() -> void:
 	assert_bool((main.get_node("GroundMist") as Node3D).visible).is_true()
 	assert_bool((main.get_node("MistLayers") as Node3D).visible).is_false()
 	assert_float(fenetre.scaling_3d_scale).is_equal(1.0)
+#@ 19+
+
+
+func test_la_qualite_basse_coupe_la_lumiere_des_effets() -> void:
+	var main: Node3D = _main()
+	var reglage: GraphicsQualityApplier = _reglage(main)
+	var fenetre: SubViewport = auto_free(SubViewport.new()) as SubViewport
+	add_child(fenetre)
+	var eclair: VfxBurst = main.get_node("Hero/Gun/MuzzleFlash") as VfxBurst
+	var lumiere: Light3D = eclair.get_node("Light") as Light3D
+	reglage.apply(reglage.low, fenetre)
+	eclair.play()
+	assert_bool(lumiere.visible).is_false()
+	assert_bool((main.get_node("ImpactSparks/Flare") as VfxBurst).light_allowed).is_false()
+	reglage.apply(reglage.high, fenetre)
+	eclair.play()
+	assert_bool(lumiere.visible).is_true()
+#@ all

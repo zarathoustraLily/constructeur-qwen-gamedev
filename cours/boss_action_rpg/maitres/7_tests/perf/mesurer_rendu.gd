@@ -7,6 +7,10 @@ extends SceneTree
 ## Résultat : une ligne « @@RENDU@@<json> ».
 ##   godot --path <projet> --resolution 1280x720 --position -6000,-6000 -s res://7_tests/perf/mesurer_rendu.gd --
 ##       <échauffement> <images> <image.png> [--qualite=basse]
+#@ 19+
+## Avec `--tir` : le héros, à l'entrée, tire sans arrêt sur le golem figé, l'arme toujours froide, le golem soigné à chaque
+## image (la seconde phase ne vient pas changer la scène) : la mesure voit alors les effets des tirs, au plus fort.
+#@ all
 
 const MARQUEUR: String = "@@RENDU@@"
 
@@ -17,6 +21,11 @@ var _scene: Node3D
 var _image: int = 0
 var _gpu: PackedFloat64Array = PackedFloat64Array()
 var _cpu: PackedFloat64Array = PackedFloat64Array()
+#@ 19+
+var _tir: bool = false
+var _hero: Hero
+var _golem: Golem
+#@ all
 
 
 func _initialize() -> void:
@@ -24,6 +33,9 @@ func _initialize() -> void:
 	_echauffement = int(args[0])
 	_images = int(args[1])
 	_chemin = args[2]
+#@ 19+
+	_tir = "--tir" in args
+#@ all
 	_gpu.resize(_images)
 	_cpu.resize(_images)
 	_scene = (load("res://2_sequence/main.tscn") as PackedScene).instantiate() as Node3D
@@ -40,6 +52,14 @@ func _process(_delta: float) -> bool:
 	if _image == 2:
 		(_scene.get_node("Hero/Input") as Node).free()
 		(_scene.get_node("OrbitCamera/Input") as Node).free()
+#@ 19+
+		if _tir:
+			_preparer_le_tir()
+	if _tir and _image > 2:
+		_hero.trigger = true
+		_hero.gun.heat.heat = 0.0
+		_golem.health.heal(_golem.health.settings.max_health)
+#@ all
 	var rid: RID = root.get_viewport_rid()
 	if _image > _echauffement and _image <= _echauffement + _images:
 		var i: int = _image - _echauffement - 1
@@ -62,6 +82,18 @@ func _process(_delta: float) -> bool:
 	return false
 
 
+#@ 19+
+func _preparer_le_tir() -> void:
+	_hero = _scene.get_node("Hero") as Hero
+	_golem = _scene.get_node("Golem") as Golem
+	_golem.machine.process_mode = Node.PROCESS_MODE_DISABLED
+	_hero.invulnerable = true
+	var orbit: OrbitCamera = _scene.get_node("OrbitCamera") as OrbitCamera
+	orbit.yaw = PI
+	orbit.apply_rotation()
+
+
+#@ all
 func _mediane(valeurs: PackedFloat64Array) -> float:
 	var t: PackedFloat64Array = valeurs.duplicate()
 	t.sort()

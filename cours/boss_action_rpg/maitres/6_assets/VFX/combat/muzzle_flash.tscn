@@ -1,0 +1,152 @@
+[gd_scene load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://1_core/vfx/vfx_burst.gd" id="1_burst"]
+[ext_resource type="Material" path="res://5_data/vfx/muzzle_long_material.tres" id="2_long"]
+[ext_resource type="Material" path="res://5_data/vfx/muzzle_side_material.tres" id="3_side"]
+[ext_resource type="Material" path="res://5_data/vfx/muzzle_front_material.tres" id="4_front"]
+
+[sub_resource type="Curve" id="Curve_long"]
+_data = [Vector2(0, 0.19), 0.0, 1.35, 0, 0, Vector2(1, 1), 0.17, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_long"]
+width = 64
+curve = SubResource("Curve_long")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_long"]
+particle_flag_rotate_y = true
+angle_min = -720.0
+angle_max = 720.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.8
+scale_max = 1.2
+alpha_curve = SubResource("CurveTexture_long")
+
+[sub_resource type="QuadMesh" id="QuadMesh_long"]
+size = Vector2(1, 1.8)
+center_offset = Vector3(0, 0.85, 0)
+
+[sub_resource type="Curve" id="Curve_side"]
+_data = [Vector2(0, 0.41), 0.0, 0.69, 0, 0, Vector2(1, 1), 1.02, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_side"]
+width = 64
+curve = SubResource("Curve_side")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_side"]
+particle_flag_rotate_y = true
+angle_min = -720.0
+angle_max = 720.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.85
+scale_max = 1.15
+alpha_curve = SubResource("CurveTexture_side")
+
+[sub_resource type="QuadMesh" id="QuadMesh_side"]
+size = Vector2(0.8, 0.8)
+center_offset = Vector3(0, 0.3, 0)
+
+[sub_resource type="Curve" id="Curve_front"]
+_data = [Vector2(0.24, 0), 0.0, 1.86, 0, 0, Vector2(1, 1), 0.35, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_front"]
+width = 64
+curve = SubResource("Curve_front")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_front"]
+particle_flag_rotate_y = true
+angle_min = -720.0
+angle_max = 720.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.8
+scale_max = 1.2
+alpha_curve = SubResource("CurveTexture_front")
+
+[sub_resource type="QuadMesh" id="QuadMesh_front"]
+size = Vector2(0.7, 0.7)
+orientation = 1
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.14, 0.42, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.34, 1, 1, 1, 0.07, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glow"]
+render_priority = 1
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(1.1, 0.5, 0.14, 1)
+albedo_texture = SubResource("GradientTexture2D_glow")
+disable_receive_shadows = true
+billboard_mode = 1
+billboard_keep_scale = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_glow"]
+material = SubResource("StandardMaterial3D_glow")
+size = Vector2(1.6, 1.6)
+
+[node name="MuzzleFlash" type="Node3D"]
+script = ExtResource("1_burst")
+duration = 0.09
+light_energy = 7.0
+
+[node name="Long" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+cast_shadow = 0
+material_override = ExtResource("2_long")
+emitting = false
+amount = 3
+lifetime = 0.1
+one_shot = true
+explosiveness = 0.8
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_long")
+draw_pass_1 = SubResource("QuadMesh_long")
+
+[node name="Side" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+cast_shadow = 0
+material_override = ExtResource("3_side")
+emitting = false
+amount = 4
+lifetime = 0.1
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_side")
+draw_pass_1 = SubResource("QuadMesh_side")
+
+[node name="Front" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+cast_shadow = 0
+material_override = ExtResource("4_front")
+emitting = false
+amount = 1
+lifetime = 0.1
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_front")
+draw_pass_1 = SubResource("QuadMesh_front")
+
+[node name="Glow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_glow")
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+light_color = Color(1, 0.72, 0.38, 1)
+light_energy = 0.0
+omni_range = 11.0
+omni_attenuation = 1.4

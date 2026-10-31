@@ -1,0 +1,28 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/impact_flash.gdshader" id="1_shader"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_tear"]
+noise_type = 2
+seed = 12
+frequency = 0.03
+fractal_octaves = 2
+cellular_distance_function = 1
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_tear"]
+width = 128
+height = 128
+generate_mipmaps = false
+seamless = true
+noise = SubResource("FastNoiseLite_tear")
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/hot_color = Color(1, 1, 1, 1)
+shader_parameter/edge_color = Color(1, 0.6, 0.2, 1)
+shader_parameter/intensity = 3.0
+shader_parameter/pinch = 0.4
+shader_parameter/noise = SubResource("NoiseTexture2D_tear")
+shader_parameter/noise_scale = Vector2(0.8, 0.2)
+shader_parameter/edge_hardness = 0.5

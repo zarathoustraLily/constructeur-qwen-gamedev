@@ -34,3 +34,7 @@ class_name GraphicsQuality extends Resource
 ## La lumière ambiante est multipliée par autant : sans éclairage global, la salle perd la lumière que renvoient les
 ## murs ; on la lui rend, à peu de frais.
 @export_range(0.0, 10.0, 0.05) var ambient_scale: float = 1.0
+#@ 19+
+## Vrai : les effets brefs (éclair de bouche, impacts) éclairent le décor.
+@export var effect_lights: bool = true
+#@ all

@@ -18,8 +18,10 @@
 [gd_scene load_steps=18 format=3]
 ;@ 15-17
 [gd_scene load_steps=24 format=3]
-;@ 18+
+;@ 18
 [gd_scene load_steps=30 format=3]
+;@ 19+
+[gd_scene load_steps=31 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -55,7 +57,11 @@
 [ext_resource type="Resource" path="res://5_data/enemies/spectre.tres" id="19_spectre_settings"]
 ;@ 13+
 [ext_resource type="Script" path="res://1_core/combat/impact_sparks.gd" id="20_sparks"]
+;@ 13-18
 [ext_resource type="PackedScene" path="res://6_assets/VFX/combat/hit_sparks.tscn" id="21_hit_sparks"]
+;@ 19+
+[ext_resource type="PackedScene" path="res://6_assets/VFX/combat/shot_impact.tscn" id="21_hit_sparks"]
+[ext_resource type="Script" path="res://1_core/vfx/vfx_burst.gd" id="32_burst"]
 ;@ 15+
 [ext_resource type="Script" path="res://1_core/graphics/graphics_quality_applier.gd" id="22_quality"]
 [ext_resource type="Resource" path="res://5_data/graphics/quality_high.tres" id="23_high"]
@@ -268,6 +274,22 @@ pool = NodePath("../Projectiles")
 [node name="Burst3" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
 
 [node name="Burst4" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+;@ 19+
+
+[node name="Burst5" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+
+[node name="Burst6" parent="ImpactSparks" instance=ExtResource("21_hit_sparks")]
+
+[node name="Flare" type="Node3D" parent="ImpactSparks"]
+script = ExtResource("32_burst")
+duration = 0.16
+light_energy = 14.0
+
+[node name="Light" type="OmniLight3D" parent="ImpactSparks/Flare"]
+light_color = Color(1, 0.75, 0.45, 1)
+light_energy = 0.0
+omni_range = 10.0
+omni_attenuation = 1.4
 ;@ all
 ;@ 15+
 
