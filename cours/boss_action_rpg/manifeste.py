@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 21
+DERNIERE = 22
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -39,13 +39,14 @@ ETAPES = [
     {"piste": "VFX + Shaders", "titre": "Les effets des tirs : éclair de bouche, traçantes, impacts"},
     {"piste": "Gameplay + VFX + Shaders", "titre": "La magie du Gardien : boules de feu, éclairs annoncés au sol, aura"},
     {"piste": "Optimisation + Graphisme 3D", "titre": "Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune"},
+    {"piste": "Optimisation", "titre": "Le petit PC : le niveau mesuré sur une vraie petite carte"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -266,4 +267,5 @@ FICHIERS = {
     "6_assets/Shader/VFX/ground_ring.gdshader": "20+",
     "6_assets/VFX/golem/aura_embers.tscn": "20+",
     "7_tests/3_entities/boss/test_golem_spells.gd": "20+",
+    "7_tests/perf/banc_petit_pc.bat": "22+",
 }

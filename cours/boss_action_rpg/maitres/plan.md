@@ -99,7 +99,11 @@ suivante avant.
 #@ 21+
 - [x] 21. Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune
 #@ 17+
+#@ 17-21
 - [ ] 22. Le petit PC lui-même : mesure en conditions réelles
+#@ 22+
+- [x] 22. Le niveau mesuré sur une vraie petite carte, et le banc pour le petit PC
+- [ ] 23. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 12+
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles

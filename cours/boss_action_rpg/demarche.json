@@ -977,6 +977,42 @@
    ],
    "lecture": "La référence, sur VISIBILITY_RANGE_FADE_SELF : « This is slower than », comparé au mode sans fondu. Le fondu n'est donc pas gratuit, et la mesure le confirme.",
    "decision": "Pas de fondu : une marge de 2 m (visibility_range_end_margin), posée seulement sur les objets à portée limitée : posée sur tous, elle ajoutait 244 objets dessinés à la qualité haute. Portée de 22 m sous 1,3 m : à 20 m sous 2 m, les bouteilles du fond disparaissaient."
+  },
+  {
+   "id": "e22_choisir_la_carte",
+   "etape": 22,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Toutes les mesures viennent d'une RTX 5090 : elles donnent le sens d'un changement, pas ce que tiendra un petit PC. La machine a aussi une carte intégrée Intel, sans écran branché : --gpu-index 1 y fait tourner Godot. Comment être sûr, dans chaque résultat, de la carte qui a vraiment dessiné ?",
+   "pensee": "Un résultat sans le nom de la carte ne prouve rien : je cherche le membre qui donne ce nom, pour l'écrire dans la mesure.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "RenderingServer",
+    "membre": "get_video_adapter_name"
+   },
+   "attendu": [
+    "get_video_adapter_name"
+   ],
+   "lecture": "La méthode existe : « get_video_adapter_name() -> String ».",
+   "decision": "mesurer_rendu.gd écrit ce nom dans chaque résultat. Avec --gpu-index 1, il dit « Intel(R) Graphics » : le jeu y choisit tout seul la qualité basse, et tient 4,7 ms par image en 1280 × 720. Toute mesure dit désormais sur quelle carte elle a été faite."
+  },
+  {
+   "id": "e22_temps_de_chaque_image",
+   "etape": 22,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Le temps de la carte en médiane ne voit ni un à-coup ponctuel ni le temps perdu ailleurs. Sur un petit PC, c'est l'image la plus lente qui se sent. Quelle horloge prendre, et que faut-il couper pour ne pas mesurer l'écran ?",
+   "pensee": "Une horloge en microsecondes à chaque image, et pas de V-Sync. Je vérifie l'horloge.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Time",
+    "membre": "get_ticks_usec"
+   },
+   "attendu": [
+    "get_ticks_usec"
+   ],
+   "lecture": "Time.get_ticks_usec existe : le temps écoulé en microsecondes.",
+   "decision": "mesurer_rendu.gd note chaque image, sans V-Sync (--disable-vsync), et donne la médiane, le 99e centile, la pire image et le nombre d'images de plus de 16,7 ms. Une mesure de 900 images depuis le début couvre les premiers sorts, où un shader se compilerait."
   }
  ]
 }

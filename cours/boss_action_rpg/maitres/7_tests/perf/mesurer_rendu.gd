@@ -13,6 +13,10 @@ extends SceneTree
 #@ 20+
 ## Avec `--magie` : la seconde phase, spectres compris, et le Gardien enchaîne boules de feu et éclairs sans récupérer, le
 ## héros invulnérable à l'entrée : la mesure voit alors les sorts, au plus fort.
+#@ 22+
+## Sur un petit PC, le temps de la carte ne dit pas tout : la mesure donne aussi la carte utilisée, le temps de chaque image
+## (médiane, 99e centile, pire image, nombre d'images de plus de 16,7 ms) et la mémoire. Une image lente dans un combat, c'est
+## souvent un shader compilé à son premier emploi : pour la voir, un échauffement court et une longue mesure (5 900).
 #@ all
 
 const MARQUEUR: String = "@@RENDU@@"
@@ -31,6 +35,10 @@ var _golem: Golem
 #@ 20+
 var _magie: bool = false
 var _sort: int = 0
+#@ 22+
+var _images_us: PackedInt64Array = PackedInt64Array()
+var _tic: int = 0
+var _charge_ms: int = 0
 #@ all
 
 
@@ -46,6 +54,9 @@ func _initialize() -> void:
 #@ all
 	_gpu.resize(_images)
 	_cpu.resize(_images)
+#@ 22+
+	_images_us.resize(_images)
+#@ all
 	_scene = (load("res://2_sequence/main.tscn") as PackedScene).instantiate() as Node3D
 	root.add_child(_scene)
 	current_scene = _scene
@@ -80,10 +91,28 @@ func _process(_delta: float) -> bool:
 		var i: int = _image - _echauffement - 1
 		_gpu[i] = RenderingServer.viewport_get_measured_render_time_gpu(rid)
 		_cpu[i] = RenderingServer.viewport_get_measured_render_time_cpu(rid)
+#@ 22+
+		_images_us[i] = Time.get_ticks_usec() - _tic
+	_tic = Time.get_ticks_usec()
+	if _image == 3:
+		_charge_ms = Time.get_ticks_msec()
+#@ all
 	if _image == _echauffement + _images:
 		root.get_texture().get_image().save_png(_chemin)
 		var reglage: GraphicsQualityApplier = _scene.get_node("GraphicsQuality") as GraphicsQualityApplier
 		print(MARQUEUR + JSON.stringify({
+#@ 22+
+			"carte": RenderingServer.get_video_adapter_name(),
+			"rendu": RenderingServer.get_current_rendering_method(),
+			"image_ms_mediane": _centile(_images_us, 0.5) / 1000.0,
+			"image_ms_p99": _centile(_images_us, 0.99) / 1000.0,
+			"image_ms_max": _centile(_images_us, 1.0) / 1000.0,
+			"images_lentes": _au_dessus(_images_us, 16667),
+			"pire_image": _images_us.find(_centile(_images_us, 1.0)) + _echauffement,
+			"chargement_ms": _charge_ms,
+			"images": _images,
+			"memoire_statique_mo": OS.get_static_memory_peak_usage() / 1048576.0,
+#@ all
 			"qualite": String(reglage.current.id),
 			"taille": [root.size.x, root.size.y],
 			"gpu_ms_mediane": _mediane(_gpu),
@@ -127,6 +156,21 @@ func _lancer_un_sort() -> void:
 			_golem.attack = attaque
 	_golem.rotation.y = Motion.yaw_of(_hero.global_position - _golem.global_position)
 	_golem.machine.transition_to(&"Attack")
+
+
+#@ 22+
+func _centile(valeurs: PackedInt64Array, part: float) -> int:
+	var t: PackedInt64Array = valeurs.duplicate()
+	t.sort()
+	return t[mini(floori(t.size() * part), t.size() - 1)]
+
+
+func _au_dessus(valeurs: PackedInt64Array, limite: int) -> int:
+	var n: int = 0
+	for v: int in valeurs:
+		if v > limite:
+			n += 1
+	return n
 
 
 #@ all
