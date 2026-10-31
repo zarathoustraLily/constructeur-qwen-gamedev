@@ -238,7 +238,8 @@ FICHIERS = {
     "6_assets/Shader/VFX/muzzle_flash.gdshader": "19+",
     "6_assets/Shader/VFX/impact_star.gdshader": "19+",
     "6_assets/Shader/VFX/impact_flash.gdshader": "19+",
-    "6_assets/VFX/combat/muzzle_flash.tscn": "19+",
-    "6_assets/VFX/combat/shot_impact.tscn": "19+",
+    "3_entities/hero/muzzle_flash.tscn": "19+",
+    "3_entities/hero/shot_impact.tscn": "19+",
+    "3_entities/hero/hero_shot.tscn": "19+",
     "7_tests/1_core/vfx/test_vfx_burst.gd": "19+",
 }

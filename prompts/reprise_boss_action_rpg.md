@@ -195,7 +195,9 @@ pas parlé.
 2. **Maîtres balisés** (`cours/boss_action_rpg/maitres/…`) : `#@ N`, `#@ N+`, `#@ a-b`, `#@ all` dans les `.gd` ;
    `;@ …` dans les `.tscn`, `.tres`, `project.godot` ; `//@ …` dans les shaders. Un bloc ajouté se referme sur la balise
    du bloc qui l'englobait (`grep -n "^#@"` avant d'écrire). Une étape nouvelle ne change pas les précédentes :
-   vérifier **avant de committer** par `python SUIVIS_PROGRESSION/outils/verifier_etapes.py N` (0 écart). Mes retouches
+   vérifier **avant de committer** par `python SUIVIS_PROGRESSION/outils/verifier_etapes.py N` (0 écart), et le rangement par
+   `python SUIVIS_PROGRESSION/outils/structure_ecarts.py N-1 N` (juge du dépôt : aucun écart de plus que l'étape d'avant :
+   `6_assets/` et `1_core/` ne connaissent aucun autre dossier ; une scène avec script et matériaux va dans `3_entities/`). Mes retouches
    de maîtres passaient par un petit script Python écrit avec l'outil d'écriture : `assert texte.count(ancien) == 1`,
    puis `write_bytes` (pas de CRLF).
 3. **Tests d'abord** (GdUnit4, une règle par cas, la liste des règles en tête de suite).
@@ -399,5 +401,8 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - `python -I` ne voit pas les paquets installés pour l'utilisateur (Pillow).
 - Le tonemap AgX blanchit les orangés très vifs : une lueur trop forte fait une boule de lait.
 - Verrouillé sur le Gardien, la caméra descend au ras du plancher : mauvaise vue pour juger un effet.
+- Une scène déplacée reste dans le jeu si son ancien dossier est gardé par `reporter.py` (`6_assets/`) : l'effacer à la main.
+- `git push` échoue dans l'outil de commande (« could not read Username », `GCM_INTERACTIVE=never`) alors que les identifiants
+  de laurent sont enregistrés : `git -c credential.username=zarathoustraLily push origin claude/observation-visuelle`.
 - Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.
   Je l'ai lue dans `D:\sources\godot-docs\tutorials\shaders\shader_reference\spatial_shader.rst` et n'en ai pas fait de pas.

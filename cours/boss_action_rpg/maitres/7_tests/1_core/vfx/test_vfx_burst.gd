@@ -4,8 +4,8 @@ extends GdUnitTestSuite
 ## ses particules vivent, puis se cache ; rejouer un effet en cours le remet à neuf ; sans droit à la lumière, elle reste
 ## éteinte, et le reste de l'effet joue ; les effets du jeu sont en réserve : aucun ne garde son AnimationPlayer.
 
-const MUZZLE := preload("res://6_assets/VFX/combat/muzzle_flash.tscn")
-const IMPACT := preload("res://6_assets/VFX/combat/shot_impact.tscn")
+const MUZZLE := preload("res://3_entities/hero/muzzle_flash.tscn")
+const IMPACT := preload("res://3_entities/hero/shot_impact.tscn")
 const DT: float = 1.0 / 60.0
 
 

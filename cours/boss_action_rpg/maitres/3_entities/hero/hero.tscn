@@ -45,7 +45,7 @@
 ;@ 16+
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_jump_state.gd" id="24_jump"]
 ;@ 19+
-[ext_resource type="PackedScene" path="res://6_assets/VFX/combat/muzzle_flash.tscn" id="25_flash"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/muzzle_flash.tscn" id="25_flash"]
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]

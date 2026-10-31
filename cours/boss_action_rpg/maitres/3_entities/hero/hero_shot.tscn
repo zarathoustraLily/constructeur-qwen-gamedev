@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://1_core/combat/projectile.tscn" id="1_projectile"]
+[ext_resource type="Material" path="res://5_data/vfx/tracer_material.tres" id="2_tracer"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_tracer"]
+orientation = 1
+center_offset = Vector3(0, 0, 0.5)
+
+[node name="HeroShot" instance=ExtResource("1_projectile")]
+
+[node name="Tracer" type="MeshInstance3D" parent="."]
+material_override = ExtResource("2_tracer")
+cast_shadow = 0
+extra_cull_margin = 0.5
+mesh = SubResource("QuadMesh_tracer")

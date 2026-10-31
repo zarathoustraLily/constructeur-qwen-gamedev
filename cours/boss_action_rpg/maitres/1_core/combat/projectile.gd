@@ -4,7 +4,7 @@ class_name Projectile extends Node3D
 ## ou une zone qui reçoit les tirs (Hurtbox : elle prend les dégâts) ; sinon il s'éteint au bout de sa durée. Il
 ## n'est jamais détruit : il retourne à sa réserve (ProjectilePool), qui le relance.
 #@ 19+
-## Sa traçante s'étire derrière lui depuis la bouche de l'arme, jusqu'à sa longueur.
+## S'il a une traçante (enfant Tracer), elle s'étire derrière lui depuis la bouche de l'arme, jusqu'à sa longueur.
 #@ all
 
 ## Le projectile a fini (touché ou éteint) : sa réserve le reprend.
@@ -29,7 +29,7 @@ var _query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
 #@ 19+
 var _origin: Vector3 = Vector3.ZERO
 
-@onready var _tracer: Node3D = $Tracer
+@onready var _tracer: Node3D = get_node_or_null(^"Tracer") as Node3D
 #@ all
 
 
@@ -108,5 +108,6 @@ func _park() -> void:
 
 ## La traçante va du projectile vers la bouche de l'arme, sans la dépasser (échelle Z du plan : tracer.gdshader).
 func _stretch_tracer() -> void:
-	_tracer.scale.z = clampf(global_position.distance_to(_origin), 0.01, tracer_length)
+	if _tracer != null:
+		_tracer.scale.z = clampf(global_position.distance_to(_origin), 0.01, tracer_length)
 #@ all

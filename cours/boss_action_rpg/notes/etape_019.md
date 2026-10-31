@@ -32,7 +32,7 @@ vérifient leurs réglages et leurs relances, et l'image vérifie leur rendu.
 
 ### 2. L'éclair de bouche
 
-`6_assets/VFX/combat/muzzle_flash.tscn`, enfant de l'arme : trois émetteurs (`Long`, `Side`, `Front`) qui tirent chacun
+`3_entities/hero/muzzle_flash.tscn`, enfant de l'arme : trois émetteurs (`Long`, `Side`, `Front`) qui tirent chacun
 quelques plans le long du canon, tournés au hasard autour de lui, une lueur et une lumière. La vue du héros le tourne
 dans la direction du tir et le rejoue (`HeroView._on_fired`).
 
@@ -55,7 +55,8 @@ longue que ce que le tir parcourt en une image. `tracer.gdshader` étire un seul
 - un fil blanc-jaune dans un halo orangé, en pointe à la tête, effacé à la queue, un peu plus large au loin pour ne pas
   clignoter, éteint tout près de la caméra (`-VERTEX.z`, comme les spectres).
 
-Deux triangles par tir, trente-deux au plus en réserve.
+Deux triangles par tir, trente-deux au plus en réserve. La traçante vit dans `3_entities/hero/hero_shot.tscn`, qui reprend
+le projectile de `1_core/` et lui ajoute son plan : `1_core/` ne connaît pas les données de `5_data/`.
 
 ### 4. L'impact
 
@@ -88,6 +89,9 @@ le joueur voit la différence.
 - `varying flat int instance;` : « Expected an identifier or '['. ». `instance` est un mot du langage de shaders (`instance
   uniform`). Les 251 cas étaient verts, code de sortie 0 : l'erreur n'apparaissait qu'en lisant la sortie. Le résumé des
   tests cherche maintenant `SHADER ERROR`.
+- Le juge de structure refusait les premières scènes : `6_assets/` et `1_core/` ne doivent connaître aucun autre dossier
+  (tableau du plan). Une scène qui a un script et des matériaux va dans `3_entities/` : éclair de bouche, impact et traçante
+  sont rangés avec le héros. `outils/structure_ecarts.py` compare chaque étape à la précédente, avant le commit.
 - `python -I` ne voit pas les paquets installés pour l'utilisateur (Pillow) : on le garde pour les archives téléchargées,
   pas pour nos propres outils.
 - Un outil qui quitte pendant qu'un son joue fait fuir des ressources à la sortie (déjà vu à l'étape 18) : `voir_tirs.gd`

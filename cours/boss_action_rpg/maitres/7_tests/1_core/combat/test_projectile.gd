@@ -9,6 +9,9 @@ extends GdUnitTestSuite
 #@ all
 
 const PROJECTILE := preload("res://1_core/combat/projectile.tscn")
+#@ 19+
+const HERO_SHOT := preload("res://3_entities/hero/hero_shot.tscn")
+#@ all
 const SPEED: float = 60.0
 
 var _world: Node3D
@@ -141,7 +144,9 @@ func test_tirer_ne_cree_aucun_noeud() -> void:
 
 
 func test_sa_tracante_s_etire_sans_depasser_la_bouche_jusqu_a_sa_longueur() -> void:
-	var projectile: Projectile = _fire(10.0, 2.0)
+	var projectile: Projectile = HERO_SHOT.instantiate() as Projectile
+	_world.add_child(projectile)
+	projectile.launch(Vector3.ZERO, Vector3.FORWARD, SPEED, 10.0, 2.0)
 	var tracante: Node3D = projectile.get_node("Tracer") as Node3D
 	await _frames(2)
 	var parcouru: float = absf(projectile.global_position.z)

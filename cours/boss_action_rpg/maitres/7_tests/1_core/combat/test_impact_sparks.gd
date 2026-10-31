@@ -9,7 +9,7 @@ const SPARKS := preload("res://6_assets/VFX/combat/hit_sparks.tscn")
 ## touché, tournée selon la surface ; les salves préparées servent à tour de rôle ; une seule lumière suit le dernier
 ## impact, devant la surface.
 
-const SPARKS := preload("res://6_assets/VFX/combat/shot_impact.tscn")
+const SPARKS := preload("res://3_entities/hero/shot_impact.tscn")
 #@ all
 const PROJECTILE := preload("res://1_core/combat/projectile.tscn")
 

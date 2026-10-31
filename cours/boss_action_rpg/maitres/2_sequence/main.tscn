@@ -36,7 +36,11 @@
 [ext_resource type="Script" path="res://1_core/components/health_component.gd" id="6_health"]
 [ext_resource type="Resource" path="res://5_data/target/target_health.tres" id="7_target_health"]
 ;@ 5+
+;@ 5-18
 [ext_resource type="PackedScene" path="res://1_core/combat/projectile.tscn" id="8_projectile"]
+;@ 19+
+[ext_resource type="PackedScene" path="res://3_entities/hero/hero_shot.tscn" id="8_projectile"]
+;@ 5+
 ;@ 6+
 [ext_resource type="Resource" path="res://5_data/encounter/encounter.tres" id="9_encounter"]
 ;@ 7+
@@ -60,7 +64,7 @@
 ;@ 13-18
 [ext_resource type="PackedScene" path="res://6_assets/VFX/combat/hit_sparks.tscn" id="21_hit_sparks"]
 ;@ 19+
-[ext_resource type="PackedScene" path="res://6_assets/VFX/combat/shot_impact.tscn" id="21_hit_sparks"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/shot_impact.tscn" id="21_hit_sparks"]
 [ext_resource type="Script" path="res://1_core/vfx/vfx_burst.gd" id="32_burst"]
 ;@ 15+
 [ext_resource type="Script" path="res://1_core/graphics/graphics_quality_applier.gd" id="22_quality"]
