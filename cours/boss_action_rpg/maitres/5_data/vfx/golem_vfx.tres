@@ -22,4 +22,12 @@ glow_pulse_speed = 2.4
 ;@ 19+
 hit_glow = 3.5
 hit_glow_time = 0.2
+;@ 20+
+aura_first = 1.0
+aura_second = 1.8
+aura_time = 1.5
+aura_pulse = 0.25
+aura_pulse_speed = 3.2
+aura_light = 3.0
+embers_first = 0.5
 ;@ all

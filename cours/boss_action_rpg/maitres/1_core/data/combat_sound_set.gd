@@ -48,6 +48,18 @@ class_name CombatSoundSet extends Resource
 @export var golem_down: SoundCue
 ## Un pas tous les tant de mètres parcourus.
 @export_range(0.5, 10.0, 0.05) var golem_stride: float = 2.6
+#@ 20+
+## Il prépare un sort.
+@export var golem_charge: SoundCue
+## Une boule de feu part.
+@export var fireball_throw: SoundCue
+## Une boule de feu explose.
+@export var fireball_blast: SoundCue
+## Un éclair marque le sol.
+@export var lightning_mark: SoundCue
+## Un éclair frappe.
+@export var lightning_strike: SoundCue
+#@ all
 
 @export_group("Spectres")
 ## Un spectre annonce sa plongée.

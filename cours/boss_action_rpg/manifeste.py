@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 19
+DERNIERE = 20
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -37,13 +37,14 @@ ETAPES = [
     {"piste": "Gameplay + VFX", "titre": "Les spectres plongent chacun leur tour, et laissent une traîne"},
     {"piste": "Audio", "titre": "Le son et la musique du combat"},
     {"piste": "VFX + Shaders", "titre": "Les effets des tirs : éclair de bouche, traçantes, impacts"},
+    {"piste": "Gameplay + VFX + Shaders", "titre": "La magie du Gardien : boules de feu, éclairs annoncés au sol, aura"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -242,4 +243,26 @@ FICHIERS = {
     "3_entities/hero/shot_impact.tscn": "19+",
     "3_entities/hero/hero_shot.tscn": "19+",
     "7_tests/1_core/vfx/test_vfx_burst.gd": "19+",
+    "1_core/data/golem_spell_settings.gd": "20+",
+    "5_data/boss/spells.tres": "20+",
+    "5_data/boss/attacks/fireball.tres": "20+",
+    "5_data/boss/attacks/lightning.tres": "20+",
+    "3_entities/boss/fireball.gd": "20+",
+    "3_entities/boss/fireball.tscn": "20+",
+    "3_entities/boss/fire_blast.tscn": "20+",
+    "3_entities/boss/golem_lightning.gd": "20+",
+    "3_entities/boss/golem_lightning.tscn": "20+",
+    "3_entities/boss/golem_spells.gd": "20+",
+    "5_data/vfx/fire_noise.tres": "20+",
+    "5_data/vfx/fireball_material.tres": "20+",
+    "5_data/vfx/fireball_tail_material.tres": "20+",
+    "5_data/vfx/lightning_material.tres": "20+",
+    "5_data/vfx/ground_ring_material.tres": "20+",
+    "5_data/vfx/fire_star_material.tres": "20+",
+    "5_data/vfx/fire_flash_material.tres": "20+",
+    "6_assets/Shader/VFX/fireball.gdshader": "20+",
+    "6_assets/Shader/VFX/lightning.gdshader": "20+",
+    "6_assets/Shader/VFX/ground_ring.gdshader": "20+",
+    "6_assets/VFX/golem/aura_embers.tscn": "20+",
+    "7_tests/3_entities/boss/test_golem_spells.gd": "20+",
 }

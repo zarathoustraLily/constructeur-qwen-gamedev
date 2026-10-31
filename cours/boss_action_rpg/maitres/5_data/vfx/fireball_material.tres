@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/fireball.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/fire_noise.tres" id="2_noise"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/noise = ExtResource("2_noise")
+shader_parameter/intensity = 1.5
+shader_parameter/flow_speed = 1.3
+shader_parameter/tongues = 0.95

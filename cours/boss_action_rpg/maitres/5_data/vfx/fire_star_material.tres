@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/impact_star.gdshader" id="1_shader"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/hot_color = Color(1, 0.85, 0.5, 1)
+shader_parameter/edge_color = Color(1, 0.3, 0.05, 1)
+shader_parameter/intensity = 1.7
+shader_parameter/points = 7.0
+shader_parameter/edge_hardness = 0.15
+shader_parameter/edge_position = 0.3

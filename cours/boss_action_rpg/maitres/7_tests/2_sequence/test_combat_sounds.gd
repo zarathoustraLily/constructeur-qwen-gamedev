@@ -56,6 +56,23 @@ func test_les_evenements_du_gardien_ont_leur_son_et_la_musique_le_suit() -> void
 	assert_object(_board.last_cue).is_same(_set.golem_down)
 	music.update(10.0)
 	assert_bool(music.playing).is_false()
+#@ 20+
+
+
+func test_les_sorts_du_gardien_ont_leur_son() -> void:
+	var sorts: GolemSpells = _golem.get_node("Spells") as GolemSpells
+	var ici: Vector3 = Vector3(0.0, 0.0, -4.0)
+	_golem.charge_started.emit(_golem.settings.attacks[4])
+	assert_object(_board.last_cue).is_same(_set.golem_charge)
+	sorts.ball_thrown.emit(ici)
+	assert_object(_board.last_cue).is_same(_set.fireball_throw)
+	sorts.ball_exploded.emit(ici)
+	assert_object(_board.last_cue).is_same(_set.fireball_blast)
+	sorts.lightning_marked.emit(ici)
+	assert_object(_board.last_cue).is_same(_set.lightning_mark)
+	sorts.lightning_struck.emit(ici)
+	assert_object(_board.last_cue).is_same(_set.lightning_strike)
+#@ all
 
 
 func test_un_tir_prend_le_son_de_ce_qu_il_touche() -> void:

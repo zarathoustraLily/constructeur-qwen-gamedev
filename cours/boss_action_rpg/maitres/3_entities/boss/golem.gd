@@ -12,6 +12,10 @@ class_name Golem extends CharacterBody3D
 ## de le punir, de dos surtout (son point faible). Son bouclier bloque les tirs. Quand il a perdu 30 % de sa vie, la
 ## seconde phase commence : il jette son bouclier, ses spectres sortent (SpectreCall), ses coups sont plus vifs, il
 ## enchaîne et bondit. Sa vue (golem_view.gd) montre tout cela ; lui ne fait que bouger et décider.
+#@ 20+
+## De loin, il lance des boules de feu ; en seconde phase, des éclairs : un sort s'annonce (charge_started), part
+## (spell_cast), et ses sorts (golem_spells.gd) font le reste. Un coup peut demander un repos avant de resservir.
+#@ 12+
 
 ## Il s'est réveillé.
 signal woke
@@ -23,6 +27,14 @@ signal attack_started(attack: GolemAttack)
 signal slammed(point: Vector3, radius: float)
 ## Il est vaincu.
 signal defeated
+#@ 20+
+## Le sort de l'attaque `attack` se prépare : il s'annonce.
+signal charge_started(attack: GolemAttack)
+## Le sort de l'attaque `attack` part.
+signal spell_cast(attack: GolemAttack)
+## L'attaque qui portait un sort est finie, ou interrompue.
+signal charge_ended
+#@ 12+
 
 ## Le modèle est quatre fois plus grand que ses clips.
 const MODEL_SCALE: float = 4.0
@@ -48,6 +60,10 @@ var phase_two_due: bool = false
 var chained: int = 0
 
 var _next: int = 0
+#@ 20+
+var _clock: float = 0.0
+var _used_at: Dictionary[StringName, float] = {}
+#@ 12+
 #@ 14+
 var _path_query: PhysicsShapeQueryParameters3D
 #@ 7+
@@ -80,6 +96,11 @@ func _ready() -> void:
 	_path_query.shape = ($Shape as CollisionShape3D).shape
 	_path_query.collision_mask = Layers.bit(Layers.WORLD)
 	_path_query.exclude = [get_rid()]
+#@ 20+
+
+
+func _physics_process(delta: float) -> void:
+	_clock += delta
 #@ 12+
 
 
@@ -124,12 +145,26 @@ func choose_attack(distance: float) -> GolemAttack:
 	var count: int = settings.attacks.size()
 	for i: int in count:
 		var candidate: GolemAttack = settings.attacks[(_next + i) % count]
+#@ 12-19
 		if candidate.allowed(distance, phase) and path_clear(candidate):
 			_next = (_next + i + 1) % count
 			return candidate
+#@ 20+
+		if candidate.allowed(distance, phase) and rested(candidate) and path_clear(candidate):
+			_next = (_next + i + 1) % count
+			_used_at[candidate.id] = _clock
+			return candidate
+#@ 12+
 	return null
 
 
+#@ 20+
+## Vrai si le coup `strike` s'est assez reposé pour resservir.
+func rested(strike: GolemAttack) -> bool:
+	return not _used_at.has(strike.id) or _clock - _used_at[strike.id] >= strike.cooldown
+
+
+#@ 12+
 ## Le déplacement que porte le clip `clip` de son début à l'instant `t` (l'os racine), au sol et dans le monde, selon
 ## la direction où il regarde : le modèle est quatre fois plus grand que le clip et tourné d'un demi-tour.
 func root_offset(clip: StringName, t: float) -> Vector3:
@@ -200,6 +235,23 @@ func begin_attack() -> void:
 	attack_started.emit(attack)
 
 
+#@ 20+
+## Le sort de `strike` se prépare ; il le dit.
+func begin_charge(strike: GolemAttack) -> void:
+	charge_started.emit(strike)
+
+
+## Le sort de `strike` part ; il le dit.
+func cast_spell(strike: GolemAttack) -> void:
+	spell_cast.emit(strike)
+
+
+## L'attaque qui portait un sort est finie ; il le dit.
+func end_charge() -> void:
+	charge_ended.emit()
+
+
+#@ 12+
 ## Il écrase le sol en `point` : l'onde (placée là d'avance) frappe de `damage` dans le rayon `radius` ; il le dit.
 func strike_ground(point: Vector3, radius: float, damage: float) -> void:
 	slam_zone.activate(damage)

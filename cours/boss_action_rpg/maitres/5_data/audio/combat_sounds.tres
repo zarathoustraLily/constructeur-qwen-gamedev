@@ -1,4 +1,8 @@
+;@ 18-19
 [gd_resource type="Resource" script_class="CombatSoundSet" load_steps=96 format=3]
+;@ 20+
+[gd_resource type="Resource" script_class="CombatSoundSet" load_steps=104 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://1_core/data/combat_sound_set.gd" id="1_set"]
 [ext_resource type="Script" path="res://1_core/audio/sound_cue.gd" id="2_cue"]
@@ -69,6 +73,11 @@
 [ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_002.ogg" id="67_forceField_002"]
 [ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_003.ogg" id="68_forceField_003"]
 [ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/forceField_004.ogg" id="69_forceField_004"]
+;@ 20+
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserLarge_000.ogg" id="90_laserLarge_000"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserLarge_001.ogg" id="91_laserLarge_001"]
+[ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/scifi/laserLarge_002.ogg" id="92_laserLarge_002"]
+;@ all
 [ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_000.ogg" id="70_impactGlass_medium_000"]
 [ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_001.ogg" id="71_impactGlass_medium_001"]
 [ext_resource type="AudioStream" path="res://6_assets/Audio/SFX/impact/impactGlass_medium_002.ogg" id="72_impactGlass_medium_002"]
@@ -243,6 +252,48 @@ pitch_min = 0.6
 pitch_max = 0.7
 max_distance = 40.0
 
+;@ 20+
+[sub_resource type="Resource" id="Resource_golem_charge"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("65_forceField_000"), ExtResource("66_forceField_001"), ExtResource("67_forceField_002")])
+volume_db = -4.0
+pitch_min = 0.45
+pitch_max = 0.55
+max_distance = 60.0
+
+[sub_resource type="Resource" id="Resource_fireball_throw"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("90_laserLarge_000"), ExtResource("91_laserLarge_001"), ExtResource("92_laserLarge_002")])
+volume_db = -4.0
+pitch_min = 0.4
+pitch_max = 0.5
+max_distance = 60.0
+
+[sub_resource type="Resource" id="Resource_fireball_blast"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("60_explosionCrunch_000"), ExtResource("61_explosionCrunch_001"), ExtResource("62_explosionCrunch_002"), ExtResource("63_explosionCrunch_003"), ExtResource("64_explosionCrunch_004")])
+volume_db = -2.0
+pitch_min = 0.65
+pitch_max = 0.8
+max_distance = 60.0
+
+[sub_resource type="Resource" id="Resource_lightning_mark"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("65_forceField_000"), ExtResource("66_forceField_001"), ExtResource("67_forceField_002")])
+volume_db = -10.0
+pitch_min = 1.3
+pitch_max = 1.5
+max_distance = 40.0
+
+[sub_resource type="Resource" id="Resource_lightning_strike"]
+script = ExtResource("2_cue")
+streams = Array[AudioStream]([ExtResource("90_laserLarge_000"), ExtResource("91_laserLarge_001"), ExtResource("92_laserLarge_002")])
+volume_db = -2.0
+pitch_min = 0.9
+pitch_max = 1.15
+max_distance = 60.0
+
+;@ all
 [resource]
 script = ExtResource("1_set")
 shot = SubResource("Resource_shot")
@@ -268,3 +319,10 @@ golem_down = SubResource("Resource_golem_down")
 spectre_windup = SubResource("Resource_spectre_windup")
 spectre_gone = SubResource("Resource_spectre_gone")
 golem_stride = 2.6
+;@ 20+
+golem_charge = SubResource("Resource_golem_charge")
+fireball_throw = SubResource("Resource_fireball_throw")
+fireball_blast = SubResource("Resource_fireball_blast")
+lightning_mark = SubResource("Resource_lightning_mark")
+lightning_strike = SubResource("Resource_lightning_strike")
+;@ all

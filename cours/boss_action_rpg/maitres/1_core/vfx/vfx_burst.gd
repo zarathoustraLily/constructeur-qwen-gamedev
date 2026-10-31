@@ -4,7 +4,11 @@ class_name VfxBurst extends Node3D
 ## quand tout est fini : au repos, il ne coûte rien au rendu. C'est le contrôleur des effets de Binbun (CC0), typé, sans
 ## leur AnimationPlayer : le temps suit `update`, et les particules se relancent par `restart`, sans allocation.
 
+#@ 19
 ## Le groupe des effets : la qualité graphique leur coupe la lumière.
+#@ 20+
+## Le groupe des effets : la qualité graphique règle leur `light_allowed`.
+#@ all
 const GROUP: StringName = &"vfx_burst"
 
 ## Le temps que mettent la lueur et la lumière à s'éteindre, en secondes.

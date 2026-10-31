@@ -90,8 +90,11 @@ suivante avant.
 - [ ] 19. Les effets des tirs : bouche, traçantes, impacts
 #@ 19+
 - [x] 19. Les effets des tirs : éclair de bouche, traçantes, impacts
-#@ 17+
+#@ 17-19
 - [ ] 20. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
+#@ 20+
+- [x] 20. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
+#@ 17+
 - [ ] 21. Ce qui se dessine : distances de visibilité des petits objets, occulteurs
 - [ ] 22. Le petit PC lui-même : mesure en conditions réelles
 #@ 12+

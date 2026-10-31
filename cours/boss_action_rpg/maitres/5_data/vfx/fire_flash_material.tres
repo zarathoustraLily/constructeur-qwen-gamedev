@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/impact_flash.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/flash_noise.tres" id="2_noise"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/hot_color = Color(1, 0.75, 0.3, 1)
+shader_parameter/edge_color = Color(0.9, 0.2, 0.03, 1)
+shader_parameter/intensity = 3.0
+shader_parameter/pinch = 0.3
+shader_parameter/noise = ExtResource("2_noise")
+shader_parameter/noise_scale = Vector2(0.8, 0.2)
+shader_parameter/edge_hardness = 0.3

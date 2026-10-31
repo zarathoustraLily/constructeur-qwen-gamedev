@@ -16,6 +16,8 @@ extends SceneTree
 #@ 15+
 ## - la qualité graphique appliquée et les passes d'ombre qu'elle peut demander par image ; `--qualite=basse` (après
 ##   les deux nombres) choisit la qualité basse.
+#@ 20+
+## - `--loin` pose le héros à 14 m : le golem lance alors ses sorts sans cesse (`sorts` : leur nombre dans la fenêtre).
 #@ 14+
 ## Résultat : une ligne « @@MESURE@@<json> ».
 ##   godot --headless --fixed-fps 60 --path <projet> -s res://7_tests/perf/mesurer_combat.gd -- <échauffement> <fenêtre>
@@ -36,6 +38,9 @@ var _tic: int = 0
 var _durees: PackedInt64Array = PackedInt64Array()
 #@ 18+
 var _sons_debut: int = 0
+#@ 20+
+var _loin: bool = false
+var _sorts: int = 0
 #@ 14+
 
 
@@ -45,6 +50,9 @@ func _initialize() -> void:
 		_echauffement = int(args[0])
 		_fenetre = int(args[1])
 	_durees.resize(_fenetre)
+#@ 20+
+	_loin = "--loin" in args
+#@ 14+
 	_scene = (load("res://2_sequence/main.tscn") as PackedScene).instantiate() as Node3D
 	root.add_child(_scene)
 	current_scene = _scene
@@ -97,7 +105,12 @@ func _preparer() -> void:
 	orbit.get_node("Input").free()
 	orbit.lock(_golem.lock_point)
 	_hero.invulnerable = true
+#@ 14-19
 	_hero.global_position = _golem.global_position + Vector3(-7.0, 0.0, 0.0)
+#@ 20+
+	_hero.global_position = _golem.global_position + Vector3(-14.0 if _loin else -7.0, 0.0, 0.0)
+	_golem.spell_cast.connect(func(_attaque: GolemAttack) -> void: _sorts += 1)
+#@ 14+
 	_hero.rotation.y = Motion.yaw_of(Vector3.RIGHT)
 
 
@@ -139,6 +152,9 @@ func _conclure(allocations: int) -> void:
 	var sons: int = (_scene.get_node("SoundBoard") as SoundBoard).played - _sons_debut
 	resultat["sons"] = sons
 	resultat["allocations_hors_sons"] = allocations - 2 * sons
+#@ 20+
+	resultat["sorts"] = _sorts
+#@ 14+
 #@ 14+
 	print(MARQUEUR + JSON.stringify(resultat))
 

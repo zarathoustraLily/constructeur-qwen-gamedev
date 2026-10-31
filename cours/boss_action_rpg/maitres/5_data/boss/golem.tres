@@ -1,4 +1,8 @@
+;@ 12-19
 [gd_resource type="Resource" script_class="GolemSettings" load_steps=7 format=3]
+;@ 20+
+[gd_resource type="Resource" script_class="GolemSettings" load_steps=9 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://1_core/data/golem_settings.gd" id="1_settings"]
 [ext_resource type="Script" path="res://1_core/data/golem_attack.gd" id="2_attack"]
@@ -6,6 +10,10 @@
 [ext_resource type="Resource" path="res://5_data/boss/attacks/backhand.tres" id="4_backhand"]
 [ext_resource type="Resource" path="res://5_data/boss/attacks/crush.tres" id="5_crush"]
 [ext_resource type="Resource" path="res://5_data/boss/attacks/leap.tres" id="6_leap"]
+;@ 20+
+[ext_resource type="Resource" path="res://5_data/boss/attacks/fireball.tres" id="7_fireball"]
+[ext_resource type="Resource" path="res://5_data/boss/attacks/lightning.tres" id="8_lightning"]
+;@ all
 
 [resource]
 script = ExtResource("1_settings")
@@ -14,7 +22,11 @@ wake_time = 2.0
 walk_speed = 2.0
 turn_speed = 1.4
 walk_cone = 0.8
+;@ 12-19
 attacks = Array[ExtResource("2_attack")]([ExtResource("3_sweep"), ExtResource("4_backhand"), ExtResource("5_crush"), ExtResource("6_leap")])
+;@ 20+
+attacks = Array[ExtResource("2_attack")]([ExtResource("3_sweep"), ExtResource("4_backhand"), ExtResource("5_crush"), ExtResource("6_leap"), ExtResource("7_fireball"), ExtResource("8_lightning")])
+;@ all
 phase_two_ratio = 0.7
 phase_shift_time = 2.5
 phase_two_chain = 2

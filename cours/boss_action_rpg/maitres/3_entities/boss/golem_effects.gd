@@ -9,6 +9,9 @@ class_name GolemEffects extends Node3D
 ##   d'émission). À sa chute : un nuage, et la braise s'éteint.
 #@ 19+
 ## - Un tir qui porte (ni bloqué ni perdu) : les jointures brillent un instant, même en première phase.
+#@ 20+
+## - Éveillé, une aura : sa silhouette bordée de feu (la même couche que la braise), des braises qui montent autour de
+##   lui et une lumière ; plus forte en seconde phase, éteinte à sa chute.
 #@ all
 ## Tout est préparé avec lui : aucun effet n'est créé en combat. Les effets sont posés dans le monde (top_level).
 
@@ -33,6 +36,11 @@ var glow: float = 0.0
 #@ 19+
 ## L'éclat d'un tir qui vient de porter, de 1 à 0.
 var hit_flash: float = 0.0
+#@ 20+
+## L'aura du moment, sans la palpitation.
+var aura: float = 0.0
+## Faux : la lumière de l'aura reste éteinte (qualité basse).
+var light_allowed: bool = true
 #@ 13+
 ## Le nombre de positions de la traînée en ce moment.
 var trail_count: int = 0
@@ -51,6 +59,8 @@ var _shockwave_material: ShaderMaterial
 var _glow_tween: Tween
 #@ 14+
 var _glow_target: float = 0.0
+#@ 20+
+var _aura_target: float = 0.0
 #@ 13+
 
 @onready var _shockwave: MeshInstance3D = $Shockwave
@@ -60,6 +70,14 @@ var _glow_target: float = 0.0
 @onready var _trail: MeshInstance3D = $HammerTrail
 @onready var _hammer_tip: Node3D = golem.get_node(^"Model/Skeleton3D/WeaponR/HammerHit/Shape") as Node3D
 @onready var _hammer_grip: Node3D = golem.get_node(^"Model/Skeleton3D/WeaponR") as Node3D
+#@ 20+
+@onready var _embers: GPUParticles3D = $AuraEmbers
+@onready var _aura_light: OmniLight3D = $AuraLight
+
+
+func _enter_tree() -> void:
+	add_to_group(VfxBurst.GROUP)
+#@ 13+
 
 
 func _ready() -> void:
@@ -88,6 +106,8 @@ func _ready() -> void:
 #@ 19+
 	(golem.get_node(^"Hurtbox") as Hurtbox).received.connect(_on_shot)
 	(golem.get_node(^"BackWeakPoint") as Hurtbox).received.connect(_on_shot)
+#@ 20+
+	golem.woke.connect(_on_woke)
 #@ 13+
 
 
@@ -112,6 +132,12 @@ func update(delta: float) -> void:
 	hit_flash = move_toward(hit_flash, 0.0, delta / settings.hit_glow_time)
 	var ember_glow: float = glow * (1.0 + settings.glow_pulse * sin(_clock * settings.glow_pulse_speed))
 	ember_material.set_shader_parameter(&"glow", ember_glow + hit_flash * settings.hit_glow)
+#@ 20+
+	aura = move_toward(aura, _aura_target, settings.aura_second * delta / settings.aura_time)
+	var aura_now: float = aura * (1.0 + settings.aura_pulse * sin(_clock * settings.aura_pulse_speed))
+	ember_material.set_shader_parameter(&"aura", aura_now)
+	_aura_light.visible = light_allowed and aura_now > 0.0
+	_aura_light.light_energy = aura_now * settings.aura_light
 #@ 13+
 
 
@@ -140,13 +166,30 @@ func _on_phase_changed(phase: int) -> void:
 	_burst(_dust, feet)
 	_shake(feet, settings.roar_shake, settings.roar_shake_time)
 	_fade_glow(settings.glow_energy)
+#@ 20+
+	_aura_target = settings.aura_second
+	_embers.amount_ratio = 1.0
+	_embers.emitting = true
+#@ 13+
 
 
 func _on_defeated() -> void:
 	_burst(_dust, golem.global_position)
 	_fade_glow(0.0)
+#@ 20+
+	_aura_target = 0.0
+	_embers.emitting = false
+#@ 13+
 
 
+#@ 20+
+func _on_woke() -> void:
+	_aura_target = settings.aura_first
+	_embers.amount_ratio = settings.embers_first
+	_embers.emitting = true
+
+
+#@ 13+
 func _on_landed(body: Node3D, dealt: float) -> void:
 	if dealt > 0.0:
 		_burst(_sparks, body.global_position + Vector3.UP)

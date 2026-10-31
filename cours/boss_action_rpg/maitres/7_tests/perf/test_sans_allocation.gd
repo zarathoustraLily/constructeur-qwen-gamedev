@@ -111,4 +111,30 @@ func test_rejouer_les_effets_d_un_tir_ne_cree_rien() -> void:
 		eclair.update(DT)
 		impacts.play(Vector3(1.0, 1.0, 1.0), Vector3.BACK, 12.0)
 	assert_int(_allocations(jouer, 40)).is_equal(0)
+#@ 20+
+
+
+func test_les_sorts_ne_creent_rien() -> void:
+	var golem: Golem = _golem(20.0)
+	var sorts: GolemSpells = golem.get_node("Spells") as GolemSpells
+	var effets: GolemEffects = golem.get_node("Effects") as GolemEffects
+	var boule: Fireball = sorts.balls[0]
+	var eclair: GolemLightning = sorts.bolts[0]
+	effets.process_mode = Node.PROCESS_MODE_DISABLED
+	golem.wake_up()
+	var cible: Node3D = golem.target
+	var vol: Callable = func() -> void:
+		boule.hold(Vector3(0.0, 4.0, 0.0), 0.5)
+		boule.launch(Vector3(0.0, 4.0, 0.0), Vector3.FORWARD, cible, 10.0)
+		boule.advance(DT)
+		boule.cancel()
+		effets.update(DT)
+	var foudre: Callable = func() -> void:
+		eclair.mark(Vector3(0.0, 0.0, -10.0), 1.0)
+		eclair.update(DT)
+		eclair.strike(Vector3(0.0, 5.0, 0.0), 10.0)
+		eclair.update(DT)
+		eclair.update(eclair.settings.bolt_time)
+	assert_int(_allocations(vol, 40)).is_equal(0)
+	assert_int(_allocations(foudre, 40)).is_equal(0)
 #@ all

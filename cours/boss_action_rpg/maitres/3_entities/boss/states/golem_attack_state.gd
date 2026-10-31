@@ -4,6 +4,9 @@ class_name GolemAttackState extends State
 ## vers le héros pendant l'élan seulement ; son marteau frappe dans sa fenêtre ; un coup qui écrase le sol place l'onde
 ## juste avant l'impact et la déclenche à l'impact. Le clip fini, il récupère (Recover), ou, en seconde phase, enchaîne
 ## (Approach) jusqu'à `phase_two_chain` coups ; si la seconde phase est due, elle passe d'abord (PhaseShift).
+#@ 20+
+## Un coup qui porte un sort le prépare, puis le lance, à ses instants.
+#@ all
 
 ## Le golem piloté.
 @export var golem: Golem
@@ -19,6 +22,10 @@ var _placed: bool = false
 var _motion_scale: float = 1.0
 var _slammed: bool = false
 var _slam_point: Vector3 = Vector3.ZERO
+#@ 20+
+var _charging: bool = false
+var _cast: bool = false
+#@ all
 
 
 ## L'attaque commence ; il le dit.
@@ -26,6 +33,10 @@ func enter(_previous: StringName) -> void:
 	clip_time = 0.0
 	_placed = false
 	_slammed = false
+#@ 20+
+	_charging = false
+	_cast = false
+#@ all
 	_motion_scale = golem.motion_scale(golem.attack)
 	golem.begin_attack()
 
@@ -35,13 +46,20 @@ func exit() -> void:
 	golem.hammer.deactivate()
 	golem.slam_zone.deactivate()
 	golem.velocity = Vector3.ZERO
+#@ 20+
+	golem.end_charge()
+#@ all
 
 
 ## Le clip avance : le corps suit, le marteau et l'onde frappent à leurs instants.
 func physics_update(delta: float) -> void:
 	var strike: GolemAttack = golem.attack
 	var before: float = clip_time
+#@ 12-19
 	clip_time += delta * golem.clip_speed()
+#@ 20+
+	clip_time += delta * golem.clip_speed() * strike.clip_rate
+#@ all
 	if clip_time <= strike.track_until:
 		golem.face_target(delta)
 	var moved: Vector3 = (golem.root_offset(strike.clip, clip_time) - golem.root_offset(strike.clip, before)) * _motion_scale
@@ -55,6 +73,10 @@ func physics_update(delta: float) -> void:
 		golem.hammer.deactivate()
 	if strike.slam:
 		_update_slam(strike)
+#@ 20+
+	if strike.spell != &"":
+		_update_spell(strike)
+#@ all
 	if clip_time >= golem.clip_length(strike.clip):
 		_finish_attack()
 
@@ -74,6 +96,17 @@ func _update_slam(strike: GolemAttack) -> void:
 		golem.slam_zone.deactivate()
 
 
+#@ 20+
+func _update_spell(strike: GolemAttack) -> void:
+	if not _charging and clip_time >= strike.charge_start:
+		_charging = true
+		golem.begin_charge(strike)
+	if not _cast and clip_time >= strike.cast_time:
+		_cast = true
+		golem.cast_spell(strike)
+
+
+#@ all
 func _finish_attack() -> void:
 	if golem.phase_two_due:
 		finish(&"PhaseShift")

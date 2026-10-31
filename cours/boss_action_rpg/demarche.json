@@ -815,6 +815,96 @@
    ],
    "lecture": "La référence : « Controls the distance attenuation function for omnilights. » et « Use a value of 2.0 for physically accurate lights ».",
    "decision": "Une seule lumière pour tous les impacts (ImpactSparks/Flare), qui saute au dernier, 80 cm devant la surface, sans ombres, atténuation 1,4 pour qu'elle porte un peu plus loin qu'une vraie. La qualité basse coupe les lumières des effets. Mesuré en tirant sans arrêt, en 1280 × 720 : carte 1,734 → 1,763 ms en haute, 0,333 → 0,336 ms en basse."
+  },
+  {
+   "id": "e20_aura_fresnel",
+   "etape": 20,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Le Gardien doit avoir une aura. Une seconde couche par pièce d'armure, ce serait huit objets dessinés de plus. Une couche de braise est déjà posée sur chaque pièce (material_overlay). Puis-je y mettre un liseré sur la silhouette, et sur quelles valeurs ?",
+   "pensee": "Une silhouette se lit dans l'angle entre la surface et le regard. Je vérifie les valeurs que donne le fragment d'un shader spatial.",
+   "outil": {
+    "genre": "rag",
+    "requete": "shader Fresnel silhouette transparente additive bord brillant",
+    "n": 3
+   },
+   "attendu": [
+    "fresnel"
+   ],
+   "lecture": "L'exemple vérifié bouclier_fresnel fait un bord brillant en shader additif, à partir de NORMAL et VIEW.",
+   "decision": "ember_lines.gdshader gagne un terme pow(1.0 - dot(NORMAL, VIEW), aura_power) * aura : aucun objet de plus à dessiner. GolemEffects règle aura : 1 éveillé, 1,8 en seconde phase, 0 à sa chute, avec des braises et une lumière que la qualité basse coupe."
+  },
+  {
+   "id": "e20_trois_classes_un_groupe",
+   "etape": 20,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "La qualité basse doit couper les lumières des tirs, des sorts et de l'aura. VfxBurst, Fireball et GolemEffects n'ont pas de parent commun : Fireball est dans 3_entities, GraphicsQualityApplier dans 1_core, qui ne doit pas la connaître. Comment leur parler sans les nommer ?",
+   "pensee": "Ils partagent un groupe. Je cherche si l'arbre peut poser une propriété sur tout un groupe.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "SceneTree",
+    "membre": "set_group"
+   },
+   "attendu": [
+    "set_group"
+   ],
+   "lecture": "La méthode existe sur l'arbre : elle pose une propriété sur chaque nœud d'un groupe, sans connaître leur classe.",
+   "decision": "GraphicsQualityApplier appelle get_tree().set_group(VfxBurst.GROUP, &\"light_allowed\", quality.effect_lights) ; chaque classe qui a une lumière d'effet entre dans le groupe et déclare light_allowed. Un seul test suffit par classe : la lumière reste éteinte quand elle n'y a pas droit."
+  },
+  {
+   "id": "e20_immediate_mesh_eclair",
+   "etape": 20,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "Le cours du kart dessine un éclair par déplacement de points médians, avec des tableaux créés à chaque forme, et se supprime en fin de vie. Ici, le combat ne crée rien. Comment garder le zigzag et le scintillement sans allocation ?",
+   "pensee": "Je relis comment le kart dessine le ruban, pour n'en garder que ce qui ne crée rien.",
+   "outil": {
+    "genre": "rag",
+    "requete": "lightning.gdshader éclair ruban cœur blanc halo",
+    "n": 3
+   },
+   "attendu": [
+    "lightning"
+   ],
+   "lecture": "Le cours du kart garde son shader d'éclair : un cœur blanc et un halo coloré sur un ruban dont UV.x traverse la largeur.",
+   "decision": "GolemLightning garde le shader et le ruban tourné vers la caméra. Le zigzag devient un tableau préparé de 25 points, chacun écarté de la droite, de moins en moins vers les bouts, et le ruban est refait dans un ImmediateMesh, comme la traînée du marteau. Un test répète le coup 40 fois et compte 0 objet créé."
+  },
+  {
+   "id": "e20_repos_d_un_sort",
+   "etape": 20,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Une boule de feu est permise de 9 à 40 m. Le Gardien choisit son coup à chaque image où il fait face : un coup permis à toute distance, il ne marcherait plus jamais vers le héros, et les spectres, qui ne plongent pas pendant une attaque, resteraient dehors. Faut-il limiter le coup ?",
+   "pensee": "Il faut un repos par coup, compté par le golem. Je vérifie que la clé choisie, le nom du coup, se garde dans un dictionnaire typé sans créer d'objet.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Dictionary",
+    "membre": "has"
+   },
+   "attendu": [
+    "has"
+   ],
+   "lecture": "Dictionary.has existe : on lit le dernier emploi d'un coup sans parcourir la liste.",
+   "decision": "GolemAttack.cooldown (7 s pour la boule, 11 s pour les éclairs), Golem.rested, et une horloge du golem. Mesuré sur 90 s en seconde phase : à 14 m, 11 salves, 7 éclairs, 2 bonds et 25 plongées de spectres ; avant les sorts, 17 bonds et 18 plongées. Les spectres ne sont pas retenus."
+  },
+  {
+   "id": "e20_zone_placee_d_avance",
+   "etape": 20,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Un éclair frappe sa marque au bout d'une seconde. Si sa zone de coup n'est déplacée qu'à l'instant de frapper, le moteur n'a pas encore vu les corps dedans. Comment savoir ce qui est dans une Area3D à l'instant où elle s'allume ?",
+   "pensee": "Je lis ce que garantit get_overlapping_bodies, et quand sa liste est à jour.",
+   "outil": {
+    "genre": "rag",
+    "requete": "Area3D get_overlapping_bodies once per physics step",
+    "n": 3
+   },
+   "attendu": [
+    "get_overlapping_bodies"
+   ],
+   "lecture": "La référence dit que cette liste ne se met à jour qu'une fois par image de physique : une zone déplacée à l'instant même ne verrait pas les corps.",
+   "decision": "GolemLightning pose sa zone à la marque, plus d'une seconde avant le coup ; Hitbox.activate lit alors une liste à jour. C'est la leçon de l'onde du Gardien (étape 12). La zone ne reste allumée que 0,12 s."
   }
  ]
 }

@@ -1,0 +1,93 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://3_entities/boss/fireball.gd" id="1_ball"]
+[ext_resource type="Resource" path="res://5_data/boss/spells.tres" id="2_settings"]
+[ext_resource type="Material" path="res://5_data/vfx/fireball_material.tres" id="3_core"]
+[ext_resource type="Material" path="res://5_data/vfx/fireball_tail_material.tres" id="4_tail"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_core"]
+size = Vector2(2.2, 2.2)
+
+[sub_resource type="QuadMesh" id="QuadMesh_tail"]
+orientation = 1
+center_offset = Vector3(0, 0, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_puff"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.35, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_puff"]
+gradient = SubResource("Gradient_puff")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_puff"]
+render_priority = 1
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(2, 1.2, 0.8, 1)
+albedo_texture = SubResource("GradientTexture2D_puff")
+disable_receive_shadows = true
+billboard_mode = 3
+billboard_keep_scale = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_puff"]
+material = SubResource("StandardMaterial3D_puff")
+size = Vector2(0.6, 0.6)
+
+[sub_resource type="Gradient" id="Gradient_flame"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(1, 0.75, 0.3, 1, 1, 0.3, 0.04, 0.8, 0.3, 0.04, 0.01, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flame"]
+width = 64
+gradient = SubResource("Gradient_flame")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_flame"]
+emission_shape = 1
+emission_sphere_radius = 0.45
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 0.3
+initial_velocity_max = 1.2
+gravity = Vector3(0, 1.5, 0)
+scale_min = 0.6
+scale_max = 1.3
+color_ramp = SubResource("GradientTexture1D_flame")
+
+[node name="Fireball" type="Node3D"]
+top_level = true
+script = ExtResource("1_ball")
+settings = ExtResource("2_settings")
+
+[node name="Core" type="MeshInstance3D" parent="."]
+material_override = ExtResource("3_core")
+cast_shadow = 0
+extra_cull_margin = 2.0
+mesh = SubResource("QuadMesh_core")
+
+[node name="Tail" type="MeshInstance3D" parent="."]
+material_override = ExtResource("4_tail")
+cast_shadow = 0
+extra_cull_margin = 1.0
+mesh = SubResource("QuadMesh_tail")
+
+[node name="Flames" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+emitting = false
+amount = 32
+lifetime = 0.55
+visibility_aabb = AABB(-6, -6, -6, 12, 12, 12)
+process_material = SubResource("ParticleProcessMaterial_flame")
+draw_pass_1 = SubResource("QuadMesh_puff")
+
+[node name="Light" type="OmniLight3D" parent="."]
+light_color = Color(1, 0.55, 0.2, 1)
+light_energy = 0.0
+omni_range = 9.0
+omni_attenuation = 1.4

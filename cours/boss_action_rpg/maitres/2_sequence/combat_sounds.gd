@@ -39,6 +39,14 @@ func _ready() -> void:
 	golem.phase_changed.connect(_on_golem_phase)
 	golem.defeated.connect(_on_golem_defeated)
 	golem.hammer.landed.connect(_on_hammer_landed)
+#@ 20+
+	golem.charge_started.connect(_on_golem_charge)
+	var spells: GolemSpells = golem.get_node(^"Spells") as GolemSpells
+	spells.ball_thrown.connect(_play_at.bind(sounds.fireball_throw))
+	spells.ball_exploded.connect(_play_at.bind(sounds.fireball_blast))
+	spells.lightning_marked.connect(_play_at.bind(sounds.lightning_mark))
+	spells.lightning_struck.connect(_play_at.bind(sounds.lightning_strike))
+#@ all
 	projectiles.impacted.connect(_on_impacted)
 	(golem.get_node(^"Hurtbox") as Hurtbox).received.connect(_on_received.bind(sounds.hit_golem))
 	(golem.get_node(^"BackWeakPoint") as Hurtbox).received.connect(_on_received.bind(sounds.hit_weak_point))
@@ -119,6 +127,16 @@ func _on_hammer_landed(body: Node3D, dealt: float) -> void:
 		board.play(sounds.golem_hammer, body.global_position)
 
 
+#@ 20+
+func _on_golem_charge(_attack: GolemAttack) -> void:
+	board.play(sounds.golem_charge, golem.global_position)
+
+
+func _play_at(at: Vector3, cue: SoundCue) -> void:
+	board.play(cue, at)
+
+
+#@ all
 func _on_received(_amount: float, _dealt: float, cue: SoundCue) -> void:
 	_target_cue = cue
 

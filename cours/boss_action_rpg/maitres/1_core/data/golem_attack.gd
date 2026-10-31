@@ -47,6 +47,22 @@ class_name GolemAttack extends Resource
 @export_range(0.1, 2.0, 0.05) var aim_max: float = 1.1
 ## Le temps de récupération après le clip, en secondes : la fenêtre pour le punir.
 @export_range(0.0, 10.0, 0.1) var recover: float = 1.5
+#@ 20+
+## Le sort que lance ce coup : fireball ou lightning (vide : aucun).
+@export var spell: StringName = &""
+## La vitesse de son clip : moins de 1 étire le geste, pour qu'un sort s'annonce.
+@export_range(0.1, 2.0, 0.05) var clip_rate: float = 1.0
+## Le sort se prépare à partir de cet instant du clip : c'est l'annonce.
+@export_range(0.0, 10.0, 0.01) var charge_start: float = 0.0
+## Le sort part à cet instant du clip.
+@export_range(0.0, 10.0, 0.01) var cast_time: float = 0.0
+## Le nombre de boules ou d'éclairs.
+@export_range(1, 8) var spell_count: int = 1
+## Les dégâts de chaque boule ou éclair.
+@export_range(0.0, 500.0, 1.0) var spell_damage: float = 20.0
+## Il ne relance pas ce coup avant autant de secondes.
+@export_range(0.0, 60.0, 0.5) var cooldown: float = 0.0
+#@ all
 
 
 ## Le penché du buste à l'instant `t` du clip : rien avant bend_start, `bend` pendant la frappe, rien après bend_end.

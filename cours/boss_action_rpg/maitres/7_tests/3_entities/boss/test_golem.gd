@@ -139,6 +139,10 @@ func test_reveille_il_marche_vers_le_heros() -> void:
 	var mark: Node3D = _repere(Vector3(0.0, 0.0, -14.0))
 	var golem: Golem = _combat(mark)
 	golem.machine.transition_to(&"Wake")
+#@ 20+
+	# Ses sorts viennent d'être lancés : il marche.
+	golem.choose_attack(14.0)
+#@ 12+
 	_avancer(golem, golem.settings.wake_time + 1.0)
 	assert_str(golem.machine.current.name).is_equal("Approach")
 	assert_float(golem.distance_to_target()).is_less(14.0 - golem.settings.walk_speed * 0.8)
@@ -150,9 +154,18 @@ func test_il_choisit_son_coup_selon_la_distance_et_la_phase_sans_le_repeter() ->
 	var second: StringName = golem.choose_attack(3.0).id
 	assert_array([premier, second]).contains_exactly_in_any_order([&"sweep", &"backhand"])
 	assert_str(golem.choose_attack(8.0).id).is_equal("crush")
+#@ 12-19
 	assert_object(golem.choose_attack(15.0)).is_null()
+#@ 20+
+	assert_str(golem.choose_attack(15.0).id).is_equal("fireball")
+	assert_object(golem.choose_attack(15.0)).is_null()
+#@ 12+
 	golem.phase = 2
+#@ 12-19
 	assert_str(golem.choose_attack(15.0).id).is_equal("leap")
+#@ 20+
+	assert_array([golem.choose_attack(15.0).id, golem.choose_attack(15.0).id]).contains_exactly_in_any_order([&"leap", &"lightning"])
+#@ 12+
 
 
 func test_il_ne_bondit_pas_si_un_mur_barre_le_chemin() -> void:
@@ -169,7 +182,12 @@ func test_il_ne_bondit_pas_si_un_mur_barre_le_chemin() -> void:
 	mur.position = Vector3(0.0, 3.0, -8.0)
 	add_child(mur)
 	await get_tree().physics_frame
+#@ 12-19
 	assert_object(golem.choose_attack(15.0)).is_null()
+#@ 20+
+	var autre: GolemAttack = golem.choose_attack(15.0)
+	assert_bool(autre == null or autre.id != &"leap").is_true()
+#@ 12+
 
 
 func test_son_marteau_ne_frappe_que_dans_sa_fenetre() -> void:

@@ -10,6 +10,9 @@ extends SceneTree
 #@ 19+
 ## Avec `--tir` : le héros, à l'entrée, tire sans arrêt sur le golem figé, l'arme toujours froide, le golem soigné à chaque
 ## image (la seconde phase ne vient pas changer la scène) : la mesure voit alors les effets des tirs, au plus fort.
+#@ 20+
+## Avec `--magie` : la seconde phase, spectres compris, et le Gardien enchaîne boules de feu et éclairs sans récupérer, le
+## héros invulnérable à l'entrée : la mesure voit alors les sorts, au plus fort.
 #@ all
 
 const MARQUEUR: String = "@@RENDU@@"
@@ -25,6 +28,9 @@ var _cpu: PackedFloat64Array = PackedFloat64Array()
 var _tir: bool = false
 var _hero: Hero
 var _golem: Golem
+#@ 20+
+var _magie: bool = false
+var _sort: int = 0
 #@ all
 
 
@@ -35,6 +41,8 @@ func _initialize() -> void:
 	_chemin = args[2]
 #@ 19+
 	_tir = "--tir" in args
+#@ 20+
+	_magie = "--magie" in args
 #@ all
 	_gpu.resize(_images)
 	_cpu.resize(_images)
@@ -59,6 +67,13 @@ func _process(_delta: float) -> bool:
 		_hero.trigger = true
 		_hero.gun.heat.heat = 0.0
 		_golem.health.heal(_golem.health.settings.max_health)
+#@ 20+
+	if _image == 2 and _magie:
+		_preparer_la_magie()
+	if _magie and _image > 2:
+		_hero.invulnerable = true
+		if _golem.machine.current.name != &"Attack":
+			_lancer_un_sort()
 #@ all
 	var rid: RID = root.get_viewport_rid()
 	if _image > _echauffement and _image <= _echauffement + _images:
@@ -91,6 +106,27 @@ func _preparer_le_tir() -> void:
 	var orbit: OrbitCamera = _scene.get_node("OrbitCamera") as OrbitCamera
 	orbit.yaw = PI
 	orbit.apply_rotation()
+
+
+#@ 20+
+func _preparer_la_magie() -> void:
+	_hero = _scene.get_node("Hero") as Hero
+	_golem = _scene.get_node("Golem") as Golem
+	var orbit: OrbitCamera = _scene.get_node("OrbitCamera") as OrbitCamera
+	orbit.yaw = PI
+	orbit.apply_rotation()
+	_golem.wake_up()
+	_golem.enter_phase_two()
+
+
+func _lancer_un_sort() -> void:
+	_sort = (_sort + 1) % 2
+	var voulu: StringName = &"fireball" if _sort == 1 else &"lightning"
+	for attaque: GolemAttack in _golem.settings.attacks:
+		if attaque.id == voulu:
+			_golem.attack = attaque
+	_golem.rotation.y = Motion.yaw_of(_hero.global_position - _golem.global_position)
+	_golem.machine.transition_to(&"Attack")
 
 
 #@ all

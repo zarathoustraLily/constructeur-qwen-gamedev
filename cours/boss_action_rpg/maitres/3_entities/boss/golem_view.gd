@@ -73,7 +73,11 @@ func update() -> void:
 func _on_state_changed(_from: StringName, to: StringName) -> void:
 	_player.speed_scale = 1.0
 	if to == &"Attack":
+#@ 12-19
 		_player.play(golem.attack.clip, BLEND, golem.clip_speed())
+#@ 20+
+		_player.play(golem.attack.clip, BLEND, golem.clip_speed() * golem.attack.clip_rate)
+#@ 12+
 	elif CLIPS.has(to):
 		_player.play(CLIPS[to], BLEND)
 

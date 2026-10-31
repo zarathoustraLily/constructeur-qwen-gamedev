@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="GolemAttack" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/golem_attack.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+id = &"lightning"
+clip = &"gethit3"
+min_range = 4.0
+max_range = 40.0
+from_phase = 2
+track_until = 0.1
+strike_start = 9.0
+strike_end = 9.0
+damage = 0.0
+bend = 0.0
+recover = 1.6
+spell = &"lightning"
+clip_rate = 0.75
+charge_start = 0.05
+cast_time = 1.0
+spell_count = 3
+spell_damage = 18.0
+cooldown = 11.0

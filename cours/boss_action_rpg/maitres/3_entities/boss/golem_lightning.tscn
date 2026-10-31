@@ -1,0 +1,90 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://3_entities/boss/golem_lightning.gd" id="1_lightning"]
+[ext_resource type="Resource" path="res://5_data/boss/spells.tres" id="2_settings"]
+[ext_resource type="Material" path="res://5_data/vfx/ground_ring_material.tres" id="3_ring"]
+[ext_resource type="Material" path="res://5_data/vfx/lightning_material.tres" id="4_bolt"]
+[ext_resource type="Script" path="res://1_core/combat/hitbox.gd" id="5_hitbox"]
+[ext_resource type="Script" path="res://1_core/vfx/vfx_burst.gd" id="6_burst"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ring"]
+size = Vector2(1, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_zone"]
+radius = 2.2
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.45, 0.6, 1, 1, 0.1, 0.2, 0.9, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_spark"]
+width = 64
+gradient = SubResource("Gradient_spark")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_spark"]
+direction = Vector3(0, 1, 0)
+spread = 80.0
+initial_velocity_min = 4.0
+initial_velocity_max = 12.0
+gravity = Vector3(0, -12, 0)
+damping_min = 1.0
+damping_max = 2.0
+color_ramp = SubResource("GradientTexture1D_spark")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+render_priority = 2
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(4, 5, 7, 1)
+disable_receive_shadows = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+size = Vector2(0.025, 0.28)
+
+[node name="GolemLightning" type="Node3D"]
+top_level = true
+script = ExtResource("1_lightning")
+settings = ExtResource("2_settings")
+
+[node name="Ring" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+material_override = ExtResource("3_ring")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_ring")
+
+[node name="Bolt" type="MeshInstance3D" parent="."]
+material_override = ExtResource("4_bolt")
+cast_shadow = 0
+
+[node name="Zone" type="Area3D" parent="."]
+script = ExtResource("5_hitbox")
+
+[node name="Shape" type="CollisionShape3D" parent="Zone"]
+shape = SubResource("SphereShape3D_zone")
+
+[node name="Hit" type="Node3D" parent="."]
+script = ExtResource("6_burst")
+duration = 0.28
+light_energy = 12.0
+
+[node name="Sparks" type="GPUParticles3D" parent="Hit"]
+cast_shadow = 0
+emitting = false
+amount = 16
+lifetime = 0.55
+one_shot = true
+explosiveness = 1.0
+visibility_aabb = AABB(-8, -8, -8, 16, 16, 16)
+transform_align = 3
+process_material = SubResource("ParticleProcessMaterial_spark")
+draw_pass_1 = SubResource("QuadMesh_spark")
+
+[node name="Light" type="OmniLight3D" parent="Hit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(0.55, 0.7, 1, 1)
+light_energy = 0.0
+omni_range = 12.0
+omni_attenuation = 1.4

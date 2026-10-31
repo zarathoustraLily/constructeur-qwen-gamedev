@@ -1,6 +1,6 @@
 # Prompt de reprise — niveau de boss « Le Gardien du Comptoir » (Godot 4.7.2)
 
-Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 19. Une copie est
+Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 20. Une copie est
 dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 
 ---
@@ -8,8 +8,8 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 ## 1. Le prompt (à donner tel quel)
 
 > Tu reprends le niveau de boss d'action RPG de laurent (« Le Gardien du Comptoir », Godot 4.7.2) et l'enseignement de
-> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 19 du cours sont faites, rien n'est
-> commencé pour la 20.
+> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 20 du cours sont faites, rien n'est
+> commencé pour la 21.
 >
 > Avant toute action, lis dans cet ordre :
 > 1. `D:\constructeur-qwen-gamedev\CLAUDE.md` (les « Règles qui priment » l'emportent sur tout ; décision 20 : aucun
@@ -23,8 +23,6 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 > ouverts et sur quel projet.
 >
 > Puis termine, une étape à la fois, avec la méthode du § 6 :
-> - **étape 20, les effets et les coups magiques du boss**. laurent : « le boss n'a aucun VFX non plus.. pas de boules de
->   feux, pas d'aura magiques par d'eclaires lances... » ;
 > - **étapes 21 et 22, l'optimisation pour un petit PC**. laurent : « il faut que le niveau puisse etre joue sur un petit
 >   pc » ;
 > - ensuite, demande à laurent s'il veut passer aux paires tirées du cours (§ 9).
@@ -39,12 +37,12 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## Où on s'est arrêté (2026-10-31) — à lire d'abord
 
-**Fait et envoyé** : étapes 1 à 19, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 19 :
-252 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
+**Fait et envoyé** : étapes 1 à 20, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 20 :
+269 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
 
-**Étape 20 : à faire.** Ce qu'il faut en savoir est plus bas.
+**Étape 21 : à faire.** Ce qu'il faut en savoir est plus bas.
 
-**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17, 18 et 19. Son
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17, 18, 19 et 20. Son
 dernier message après avoir joué parlait du son, des effets et des spectres. Ces étapes sont vérifiées par les tests et
 l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
 nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
@@ -65,32 +63,23 @@ nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les ha
 5. **Mes choix, déjà signalés comme tels, modifiables** : roulade déplacée sur B / Maj pour libérer Espace ; un spectre à
    la fois, 2 s d'écart, 10 dégâts.
 
-### Ce que l'étape 19 laisse à la suivante
+### Ce que les étapes 19 et 20 laissent à la suivante
 
-- `VfxBurst` (`1_core/vfx/vfx_burst.gd`) : un effet bref préparé d'avance. Ses enfants `GPUParticles3D` repartent par
-  `play()`, sa lueur (`Glow`) et sa lumière (`Light`) s'éteignent sur `duration`, il se cache quand tout est fini. Le groupe
-  `vfx_burst` reçoit `light_allowed` de `GraphicsQualityApplier` (`GraphicsQuality.effect_lights`, faux en basse).
-- Shaders en `blend_add` dont l'alpha de particule porte l'âge : `muzzle_flash`, `impact_star`, `impact_flash`, et la
-  texture de bruit partagée `5_data/vfx/flash_noise.tres`.
-- `tracer.gdshader` : un plan qui pivote vers la caméra autour de son axe, sommet par sommet. Il servira pour un éclair
-  ou une boule de feu qui file.
-- Une image de jeu ne suffit pas à juger un effet : une planche d'images consécutives, `outils/voir.ps1`, de loin et de près.
-- Repères de l'étape 19, en tirant sans arrêt, 1280 × 720 : carte 1,763 ms en haute, 0,336 ms en basse, 2 703 et 618 appels
-  de dessin, 897 et 381 Mo. Combat sans fenêtre : 63 sons, 126 allocations, 0 pour notre code, 0,58 ms par image.
-- Mes choix, à faire valider : le ton orangé des tirs, les durées, les lumières. La note et `suivi.md` le disent.
+- `VfxBurst` (`1_core/vfx/vfx_burst.gd`) : un effet bref préparé d'avance. `Fireball`, `GolemLightning` (`3_entities/boss/`), `GolemSpells`.
+- Toute classe qui a une lumière d'effet entre dans le groupe `VfxBurst.GROUP` et déclare `light_allowed` :
+  `GraphicsQualityApplier` les règle par `set_group` (`GraphicsQuality.effect_lights`, faux en basse).
+- Une image de jeu ne suffit pas à juger un effet : `outils/voir.ps1`, une planche d'images consécutives.
+- Mes choix, à faire valider : tons et durées des tirs ; dégâts (22, 18), repos (7 et 11 s), vitesse (15 m/s), sons des sorts.
+- Repères de l'étape 20, 1280 × 720, carte presque libre : au repos, 1,732 ms en haute, 2 683 appels, 894 Mo ; sorts au plus
+  fort, 1,915 ms, 2 718 appels ; basse, 0,369 ms, 634 appels, 382 Mo. Combat sans fenêtre : 0 allocation de notre code,
+  0,59 ms par image, 4,3 ms au plus haut.
 
-### Étape 20, les effets et les coups magiques du boss : ce qui compte
+### Étape 21 : ce qui se dessine
 
-- Ses coups sont tous au corps à corps (`5_data/boss/attacks/` : balayage, revers, écrasement, bond). Les boules de feu et
-  les éclairs sont donc **de nouvelles attaques**, pas seulement des effets : annonce lisible, zone de coup, réserve
-  préparée, tests, sons (nouveaux `SoundCue` dans `CombatSoundSet` ; les sons non retenus sont dans
-  `source_extraites/kenney_*`).
-- Les spectres ne plongent pas pendant `GolemAttackState` (`SpectreCall.claim_dive`) : une attaque de plus les retient,
-  à regarder.
-- Déjà là, à ne pas refaire : onde, éclats, tremblement, traînée du marteau, flash, braise de la seconde phase
-  (`golem_effects.gd`, `5_data/vfx/`, note `etape_013.md`).
-
----
+Mesuré aux étapes 14 et 15 : 4,8 millions de triangles dans le décor, 3 649 objets dessinés en haute au repos, 2 683 appels de
+dessin ; des centaines de petits objets (bouteilles, verres, assiettes). À regarder : distances de visibilité (`visibility_range_end`),
+occulteurs (`OccluderInstance3D`, comptoir, murs ; `rendering/occlusion_culling/use_occlusion_culling`), niveaux de détail. Le test de
+la qualité basse ne doit pas reculer. Chaque levier se mesure avant et après (`outils/mesurer_rendu.ps1`), comme l'étape 15.
 
 ## 2. Qui est laurent, ce qu'il veut
 
@@ -159,7 +148,7 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 ## 5. État exact (2026-10-31)
 
 Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 19
-(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252.
+(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269.
 
 | N | Étape |
 | --- | --- |
@@ -182,8 +171,9 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 | 17 | Les spectres plongent chacun leur tour, et laissent une traîne |
 | 18 | Le son et la musique du combat |
 | 19 | Les effets des tirs : éclair de bouche, traçantes, impacts |
+| 20 | La magie du Gardien : boules de feu, éclairs annoncés au sol, aura |
 
-**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 20 les effets et coups magiques du boss ; 21 ce qui se dessine (distances de visibilité des petits objets, occulteurs) ; 22 le petit PC
+**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 21 ce qui se dessine (distances de visibilité des petits objets, occulteurs) ; 22 le petit PC
 lui-même ; puis les paires tirées du cours (§ 9). Noté à l'étape 8 : l'entrée du saloon surexposée (plan émissif
 extérieur, `M_Emissive`). Une grande plage blanche reste à gauche des images de l'étape 17 : à regarder, laurent n'en a
 pas parlé.
@@ -263,8 +253,7 @@ dessin, primitives, mémoire vidéo). Fait : étape 15 (qualités).
 
 **Retours de laurent après avoir joué (2026-10-29 et 30)** : saut et visée (**étape 16, faite**) ; spectres qui tuaient
 en rafale, et leur traîne (**étape 17, faite**) ; le son et la musique (**étape 18, faite** : `6_assets/Audio/`,
-`SoundBoard`, `CombatSounds`, `MusicPlayer` ; le moteur crée 2 objets par son lu, comptés à part) ; les effets des tirs (**étape 19, faite**) ; **prochaine : 20**,
-les effets et coups magiques du boss (boules de feu, aura, éclairs annoncés), dans le budget de la qualité basse ; puis l'optimisation reprend : les distances de visibilité des petits objets (bouteilles,
+`SoundBoard`, `CombatSounds`, `MusicPlayer` ; le moteur crée 2 objets par son lu, comptés à part) ; les effets des tirs (**étape 19, faite**) ; les effets et coups magiques du boss (**étape 20, faite**) ; **prochaine : 21**, l'optimisation reprend : les distances de visibilité des petits objets (bouteilles,
 verres, assiettes : des centaines) et des occulteurs (comptoir, murs), puis la mesure sur le petit PC lui-même (le
 test qui fait foi). Sa question 7 (la caméra de Dark Souls est-elle automatique ?) : réponse donnée dans le fil, avec
 sources (stick droit et verrouillage au clic du stick). Les sons restent à
@@ -279,7 +268,8 @@ marteau, `-- trajectoires`) ; `trace_golem.gd` (chemin du marteau, dessus et pro
 `mesurer_sons.gd` (objets créés par la lecture d'un son) ; `voir_tirs.gd` et `voir.ps1` (une rafale rendue hors de l'écran, puis une
 planche ; vue du joueur, `pres`, `cote`, `verrou`, `--compat`, `--qualite=basse`) ; `planche.py`, `recadrer.py` ; `tester_etape.ps1` (fabrique,
 importe, teste, résume) ; `mesurer_rendu.ps1` (`--tir` : en tirant sans arrêt ; une étape récente peut mesurer une plus ancienne) ;
-`textures_tirs.py`.
+`textures_tirs.py` ; `voir_magie.gd` (un sort rendu hors de l'écran, par `voir.ps1 … magie`) ; `trace_combat.gd` (coups et plongées sur 90 s,
+à lancer sur deux étapes).
 
 ## 8. Le golem ensuite (préparé)
 
@@ -402,6 +392,8 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - Le tonemap AgX blanchit les orangés très vifs : une lueur trop forte fait une boule de lait.
 - Verrouillé sur le Gardien, la caméra descend au ras du plancher : mauvaise vue pour juger un effet.
 - Une scène déplacée reste dans le jeu si son ancien dossier est gardé par `reporter.py` (`6_assets/`) : l'effacer à la main.
+- La salle est plus courte que le couloir ne le laisse croire : à 16 m du Gardien, dans l'axe de la porte, le héros est dehors et
+  tombe sans erreur. Rester à 10 m, ou regarder `outils/carte_arene.gd`.
 - `git push` échoue dans l'outil de commande (« could not read Username », `GCM_INTERACTIVE=never`) alors que les identifiants
   de laurent sont enregistrés : `git -c credential.username=zarathoustraLily push origin claude/observation-visuelle`.
 - Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.

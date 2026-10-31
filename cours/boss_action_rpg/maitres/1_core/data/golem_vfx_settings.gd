@@ -37,4 +37,19 @@ class_name GolemVfxSettings extends Resource
 @export_range(0.0, 16.0, 0.1) var hit_glow: float = 3.5
 ## Le temps pour que cet éclat retombe, en secondes.
 @export_range(0.01, 2.0, 0.01) var hit_glow_time: float = 0.2
+#@ 20+
+## L'aura qui borde sa silhouette, éveillé.
+@export_range(0.0, 8.0, 0.05) var aura_first: float = 1.0
+## L'aura en seconde phase.
+@export_range(0.0, 8.0, 0.05) var aura_second: float = 1.8
+## Le temps pour que l'aura change, en secondes.
+@export_range(0.05, 10.0, 0.05) var aura_time: float = 1.5
+## L'aura palpite : la part de son éclat qui va et vient.
+@export_range(0.0, 1.0, 0.01) var aura_pulse: float = 0.25
+## La vitesse de la palpitation, en radians par seconde.
+@export_range(0.0, 20.0, 0.1) var aura_pulse_speed: float = 3.2
+## L'énergie de sa lumière, par point d'aura.
+@export_range(0.0, 20.0, 0.1) var aura_light: float = 3.0
+## La part des braises qui montent autour de lui, éveillé (toutes en seconde phase).
+@export_range(0.0, 1.0, 0.01) var embers_first: float = 0.5
 #@ all
