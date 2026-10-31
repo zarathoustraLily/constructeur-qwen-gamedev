@@ -2314,6 +2314,8 @@ surexposée sur la capture du jeu (plan émissif de l'extérieur) : à régler a
 
 **Étape 18 (2026-10-30)** : le son et la musique : 72 bruitages Kenney (CC0) et « Epic Boss Battle » de Juhani Junkala (CC0, boucle réglée à l'import, QOA 21,8 → 4,4 Mo) dans `6_assets/Audio/` ; bus `Music` et `SFX` (réverbération légère) ; `SoundBoard` (16 voix préparées), `CombatSounds` (un son par événement, les pas par foulée, la zone touchée choisit le son d'un tir), `MusicPlayer` (fondu au réveil du Gardien, fondu à la fin, sans Tween). Mesuré : le moteur crée 2 objets par son lu (`AudioStream.instantiate_playback`) ; combat : 63 sons, 126 allocations, 0 pour notre code ; 0,57 ms par image en médiane (0,50 avant). 240 cas verts, dans le cours et dans le jeu, 0 ligne d'erreur ; étapes 1 à 17 identiques. Prochaine : 19, les effets des tirs.
 
+**Passation (2026-10-31)** : laurent demande le contexte et le prompt pour qu'un autre modèle finisse. Prompt à donner et état : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du jeu). Reste : étape 19 (rien d'écrit), 20, 21, 22, puis les paires. Questions à laurent sans réponse : rendus quand llama-server tourne, verrouillage automatique au réveil du golem, quel petit PC, clips Mixamo. Contrôle des étapes anciennes : `SUIVIS_PROGRESSION/outils/verifier_etapes.py` du jeu.
+
 **Prompt de reprise** : `prompts/reprise_boss_action_rpg.md` (copie de `SUIVIS_PROGRESSION/PROMPT_REPRISE.md` du dossier du jeu) : à donner à l'IA qui poursuit.
 
 **Système qui enseigne la démarche à Qwen** (demande de laurent du 2026-10-28) : journal

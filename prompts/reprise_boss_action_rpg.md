@@ -1,28 +1,123 @@
 # Prompt de reprise — niveau de boss « Le Gardien du Comptoir » (Godot 4.7.2)
 
-Écrit le 2026-10-28 par l'IA qui a fait les étapes 1 à 7, pour l'IA qui poursuit. Une copie est dans le dépôt de
-l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
+Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 18. Une copie est
+dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 
 ---
 
 ## 1. Le prompt (à donner tel quel)
 
-> Tu reprends le niveau de boss d'action RPG de laurent, en Godot 4.7.2, et l'enseignement de sa construction à Qwen.
-> Avant toute action, lis dans cet ordre :
-> 1. `D:\constructeur-qwen-gamedev\CLAUDE.md` (les « Règles qui priment » l'emportent sur tout ; décision 20 :
->    aucun réentraînement tant que les paires ne sont pas finies) ;
-> 2. ce fichier en entier : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\PROMPT_REPRISE.md` ;
-> 3. `SUIVIS_PROGRESSION\suivi.md` (cases cochées, « Réorientation », « Reprendre ici », « Enseigner la démarche ») ;
-> 4. `SUIVIS_PROGRESSION\demarche.md` (chaque étape, ses recherches, ses erreurs) et `conception.md` (le combat voulu) ;
-> 5. `D:\constructeur-qwen-gamedev\ETAT.md`, section « Cours boss_action_rpg — 2026-10-28 ».
+> Tu reprends le niveau de boss d'action RPG de laurent (« Le Gardien du Comptoir », Godot 4.7.2) et l'enseignement de
+> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 18 du cours sont faites, rien n'est
+> commencé pour la 19.
 >
-> Puis fais l'étape 9 du cours : **l'interface du genre** (vie, endurance, fioles, surchauffe, nom et barre du boss),
-> branchée sur les composants déjà écrits, avec la même méthode que les étapes 1 à 8 :
-> maîtres balisés dans `cours/boss_action_rpg/`, tests d'abord, fabrication, import, tests GdUnit4 dont chaque ligne
-> est lue, captures du rendu, report dans le dossier du jeu, note d'étape détaillée, pas de démarche ajoutés au journal
-> (`cours/boss_action_rpg/demarche.json`), mise à jour de `suivi.md`, `demarche.md` et `ETAT.md`, commit.
-> Réponds à laurent en français, court, la réponse d'abord, chaque affirmation sourcée. Tiens le journal à chaque
-> étape : laurent l'a demandé trois fois, une autre IA doit pouvoir reprendre à tout moment.
+> Avant toute action, lis dans cet ordre :
+> 1. `D:\constructeur-qwen-gamedev\CLAUDE.md` (les « Règles qui priment » l'emportent sur tout ; décision 20 : aucun
+>    réentraînement tant que les paires ne sont pas finies) ;
+> 2. ce fichier en entier : `D:\GODOT\PROJETS_DEMOS\PROJET_BOSS_ACTION_RPG\SUIVIS_PROGRESSION\PROMPT_REPRISE.md` ;
+> 3. dans le même dossier, `conception.md`, puis la fin de `suivi.md` et de `demarche.md` ;
+> 4. dans `D:\constructeur-qwen-gamedev\cours\boss_action_rpg\notes\`, `etape_013.md` (les effets qui existent déjà),
+>    `etape_017.md` et `etape_018.md` (le niveau de détail attendu d'une note).
+>
+> Vérifie ensuite l'état réel au lieu de te fier au journal : `git status` et `git log` du dépôt, `nvidia-smi`, les Godot
+> ouverts et sur quel projet.
+>
+> Puis termine, une étape à la fois, avec la méthode du § 6 :
+> - **étape 19, les effets des tirs**. laurent : « il n'y a aucun effets dans les tirs... c'est super laids,: trouve des
+>   VFX impressionnant pour les tirs » ; il l'a redemandé : « pas de FX ? » ;
+> - **étape 20, les effets et les coups magiques du boss**. laurent : « le boss n'a aucun VFX non plus.. pas de boules de
+>   feux, pas d'aura magiques par d'eclaires lances... » ;
+> - **étapes 21 et 22, l'optimisation pour un petit PC**. laurent : « il faut que le niveau puisse etre joue sur un petit
+>   pc » ;
+> - ensuite, demande à laurent s'il veut passer aux paires tirées du cours (§ 9).
+>
+> À la fin de chaque étape : tests verts et chaque ligne de sortie lue, étapes anciennes vérifiées inchangées, images
+> regardées puis montrées à laurent (`SendUserFile`), report dans le jeu, note, pas de démarche, journaux, commit et push.
+> Réponds à laurent en français, court, la réponse d'abord, chaque affirmation sourcée. Ne présente jamais une proposition
+> comme sa décision ; ce qu'il n'a pas tranché est listé plus bas : ne le tranche pas à sa place. Tiens le journal à chaque
+> étape : laurent l'a demandé plusieurs fois, une autre IA doit pouvoir reprendre à tout moment.
+
+---
+
+## Où on s'est arrêté (2026-10-31) — à lire d'abord
+
+**Fait et envoyé** : étapes 1 à 18, branche `claude/observation-visuelle`, dernier commit d'étape `6a3bef2`, arbre git
+propre. Le jeu est à l'étape 18 : 240 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
+
+**Étape 19 : aucun fichier écrit.** laurent a interrompu pendant que je lisais le code des tirs. Ce que cette lecture a
+appris est plus bas.
+
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 et 18. Son
+dernier message après avoir joué parlait du son, des effets et des spectres. Ces étapes sont vérifiées par les tests et
+l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
+nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
+
+### Questions sans réponse (ne pas les trancher)
+
+1. **Rendus quand llama-server tourne** : je lui ai demandé de dire quand la carte serait libre, ou si je pouvais rendre
+   quand même ; il a répondu « continue », ce qui ne tranche pas. Ce que je faisais : `nvidia-smi` avant chaque rendu,
+   de petits rendus seulement. Le 2026-10-30 : 31,3 Go sur 32, llama-server actif (de 10 à 94 % selon le moment), un rendu de
+   contrôle à 893 Mo passé sans erreur. Le 2026-10-31 : 4,8 Go, 4 %, ni llama-server ni Godot ouverts.
+2. **Verrouiller le golem tout seul à son réveil** : proposé en réponse à sa question sur la caméra de Dark Souls (elle
+   n'est pas automatique : stick droit, verrouillage au clic du stick ; https://darksouls.wiki.fextralife.com/Controls,
+   https://darksouls3.wiki.fextralife.com/Controls, https://darksouls2.wikidot.com/controls). Pas de réponse.
+3. **Quel petit PC** : la cible de `conception.md` (Iris Xe, Radeon 680M ou GTX 1050, 8 Go) est **proposée**, non
+   confirmée. Le test qui fait foi est ce PC lui-même : l'étape 22 dépend de lui.
+4. **Mixamo, avec son compte** : un vrai clip de saut (aujourd'hui une foulée de course figée) et le geste « drink » du
+   soin (aujourd'hui le rechargement).
+5. **Mes choix, déjà signalés comme tels, modifiables** : roulade déplacée sur B / Maj pour libérer Espace ; un spectre à
+   la fois, 2 s d'écart, 10 dégâts.
+
+### Étape 19, les effets des tirs : ce qui est déjà lu
+
+Ce qui existe :
+- `1_core/combat/projectile.tscn` : une capsule de 0,04 × 0,6 m, orange, sans lumière ni traînée. Réserve de 32
+  (`projectile_pool.gd`).
+- `1_core/combat/impact_sparks.gd` et `6_assets/VFX/combat/hit_sparks.tscn` : 4 salves de 24 petites sphères, relancées à
+  tour de rôle par `restart()`, branchées sur `ProjectilePool.impacted(point, normal, dealt)`.
+- `3_entities/hero/hero_gun.gd` : signal `fired(origin, direction)`. `hero_view.gd` : `muzzle` (`%Muzzle`), suivi à
+  `skeleton_updated`, recul du tir. **Aucun éclair de bouche** : la recherche de « muzzle » ne trouve que ce suivi.
+
+Les sources, CC0, déjà téléchargées, dans `source_extraites/` (`inventaire_sources.md`) :
+- `muzzle_flash_vfx/assets/BinbunVFX/` : 24 éclairs (`muzzle_flash/effects/` : `big_flash`, `muzzle_flash`, `short_flash`,
+  `wide_flash`, 6 chacun), matériaux, 2 shaders, 17 textures, 2 scripts (`shared/script/vfx_controller.gd`, `vfx_light.gd`).
+  Une scène : `AnimationPlayer`, des `GPUParticles3D` en quads, une `OmniLight3D` (sans `shadow_enabled` dans
+  `muzzle_flash_01.tscn` ; à vérifier pour les autres).
+- `hit_fx_free/HitFXFree/assets/BinbunVFX_Vol2/StylizedHitFX/` : 6 impacts (`effects/hit`, `impact`, `big_impact`, 2 chacun),
+  10 shaders, 3 scripts. Une scène : `AnimationPlayer`, `Glow`, `GPUParticles3D`, `VFXOmniLightBB`, `AudioStreamPlayer3D`.
+
+Ce qu'il faudra respecter (règles du dépôt et mesures déjà faites) :
+- Leurs scripts ne sont pas typés (`var result = get_node_or_null(...)`), sont en `@tool` et ne passent pas les réglages
+  stricts : les reprendre typés, dans `1_core/` (`5_data/` et `6_assets/` restent sans code). Ne pas copier leurs
+  `.import` ni `.uid` ; réécrire les chemins `res://assets/BinbunVFX…` ; retirer les `uid=` et `unique_id=`.
+- Texte (`.tscn`, `.tres`, `.gdshader`) : des maîtres, inscrits dans `FICHIERS`. Binaires (textures) : dans le dossier du
+  jeu sous `6_assets/`, puis `--import` là-bas ; le cours les copie avec leur `.import`.
+- Retirer leur `AudioStreamPlayer3D` : le son passe par `CombatSounds`.
+- Rien de créé en combat : `allocations_hors_sons` de `mesurer_combat.gd` doit rester à 0 et `test_sans_allocation.gd`
+  doit couvrir le nouvel effet. `restart()` des particules est mesuré sans allocation ; un `AnimationPlayer` rejoué ne
+  l'est pas encore : à mesurer.
+- Une lumière par éclair et par impact, c'est le budget du petit PC : mesurer avant et après (`mesurer_rendu.gd`, hors de
+  l'écran), en qualité haute et basse ; la qualité basse peut les couper (`GraphicsQualityApplier`).
+- Les particules ne sont pas simulées sans fenêtre : les tests vérifient les réglages et les relances, l'image vérifie
+  le rendu. Après tout changement de shader : une image en Compatibilité (`--rendering-method gl_compatibility`).
+- Images : la caméra du jeu, comme `outils/voir_traines.gd` (une caméra posée à la main tombe souvent dans le décor :
+  `voir_saut_tir.gd` s'en sort, `voir_traines.gd` a dû y renoncer).
+
+Repères pour comparer (étape 18) :
+- combat sans fenêtre : 63 sons, 126 allocations, 0 hors sons, 0,57 ms par image en médiane, 1,2 à 1,3 ms au plus haut ;
+- rendu haute, 1280 × 720, llama-server actif : 2 933 appels de dessin, 15 M de primitives, carte 1,9 ms, 893 Mo ;
+- rendu basse (étape 15, carte presque libre) : 617 appels, 3,6 M de primitives, 0,37 ms, 377 Mo, 3 passes d'ombre.
+
+### Étape 20, les effets et les coups magiques du boss : ce qui compte
+
+- Ses coups sont tous au corps à corps (`5_data/boss/attacks/` : balayage, revers, écrasement, bond). Les boules de feu et
+  les éclairs sont donc **de nouvelles attaques**, pas seulement des effets : annonce lisible, zone de coup, réserve
+  préparée, tests, sons (nouveaux `SoundCue` dans `CombatSoundSet` ; les sons non retenus sont dans
+  `source_extraites/kenney_*`).
+- Les spectres ne plongent pas pendant `GolemAttackState` (`SpectreCall.claim_dive`) : une attaque de plus les retient,
+  à regarder.
+- Déjà là, à ne pas refaire : onde, éclats, tremblement, traînée du marteau, flash, braise de la seconde phase
+  (`golem_effects.gd`, `5_data/vfx/`, note `etape_013.md`).
 
 ---
 
@@ -52,7 +147,10 @@ l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 ## 3. Règles de travail à ne pas oublier
 
 - Réponses courtes en français, la réponse d'abord ; pas de discussion de PR ni de git (les commits se font sans en
-  parler) ; on explique avant de demander une autorisation.
+  parler) ; on explique avant de demander une autorisation. Tout se fait dans le fil principal, pas de sous-agents.
+- Avant un report dans le jeu, regarder les Godot ouverts et sur quel projet (`Get-CimInstance Win32_Process`, colonne
+  `CommandLine`). Son projet `F:\REVERSe\RECONSTRUCTION`, qu'il travaille avec OpenCode et llama-server, ne nous
+  concerne pas : n'y toucher ni à ses processus.
 - **Rien sur llama-server, aucun entraînement** (décision 20). Lancer Godot sans fenêtre (`--headless`) pour
   fabriquer, importer, tester fait partie du travail accepté.
 - **Fenêtres de rendu hors de l'écran** (`--position -6000,-6000`), jamais sur l'écran de laurent ; **jamais capturer
@@ -65,7 +163,8 @@ l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
   sons muets dans les projets qui produisent les données.
 - Vocabulaire Godot : tout membre vérifié (`python -m usine.vocab lookup <Classe> <membre>`) ; documentation par le
   RAG (`python -m usine.rag chercher "<requête>" -n N [--json]`).
-- Disque **D: presque plein** (≈ 24 Go libres le 2026-10-28 après l'étape 8) : chaque étape du cours à partir de la 7 recopie ≈ 200 Mo.
+- Disque **D: presque plein** (21 Go libres le 2026-10-31, projets du cours : 4,8 Go) : chaque étape à partir de la 7
+  recopie ≈ 200 Mo. Le surveiller.
 
 ## 4. Où sont les choses
 
@@ -81,44 +180,56 @@ l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 | Journal de démarche (paires) | `D:\constructeur-qwen-gamedev\cours\boss_action_rpg\demarche.json` |
 | Projets fabriqués des étapes | `D:\constructeur-qwen-gamedev\donnees\cours\boss_action_rpg\projets\boss_etape_00N\` |
 | Paires générées | `D:\constructeur-qwen-gamedev\donnees\paires\<famille>\` |
-| Branche du dépôt | `claude/observation-visuelle` (commits : `c890c7c` étape 7, `cd5be34` démarche, puis l'étape 8) |
+| Branche du dépôt | `claude/observation-visuelle` (dernier commit d'étape : `6a3bef2`, étape 18) |
 | Héros (modèle, animations, reciblage) | `…\6_assets\Characters\Hero\` (hero_model.tscn, hero_animations.tres, Models, Animations/Source et Clips, Retarget, Textures, Materials, Meshes, Skins) |
 
 Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe` (éditeur : sans `_console`).
 
-## 5. État exact (2026-10-28)
+## 5. État exact (2026-10-31)
 
-Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu :
+Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 18
+(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240.
 
-| N | Étape | Cas verts |
-| --- | --- | --- |
-| 1 | Socle : réglages stricts (avertissements en erreurs), actions clavier/souris/manette, couches, ordre d'exécution, plan.md | 17 |
-| 2 | Héros en maquette grise : déplacement relatif à la caméra | 31 |
-| 3 | Caméra à la troisième personne (pivot, SpringArm3D, épaule, visée), verrouillage de cible | 43 |
-| 4 | Machine à états du héros (Move, Roll), endurance, mémoire d'appui, roulade à invulnérabilité, sprint | 66 |
-| 5 | Tir : visée au centre de l'écran, projectiles à rayon par image en réserve de 32, zones « cibles », surchauffe | 105 |
-| 6 | Santé du héros, zone de coup du boss, états Hit, Heal, Dead, trois fioles punissables, recommencement | 122 |
-| 7 | Le saloon d'un géant et son gardien : décor Quixel converti de la scène Unity, échelle 4, ambiance (lune, lampes, brouillard, brume au sol), golem animé (25 animations), plancher à y = 0 | 129 |
-| 8 | Le héros animé : soldat reciblé (UE4 et UE5 → profil humanoïde), 13 clips, fusil sur l'os de la main, vue `hero_view.gd` (transition par état, course et marche visée, recul du tir sur le haut du corps, durées des états, bouche de l'arme à `skeleton_updated`) | 139 |
+| N | Étape |
+| --- | --- |
+| 1 | Socle : réglages stricts (avertissements en erreurs), actions clavier/souris/manette, couches, ordre d'exécution, plan.md |
+| 2 | Héros en maquette grise : déplacement relatif à la caméra |
+| 3 | Caméra à la troisième personne (pivot, SpringArm3D, épaule, visée), verrouillage de cible |
+| 4 | Machine à états du héros (Move, Roll), endurance, mémoire d'appui, roulade à invulnérabilité, sprint |
+| 5 | Tir : projectiles à rayon par image en réserve de 32, zones « cibles », surchauffe |
+| 6 | Santé du héros, zone de coup du boss, états Hit, Heal, Dead, trois fioles, recommencement |
+| 7 | Le saloon d'un géant et son gardien : décor converti de la scène Unity, échelle 4, ambiance, golem animé |
+| 8 | Le héros animé : soldat reciblé, 13 clips, fusil sur l'os de la main, vue `hero_view.gd` |
+| 9 | L'interface du genre |
+| 10 | La carboglace (brume au sol) |
+| 11 | Les spectres, squelettes procéduraux |
+| 12 | Le combat du Gardien (attaques, phases, mort) |
+| 13 | Les effets des coups |
+| 14 | Mesures sans fenêtre, 0 allocation en combat |
+| 15 | Deux qualités graphiques, la basse pour un petit PC |
+| 16 | Le saut, et un tir qui part là où pointe le canon |
+| 17 | Les spectres plongent chacun leur tour, et laissent une traîne |
+| 18 | Le son et la musique du combat |
 
-Ce qui n'existe pas encore : l'interface, l'IA du golem (il joue
-l'attente, ne bouge pas, ne frappe pas), les effets, les sons, la musique, l'optimisation. L'entrée du saloon est
-surexposée (plan émissif extérieur, `M_Emissive`, énergie 4) : à régler avec les lumières.
-
-**Ordre accepté par laurent** (« oui vas y ») : décor et golem (fait) → héros animé (fait) → **interface du genre** →
-combat du golem (machine à états, attaques sur ses vraies animations, zones de coup, bouclier, points faibles,
-phase 2, mort) → effets et sons → optimisation → paires et sessions longues.
+**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 19 les effets des tirs ; 20 les effets et coups
+magiques du boss ; 21 ce qui se dessine (distances de visibilité des petits objets, occulteurs) ; 22 le petit PC
+lui-même ; puis les paires tirées du cours (§ 9). Noté à l'étape 8 : l'entrée du saloon surexposée (plan émissif
+extérieur, `M_Emissive`). Une grande plage blanche reste à gauche des images de l'étape 17 : à regarder, laurent n'en a
+pas parlé.
 
 ## 6. Méthode d'une étape (ce qui a marché, à refaire à l'identique)
 
 1. **Lire** la conception et les sources ; vérifier chaque membre Godot (`usine.vocab lookup`) et chercher dans le
    RAG ce qu'on ne sait pas ; quand la documentation se tait, écrire le plus petit test qui tranche.
 2. **Maîtres balisés** (`cours/boss_action_rpg/maitres/…`) : `#@ N`, `#@ N+`, `#@ a-b`, `#@ all` dans les `.gd` ;
-   `;@ …` dans les `.tscn`, `.tres`, `project.godot`. Une étape nouvelle ne change pas les précédentes : vérifier par
-   `python -c "from usine.cours.jeu import rendre; …"` (comparer le rendu des étapes passées avant et après).
+   `;@ …` dans les `.tscn`, `.tres`, `project.godot` ; `//@ …` dans les shaders. Un bloc ajouté se referme sur la balise
+   du bloc qui l'englobait (`grep -n "^#@"` avant d'écrire). Une étape nouvelle ne change pas les précédentes :
+   vérifier **avant de committer** par `python SUIVIS_PROGRESSION/outils/verifier_etapes.py N` (0 écart). Mes retouches
+   de maîtres passaient par un petit script Python écrit avec l'outil d'écriture : `assert texte.count(ancien) == 1`,
+   puis `write_bytes` (pas de CRLF).
 3. **Tests d'abord** (GdUnit4, une règle par cas, la liste des règles en tête de suite).
 4. **Manifeste** (`cours/boss_action_rpg/manifeste.py`) : `DERNIERE`, `ETAPES` (titre, piste), `PRETES`, `FICHIERS`
-   (chemin : plage de présence). La source est le dossier du jeu (clé `boss_action_rpg` de `[sources]`) : les
+   (chemin : plage de présence ; les tests nouveaux aussi) ; et la case de l'étape dans `maitres/plan.md`. La source est le dossier du jeu (clé `boss_action_rpg` de `[sources]`) : les
    ressources désignées par `res://` (y compris dans les `.res` binaires) sont copiées avec leurs `.import`.
 5. **Note d'étape** `cours/boss_action_rpg/notes/etape_00N.md` (jetons `{STEP}`, `{TITLE}`, `{TRACK}`,
    `{FILES_TABLE}`), aussi détaillée que `etape_007.md` : pourquoi maintenant, ce qu'on a cherché, décidé, les erreurs.
@@ -150,7 +261,7 @@ Outils de `SUIVIS_PROGRESSION\outils\` : `unity_scene_extraire.py`, `unity_scene
 retenus : échelle 4, décalage `-85.4,4.288,2.49`, lampes 9). Les scripts GDScript lancés par `-s` sont compilés avec
 les réglages stricts du projet (typer tout, pas de division entière).
 
-## 7. Où en est le cours (2026-10-29)
+## 7. Où en est le cours (2026-10-31)
 
 Étapes 1 à 17 faites et vérifiées (14 : mesures sans fenêtre, 0 allocation en combat, 213 cas ; 15 : deux qualités
 graphiques, la basse pour un petit PC, 216 cas ; 16 : le saut et la visée réparée, 220 cas ; 17 : les spectres
@@ -191,7 +302,9 @@ cours.
 Outils d'image et de mesure (`SUIVIS_PROGRESSION/outils/`) : `capturer_spectres.gd` ; `mesurer_golem.gd` (clips,
 marteau, `-- trajectoires`) ; `trace_golem.gd` (chemin du marteau, dessus et profil) ; `planche_golem.gd` et
 `assembler_planche.py` (gestes image par image) ; `jouer_combat.gd` (combat sans joueur, journal des coups) ;
-`carte_arene.gd` (carte du sol en caractères).
+`carte_arene.gd` (carte du sol en caractères) ; `verifier_etapes.py` (étapes anciennes inchangées) ; `voir_saut_tir.gd`,
+`voir_traines.gd` (une planche d'images) ; `trace_spectres.gd` (chaque coup reçu par un héros immobile, image et source) ;
+`mesurer_sons.gd` (objets créés par la lecture d'un son).
 
 ## 8. Le golem ensuite (préparé)
 
@@ -209,7 +322,11 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   `python -m usine.paires demarche` (`usine/paires/demarche.py`) : outil rejoué (RAG, vocabulaire), pas écarté si un
   fragment attendu ou une citation « … » manque à la sortie réelle ; paires au format d'OpenCode (outil `execute` du
   Code Mode : `tools["usine-godot"].search_docs({ requete, n })`, `.vocab_lookup({ classe, membre })`). 40 paires à
-  ce jour. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
+  ce jour. Champs d'un pas : `id`, `etape`, `sujet`, `type` ("analyse"), `situation`, `pensee`, `outil` (`genre` : `vocab`
+  avec `classe` et `membre`, ou `rag` avec `requete` et `n`), `attendu` (fragments), `lecture` (ses citations « … » doivent
+  être dans la sortie réelle), `decision`. Sujets déjà employés : Gameplay, Graphisme 3D, VFX, Shaders, Optimisation,
+  Gestion de la mémoire, Audio, Physique, UI, Procédural, Contrôle à la manette, Plugins et leur usage, Création de
+  tests. À étendre : pas qui lancent Godot (outil `shell`, sortie rejouée sur le projet fabriqué), pas qui lisent
   un fichier, pas « plan » (du prompt à la liste des étapes, vérifiée contre le manifeste), sessions longues.
 - **Autres familles à tirer du cours** (`usine/paires/` : `creation`, `bloc`, `test_cas`, `morceaux`, `rag`) : ajouter
   `boss_action_rpg` aux choix `--cours` de `usine/paires/__main__.py` et à `JEUX` de `usine/cours/base/textes.py` si
@@ -298,3 +415,9 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
   l'oreille par laurent.
 - Avant un rendu en fenêtre, lire la mémoire de la carte (`nvidia-smi`) : si elle est presque pleine (un autre
   programme), ne pas lancer de rendu.
+- `set`, `call` et `seed` comme noms de variable masquent `Object.set`, `Object.call` et la fonction globale `seed` :
+  avertissement traité en erreur, le script ne se charge plus. Une seule suite cassée et GdUnit s'arrête (code 105).
+- Refabriquer sans `--import` : « Could not find type … » (classes globales nouvelles). Toujours importer après.
+- `git status --porcelain` montre un dossier nouveau comme une seule ligne : lister avec `-uall`.
+- Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.
+  Je l'ai lue dans `D:\sources\godot-docs\tutorials\shaders\shader_reference\spatial_shader.rst` et n'en ai pas fait de pas.
