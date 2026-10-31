@@ -49,4 +49,7 @@ class_name GraphicsQuality extends Resource
 @export_range(0.0, 20.0, 0.05) var shadow_min_size: float = 0.0
 ## Les découpes de l'ombre de la lune : autant de passes sur tout le décor. Orthogonale : une seule.
 @export var moon_shadow_mode: DirectionalLight3D.ShadowMode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+#@ 23+
+## La part des particules des effets brefs qui vivent : ils se dessinent par-dessus tout le reste.
+@export_range(0.1, 1.0, 0.05) var effect_detail: float = 1.0
 #@ all

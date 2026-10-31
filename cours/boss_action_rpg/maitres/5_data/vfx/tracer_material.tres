@@ -7,5 +7,10 @@ render_priority = 1
 shader = ExtResource("1_shader")
 shader_parameter/core_color = Color(1, 0.92, 0.72, 1)
 shader_parameter/halo_color = Color(1, 0.42, 0.08, 1)
+;@ 19-22
 shader_parameter/intensity = 7.0
 shader_parameter/width = 0.26
+;@ 23+
+shader_parameter/intensity = 12.0
+shader_parameter/width = 0.15
+;@ all

@@ -3,6 +3,9 @@ extends GdUnitTestSuite
 ## et allume sa lueur et sa lumière ; elles baissent, et sont éteintes au bout de `duration` ; il reste visible tant que
 ## ses particules vivent, puis se cache ; rejouer un effet en cours le remet à neuf ; sans droit à la lumière, elle reste
 ## éteinte, et le reste de l'effet joue ; les effets du jeu sont en réserve : aucun ne garde son AnimationPlayer.
+#@ 23+
+## Un flux coule tant que l'effet est rejoué, s'arrête ensuite sans être relancé ; `detail` règle la part de particules.
+#@ all
 
 const MUZZLE := preload("res://3_entities/hero/muzzle_flash.tscn")
 const IMPACT := preload("res://3_entities/hero/shot_impact.tscn")
@@ -22,7 +25,11 @@ func _lumiere(burst: VfxBurst) -> OmniLight3D:
 func _particules(burst: VfxBurst) -> Array[GPUParticles3D]:
 	var liste: Array[GPUParticles3D] = []
 	for child: Node in burst.get_children():
+#@ 19-22
 		if child is GPUParticles3D:
+#@ 23+
+		if child is GPUParticles3D and child.name != &"Stream":
+#@ all
 			liste.append(child as GPUParticles3D)
 	return liste
 
@@ -46,7 +53,9 @@ func test_jouer_le_montre_relance_ses_particules_et_allume_sa_lumiere() -> void:
 		assert_bool(particles.emitting).is_true()
 	assert_bool(_lumiere(burst).visible).is_true()
 	assert_float(_lumiere(burst).light_energy).is_equal(burst.light_energy)
+#@ 19-22
 	assert_bool((burst.get_node("Glow") as Node3D).visible).is_true()
+#@ all
 
 
 func test_la_lueur_et_la_lumiere_baissent_et_s_eteignent_au_bout_de_sa_duree() -> void:
@@ -55,11 +64,15 @@ func test_la_lueur_et_la_lumiere_baissent_et_s_eteignent_au_bout_de_sa_duree() -
 	burst.update(burst.duration * 0.5)
 	assert_float(burst.flare).is_equal_approx(0.5, 0.001)
 	assert_float(_lumiere(burst).light_energy).is_equal_approx(burst.light_energy * 0.25, 0.001)
+#@ 19-22
 	assert_float((burst.get_node("Glow") as Node3D).scale.x).is_equal_approx(0.5, 0.001)
+#@ all
 	burst.update(burst.duration * 0.5)
 	assert_float(burst.flare).is_equal(0.0)
 	assert_bool(_lumiere(burst).visible).is_false()
+#@ 19-22
 	assert_bool((burst.get_node("Glow") as Node3D).visible).is_false()
+#@ all
 
 
 func test_il_reste_visible_tant_que_ses_particules_vivent_puis_se_cache() -> void:
@@ -100,3 +113,31 @@ func test_il_entre_dans_le_groupe_des_effets_sans_animationplayer() -> void:
 		assert_bool(burst.is_in_group(VfxBurst.GROUP)).is_true()
 		assert_array(burst.find_children("*", "AnimationPlayer", true, false)).is_empty()
 		assert_array(burst.find_children("*", "AudioStreamPlayer3D", true, false)).is_empty()
+#@ 23+
+
+
+func test_le_flux_coule_quand_il_est_rejoue_puis_s_arrete_sans_etre_relance() -> void:
+	var burst: VfxBurst = _burst(MUZZLE)
+	var flux: GPUParticles3D = burst.get_node("Stream") as GPUParticles3D
+	assert_bool(flux.emitting).is_false()
+	burst.play()
+	assert_bool(flux.emitting).is_true()
+	assert_bool(flux.one_shot).is_false()
+	burst.update(burst.stream_time * 0.5)
+	burst.play()
+	burst.update(burst.stream_time * 0.8)
+	assert_bool(flux.emitting).is_true()
+	burst.update(burst.stream_time * 0.3)
+	assert_bool(flux.emitting).is_false()
+	# La fumée déjà partie reste visible : l'effet attend qu'elle ait fini de vivre.
+	assert_bool(burst.visible).is_true()
+	burst.update(flux.lifetime)
+	assert_bool(burst.visible).is_false()
+
+
+func test_detail_regle_la_part_de_ses_particules() -> void:
+	var burst: VfxBurst = _burst(IMPACT)
+	burst.detail = 0.5
+	for particles: GPUParticles3D in _particules(burst):
+		assert_float(particles.amount_ratio).is_equal_approx(0.5, 0.001)
+#@ all

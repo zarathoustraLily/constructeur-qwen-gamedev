@@ -124,6 +124,8 @@ func apply(quality: GraphicsQuality, viewport: Viewport) -> void:
 		(burst as VfxBurst).light_allowed = quality.effect_lights
 #@ 20+
 	get_tree().set_group(VfxBurst.GROUP, &"light_allowed", quality.effect_lights)
+#@ 23+
+	get_tree().set_group(VfxBurst.GROUP, &"detail", quality.effect_detail)
 #@ all
 
 

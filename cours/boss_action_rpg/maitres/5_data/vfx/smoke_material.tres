@@ -1,0 +1,25 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/flipbook_lit.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/fumee_a.png" id="2_a"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/fumee_b.png" id="3_b"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/fumee_v.png" id="4_v"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/fire_ramp.tres" id="5_ramp"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/atlas_v = ExtResource("4_v")
+shader_parameter/grid = Vector2(6, 6)
+shader_parameter/frames = 36.0
+shader_parameter/flow = 0.03992
+shader_parameter/looping = false
+shader_parameter/pace = 0.8
+shader_parameter/soft_distance = 0.5
+shader_parameter/atlas_a = ExtResource("2_a")
+shader_parameter/atlas_b = ExtResource("3_b")
+shader_parameter/smoke_color = Color(0.34, 0.33, 0.32, 1)
+shader_parameter/ambient_color = Color(0.56, 0.56, 0.62, 1)
+shader_parameter/light_scale = 0.9976
+shader_parameter/fire_ramp = ExtResource("5_ramp")
+shader_parameter/fire_gain = 0.0

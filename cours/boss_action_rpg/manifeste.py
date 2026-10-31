@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 22
+DERNIERE = 23
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -40,13 +40,14 @@ ETAPES = [
     {"piste": "Gameplay + VFX + Shaders", "titre": "La magie du Gardien : boules de feu, éclairs annoncés au sol, aura"},
     {"piste": "Optimisation + Graphisme 3D", "titre": "Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune"},
     {"piste": "Optimisation", "titre": "Le petit PC : le niveau mesuré sur une vraie petite carte"},
+    {"piste": "VFX + Shaders + Outils", "titre": "Le feu et la fumée cuits : une vraie simulation de fluide, et le tir refait"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -232,15 +233,15 @@ FICHIERS = {
     "1_core/vfx/vfx_burst.gd": "19+",
     "5_data/vfx/flash_noise.tres": "19+",
     "5_data/vfx/tracer_material.tres": "19+",
-    "5_data/vfx/muzzle_long_material.tres": "19+",
-    "5_data/vfx/muzzle_side_material.tres": "19+",
-    "5_data/vfx/muzzle_front_material.tres": "19+",
-    "5_data/vfx/impact_star_material.tres": "19+",
-    "5_data/vfx/impact_flash_material.tres": "19+",
+    "5_data/vfx/muzzle_long_material.tres": "19-22",
+    "5_data/vfx/muzzle_side_material.tres": "19-22",
+    "5_data/vfx/muzzle_front_material.tres": "19-22",
+    "5_data/vfx/impact_star_material.tres": "19-22",
+    "5_data/vfx/impact_flash_material.tres": "19-22",
     "6_assets/Shader/VFX/tracer.gdshader": "19+",
-    "6_assets/Shader/VFX/muzzle_flash.gdshader": "19+",
-    "6_assets/Shader/VFX/impact_star.gdshader": "19+",
-    "6_assets/Shader/VFX/impact_flash.gdshader": "19+",
+    "6_assets/Shader/VFX/muzzle_flash.gdshader": "19-22",
+    "6_assets/Shader/VFX/impact_star.gdshader": "19-23",
+    "6_assets/Shader/VFX/impact_flash.gdshader": "19-23",
     "3_entities/hero/muzzle_flash.tscn": "19+",
     "3_entities/hero/shot_impact.tscn": "19+",
     "3_entities/hero/hero_shot.tscn": "19+",
@@ -268,4 +269,14 @@ FICHIERS = {
     "6_assets/VFX/golem/aura_embers.tscn": "20+",
     "7_tests/3_entities/boss/test_golem_spells.gd": "20+",
     "7_tests/perf/banc_petit_pc.bat": "22+",
+    "6_assets/Shader/VFX/flipbook.gdshaderinc": "23+",
+    "6_assets/Shader/VFX/flipbook_lit.gdshader": "23+",
+    "6_assets/Shader/VFX/flash.gdshader": "23+",
+    "6_assets/Shader/VFX/spark.gdshader": "23+",
+    "5_data/vfx/fire_ramp.tres": "23+",
+    "5_data/vfx/smoke_material.tres": "23+",
+    "5_data/vfx/dust_material.tres": "23+",
+    "5_data/vfx/flash_jet_material.tres": "23+",
+    "5_data/vfx/flash_star_material.tres": "23+",
+    "5_data/vfx/spark_material.tres": "23+",
 }

@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/flash.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/bouche_face_f.png" id="2_f"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/fire_ramp.tres" id="3_ramp"]
+
+[resource]
+render_priority = 4
+shader = ExtResource("1_shader")
+shader_parameter/atlas_f = ExtResource("2_f")
+shader_parameter/fire_ramp = ExtResource("3_ramp")
+shader_parameter/fire_gain = 2.0
+shader_parameter/cover = 0.3
+shader_parameter/along_axis = false
+shader_parameter/size = 1.5
+shader_parameter/view_fade = 0.8

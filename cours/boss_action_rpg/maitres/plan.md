@@ -103,7 +103,12 @@ suivante avant.
 - [ ] 22. Le petit PC lui-même : mesure en conditions réelles
 #@ 22+
 - [x] 22. Le niveau mesuré sur une vraie petite carte, et le banc pour le petit PC
+#@ 22
 - [ ] 23. Le banc lancé sur le petit PC de laurent : le test qui fait foi
+#@ 23+
+- [x] 23. Le feu et la fumée cuits d'une vraie simulation de fluide, et le tir refait avec eux
+- [ ] 24. Le banc lancé sur le petit PC de laurent : le test qui fait foi
+#@ 12+
 #@ 12+
 #@ 1-6
 - [ ] 8. Attaques du golem, zones de coup, bouclier et points faibles

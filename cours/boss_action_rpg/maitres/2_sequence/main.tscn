@@ -265,6 +265,11 @@ spectres = [NodePath("../Spectres/Spectre1"), NodePath("../Spectres/Spectre2"), 
 prey = NodePath("../Hero")
 prey_health = NodePath("../Hero/Health")
 ;@ all
+;@ 23+
+
+[node name="SparkFloor" type="GPUParticlesCollisionBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+size = Vector3(200, 2, 200)
 ;@ 13+
 
 [node name="ImpactSparks" type="Node3D" parent="." node_paths=PackedStringArray("pool")]

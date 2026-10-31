@@ -1013,6 +1013,78 @@
    ],
    "lecture": "Time.get_ticks_usec existe : le temps écoulé en microsecondes.",
    "decision": "mesurer_rendu.gd note chaque image, sans V-Sync (--disable-vsync), et donne la médiane, le 99e centile, la pire image et le nombre d'images de plus de 16,7 ms. Une mesure de 900 images depuis le début couvre les premiers sorts, où un shader se compilerait."
+  },
+  {
+   "id": "e23_animer_un_plan",
+   "etape": 23,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "Un flipbook de fluide cuit tient 36 images dans un atlas. Sur un plan de particule, qui dit au shader où en est l'animation, sans script ? Il faut que chaque particule ait son instant à elle.",
+   "pensee": "Le matériau de particules sait animer : je cherche le membre qui avance l'animation, pour le lire dans INSTANCE_CUSTOM.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "ParticleProcessMaterial",
+    "membre": "anim_speed_min"
+   },
+   "attendu": [
+    "anim_speed_min"
+   ],
+   "lecture": "Le membre existe : « anim_speed_min: float ».",
+   "decision": "anim_speed_min = anim_speed_max = 1 : INSTANCE_CUSTOM.z va de 0 à 1 sur la vie de la particule. Le shader en tire deux images voisines, les pousse le long de leurs vecteurs de mouvement et les fond : 36 images suffisent."
+  },
+  {
+   "id": "e23_flux_sans_restart",
+   "etape": 23,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "La fumée de bouche doit rester en l'air pendant une rafale. Or VfxBurst relance ses particules à chaque tir : que devient la fumée du tir d'avant ?",
+   "pensee": "Je vérifie ce que fait restart : s'il repart de zéro, la fumée ne peut pas être une salve.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "GPUParticles3D",
+    "membre": "restart"
+   },
+   "attendu": [
+    "restart"
+   ],
+   "lecture": "La méthode existe : « restart(keep_seed: bool=false) » : elle relance tout le système.",
+   "decision": "La fumée est un flux : un enfant Stream, pas en one_shot, que VfxBurst ouvre (emitting) tant que l'effet est rejoué, sans jamais le relancer. L'effet ne se cache qu'après la fin de vie de sa fumée."
+  },
+  {
+   "id": "e23_etincelles_au_sol",
+   "etape": 23,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "Des étincelles qui traversent le plancher trahissent l'effet. Faut-il un champ de hauteur, ou une simple forme de collision pour les particules ? Le sol du saloon est plat.",
+   "pensee": "Une boîte suffit pour un sol plat : je vérifie comment se règle sa taille.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "GPUParticlesCollisionBox3D",
+    "membre": "size"
+   },
+   "attendu": [
+    "size"
+   ],
+   "lecture": "Le membre existe : « size: Vector3 ».",
+   "decision": "SparkFloor : une seule boîte de 200 × 2 × 200 m, sous le plancher, dans la scène principale ; étincelles et éclats ont collision_mode rigide et rebondissent. Le coût est celui d'une forme, pas d'une texture de hauteur."
+  },
+  {
+   "id": "e23_exposition",
+   "etape": 23,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Sous AgX, le feu vire au blanc-rose : on perd l'orangé. Sous ACES, il garde sa couleur, mais toute la salle s'assombrit. Quel réglage la relève, sans toucher aux lumières ?",
+   "pensee": "Le tonemap a une exposition : je vérifie son nom dans Environment.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Environment",
+    "membre": "tonemap_exposure"
+   },
+   "attendu": [
+    "tonemap_exposure"
+   ],
+   "lecture": "Le membre existe : « tonemap_exposure: float ».",
+   "decision": "tonemap_mode = 3 (ACES), tonemap_exposure = 1.5, un peu plus d'ambiance. Le choix se juge sur des images entières, avec l'effet et sans lui : c'est un choix à faire valider par laurent."
   }
  ]
 }
