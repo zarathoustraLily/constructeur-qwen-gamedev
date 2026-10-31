@@ -32,4 +32,6 @@ shadow_min_size = 2.0
 moon_shadow_mode = 0
 ;@ 23+
 effect_detail = 0.6
+;@ 24+
+distortion = false
 ;@ all

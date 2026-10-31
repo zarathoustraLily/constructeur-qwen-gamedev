@@ -6,6 +6,8 @@ class_name VfxBurst extends Node3D
 #@ 23+
 ## Un enfant Stream est un flux, pas une salve : il coule tant que l'effet est rejoué, et ses particules vivent leur vie : la
 ## fumée d'une rafale ne disparaît pas au tir suivant.
+#@ 24+
+## Un enfant Mark (un Decal) reste sur le sol après l'effet : sa braise s'éteint, puis la marque s'efface.
 #@ all
 
 #@ 19
@@ -14,6 +16,10 @@ class_name VfxBurst extends Node3D
 ## Le groupe des effets : la qualité graphique règle leur `light_allowed`.
 #@ all
 const GROUP: StringName = &"vfx_burst"
+#@ 24+
+## Le groupe de ce qui déforme l'image : la qualité graphique peut le cacher.
+const DISTORTION_GROUP: StringName = &"vfx_distortion"
+#@ all
 
 ## Le temps que mettent la lueur et la lumière à s'éteindre, en secondes.
 @export_range(0.01, 5.0, 0.01) var duration: float = 0.2
@@ -22,6 +28,13 @@ const GROUP: StringName = &"vfx_burst"
 #@ 23+
 ## Le flux coule encore autant après un `play`, en secondes.
 @export_range(0.0, 2.0, 0.01) var stream_time: float = 0.2
+#@ 24+
+## La marque (enfant Mark) reste autant, en secondes.
+@export_range(0.0, 30.0, 0.1) var mark_time: float = 8.0
+## Sa lueur à l'instant du coup.
+@export_range(0.0, 20.0, 0.1) var mark_glow: float = 4.0
+## Sa braise s'éteint en autant de secondes, et elle s'efface en autant à la fin.
+@export_range(0.05, 10.0, 0.05) var mark_cooling: float = 2.5
 #@ all
 
 ## Faux : sa lumière reste éteinte (qualité basse).
@@ -42,7 +55,13 @@ var _length: float = 0.0
 var _left: float = 0.0
 #@ 23+
 var _stream_left: float = 0.0
+#@ 24+
+var _mark_left: float = 0.0
 
+@onready var _mark: Decal = get_node_or_null(^"Mark") as Decal
+#@ 23
+
+#@ 23+
 @onready var _stream: GPUParticles3D = get_node_or_null(^"Stream") as GPUParticles3D
 #@ 19-22
 
@@ -68,6 +87,9 @@ func _ready() -> void:
 #@ 23+
 			if particles != _stream:
 				_particles.append(particles)
+#@ 24+
+	if _mark != null:
+		_length = maxf(_length, mark_time)
 #@ all
 	_show()
 	visible = false
@@ -83,6 +105,8 @@ func play() -> void:
 	_left = _length
 #@ 23+
 	_stream_left = stream_time
+#@ 24+
+	_mark_left = mark_time
 #@ all
 	flare = 1.0
 	visible = true
@@ -98,6 +122,8 @@ func update(delta: float) -> void:
 	flare = maxf(flare - delta / duration, 0.0)
 #@ 23+
 	_stream_left = maxf(_stream_left - delta, 0.0)
+#@ 24+
+	_mark_left = maxf(_mark_left - delta, 0.0)
 #@ all
 	_show()
 	if _left <= 0.0:
@@ -109,6 +135,12 @@ func _show() -> void:
 #@ 23+
 	if _stream != null:
 		_stream.emitting = _stream_left > 0.0
+#@ 24+
+	if _mark != null:
+		var age: float = mark_time - _mark_left
+		_mark.visible = _mark_left > 0.0
+		_mark.modulate.a = minf(_mark_left / mark_cooling, 1.0)
+		_mark.emission_energy = mark_glow * maxf(1.0 - age / mark_cooling, 0.0) ** 2
 #@ all
 	if _glow != null:
 		_glow.visible = flare > 0.0

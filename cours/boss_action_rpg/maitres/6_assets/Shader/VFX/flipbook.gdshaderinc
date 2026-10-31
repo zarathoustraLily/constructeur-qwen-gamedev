@@ -55,6 +55,11 @@ vec4 flipbook_pushed() {
 // L'effacement contre le décor.
 float flipbook_soft(vec2 screen_uv, vec3 vertex, mat4 inv_projection) {
 	float depth = texture(depth_buffer, screen_uv).r;
+//@ 24+
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	depth = depth * 2.0 - 1.0;
+#endif
+//@ all
 	vec4 scene = inv_projection * vec4(screen_uv * 2.0 - 1.0, depth, 1.0);
 	return clamp((vertex.z - scene.z / scene.w) / soft_distance, 0.0, 1.0);
 }

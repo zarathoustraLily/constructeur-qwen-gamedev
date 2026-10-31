@@ -126,6 +126,8 @@ func apply(quality: GraphicsQuality, viewport: Viewport) -> void:
 	get_tree().set_group(VfxBurst.GROUP, &"light_allowed", quality.effect_lights)
 #@ 23+
 	get_tree().set_group(VfxBurst.GROUP, &"detail", quality.effect_detail)
+#@ 24+
+	get_tree().set_group(VfxBurst.DISTORTION_GROUP, &"visible", quality.distortion)
 #@ all
 
 

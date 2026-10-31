@@ -1,3 +1,4 @@
+;@ 20-23
 [gd_resource type="ShaderMaterial" load_steps=2 format=3]
 
 [ext_resource type="Shader" path="res://6_assets/Shader/VFX/lightning.gdshader" id="1_shader"]
@@ -8,3 +9,17 @@ shader = ExtResource("1_shader")
 shader_parameter/core_color = Color(1, 1, 1, 1)
 shader_parameter/halo_color = Color(0.25, 0.4, 1, 1)
 shader_parameter/intensity = 5.0
+;@ 24+
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/lightning.gdshader" id="1_shader"]
+
+[resource]
+render_priority = 6
+shader = ExtResource("1_shader")
+shader_parameter/core_color = Color(0.92, 0.95, 1, 1)
+shader_parameter/halo_color = Color(0.2, 0.34, 1, 1)
+shader_parameter/intensity = 5.0
+shader_parameter/level = 1.0
+shader_parameter/core_width = 0.06
+;@ all

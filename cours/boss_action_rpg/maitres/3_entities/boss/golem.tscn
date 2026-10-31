@@ -32,12 +32,24 @@
 [ext_resource type="Resource" path="res://5_data/vfx/golem_vfx.tres" id="20_vfx"]
 [ext_resource type="Material" path="res://5_data/vfx/shockwave_material.tres" id="21_shockwave"]
 [ext_resource type="Material" path="res://5_data/vfx/hammer_trail_material.tres" id="22_trail"]
+;@ 13-23
 [ext_resource type="PackedScene" path="res://6_assets/VFX/golem/slam_dust.tscn" id="23_dust"]
+;@ 24+
+[ext_resource type="PackedScene" path="res://3_entities/boss/slam_dust.tscn" id="23_dust"]
+;@ 13+
 [ext_resource type="PackedScene" path="res://6_assets/VFX/golem/slam_debris.tscn" id="24_debris"]
+;@ 13-23
 [ext_resource type="PackedScene" path="res://6_assets/VFX/combat/hit_sparks.tscn" id="25_sparks"]
+;@ 24+
+[ext_resource type="PackedScene" path="res://3_entities/boss/hit_sparks.tscn" id="25_sparks"]
+;@ 13+
 [ext_resource type="Material" path="res://5_data/vfx/ember_lines_material.tres" id="26_ember"]
 ;@ 20+
 [ext_resource type="PackedScene" path="res://6_assets/VFX/golem/aura_embers.tscn" id="27_embers"]
+;@ 24+
+[ext_resource type="PackedScene" path="res://3_entities/boss/aura_flame.tscn" id="90_flame"]
+[ext_resource type="PackedScene" path="res://3_entities/boss/slam_shock.tscn" id="91_shock"]
+;@ 20+
 [ext_resource type="Script" path="res://3_entities/boss/golem_spells.gd" id="28_spells"]
 [ext_resource type="Resource" path="res://5_data/boss/spells.tres" id="29_spell_settings"]
 [ext_resource type="PackedScene" path="res://3_entities/boss/fireball.tscn" id="30_ball"]
@@ -205,6 +217,22 @@ material_override = ExtResource("22_trail")
 
 [node name="AuraEmbers" parent="Effects" instance=ExtResource("27_embers")]
 
+;@ 24+
+[node name="SlamShock" parent="Effects" instance=ExtResource("91_shock")]
+
+[node name="AuraFlames" type="Node3D" parent="Effects"]
+
+[node name="clavicle_l" parent="Effects/AuraFlames" instance=ExtResource("90_flame")]
+
+[node name="clavicle_r" parent="Effects/AuraFlames" instance=ExtResource("90_flame")]
+
+[node name="hand_l" parent="Effects/AuraFlames" instance=ExtResource("90_flame")]
+
+[node name="spine_04" parent="Effects/AuraFlames" instance=ExtResource("90_flame")]
+
+[node name="weapon_r" parent="Effects/AuraFlames" instance=ExtResource("90_flame")]
+
+;@ 20+
 [node name="AuraLight" type="OmniLight3D" parent="Effects"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 2.2)
 visible = false

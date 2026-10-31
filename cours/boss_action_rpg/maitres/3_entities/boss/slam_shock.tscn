@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Material" path="res://5_data/vfx/shock_ring_material.tres" id="1_shock"]
+
+[sub_resource type="Curve" id="Curve_age"]
+_data = [Vector2(0, 1), 0.0, -1.0, 0, 1, Vector2(1, 0), -1.0, 0.0, 1, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_age"]
+width = 32
+curve = SubResource("Curve_age")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_shock"]
+gravity = Vector3(0, 0, 0)
+alpha_curve = SubResource("CurveTexture_age")
+
+[sub_resource type="QuadMesh" id="QuadMesh_shock"]
+size = Vector2(24, 24)
+
+[node name="SlamShock" type="GPUParticles3D" groups=["vfx_distortion"]]
+top_level = true
+cast_shadow = 0
+material_override = ExtResource("1_shock")
+emitting = false
+amount = 1
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 0
+visibility_aabb = AABB(-13, -13, -13, 26, 26, 26)
+process_material = SubResource("Process_shock")
+draw_pass_1 = SubResource("QuadMesh_shock")

@@ -12,6 +12,11 @@ signal ball_exploded(point: Vector3)
 signal lightning_marked(at: Vector3)
 ## Un éclair frappe en `point`.
 signal lightning_struck(point: Vector3)
+#@ 24+
+
+## Le cœur d'une explosion est autant au-dessus de ce qu'elle laisse au sol, en mètres (fire_blast.tscn).
+const BLAST_LIFT: float = 1.0
+#@ all
 
 ## Le golem qui lance.
 @export var golem: Golem
@@ -139,6 +144,11 @@ func _free_ball() -> Fireball:
 func _on_exploded(point: Vector3) -> void:
 	var blast: VfxBurst = _blasts[_next_blast]
 	_next_blast = (_next_blast + 1) % _blasts.size()
+#@ 20-23
 	blast.global_position = point
+#@ 24+
+	# Près du sol, elle s'y pose : ses flammes, sa poussière et sa brûlure y restent.
+	blast.global_position = point + Vector3.DOWN * minf(point.y - golem.global_position.y, BLAST_LIFT)
+#@ all
 	blast.play()
 	ball_exploded.emit(point)

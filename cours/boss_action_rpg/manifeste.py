@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 23
+DERNIERE = 24
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -41,13 +41,14 @@ ETAPES = [
     {"piste": "Optimisation + Graphisme 3D", "titre": "Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune"},
     {"piste": "Optimisation", "titre": "Le petit PC : le niveau mesuré sur une vraie petite carte"},
     {"piste": "VFX + Shaders + Outils", "titre": "Le feu et la fumée cuits : une vraie simulation de fluide, et le tir refait"},
+    {"piste": "VFX + Shaders", "titre": "La magie refaite : boule de feu, explosion, éclairs en coups répétés, aura de flammes"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -256,14 +257,14 @@ FICHIERS = {
     "3_entities/boss/golem_lightning.gd": "20+",
     "3_entities/boss/golem_lightning.tscn": "20+",
     "3_entities/boss/golem_spells.gd": "20+",
-    "5_data/vfx/fire_noise.tres": "20+",
-    "5_data/vfx/fireball_material.tres": "20+",
-    "5_data/vfx/fireball_tail_material.tres": "20+",
+    "5_data/vfx/fire_noise.tres": "20-23",
+    "5_data/vfx/fireball_material.tres": "20-23",
+    "5_data/vfx/fireball_tail_material.tres": "20-23",
     "5_data/vfx/lightning_material.tres": "20+",
     "5_data/vfx/ground_ring_material.tres": "20+",
-    "5_data/vfx/fire_star_material.tres": "20+",
-    "5_data/vfx/fire_flash_material.tres": "20+",
-    "6_assets/Shader/VFX/fireball.gdshader": "20+",
+    "5_data/vfx/fire_star_material.tres": "20-23",
+    "5_data/vfx/fire_flash_material.tres": "20-23",
+    "6_assets/Shader/VFX/fireball.gdshader": "20-23",
     "6_assets/Shader/VFX/lightning.gdshader": "20+",
     "6_assets/Shader/VFX/ground_ring.gdshader": "20+",
     "6_assets/VFX/golem/aura_embers.tscn": "20+",
@@ -279,4 +280,19 @@ FICHIERS = {
     "5_data/vfx/flash_jet_material.tres": "23+",
     "5_data/vfx/flash_star_material.tres": "23+",
     "5_data/vfx/spark_material.tres": "23+",
+    "6_assets/Shader/VFX/flipbook_fire.gdshader": "24+",
+    "6_assets/Shader/VFX/heat_haze.gdshader": "24+",
+    "5_data/vfx/explosion_material.tres": "24+",
+    "5_data/vfx/flame_material.tres": "24+",
+    "5_data/vfx/fire_orb_material.tres": "24+",
+    "5_data/vfx/aura_flame_material.tres": "24+",
+    "5_data/vfx/blast_flash_material.tres": "24+",
+    "5_data/vfx/plasma_ramp.tres": "24+",
+    "5_data/vfx/plasma_flash_material.tres": "24+",
+    "5_data/vfx/heat_haze_material.tres": "24+",
+    "5_data/vfx/shock_ring_material.tres": "24+",
+    "3_entities/boss/aura_flame.tscn": "24+",
+    "3_entities/boss/slam_dust.tscn": "24+",
+    "3_entities/boss/slam_shock.tscn": "24+",
+    "3_entities/boss/hit_sparks.tscn": "24+",
 }

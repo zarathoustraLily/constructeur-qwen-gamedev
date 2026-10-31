@@ -1,3 +1,4 @@
+;@ 20-23
 [gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://3_entities/boss/golem_lightning.gd" id="1_lightning"]
@@ -88,3 +89,236 @@ light_color = Color(0.55, 0.7, 1, 1)
 light_energy = 0.0
 omni_range = 12.0
 omni_attenuation = 1.4
+;@ 24+
+[gd_scene load_steps=24 format=3]
+
+[ext_resource type="Script" path="res://3_entities/boss/golem_lightning.gd" id="1_lightning"]
+[ext_resource type="Resource" path="res://5_data/boss/spells.tres" id="2_settings"]
+[ext_resource type="Material" path="res://5_data/vfx/ground_ring_material.tres" id="3_ring"]
+[ext_resource type="Material" path="res://5_data/vfx/lightning_material.tres" id="4_bolt"]
+[ext_resource type="Script" path="res://1_core/combat/hitbox.gd" id="5_hitbox"]
+[ext_resource type="Script" path="res://1_core/vfx/vfx_burst.gd" id="6_burst"]
+[ext_resource type="Material" path="res://5_data/vfx/plasma_flash_material.tres" id="7_flash"]
+[ext_resource type="Material" path="res://5_data/vfx/spark_material.tres" id="8_spark"]
+[ext_resource type="Material" path="res://5_data/vfx/dust_material.tres" id="9_dust"]
+[ext_resource type="Material" path="res://5_data/vfx/shock_ring_material.tres" id="10_shock"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/scorch_a.png" id="11_scorch"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/scorch_e.png" id="12_scorch"]
+
+[sub_resource type="Curve" id="Curve_flash"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_flash"]
+width = 32
+curve = SubResource("Curve_flash")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_flash"]
+angle_min = -180.0
+angle_max = 180.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.9
+scale_max = 1.1
+alpha_curve = SubResource("CurveTexture_flash")
+anim_offset_max = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_one"]
+
+[sub_resource type="Curve" id="Curve_smoke"]
+_data = [Vector2(0, 0), 0.0, 8.0, 0, 0, Vector2(0.12, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke"]
+width = 64
+curve = SubResource("Curve_smoke")
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.45), 0.0, 2.2, 0, 0, Vector2(1, 1), 0.2, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_grow"]
+width = 64
+curve = SubResource("Curve_grow")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ring"]
+size = Vector2(1, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_zone"]
+radius = 2.2
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+offsets = PackedFloat32Array(0, 0.3, 0.65, 1)
+colors = PackedColorArray(7, 8, 10, 1, 2.4, 3.4, 9, 1, 0.5, 1, 4, 1, 0.1, 0.2, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_spark"]
+width = 64
+use_hdr = true
+gradient = SubResource("Gradient_spark")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_sparks"]
+direction = Vector3(0, 1, 0)
+spread = 85.0
+initial_velocity_min = 6.0
+initial_velocity_max = 24.0
+gravity = Vector3(0, -12, 0)
+damping_min = 1.5
+damping_max = 5.0
+lifetime_randomness = 0.7
+color_ramp = SubResource("GradientTexture1D_spark")
+collision_mode = 1
+collision_friction = 0.2
+collision_bounce = 0.45
+collision_use_scale = false
+
+[sub_resource type="ParticleProcessMaterial" id="Process_motes"]
+emission_shape = 3
+emission_box_extents = Vector3(2, 0.05, 2)
+direction = Vector3(0, 1, 0)
+spread = 18.0
+initial_velocity_min = 0.3
+initial_velocity_max = 1.6
+gravity = Vector3(0, 1.2, 0)
+lifetime_randomness = 0.5
+color_ramp = SubResource("GradientTexture1D_spark")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_dust"]
+angle_min = -180.0
+angle_max = 180.0
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.1
+emission_ring_radius = 1.0
+emission_ring_inner_radius = 0.4
+direction = Vector3(0, 0, 0)
+spread = 0.0
+radial_velocity_min = 8.0
+radial_velocity_max = 16.0
+gravity = Vector3(0, 0.3, 0)
+damping_min = 12.0
+damping_max = 18.0
+scale_min = 0.7
+scale_max = 1.2
+scale_curve = SubResource("CurveTexture_grow")
+color = Color(0.8, 0.85, 1, 0.32)
+alpha_curve = SubResource("CurveTexture_smoke")
+anim_speed_min = 1.0
+anim_speed_max = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_dust"]
+size = Vector2(3.6, 3.6)
+
+[sub_resource type="QuadMesh" id="QuadMesh_shock"]
+size = Vector2(13, 13)
+
+[node name="GolemLightning" type="Node3D"]
+top_level = true
+script = ExtResource("1_lightning")
+settings = ExtResource("2_settings")
+
+[node name="Ring" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+material_override = ExtResource("3_ring")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_ring")
+
+[node name="Motes" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+material_override = ExtResource("8_spark")
+emitting = false
+amount = 40
+lifetime = 0.9
+visibility_aabb = AABB(-4, -1, -4, 8, 6, 8)
+transform_align = 3
+process_material = SubResource("Process_motes")
+draw_pass_1 = SubResource("QuadMesh_one")
+
+[node name="Bolt" type="MeshInstance3D" parent="."]
+material_override = ExtResource("4_bolt")
+cast_shadow = 0
+
+[node name="Zone" type="Area3D" parent="."]
+script = ExtResource("5_hitbox")
+
+[node name="Shape" type="CollisionShape3D" parent="Zone"]
+shape = SubResource("SphereShape3D_zone")
+
+[node name="Hit" type="Node3D" parent="."]
+script = ExtResource("6_burst")
+duration = 0.4
+light_energy = 11.0
+mark_time = 7.0
+mark_glow = 6.0
+mark_cooling = 1.6
+
+[node name="Flash" type="GPUParticles3D" parent="Hit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+cast_shadow = 0
+material_override = ExtResource("7_flash")
+emitting = false
+amount = 1
+lifetime = 0.09
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 0
+visibility_aabb = AABB(-6, -6, -6, 12, 12, 12)
+process_material = SubResource("Process_flash")
+draw_pass_1 = SubResource("QuadMesh_one")
+
+[node name="Shock" type="GPUParticles3D" parent="Hit" groups=["vfx_distortion"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+cast_shadow = 0
+material_override = ExtResource("10_shock")
+emitting = false
+amount = 1
+lifetime = 0.36
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 0
+visibility_aabb = AABB(-8, -8, -8, 16, 16, 16)
+process_material = SubResource("Process_flash")
+draw_pass_1 = SubResource("QuadMesh_shock")
+
+[node name="Sparks" type="GPUParticles3D" parent="Hit"]
+cast_shadow = 0
+material_override = ExtResource("8_spark")
+emitting = false
+amount = 64
+lifetime = 1.0
+one_shot = true
+explosiveness = 1.0
+visibility_aabb = AABB(-12, -2, -12, 24, 16, 24)
+transform_align = 3
+process_material = SubResource("Process_sparks")
+draw_pass_1 = SubResource("QuadMesh_one")
+
+[node name="Dust" type="GPUParticles3D" parent="Hit"]
+cast_shadow = 0
+material_override = ExtResource("9_dust")
+emitting = false
+amount = 10
+lifetime = 1.5
+one_shot = true
+explosiveness = 1.0
+visibility_aabb = AABB(-10, -3, -10, 20, 9, 20)
+draw_order = 3
+process_material = SubResource("Process_dust")
+draw_pass_1 = SubResource("QuadMesh_dust")
+
+[node name="Mark" type="Decal" parent="Hit"]
+size = Vector3(6, 1.6, 6)
+texture_albedo = ExtResource("11_scorch")
+texture_emission = ExtResource("12_scorch")
+emission_energy = 0.0
+modulate = Color(0.5, 0.65, 1, 1)
+upper_fade = 0.3
+lower_fade = 0.3
+normal_fade = 0.75
+
+[node name="Light" type="OmniLight3D" parent="Hit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(0.6, 0.72, 1, 1)
+light_energy = 0.0
+light_volumetric_fog_energy = 1.2
+omni_range = 14.0
+omni_attenuation = 1.3
+;@ all

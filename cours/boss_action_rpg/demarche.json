@@ -1085,6 +1085,96 @@
    ],
    "lecture": "Le membre existe : « tonemap_exposure: float ».",
    "decision": "tonemap_mode = 3 (ACES), tonemap_exposure = 1.5, un peu plus d'ambiance. Le choix se juge sur des images entières, avec l'effet et sans lui : c'est un choix à faire valider par laurent."
+  },
+  {
+   "id": "e24_traine_dans_le_monde",
+   "etape": 24,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "La traîne de la boule de feu était un plan étiré derrière elle. Comment faire une vraie traîne de flammes et de fumée, qui reste où la boule est passée, sans refaire de géométrie ?",
+   "pensee": "Des particules qui ne suivent pas leur émetteur : je cherche le réglage du repère des particules.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "GPUParticles3D",
+    "membre": "local_coords"
+   },
+   "attendu": [
+    "local_coords"
+   ],
+   "lecture": "Le membre existe : « local_coords: bool ».",
+   "decision": "local_coords = false sur les flammes, la fumée et les braises : elles naissent sur la boule et restent dans le monde. La traîne n'est plus un objet : c'est ce que la boule laisse derrière elle."
+  },
+  {
+   "id": "e24_brulure_sur_les_meubles",
+   "etape": 24,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "À l'image, la brûlure de l'explosion dessine des stries verticales dans l'air : son Decal se projette le long de son axe sur tout ce qu'il traverse, meubles compris. Comment la garder sur le plancher ?",
+   "pensee": "Un Decal sait s'effacer selon l'orientation de la surface : je cherche ce réglage.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Decal",
+    "membre": "normal_fade"
+   },
+   "attendu": [
+    "normal_fade"
+   ],
+   "lecture": "Le membre existe : « normal_fade: float ».",
+   "decision": "normal_fade = 0,75 : ce qui ne regarde pas vers le haut n'est pas marqué ; et une boîte plus courte, 1,6 m. Le défaut ne se voyait pas dans le code : seulement sur une planche d'images."
+  },
+  {
+   "id": "e24_flammes_sur_les_os",
+   "etape": 24,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "En seconde phase, du feu doit monter des épaules du golem, et traîner quand il bouge. Attacher les émetteurs à ses os les ferait tourner avec lui. Comment suivre un os sans en être l'enfant ?",
+   "pensee": "Je lis la position de l'os dans le squelette et je la donne à un émetteur posé dans le monde : je vérifie la méthode.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Skeleton3D",
+    "membre": "get_bone_global_pose"
+   },
+   "attendu": [
+    "get_bone_global_pose"
+   ],
+   "lecture": "La méthode existe : « get_bone_global_pose(bone_idx: int) -> Transform3D ».",
+   "decision": "Chaque flamme est un émetteur top_level, nommé comme son os ; à chaque image : squelette.global_transform * pose.origin. Pas de table de correspondance : le nom du nœud suffit."
+  },
+  {
+   "id": "e24_ruban_a_chaque_forme",
+   "etape": 24,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Un éclair a maintenant 150 points, branches comprises. Refaire les rubans à chaque image, c'est 300 sommets à trois appels chacun, trois éclairs à la fois. Faut-il vraiment les refaire à chaque image ?",
+   "pensee": "Un ImmediateMesh se refait sommet par sommet : je vérifie l'appel, et je ne le ferai qu'à chaque forme.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "ImmediateMesh",
+    "membre": "surface_add_vertex"
+   },
+   "attendu": [
+    "surface_add_vertex"
+   ],
+   "lecture": "La méthode existe : « surface_add_vertex(vertex: Vector3) ».",
+   "decision": "Les rubans ne sont refaits qu'à chaque coup (tous les bolt_flicker). Entre deux coups, seul le paramètre level du matériau change : l'éclair retombe sans un seul sommet refait."
+  },
+  {
+   "id": "e24_cacher_ce_qui_relit_l_ecran",
+   "etape": 24,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "L'air chaud et les ondes de choc relisent l'écran : c'est la seule partie des effets dont le coût ne dépend pas de leur taille. En qualité basse, il faut les cacher, où qu'ils soient : dans les boules, dans les explosions, dans les éclairs.",
+   "pensee": "Ils sont dans plusieurs scènes : un groupe évite de les énumérer. Je vérifie l'appel qui règle une propriété sur tout un groupe.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "SceneTree",
+    "membre": "set_group"
+   },
+   "attendu": [
+    "set_group"
+   ],
+   "lecture": "La méthode existe : « set_group(group: StringName, property: String, value: Variant) ».",
+   "decision": "Groupe vfx_distortion dans les scènes ; GraphicsQualityApplier fait set_group(…, &\"visible\", quality.distortion) ; qualité basse : caché."
   }
  ]
 }

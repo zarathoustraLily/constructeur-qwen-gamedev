@@ -52,4 +52,7 @@ class_name GraphicsQuality extends Resource
 #@ 23+
 ## La part des particules des effets brefs qui vivent : ils se dessinent par-dessus tout le reste.
 @export_range(0.1, 1.0, 0.05) var effect_detail: float = 1.0
+#@ 24+
+## Vrai : l'air chaud et les ondes de choc déforment l'image (ils relisent l'écran).
+@export var distortion: bool = true
 #@ all

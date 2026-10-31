@@ -5,10 +5,15 @@ extends GdUnitTestSuite
 ## éteinte, et le reste de l'effet joue ; les effets du jeu sont en réserve : aucun ne garde son AnimationPlayer.
 #@ 23+
 ## Un flux coule tant que l'effet est rejoué, s'arrête ensuite sans être relancé ; `detail` règle la part de particules.
+#@ 24+
+## Une marque reste après les particules : sa braise s'éteint d'abord, puis elle s'efface, et l'effet se cache.
 #@ all
 
 const MUZZLE := preload("res://3_entities/hero/muzzle_flash.tscn")
 const IMPACT := preload("res://3_entities/hero/shot_impact.tscn")
+#@ 24+
+const BLAST := preload("res://3_entities/boss/fire_blast.tscn")
+#@ all
 const DT: float = 1.0 / 60.0
 
 
@@ -140,4 +145,23 @@ func test_detail_regle_la_part_de_ses_particules() -> void:
 	burst.detail = 0.5
 	for particles: GPUParticles3D in _particules(burst):
 		assert_float(particles.amount_ratio).is_equal_approx(0.5, 0.001)
+#@ 24+
+
+
+func test_sa_marque_reste_apres_ses_particules_sa_braise_s_eteint_puis_elle_s_efface() -> void:
+	var burst: VfxBurst = _burst(BLAST)
+	var marque: Decal = burst.get_node("Mark") as Decal
+	assert_bool(marque.visible).is_false()
+	burst.play()
+	assert_bool(marque.visible).is_true()
+	assert_float(marque.emission_energy).is_equal(burst.mark_glow)
+	burst.update(burst.mark_cooling)
+	assert_float(marque.emission_energy).is_equal_approx(0.0, 0.001)
+	assert_float(marque.modulate.a).is_equal(1.0)
+	burst.update(burst.mark_time - burst.mark_cooling * 1.5)
+	assert_float(marque.modulate.a).is_equal_approx(0.5, 0.001)
+	assert_bool(burst.visible).is_true()
+	burst.update(burst.mark_cooling * 0.5)
+	assert_bool(marque.visible).is_false()
+	assert_bool(burst.visible).is_false()
 #@ all

@@ -94,6 +94,8 @@ func test_la_qualite_basse_coupe_la_lumiere_des_effets() -> void:
 	assert_bool((main.get_node("ImpactSparks/Flare") as VfxBurst).light_allowed).is_false()
 #@ 23+
 	assert_float((main.get_node("Hero/Gun/MuzzleFlash") as VfxBurst).detail).is_less(1.0)
+#@ 24+
+	assert_bool((main.get_node("Golem/Spells/Blast1/Shock") as Node3D).visible).is_false()
 #@ 19+
 	reglage.apply(reglage.high, fenetre)
 	eclair.play()

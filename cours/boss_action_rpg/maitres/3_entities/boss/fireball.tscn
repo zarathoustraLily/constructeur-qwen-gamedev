@@ -1,3 +1,4 @@
+;@ 20-23
 [gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://3_entities/boss/fireball.gd" id="1_ball"]
@@ -91,3 +92,217 @@ light_color = Color(1, 0.55, 0.2, 1)
 light_energy = 0.0
 omni_range = 9.0
 omni_attenuation = 1.4
+;@ 24+
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://3_entities/boss/fireball.gd" id="1_ball"]
+[ext_resource type="Resource" path="res://5_data/boss/spells.tres" id="2_settings"]
+[ext_resource type="Material" path="res://5_data/vfx/fire_orb_material.tres" id="3_core"]
+[ext_resource type="Material" path="res://5_data/vfx/flame_material.tres" id="4_flame"]
+[ext_resource type="Material" path="res://5_data/vfx/smoke_material.tres" id="5_smoke"]
+[ext_resource type="Material" path="res://5_data/vfx/spark_material.tres" id="6_spark"]
+[ext_resource type="Material" path="res://5_data/vfx/heat_haze_material.tres" id="7_haze"]
+
+[sub_resource type="Curve" id="Curve_flash"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_flash"]
+width = 32
+curve = SubResource("Curve_flash")
+
+[sub_resource type="ParticleProcessMaterial" id="Process_flash"]
+angle_min = -180.0
+angle_max = 180.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.9
+scale_max = 1.1
+alpha_curve = SubResource("CurveTexture_flash")
+anim_offset_max = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_one"]
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+offsets = PackedFloat32Array(0, 0.22, 0.6, 1)
+colors = PackedColorArray(9, 7, 5, 1, 8, 3.6, 1.1, 1, 3.5, 0.8, 0.08, 1, 0.8, 0.1, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_spark"]
+width = 64
+use_hdr = true
+gradient = SubResource("Gradient_spark")
+
+[sub_resource type="Curve" id="Curve_fade"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 0.85), -0.5, -0.5, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_fade"]
+width = 64
+curve = SubResource("Curve_fade")
+
+[sub_resource type="Curve" id="Curve_smoke"]
+_data = [Vector2(0, 0), 0.0, 8.0, 0, 0, Vector2(0.12, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke"]
+width = 64
+curve = SubResource("Curve_smoke")
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.45), 0.0, 2.2, 0, 0, Vector2(1, 1), 0.2, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_grow"]
+width = 64
+curve = SubResource("Curve_grow")
+
+[sub_resource type="QuadMesh" id="QuadMesh_core"]
+size = Vector2(4.2, 4.2)
+
+[sub_resource type="QuadMesh" id="QuadMesh_haze"]
+size = Vector2(6.5, 6.5)
+
+[sub_resource type="ParticleProcessMaterial" id="Process_flame"]
+angle_min = -35.0
+angle_max = 35.0
+emission_shape = 1
+emission_sphere_radius = 0.55
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 0.1
+initial_velocity_max = 0.9
+gravity = Vector3(0, 0.8, 0)
+damping_min = 1.0
+damping_max = 2.0
+scale_min = 0.7
+scale_max = 1.35
+alpha_curve = SubResource("CurveTexture_fade")
+anim_speed_min = 1.2
+anim_speed_max = 2.0
+anim_offset_max = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+size = Vector2(2.3, 2.3)
+
+[sub_resource type="ParticleProcessMaterial" id="Process_smoke"]
+angle_min = -180.0
+angle_max = 180.0
+emission_shape = 1
+emission_sphere_radius = 0.6
+direction = Vector3(0, 1, 0)
+spread = 60.0
+initial_velocity_min = 0.1
+initial_velocity_max = 0.6
+gravity = Vector3(0, 0.6, 0)
+damping_min = 1.0
+damping_max = 2.0
+scale_min = 0.8
+scale_max = 1.4
+scale_curve = SubResource("CurveTexture_grow")
+color = Color(0.55, 0.5, 0.48, 0.5)
+alpha_curve = SubResource("CurveTexture_smoke")
+anim_speed_min = 1.0
+anim_speed_max = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_smoke"]
+size = Vector2(3.4, 3.4)
+
+[sub_resource type="ParticleProcessMaterial" id="Process_sparks"]
+emission_shape = 1
+emission_sphere_radius = 0.7
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 0.5
+initial_velocity_max = 3.5
+gravity = Vector3(0, 0.5, 0)
+damping_min = 0.8
+damping_max = 1.8
+lifetime_randomness = 0.6
+color_ramp = SubResource("GradientTexture1D_spark")
+turbulence_enabled = true
+turbulence_noise_strength = 2.0
+turbulence_noise_scale = 2.5
+
+[sub_resource type="ParticleProcessMaterial" id="Process_gather"]
+emission_shape = 2
+emission_sphere_radius = 2.8
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 0.0
+initial_velocity_max = 0.0
+radial_velocity_min = -7.5
+radial_velocity_max = -4.0
+gravity = Vector3(0, 0, 0)
+color_ramp = SubResource("GradientTexture1D_spark")
+
+[node name="Fireball" type="Node3D"]
+top_level = true
+script = ExtResource("1_ball")
+settings = ExtResource("2_settings")
+light_energy = 9.0
+
+[node name="Haze" type="MeshInstance3D" parent="." groups=["vfx_distortion"]]
+material_override = ExtResource("7_haze")
+cast_shadow = 0
+extra_cull_margin = 2.0
+mesh = SubResource("QuadMesh_haze")
+
+[node name="Smoke" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+material_override = ExtResource("5_smoke")
+emitting = false
+amount = 26
+lifetime = 1.8
+local_coords = false
+visibility_aabb = AABB(-40, -40, -40, 80, 80, 80)
+draw_order = 3
+process_material = SubResource("Process_smoke")
+draw_pass_1 = SubResource("QuadMesh_smoke")
+
+[node name="Flames" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+material_override = ExtResource("4_flame")
+emitting = false
+amount = 46
+lifetime = 0.62
+local_coords = false
+visibility_aabb = AABB(-40, -40, -40, 80, 80, 80)
+draw_order = 3
+process_material = SubResource("Process_flame")
+draw_pass_1 = SubResource("QuadMesh_flame")
+
+[node name="Core" type="MeshInstance3D" parent="."]
+material_override = ExtResource("3_core")
+cast_shadow = 0
+extra_cull_margin = 2.0
+mesh = SubResource("QuadMesh_core")
+
+[node name="Sparks" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+material_override = ExtResource("6_spark")
+emitting = false
+amount = 40
+lifetime = 1.0
+local_coords = false
+visibility_aabb = AABB(-40, -40, -40, 80, 80, 80)
+transform_align = 3
+process_material = SubResource("Process_sparks")
+draw_pass_1 = SubResource("QuadMesh_one")
+
+[node name="Gather" type="GPUParticles3D" parent="."]
+cast_shadow = 0
+material_override = ExtResource("6_spark")
+emitting = false
+amount = 56
+lifetime = 0.42
+visibility_aabb = AABB(-6, -6, -6, 12, 12, 12)
+transform_align = 3
+process_material = SubResource("Process_gather")
+draw_pass_1 = SubResource("QuadMesh_one")
+
+[node name="Light" type="OmniLight3D" parent="."]
+light_color = Color(1, 0.5, 0.2, 1)
+light_energy = 0.0
+light_volumetric_fog_energy = 4.0
+omni_range = 13.0
+omni_attenuation = 1.3
+;@ all

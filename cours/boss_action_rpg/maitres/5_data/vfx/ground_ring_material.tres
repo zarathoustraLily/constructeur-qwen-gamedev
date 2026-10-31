@@ -1,3 +1,4 @@
+;@ 20-23
 [gd_resource type="ShaderMaterial" load_steps=2 format=3]
 
 [ext_resource type="Shader" path="res://6_assets/Shader/VFX/ground_ring.gdshader" id="1_shader"]
@@ -9,3 +10,19 @@ shader_parameter/ring_color = Color(0.45, 0.6, 1, 1)
 shader_parameter/intensity = 3.0
 shader_parameter/progress = 0.0
 shader_parameter/thickness = 0.05
+;@ 24+
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/ground_ring.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/flash_noise.tres" id="2_noise"]
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_shader")
+shader_parameter/ring_color = Color(0.4, 0.55, 1, 1)
+shader_parameter/filament_color = Color(0.72, 0.84, 1, 1)
+shader_parameter/intensity = 1.5
+shader_parameter/progress = 0.0
+shader_parameter/thickness = 0.022
+shader_parameter/noise = ExtResource("2_noise")
+;@ all

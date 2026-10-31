@@ -1,6 +1,6 @@
 # Prompt de reprise — niveau de boss « Le Gardien du Comptoir » (Godot 4.7.2)
 
-Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-11-01, après l'étape 23. Une copie est
+Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-11-01, après l'étape 24. Une copie est
 dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 
 ---
@@ -8,8 +8,8 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 ## 1. Le prompt (à donner tel quel)
 
 > Tu reprends le niveau de boss d'action RPG de laurent (« Le Gardien du Comptoir », Godot 4.7.2) et l'enseignement de
-> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 23 du cours sont faites ; reste la magie refaite (étape 24), le test sur le petit PC de laurent et
-> les paires.
+> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 24 du cours sont faites ; reste le test sur le petit PC de laurent (case 25) et les
+> paires.
 >
 > Avant toute action, lis dans cet ordre :
 > 1. `D:\constructeur-qwen-gamedev\CLAUDE.md` (les « Règles qui priment » l'emportent sur tout ; décision 20 : aucun
@@ -36,13 +36,12 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## Où on s'est arrêté (2026-10-31) — à lire d'abord
 
-**Fait et envoyé** : étapes 1 à 23, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 23 :
-272 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
+**Fait et envoyé** : étapes 1 à 24, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 24 :
+276 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
 
-**Reste** : la magie refaite avec les flipbooks (étape 24, demande de laurent du 2026-11-01), le banc sur son petit PC (il dépend de
-lui), et sa réponse sur les paires (§ 9).
+**Reste** : le banc sur son petit PC (il dépend de lui), et sa réponse sur les paires (§ 9).
 
-**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 23. Son
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 24. Son
 dernier message après avoir joué parlait du son, des effets et des spectres. Ces étapes sont vérifiées par les tests et
 l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
 nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
@@ -74,13 +73,16 @@ nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les ha
   fort, 1,915 ms, 2 718 appels ; basse, 0,369 ms, 634 appels, 382 Mo. Combat sans fenêtre : 0 allocation de notre code,
   0,59 ms par image, 4,3 ms au plus haut.
 
-### Les VFX refaits (étape 23)
+### Les VFX refaits (étapes 23 et 24)
 
 laurent, 2026-11-01 : « cherche sur internet et ameliore tes vfx ce n'est pas du tout au strandard des jeu video de 2026 ». Sources dans
 `notes/etape_023.md`. `outils/fluide_gpu.py` et `outils/cuire_flipbooks.py <sortie> <recette|tout> --grille 400` fabriquent les flipbooks
 (rien de téléchargé) ; ils se posent dans `6_assets/VFX/flipbooks/` (`.import` : VRAM, BC7 ; BC5 pour `_f`, `_v` ; pas de `fix_alpha_border`). Lancer ces
 outils avec le Python de PowerShell (celui de l'outil Bash n'a ni moderngl ni torch), et `nvidia-smi` avant. Mes choix, à faire valider : ACES et
 exposition 1,5, ambiance 0,42, la porte en nuit bleue (`M_Emissive.tres`, dans `6_assets`, vaut pour toutes les étapes refabriquées), couleurs, tailles.
+Pour essayer vite un effet : `voir.ps1` et `mesurer_rendu.ps1` acceptent l'étape 0 : le projet `projets/atelier_vfx`, à recréer en copiant un projet d'étape (retiré après l'étape 24 : 3 Go sur un disque presque plein), et à retoucher sans balises.
+Pas faits, à proposer : pulsation d'écran (aberration, flou radial) et arrêt sur image aux gros coups, avec une option pour les couper ; fumée
+de la bouche en qualité basse à regarder sur le petit PC. `SUIVIS_PROGRESSION/captures/vfx_*.png` : les images montrées à laurent.
 
 ### Le petit PC
 
@@ -156,7 +158,7 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 ## 5. État exact (2026-10-31)
 
 Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 19
-(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269, 270, 270, 272.
+(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269, 270, 270, 272, 276.
 
 | N | Étape |
 | --- | --- |
@@ -183,8 +185,9 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 | 21 | Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune |
 | 22 | Le petit PC : le niveau mesuré sur une vraie petite carte, le banc |
 | 23 | Le feu et la fumée cuits : une vraie simulation de fluide, et le tir refait |
+| 24 | La magie refaite : boule de feu, explosion, éclairs en coups répétés, aura de flammes |
 
-**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : la magie refaite, le banc sur le petit PC de laurent (22 faite sur la carte Intel de la machine), le petit PC
+**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 25 le banc sur le petit PC de laurent (22 faite sur la carte Intel de la machine), le petit PC
 lui-même ; puis les paires tirées du cours (§ 9). Noté à l'étape 8 : l'entrée du saloon surexposée (plan émissif
 extérieur, `M_Emissive`). Une grande plage blanche reste à gauche des images de l'étape 17 : à regarder, laurent n'en a
 pas parlé.
@@ -411,6 +414,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - Une optimisation annoncée se mesure avant d'être faite : les occulteurs ne rapportent rien dans une salle ouverte.
 - PowerShell 5.1 lit un `.ps1` sans BOM en ANSI : pas d'accent dans une chaîne de script ; une variable `$outil` écrase le paramètre `$Outil`.
 - `--gpu-index` ne vaut que pour Vulkan : `--rendering-method gl_compatibility` reste sur la 5090.
+- `write_text` de Python écrit des CRLF sous Windows : `write_bytes` pour les maîtres. Un bloc inséré se referme sur la balise de son bloc, pas sur `#@ all`.
 - `git push` échoue dans l'outil de commande (« could not read Username », `GCM_INTERACTIVE=never`) alors que les identifiants
   de laurent sont enregistrés : `git -c credential.username=zarathoustraLily push origin claude/observation-visuelle`.
 - Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.

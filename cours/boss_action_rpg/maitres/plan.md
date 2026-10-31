@@ -107,7 +107,11 @@ suivante avant.
 - [ ] 23. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 23+
 - [x] 23. Le feu et la fumée cuits d'une vraie simulation de fluide, et le tir refait avec eux
+#@ 23
 - [ ] 24. Le banc lancé sur le petit PC de laurent : le test qui fait foi
+#@ 24+
+- [x] 24. Boule de feu, explosion, éclairs et aura refaits avec le feu cuit
+- [ ] 25. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 12+
 #@ 12+
 #@ 1-6

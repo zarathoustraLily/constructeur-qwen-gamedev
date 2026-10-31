@@ -12,6 +12,9 @@ class_name GolemEffects extends Node3D
 #@ 20+
 ## - Éveillé, une aura : sa silhouette bordée de feu (la même couche que la braise), des braises qui montent autour de
 ##   lui et une lumière ; plus forte en seconde phase, éteinte à sa chute.
+#@ 24+
+## - En seconde phase, du feu monte de ses épaules, de son torse, de sa main et de son marteau : chaque flamme (enfant de AuraFlames) porte
+##   le nom de l'os qu'elle suit.
 #@ all
 ## Tout est préparé avec lui : aucun effet n'est créé en combat. Les effets sont posés dans le monde (top_level).
 
@@ -41,6 +44,13 @@ var hit_flash: float = 0.0
 var aura: float = 0.0
 ## Faux : la lumière de l'aura reste éteinte (qualité basse).
 var light_allowed: bool = true
+#@ 24+
+## La part des flammes de son aura qui vivent (qualité graphique).
+var detail: float = 1.0:
+	set(value):
+		detail = value
+		for flame: GPUParticles3D in _flames:
+			flame.amount_ratio = value
 #@ 13+
 ## Le nombre de positions de la traînée en ce moment.
 var trail_count: int = 0
@@ -61,6 +71,9 @@ var _glow_tween: Tween
 var _glow_target: float = 0.0
 #@ 20+
 var _aura_target: float = 0.0
+#@ 24+
+var _flames: Array[GPUParticles3D] = []
+var _flame_bones: PackedInt32Array = PackedInt32Array()
 #@ 13+
 
 @onready var _shockwave: MeshInstance3D = $Shockwave
@@ -73,6 +86,10 @@ var _aura_target: float = 0.0
 #@ 20+
 @onready var _embers: GPUParticles3D = $AuraEmbers
 @onready var _aura_light: OmniLight3D = $AuraLight
+#@ 24+
+@onready var _skeleton: Skeleton3D = golem.get_node(^"Model/Skeleton3D") as Skeleton3D
+@onready var _shock: GPUParticles3D = $SlamShock
+#@ 20+
 
 
 func _enter_tree() -> void:
@@ -108,6 +125,10 @@ func _ready() -> void:
 	(golem.get_node(^"BackWeakPoint") as Hurtbox).received.connect(_on_shot)
 #@ 20+
 	golem.woke.connect(_on_woke)
+#@ 24+
+	for flame: Node in $AuraFlames.get_children():
+		_flames.append(flame as GPUParticles3D)
+		_flame_bones.append(_skeleton.find_bone(flame.name))
 #@ 13+
 
 
@@ -138,6 +159,9 @@ func update(delta: float) -> void:
 	ember_material.set_shader_parameter(&"aura", aura_now)
 	_aura_light.visible = light_allowed and aura_now > 0.0
 	_aura_light.light_energy = aura_now * settings.aura_light
+#@ 24+
+	if _flames[0].emitting:
+		_follow_bones()
 #@ 13+
 
 
@@ -155,6 +179,9 @@ func _on_slammed(point: Vector3, radius: float) -> void:
 	play_shockwave(point, radius)
 	_burst(_dust, point)
 	_burst(_debris, point)
+#@ 24+
+	_burst(_shock, point + Vector3.UP)
+#@ 13+
 	_shake(point, settings.slam_shake, settings.slam_shake_time)
 
 
@@ -170,6 +197,9 @@ func _on_phase_changed(phase: int) -> void:
 	_aura_target = settings.aura_second
 	_embers.amount_ratio = 1.0
 	_embers.emitting = true
+#@ 24+
+	_follow_bones()
+	_light_flames(true)
 #@ 13+
 
 
@@ -179,7 +209,22 @@ func _on_defeated() -> void:
 #@ 20+
 	_aura_target = 0.0
 	_embers.emitting = false
+#@ 24+
+	_light_flames(false)
 #@ 13+
+
+
+#@ 24+
+## Les flammes de l'aura suivent leur os. Elles vivent dans le monde : quand il bouge, elles traînent derrière lui.
+func _follow_bones() -> void:
+	var body: Transform3D = _skeleton.global_transform
+	for i: int in _flames.size():
+		_flames[i].global_position = body * _skeleton.get_bone_global_pose(_flame_bones[i]).origin
+
+
+func _light_flames(on: bool) -> void:
+	for flame: GPUParticles3D in _flames:
+		flame.emitting = on
 
 
 #@ 20+

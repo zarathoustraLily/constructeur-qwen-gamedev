@@ -1,3 +1,4 @@
+//@ 20-23
 // Un éclair : un ruban dont UV.x traverse la largeur et UV.y suit la longueur, un fil blanc dans un halo bleu violet. La
 // couleur des sommets porte son niveau (alpha 1 : à l'instant, 0 : éteint). Repris du cours du kart. Mélange additif : il
 // ajoute de la lumière, sans rien cacher.
@@ -22,3 +23,29 @@ void fragment() {
 	ALBEDO = (core_color * core + halo_color * halo) * intensity;
 	ALPHA = clamp((core + halo) * COLOR.a, 0.0, 1.0);
 }
+//@ 24+
+// Un éclair : des rubans dont UV.x traverse la largeur et UV.y suit la longueur : un fil très fin et très vif dans un halo bleu, à peine
+// visible : c'est le fil qui nourrit la lueur de l'écran. L'alpha des sommets dit la force de la branche, `level` celle du coup : un
+// éclair frappe en plusieurs coups rapprochés, dans le même canal. Mélange additif : il ajoute de la lumière, sans rien cacher.
+shader_type spatial;
+render_mode unshaded, blend_add, depth_draw_never, cull_disabled, shadows_disabled, fog_disabled;
+
+// La couleur du fil.
+uniform vec3 core_color : source_color = vec3(1.0, 1.0, 1.0);
+// La couleur du halo.
+uniform vec3 halo_color : source_color = vec3(0.25, 0.4, 1.0);
+// L'éclat : au-dessus de 1, il nourrit la lueur de l'écran (glow).
+uniform float intensity : hint_range(0.0, 60.0) = 5.0;
+// La force du coup en cours.
+uniform float level : hint_range(0.0, 1.0) = 1.0;
+// La part de la largeur occupée par le fil.
+uniform float core_width : hint_range(0.01, 1.0) = 0.05;
+
+void fragment() {
+	float across = abs(UV.x * 2.0 - 1.0);
+	float core = smoothstep(core_width, core_width * 0.3, across);
+	float halo = pow(1.0 - across, 4.0);
+	ALBEDO = (core_color * core * 3.0 + halo_color * halo) * intensity * level * COLOR.a;
+	ALPHA = clamp(core + halo, 0.0, 1.0);
+}
+//@ all

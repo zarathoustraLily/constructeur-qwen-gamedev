@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/VFX/flipbook_fire.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/flamme_f.png" id="2_f"]
+[ext_resource type="Texture2D" path="res://6_assets/VFX/flipbooks/flamme_v.png" id="3_v"]
+[ext_resource type="Texture2D" path="res://5_data/vfx/fire_ramp.tres" id="4_ramp"]
+
+[resource]
+render_priority = 3
+shader = ExtResource("1_shader")
+shader_parameter/atlas_v = ExtResource("3_v")
+shader_parameter/grid = Vector2(6, 6)
+shader_parameter/frames = 36.0
+shader_parameter/flow = 0.03388
+shader_parameter/looping = true
+shader_parameter/soft_distance = 0.3
+shader_parameter/atlas_f = ExtResource("2_f")
+shader_parameter/fire_ramp = ExtResource("4_ramp")
+shader_parameter/fire_gain = 0.6
+shader_parameter/cover = 0.5
+shader_parameter/time_rate = 0.0

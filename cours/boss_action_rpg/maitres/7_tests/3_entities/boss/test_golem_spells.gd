@@ -6,6 +6,10 @@ extends GdUnitTestSuite
 ## marquent le sol sous la cible et de chaque côté, frappent depuis le marteau, seulement dans leur rayon et un instant.
 ## Un sort interrompu s'efface. Tout est préparé d'avance : aucun nœud créé. Éveillé, il a son aura ; plus forte en
 ## seconde phase ; éteinte à sa chute.
+#@ 24+
+## Un éclair est un tronc et des branches qui en partent ; il frappe en plusieurs coups qui faiblissent. Le feu de l'aura ne vient qu'en seconde
+## phase, suit ses os et s'éteint à sa chute.
+#@ all
 
 const GOLEM := preload("res://3_entities/boss/golem.tscn")
 const DT: float = 1.0 / 60.0
@@ -101,6 +105,10 @@ func test_la_boule_grandit_dans_sa_main_puis_part_vers_sa_cible() -> void:
 	assert_float(sorts.charge).is_between(0.3, 0.7)
 	assert_int(lancers[0]).is_equal(0)
 	var boule: Fireball = sorts.held
+#@ 24+
+	assert_bool((boule.get_node("Gather") as GPUParticles3D).emitting).is_true()
+	assert_bool((boule.get_node("Flames") as GPUParticles3D).emitting).is_false()
+#@ all
 	var etat: GolemAttackState = golem.machine.current as GolemAttackState
 	while etat.clip_time < sort.cast_time:
 		etat.physics_update(DT)
@@ -108,6 +116,11 @@ func test_la_boule_grandit_dans_sa_main_puis_part_vers_sa_cible() -> void:
 	assert_int(lancers[0]).is_equal(1)
 	assert_bool(boule.active).is_true()
 	assert_object(sorts.held).is_null()
+#@ 24+
+	assert_bool((boule.get_node("Gather") as GPUParticles3D).emitting).is_false()
+	assert_bool((boule.get_node("Flames") as GPUParticles3D).emitting).is_true()
+	assert_bool((boule.get_node("Smoke") as GPUParticles3D).emitting).is_true()
+#@ all
 
 
 func test_la_boule_touche_sa_cible_et_l_explosion_la_frappe() -> void:
@@ -188,7 +201,11 @@ func test_chaque_explosion_joue_sa_salve_au_point_touche() -> void:
 	sorts.balls[0].exploded.emit(point)
 	var salve: VfxBurst = sorts.get_node("Blast1") as VfxBurst
 	assert_bool(salve.visible).is_true()
+#@ 20-23
 	assert_vector(salve.global_position).is_equal_approx(point, Vector3.ONE * 0.001)
+#@ 24+
+	assert_vector(salve.global_position).is_equal_approx(Vector3(2.0, 0.0, -3.0), Vector3.ONE * 0.001)
+#@ all
 	assert_float(salve.light_energy).is_greater(0.0)
 
 
@@ -302,3 +319,55 @@ func test_eveille_il_a_son_aura_plus_forte_en_seconde_phase_eteinte_a_sa_chute()
 	assert_bool(braises.emitting).is_false()
 	assert_bool((effets.get_node("AuraLight") as Light3D).visible).is_false()
 	(golem.get_node("View") as GolemView).thrown_shield.queue_free()
+#@ 24+
+
+
+func test_l_eclair_est_un_tronc_et_des_branches_qui_en_partent() -> void:
+	var golem: Golem = _golem(_cible(Vector3(0.0, 0.0, -25.0)))
+	var eclair: GolemLightning = _sorts(golem).bolts[0]
+	var depart: Vector3 = Vector3(0.0, 9.0, 0.0)
+	eclair.mark(Vector3(0.0, 0.0, -6.0), 0.1)
+	eclair.strike(depart, 10.0)
+	eclair.update(0.0)
+	var points: PackedVector3Array = eclair.get("_points") as PackedVector3Array
+	assert_vector(points[0]).is_equal_approx(depart, Vector3.ONE * 0.001)
+	assert_vector(points[GolemLightning.TRUNK_POINTS - 1]).is_equal_approx(eclair.global_position, Vector3.ONE * 0.001)
+	for b: int in GolemLightning.BRANCHES:
+		var racine: Vector3 = points[GolemLightning.TRUNK_POINTS + b * GolemLightning.BRANCH_POINTS]
+		assert_int(points.slice(0, GolemLightning.TRUNK_POINTS).find(racine)).is_greater_equal(0)
+
+
+func test_l_eclair_frappe_en_plusieurs_coups_qui_faiblissent() -> void:
+	var golem: Golem = _golem(_cible(Vector3(0.0, 0.0, -25.0)))
+	var eclair: GolemLightning = _sorts(golem).bolts[0]
+	var niveau: Callable = func() -> float:
+		return float(((eclair.get_node("Bolt") as MeshInstance3D).material_override as ShaderMaterial).get_shader_parameter(&"level"))
+	eclair.mark(Vector3(0.0, 0.0, -6.0), 0.1)
+	eclair.strike(Vector3(0.0, 9.0, 0.0), 10.0)
+	eclair.update(0.0)
+	var premier: float = niveau.call()
+	eclair.update(eclair.settings.bolt_flicker * 0.9)
+	var retombe: float = niveau.call()
+	assert_float(retombe).is_less(premier * 0.2)
+	eclair.update(eclair.settings.bolt_flicker * 0.2)
+	var second: float = niveau.call()
+	assert_float(second).is_greater(retombe)
+	assert_float(second).is_less(premier)
+
+
+func test_le_feu_de_l_aura_vient_en_seconde_phase_suit_ses_os_et_s_eteint_a_sa_chute() -> void:
+	var golem: Golem = _golem(_cible(Vector3(0.0, 0.0, -25.0)))
+	var effets: GolemEffects = golem.get_node("Effects") as GolemEffects
+	effets.process_mode = Node.PROCESS_MODE_DISABLED
+	var flamme: GPUParticles3D = effets.get_node("AuraFlames/clavicle_l") as GPUParticles3D
+	var squelette: Skeleton3D = golem.get_node("Model/Skeleton3D") as Skeleton3D
+	golem.wake_up()
+	assert_bool(flamme.emitting).is_false()
+	golem.enter_phase_two()
+	assert_bool(flamme.emitting).is_true()
+	var os_: Vector3 = squelette.global_transform * squelette.get_bone_global_pose(squelette.find_bone("clavicle_l")).origin
+	assert_vector(flamme.global_position).is_equal_approx(os_, Vector3.ONE * 0.001)
+	golem.fall()
+	assert_bool(flamme.emitting).is_false()
+	(golem.get_node("View") as GolemView).thrown_shield.queue_free()
+#@ all
