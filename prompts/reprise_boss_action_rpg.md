@@ -1,6 +1,6 @@
 # Prompt de reprise — niveau de boss « Le Gardien du Comptoir » (Godot 4.7.2)
 
-Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 20. Une copie est
+Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-10-31, après l'étape 21. Une copie est
 dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 
 ---
@@ -8,8 +8,8 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 ## 1. Le prompt (à donner tel quel)
 
 > Tu reprends le niveau de boss d'action RPG de laurent (« Le Gardien du Comptoir », Godot 4.7.2) et l'enseignement de
-> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 20 du cours sont faites, rien n'est
-> commencé pour la 21.
+> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 21 du cours sont faites, rien n'est
+> commencé pour la 22.
 >
 > Avant toute action, lis dans cet ordre :
 > 1. `D:\constructeur-qwen-gamedev\CLAUDE.md` (les « Règles qui priment » l'emportent sur tout ; décision 20 : aucun
@@ -23,7 +23,7 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 > ouverts et sur quel projet.
 >
 > Puis termine, une étape à la fois, avec la méthode du § 6 :
-> - **étapes 21 et 22, l'optimisation pour un petit PC**. laurent : « il faut que le niveau puisse etre joue sur un petit
+> - **étape 22, le petit PC lui-même**. laurent : « il faut que le niveau puisse etre joue sur un petit
 >   pc » ;
 > - ensuite, demande à laurent s'il veut passer aux paires tirées du cours (§ 9).
 >
@@ -37,12 +37,12 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## Où on s'est arrêté (2026-10-31) — à lire d'abord
 
-**Fait et envoyé** : étapes 1 à 20, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 20 :
-269 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
+**Fait et envoyé** : étapes 1 à 21, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 21 :
+270 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
 
-**Étape 21 : à faire.** Ce qu'il faut en savoir est plus bas.
+**Étape 22 : à faire.** Ce qu'il faut en savoir est plus bas.
 
-**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17, 18, 19 et 20. Son
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 21. Son
 dernier message après avoir joué parlait du son, des effets et des spectres. Ces étapes sont vérifiées par les tests et
 l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
 nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
@@ -74,12 +74,13 @@ nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les ha
   fort, 1,915 ms, 2 718 appels ; basse, 0,369 ms, 634 appels, 382 Mo. Combat sans fenêtre : 0 allocation de notre code,
   0,59 ms par image, 4,3 ms au plus haut.
 
-### Étape 21 : ce qui se dessine
+### Étape 22 : le petit PC
 
-Mesuré aux étapes 14 et 15 : 4,8 millions de triangles dans le décor, 3 649 objets dessinés en haute au repos, 2 683 appels de
-dessin ; des centaines de petits objets (bouteilles, verres, assiettes). À regarder : distances de visibilité (`visibility_range_end`),
-occulteurs (`OccluderInstance3D`, comptoir, murs ; `rendering/occlusion_culling/use_occlusion_culling`), niveaux de détail. Le test de
-la qualité basse ne doit pas reculer. Chaque levier se mesure avant et après (`outils/mesurer_rendu.ps1`), comme l'étape 15.
+La cible n'est pas confirmée (question 3) et le test qui fait foi est ce PC lui-même : cette étape ne se finit pas sans lui. Ce
+qu'on peut faire sans lui : une mesure reproductible à donner à lancer (temps de chaque image, pas seulement le temps de la carte :
+sur la 5090, la carte ne dit pas ce que tiendra un petit PC) ; un réglage de repli (échelle 3D, ombres) ; le pilote Compatibilité
+si Vulkan manque. Repères de l'étape 21, qualité basse, 1280 × 720, 5090 presque libre : repos 330 appels, 1,11 M de primitives,
+0,238 ms de carte, 378 Mo ; sorts au plus fort 368 appels, 0,269 ms ; rendu processeur 0,38 à 0,42 ms.
 
 ## 2. Qui est laurent, ce qu'il veut
 
@@ -148,7 +149,7 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 ## 5. État exact (2026-10-31)
 
 Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 19
-(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269.
+(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269, 270.
 
 | N | Étape |
 | --- | --- |
@@ -172,8 +173,9 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 | 18 | Le son et la musique du combat |
 | 19 | Les effets des tirs : éclair de bouche, traçantes, impacts |
 | 20 | La magie du Gardien : boules de feu, éclairs annoncés au sol, aura |
+| 21 | Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune |
 
-**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 21 ce qui se dessine (distances de visibilité des petits objets, occulteurs) ; 22 le petit PC
+**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 22 le petit PC
 lui-même ; puis les paires tirées du cours (§ 9). Noté à l'étape 8 : l'entrée du saloon surexposée (plan émissif
 extérieur, `M_Emissive`). Une grande plage blanche reste à gauche des images de l'étape 17 : à regarder, laurent n'en a
 pas parlé.
@@ -269,7 +271,8 @@ marteau, `-- trajectoires`) ; `trace_golem.gd` (chemin du marteau, dessus et pro
 planche ; vue du joueur, `pres`, `cote`, `verrou`, `--compat`, `--qualite=basse`) ; `planche.py`, `recadrer.py` ; `tester_etape.ps1` (fabrique,
 importe, teste, résume) ; `mesurer_rendu.ps1` (`--tir` : en tirant sans arrêt ; une étape récente peut mesurer une plus ancienne) ;
 `textures_tirs.py` ; `voir_magie.gd` (un sort rendu hors de l'écran, par `voir.ps1 … magie`) ; `trace_combat.gd` (coups et plongées sur 90 s,
-à lancer sur deux étapes).
+à lancer sur deux étapes) ; `inventaire_dessin.gd` (maillages, triangles, niveaux de détail, tailles) ; `essai_dessin.gd` (un levier de rendu
+essayé sans toucher au jeu, de quatre places) ; `ecart_images.py`.
 
 ## 8. Le golem ensuite (préparé)
 
@@ -394,6 +397,9 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - Une scène déplacée reste dans le jeu si son ancien dossier est gardé par `reporter.py` (`6_assets/`) : l'effacer à la main.
 - La salle est plus courte que le couloir ne le laisse croire : à 16 m du Gardien, dans l'axe de la porte, le héros est dehors et
   tombe sans erreur. Rester à 10 m, ou regarder `outils/carte_arene.gd`.
+- Une marge de portée (`visibility_range_end_margin`) sans portée fait compter l'objet comme à portée limitée : 244 objets de plus
+  dessinés à la qualité haute. Ne la poser que là où il y a une portée. Vérifier aussi la qualité qu'on ne touche pas.
+- Une optimisation annoncée se mesure avant d'être faite : les occulteurs ne rapportent rien dans une salle ouverte.
 - `git push` échoue dans l'outil de commande (« could not read Username », `GCM_INTERACTIVE=never`) alors que les identifiants
   de laurent sont enregistrés : `git -c credential.username=zarathoustraLily push origin claude/observation-visuelle`.
 - Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.

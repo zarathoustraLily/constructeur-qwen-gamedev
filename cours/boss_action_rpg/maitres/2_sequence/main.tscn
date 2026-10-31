@@ -318,7 +318,11 @@ cast_shadow = 0
 mesh = SubResource("PlaneMesh_mist")
 material_override = ExtResource("25_mist_layers")
 
+;@ 15-20
 [node name="GraphicsQuality" type="Node" parent="." node_paths=PackedStringArray("world", "lights_root", "focus", "mist", "mist_fallback")]
+;@ 21+
+[node name="GraphicsQuality" type="Node" parent="." node_paths=PackedStringArray("world", "lights_root", "focus", "mist", "mist_fallback", "moon")]
+;@ 15+
 script = ExtResource("22_quality")
 high = ExtResource("23_high")
 low = ExtResource("24_low")
@@ -327,6 +331,9 @@ lights_root = NodePath("../Saloon")
 focus = NodePath("../Golem")
 mist = NodePath("../GroundMist")
 mist_fallback = NodePath("../MistLayers")
+;@ 21+
+moon = NodePath("../Moon")
+;@ 15+
 ;@ all
 ;@ 18+
 

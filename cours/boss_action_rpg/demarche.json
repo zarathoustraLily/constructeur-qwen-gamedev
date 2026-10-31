@@ -905,6 +905,78 @@
    ],
    "lecture": "La référence dit que cette liste ne se met à jour qu'une fois par image de physique : une zone déplacée à l'instant même ne verrait pas les corps.",
    "decision": "GolemLightning pose sa zone à la marque, plus d'une seconde avant le coup ; Hitbox.activate lit alors une liste à jour. C'est la leçon de l'onde du Gardien (étape 12). La zone ne reste allumée que 0,12 s."
+  },
+  {
+   "id": "e21_seuil_des_lod",
+   "etape": 21,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "L'inventaire du décor dit 4,75 millions de triangles, et chaque maillage a déjà de 4 à 11 niveaux de détail. Pourtant la qualité basse dessine 3,56 millions de primitives par image. Les niveaux de détail servent-ils, et quel réglage décide de leur emploi ?",
+   "pensee": "Le moteur choisit le niveau selon l'écart que ça fait à l'écran. Je cherche le réglage de ce seuil sur la fenêtre.",
+   "outil": {
+    "genre": "rag",
+    "requete": "mesh_lod_threshold Viewport automatic LOD bias",
+    "n": 3
+   },
+   "attendu": [
+    "Higher values will use less detailed versions"
+   ],
+   "lecture": "La référence : « Higher values will use less detailed versions of meshes that have LOD variations generated. » Le réglage du projet qui lui correspond compte en pixels.",
+   "decision": "GraphicsQuality.lod_threshold : 4 en basse, 1 en haute. Mesuré seul, de l'entrée : 3,56 → 1,59 M de primitives, carte 0,334 → 0,261 ms, image presque identique. Pour une ligne de code, c'est le meilleur levier de l'étape."
+  },
+  {
+   "id": "e21_passes_de_la_lune",
+   "etape": 21,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "L'étape 15 a ramené les passes d'ombre des lampes de 64 à 3, mais la mesure ne comptait pas la lune. Une lumière directionnelle découpe son ombre selon la distance : combien de passes fait-elle sur tout le décor, et combien en faut-il dans une salle ?",
+   "pensee": "Je lis les modes d'ombre d'une lumière directionnelle.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "DirectionalLight3D",
+    "membre": "directional_shadow_mode"
+   },
+   "attendu": [
+    "directional_shadow_mode"
+   ],
+   "lecture": "La propriété existe sur DirectionalLight3D : directional_shadow_mode, qui vaut par défaut quatre découpes.",
+   "decision": "GraphicsQuality.moon_shadow_mode : orthogonale en basse (une passe), quatre découpes en haute. Mesuré avec le seuil à 4, de l'entrée : 595 → 414 appels, 1,59 → 1,37 M de primitives. Seul défaut visible : le motif des ombres de la lune au sol."
+  },
+  {
+   "id": "e21_occulteurs_inutiles",
+   "etape": 21,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "Le plan annonçait des occulteurs (comptoir, murs). Trois OccluderInstance3D en boîtes ne changent rien : 592 appels, 1 028 objets, aux mêmes unités près qu'avant. Est-ce que l'occlusion n'agit pas, ou qu'elle n'a rien à cacher ?",
+   "pensee": "Avant de conclure, je distingue les deux cas : je lis comment activer l'occlusion, puis j'essaie un mur géant en travers de la salle, qui doit forcément cacher quelque chose.",
+   "outil": {
+    "genre": "rag",
+    "requete": "occlusion culling OccluderInstance3D bake",
+    "n": 4
+   },
+   "attendu": [
+    "occlusion"
+   ],
+   "lecture": "La documentation explique comment poser les occulteurs ; elle ne dit rien de ce qu'ils rapportent : seule une mesure le dit.",
+   "decision": "Mur géant : 1 028 → 769 objets : l'occlusion agit. Le comptoir et les murs, eux, ne cachent aucun objet entier : la salle est un seul volume ouvert. On n'en met pas : ils coûteraient du temps de processeur pour rien. Le plan est corrigé, la mesure est écrite dans la note."
+  },
+  {
+   "id": "e21_fondu_de_portee",
+   "etape": 21,
+   "sujet": "Graphisme 3D",
+   "type": "analyse",
+   "situation": "Une portée de visibilité sur les petits objets, avec un fondu pour qu'ils n'apparaissent pas d'un coup : à une place de la salle, la carte monte de 0,252 à 0,364 ms alors que les primitives ne changent pas. Pourquoi une économie coûte-t-elle plus cher ?",
+   "pensee": "Je lis comment le fondu de portée est fait.",
+   "outil": {
+    "genre": "rag",
+    "requete": "VISIBILITY_RANGE_FADE_SELF fade-out itself visibility range slower",
+    "n": 3
+   },
+   "attendu": [
+    "This is slower than"
+   ],
+   "lecture": "La référence, sur VISIBILITY_RANGE_FADE_SELF : « This is slower than », comparé au mode sans fondu. Le fondu n'est donc pas gratuit, et la mesure le confirme.",
+   "decision": "Pas de fondu : une marge de 2 m (visibility_range_end_margin), posée seulement sur les objets à portée limitée : posée sur tous, elle ajoutait 244 objets dessinés à la qualité haute. Portée de 22 m sous 1,3 m : à 20 m sous 2 m, les bouteilles du fond disparaissaient."
   }
  ]
 }

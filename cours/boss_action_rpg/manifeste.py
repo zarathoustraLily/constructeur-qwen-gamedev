@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 20
+DERNIERE = 21
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -38,13 +38,14 @@ ETAPES = [
     {"piste": "Audio", "titre": "Le son et la musique du combat"},
     {"piste": "VFX + Shaders", "titre": "Les effets des tirs : éclair de bouche, traçantes, impacts"},
     {"piste": "Gameplay + VFX + Shaders", "titre": "La magie du Gardien : boules de feu, éclairs annoncés au sol, aura"},
+    {"piste": "Optimisation + Graphisme 3D", "titre": "Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 
 FICHIERS = {
     "project.godot": "1+",

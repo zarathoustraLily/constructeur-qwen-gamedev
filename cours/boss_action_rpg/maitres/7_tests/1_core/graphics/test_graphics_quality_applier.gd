@@ -6,6 +6,9 @@ extends GdUnitTestSuite
 ## d'environnement partagée reste intacte ; revenir à la haute rend tout.
 #@ 19+
 ## La qualité basse coupe la lumière des effets brefs, la haute la rend.
+#@ 21+
+## La qualité basse simplifie ce qui se dessine : seuil des niveaux de détail plus haut, petits objets sans ombre, les plus
+## petits à portée limitée, les grands intacts, une seule passe pour l'ombre de la lune ; la haute rend tout.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -92,4 +95,38 @@ func test_la_qualite_basse_coupe_la_lumiere_des_effets() -> void:
 	reglage.apply(reglage.high, fenetre)
 	eclair.play()
 	assert_bool(lumiere.visible).is_true()
+#@ 21+
+
+
+func test_la_qualite_basse_simplifie_ce_qui_se_dessine_et_la_haute_rend_tout() -> void:
+	var main: Node3D = _main()
+	var reglage: GraphicsQualityApplier = _reglage(main)
+	var fenetre: SubViewport = auto_free(SubViewport.new()) as SubViewport
+	add_child(fenetre)
+	var lune: DirectionalLight3D = main.get_node("Moon") as DirectionalLight3D
+	var verre: MeshInstance3D = _piece(main, "SM_His_Sal_Glass_01")
+	var bouteille: MeshInstance3D = _piece(main, "SM_His_Sal_Bottle_Glass_01")
+	var pilier: MeshInstance3D = _piece(main, "SM_His_Sal_Interior_Pillar_Wood_Worn_01")
+	reglage.apply(reglage.low, fenetre)
+	assert_float(fenetre.mesh_lod_threshold).is_equal(reglage.low.lod_threshold)
+	assert_float(reglage.low.lod_threshold).is_greater(reglage.high.lod_threshold)
+	assert_int(lune.directional_shadow_mode).is_equal(DirectionalLight3D.SHADOW_ORTHOGONAL)
+	assert_float(verre.visibility_range_end).is_equal(reglage.low.detail_range)
+	assert_int(verre.cast_shadow).is_equal(GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	assert_float(bouteille.visibility_range_end).is_equal(0.0)
+	assert_int(bouteille.cast_shadow).is_equal(GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	assert_float(pilier.visibility_range_end).is_equal(0.0)
+	assert_int(pilier.cast_shadow).is_equal(GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
+	reglage.apply(reglage.high, fenetre)
+	assert_float(fenetre.mesh_lod_threshold).is_equal(1.0)
+	assert_int(lune.directional_shadow_mode).is_equal(DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS)
+	assert_float(verre.visibility_range_end).is_equal(0.0)
+	assert_int(verre.cast_shadow).is_equal(GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
+
+
+func _piece(main: Node3D, debut: String) -> MeshInstance3D:
+	for noeud: Node in main.get_node("Saloon").find_children("*", "MeshInstance3D", true, false):
+		if String(noeud.name).begins_with(debut):
+			return noeud as MeshInstance3D
+	return null
 #@ all

@@ -10,10 +10,17 @@ class_name GraphicsQualityApplier extends Node
 ## Il dit aussi aux effets brefs (VfxBurst) s'ils ont droit à leur lumière.
 #@ 20+
 ## Il dit aussi aux effets (leur groupe) s'ils ont droit à leur lumière.
+#@ 21+
+## Il règle enfin ce qui se dessine : le seuil des niveaux de détail, la portée et les ombres des petits objets du décor,
+## l'ombre de la lune.
 #@ all
 
 ## Le fichier des réglages du joueur.
 const SETTINGS_FILE: String = "user://reglages.cfg"
+#@ 21+
+## La marge de la portée des petits objets, en mètres : ils ne clignotent pas à la limite.
+const DETAIL_MARGIN: float = 2.0
+#@ all
 
 ## La qualité haute.
 @export var high: GraphicsQuality
@@ -29,6 +36,10 @@ const SETTINGS_FILE: String = "user://reglages.cfg"
 @export var mist: FogVolume
 ## La brume de repli, sans brouillard volumétrique.
 @export var mist_fallback: Node3D
+#@ 21+
+## La lune, dont l'ombre est réglée.
+@export var moon: DirectionalLight3D
+#@ all
 
 ## Le niveau appliqué.
 var current: GraphicsQuality
@@ -39,10 +50,18 @@ var _shadows: Array[bool] = []
 var _ranges: Array[float] = []
 var _omni_modes: Array[OmniLight3D.ShadowMode] = []
 var _environment: Environment
+#@ 21+
+var _decor: Array[MeshInstance3D] = []
+var _sizes: PackedFloat32Array = PackedFloat32Array()
+var _casts: Array[GeometryInstance3D.ShadowCastingSetting] = []
+#@ all
 
 
 func _ready() -> void:
 	_collect_lights()
+#@ 21+
+	_collect_decor()
+#@ all
 	_environment = world.environment
 	apply(choose(OS.get_cmdline_user_args(), _saved(), RenderingServer.get_video_adapter_type()), get_viewport())
 
@@ -74,6 +93,16 @@ func apply(quality: GraphicsQuality, viewport: Viewport) -> void:
 	viewport.scaling_3d_scale = quality.scale_3d
 	viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR if quality.fsr else Viewport.SCALING_3D_MODE_BILINEAR
 	viewport.positional_shadow_atlas_size = quality.shadow_atlas
+#@ 21+
+	viewport.mesh_lod_threshold = quality.lod_threshold
+	moon.directional_shadow_mode = quality.moon_shadow_mode
+	for i: int in _decor.size():
+		var piece: MeshInstance3D = _decor[i]
+		var reach: float = quality.detail_range if _sizes[i] <= quality.detail_size else 0.0
+		piece.visibility_range_end = reach
+		piece.visibility_range_end_margin = DETAIL_MARGIN if reach > 0.0 else 0.0
+		piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if _sizes[i] < quality.shadow_min_size else _casts[i]
+#@ all
 	RenderingServer.directional_shadow_atlas_set_size(quality.directional_shadow, true)
 	# Le moteur Compatibilité (OpenGL) n'a pas les ombres en demi-sphères : il garde les cubes.
 	var cheap_omni: bool = quality.cheap_omni_shadows and RenderingServer.get_current_rendering_method() != "gl_compatibility"
@@ -125,6 +154,17 @@ func _collect_lights() -> void:
 		_omni_modes.append((light as OmniLight3D).omni_shadow_mode if light is OmniLight3D else OmniLight3D.SHADOW_CUBE)
 
 
+#@ 21+
+func _collect_decor() -> void:
+	for node: Node in lights_root.find_children("*", "MeshInstance3D", true, false):
+		var piece: MeshInstance3D = node as MeshInstance3D
+		var size: Vector3 = (piece.global_transform * piece.get_aabb()).size
+		_decor.append(piece)
+		_sizes.append(maxf(size.x, maxf(size.y, size.z)))
+		_casts.append(piece.cast_shadow)
+
+
+#@ all
 func _saved() -> String:
 	var file: ConfigFile = ConfigFile.new()
 	if file.load(SETTINGS_FILE) != OK:

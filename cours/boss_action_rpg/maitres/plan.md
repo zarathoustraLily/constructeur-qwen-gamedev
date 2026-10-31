@@ -94,8 +94,11 @@ suivante avant.
 - [ ] 20. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
 #@ 20+
 - [x] 20. Les effets et les coups magiques du boss : boules de feu, aura, éclairs
-#@ 17+
+#@ 17-20
 - [ ] 21. Ce qui se dessine : distances de visibilité des petits objets, occulteurs
+#@ 21+
+- [x] 21. Ce qui se dessine : niveaux de détail, petits objets, ombre de la lune
+#@ 17+
 - [ ] 22. Le petit PC lui-même : mesure en conditions réelles
 #@ 12+
 #@ 1-6

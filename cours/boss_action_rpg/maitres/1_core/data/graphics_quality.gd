@@ -37,4 +37,16 @@ class_name GraphicsQuality extends Resource
 #@ 19+
 ## Vrai : les effets brefs (éclair de bouche, impacts) éclairent le décor.
 @export var effect_lights: bool = true
+#@ 21+
+## L'écart de forme toléré à l'écran, en pixels : plus il est grand, plus le moteur prend tôt un niveau de détail simple
+## des maillages (Viewport.mesh_lod_threshold). 1 : le réglage du moteur.
+@export_range(0.0, 32.0, 0.1) var lod_threshold: float = 1.0
+## Les objets du décor plus petits que `detail_size` ne se dessinent plus au-delà de cette distance, en mètres (0 : toujours).
+@export_range(0.0, 200.0, 0.5) var detail_range: float = 0.0
+## La taille sous laquelle un objet compte pour `detail_range` : son plus grand côté, en mètres.
+@export_range(0.0, 20.0, 0.05) var detail_size: float = 0.0
+## Les objets du décor plus petits que cela ne font pas d'ombre, en mètres (0 : tous en font).
+@export_range(0.0, 20.0, 0.05) var shadow_min_size: float = 0.0
+## Les découpes de l'ombre de la lune : autant de passes sur tout le décor. Orthogonale : une seule.
+@export var moon_shadow_mode: DirectionalLight3D.ShadowMode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 #@ all
