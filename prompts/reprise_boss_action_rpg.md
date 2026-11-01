@@ -41,7 +41,7 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 **Reste** : le banc sur son petit PC (il dépend de lui), et sa réponse sur les paires (§ 9).
 
-**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 25, sauf le blocage des chaises (étape 25, réparé, pas encore rejoué par lui). Ces étapes sont vérifiées par les tests et
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 25, sauf le blocage des chaises (étape 25) : il a rejoué et répondu « Oui, réglé » le 2026-11-01. Cette réponse ne porte ni sur la boule de feu à 6,5 m, ni sur la chute bornée, ni sur les effets. Ces étapes sont vérifiées par les tests et
 l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
 nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
 
