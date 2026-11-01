@@ -6,7 +6,11 @@
 script = ExtResource("1_attack")
 id = &"fireball"
 clip = &"attack3"
+;@ 20-24
 min_range = 9.0
+;@ 25+
+min_range = 6.5
+;@ all
 max_range = 40.0
 from_phase = 1
 track_until = 0.97

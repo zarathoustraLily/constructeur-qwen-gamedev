@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 24
+DERNIERE = 25
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -42,13 +42,14 @@ ETAPES = [
     {"piste": "Optimisation", "titre": "Le petit PC : le niveau mesuré sur une vraie petite carte"},
     {"piste": "VFX + Shaders + Outils", "titre": "Le feu et la fumée cuits : une vraie simulation de fluide, et le tir refait"},
     {"piste": "VFX + Shaders", "titre": "La magie refaite : boule de feu, explosion, éclairs en coups répétés, aura de flammes"},
+    {"piste": "Gameplay + Outils", "titre": "Le décor solide : ses parois tournées vers l'extérieur, et un saut qui finit toujours"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 
 FICHIERS = {
     "project.godot": "1+",

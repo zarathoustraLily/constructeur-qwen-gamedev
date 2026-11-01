@@ -20,8 +20,10 @@
 [gd_scene load_steps=24 format=3]
 ;@ 18
 [gd_scene load_steps=30 format=3]
-;@ 19+
+;@ 19-24
 [gd_scene load_steps=31 format=3]
+;@ 25+
+[gd_scene load_steps=32 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
@@ -78,6 +80,9 @@
 [ext_resource type="AudioStream" path="res://6_assets/Audio/Music/epic_boss_battle.wav" id="29_music_stream"]
 [ext_resource type="Script" path="res://2_sequence/combat_sounds.gd" id="30_sounds"]
 [ext_resource type="Resource" path="res://5_data/audio/combat_sounds.tres" id="31_sound_set"]
+;@ 25+
+[ext_resource type="Shape3D" path="res://6_assets/Environment/Saloon/saloon_solid_collision.res" id="33_solid"]
+;@ 18+
 ;@ 13+
 ;@ 11+
 ;@ 9+
@@ -149,6 +154,11 @@ light_volumetric_fog_energy = 2.0
 shadow_enabled = true
 
 [node name="Saloon" parent="." instance=ExtResource("10_saloon")]
+;@ 25+
+
+[node name="Shape" parent="Saloon/Collision" index="0"]
+shape = ExtResource("33_solid")
+;@ 7+
 
 [node name="GroundMist" type="FogVolume" parent="."]
 ;@ 7-9
@@ -360,4 +370,8 @@ hero = NodePath("../Hero")
 golem = NodePath("../Golem")
 spectres = [NodePath("../Spectres/Spectre1"), NodePath("../Spectres/Spectre2"), NodePath("../Spectres/Spectre3")]
 projectiles = NodePath("../Projectiles")
+;@ all
+;@ 25+
+
+[editable path="Saloon"]
 ;@ all

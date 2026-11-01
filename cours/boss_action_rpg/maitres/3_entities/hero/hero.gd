@@ -115,7 +115,11 @@ func camera_yaw() -> float:
 func step(delta: float) -> void:
 	var direction: Vector3 = Motion.camera_relative(stick, camera_yaw())
 	if not is_on_floor():
+#@ 2-24
 		velocity.y -= settings.gravity * delta
+#@ 25+
+		fall(delta)
+#@ all
 	velocity = Motion.approach(velocity, direction * top_speed(), settings.acceleration, settings.deceleration, delta)
 #@ 2-4
 	rotation.y = Motion.face(rotation.y, direction, settings.turn_speed, delta)
@@ -182,7 +186,11 @@ func slide(delta: float, horizontal: Vector3) -> void:
 	velocity.x = horizontal.x
 	velocity.z = horizontal.z
 	if not is_on_floor():
+#@ 4-24
 		velocity.y -= settings.gravity * delta
+#@ 25+
+		fall(delta)
+#@ 4+
 	move_and_slide()
 #@ all
 #@ 6+
@@ -221,4 +229,11 @@ func _on_died() -> void:
 ## La vitesse verticale d'un saut qui monte de `jump_height` sous la gravité du héros.
 func jump_speed() -> float:
 	return sqrt(2.0 * settings.gravity * settings.jump_height)
+#@ 25+
+
+
+## Tombe de `delta` secondes, sans dépasser `max_fall_speed` : un corps retenu sans sol n'accumule pas une vitesse qui
+## lui ferait traverser le plancher en se libérant.
+func fall(delta: float) -> void:
+	velocity.y = maxf(velocity.y - settings.gravity * delta, -settings.max_fall_speed)
 #@ all

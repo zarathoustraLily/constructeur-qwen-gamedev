@@ -1,6 +1,6 @@
 # Prompt de reprise — niveau de boss « Le Gardien du Comptoir » (Godot 4.7.2)
 
-Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-11-01, après l'étape 24. Une copie est
+Commencé le 2026-10-28, mis à jour à chaque étape ; dernière mise à jour le 2026-11-01, après l'étape 25. Une copie est
 dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_action_rpg.md`.
 
 ---
@@ -8,7 +8,7 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 ## 1. Le prompt (à donner tel quel)
 
 > Tu reprends le niveau de boss d'action RPG de laurent (« Le Gardien du Comptoir », Godot 4.7.2) et l'enseignement de
-> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 24 du cours sont faites ; reste le test sur le petit PC de laurent (case 25) et les
+> sa construction à Qwen, là où l'IA précédente s'est arrêtée : les étapes 1 à 25 du cours sont faites ; reste le test sur le petit PC de laurent (case 26) et les
 > paires.
 >
 > Avant toute action, lis dans cet ordre :
@@ -36,13 +36,12 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## Où on s'est arrêté (2026-10-31) — à lire d'abord
 
-**Fait et envoyé** : étapes 1 à 24, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 24 :
-276 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
+**Fait et envoyé** : étapes 1 à 25, branche `claude/observation-visuelle`, arbre git propre. Le jeu est à l'étape 25 :
+283 cas verts, 0 ligne d'erreur, dans le cours et dans le jeu.
 
 **Reste** : le banc sur son petit PC (il dépend de lui), et sa réponse sur les paires (§ 9).
 
-**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 24. Son
-dernier message après avoir joué parlait du son, des effets et des spectres. Ces étapes sont vérifiées par les tests et
+**Ce que laurent n'a pas validé** : aucun retour sur le saut et la visée (étape 16), ni sur les étapes 17 à 25, sauf le blocage des chaises (étape 25, réparé, pas encore rejoué par lui). Ces étapes sont vérifiées par les tests et
 l'image, pas par lui. Je n'ai jamais entendu un son : ils sont choisis sur leur
 nom et leur durée (`5_data/audio/combat_sounds.tres` pour les volumes et les hauteurs). Ne pas écrire « validé ».
 
@@ -83,6 +82,13 @@ exposition 1,5, ambiance 0,42, la porte en nuit bleue (`M_Emissive.tres`, dans `
 Pour essayer vite un effet : `voir.ps1` et `mesurer_rendu.ps1` acceptent l'étape 0 : le projet `projets/atelier_vfx`, à recréer en copiant un projet d'étape (retiré après l'étape 24 : 3 Go sur un disque presque plein), et à retoucher sans balises.
 Pas faits, à proposer : pulsation d'écran (aberration, flou radial) et arrêt sur image aux gros coups, avec une option pour les couper ; fumée
 de la bouche en qualité basse à regarder sur le petit PC. `SUIVIS_PROGRESSION/captures/vfx_*.png` : les images montrées à laurent.
+
+### Le décor solide (étape 25)
+
+laurent, 2026-11-01, après avoir joué : « il y a un enorme probleme de collision avec esc haises etdes que je saute dessus ca bloqe tout ». Les coques d'Unity arrivaient à
+l'envers : `construire_saloon.gd` les tourne vers l'extérieur (`_vers_dehors`). `saloon_solid_collision.res` (refaire seule la forme : dernier argument, un fichier) est posée par `main.tscn` sur
+`Saloon/Collision/Shape` ; l'ancienne `saloon_collision.res` reste pour les étapes 7 à 24. Vérifier toute retouche du décor ou du héros avec `outils/scenarios/coince_niveau.gd` (`SPRINT=1`, `ANGLE=40`,
+`CARTE=<json>`) et `golem_chasse.gd`, et `voir_chaise.gd` pour l'image. Mes choix, à faire valider : la boule de feu dès 6,5 m (9 m avant), la chute bornée à 30 m/s. Le héros peut toujours se glisser derrière le comptoir.
 
 ### Le petit PC
 
@@ -158,7 +164,7 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 ## 5. État exact (2026-10-31)
 
 Étapes du cours, toutes fabriquées, importées, testées, reportées dans le dossier du jeu. Cas verts, de l'étape 1 à la 19
-(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269, 270, 270, 272, 276.
+(`ETAT.md`) : 17, 31, 43, 66, 105, 122, 129, 141, 161, 162, 183, 199, 209, 213, 216, 220, 225, 240, 252, 269, 270, 270, 272, 276, 283.
 
 | N | Étape |
 | --- | --- |
@@ -186,8 +192,9 @@ Godot : `D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_consol
 | 22 | Le petit PC : le niveau mesuré sur une vraie petite carte, le banc |
 | 23 | Le feu et la fumée cuits : une vraie simulation de fluide, et le tir refait |
 | 24 | La magie refaite : boule de feu, explosion, éclairs en coups répétés, aura de flammes |
+| 25 | Le décor solide : ses parois tournées vers l'extérieur, et un saut qui finit toujours |
 
-**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 25 le banc sur le petit PC de laurent (22 faite sur la carte Intel de la machine), le petit PC
+**Reste à faire, dans l'ordre annoncé à laurent** (`maitres/plan.md`) : 26 le banc sur le petit PC de laurent (22 faite sur la carte Intel de la machine), le petit PC
 lui-même ; puis les paires tirées du cours (§ 9). Noté à l'étape 8 : l'entrée du saloon surexposée (plan émissif
 extérieur, `M_Emissive`). Une grande plage blanche reste à gauche des images de l'étape 17 : à regarder, laurent n'en a
 pas parlé.
@@ -415,6 +422,8 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - PowerShell 5.1 lit un `.ps1` sans BOM en ANSI : pas d'accent dans une chaîne de script ; une variable `$outil` écrase le paramètre `$Outil`.
 - `--gpu-index` ne vaut que pour Vulkan : `--rendering-method gl_compatibility` reste sur la 5090.
 - `write_text` de Python écrit des CRLF sous Windows : `write_bytes` pour les maîtres. Un bloc inséré se referme sur la balise de son bloc, pas sur `#@ all`.
+- Une forme concave ne bloque que du côté de ses faces, et un rayon voit les deux côtés (`hit_back_faces` vaut vrai par défaut) : une collision se vérifie avec un corps, de l'extérieur.
+- Un script lancé par `-s` qui plante dans `_initialize` ne quitte pas : Godot tourne sans fin. Ajouter `--quit-after`, et n'arrêter que le processus qu'on a lancé.
 - `git push` échoue dans l'outil de commande (« could not read Username », `GCM_INTERACTIVE=never`) alors que les identifiants
   de laurent sont enregistrés : `git -c credential.username=zarathoustraLily push origin claude/observation-visuelle`.
 - Trou du RAG : la ligne « VERTEX […] in view space » des built-ins de `fragment()` ne sort sur aucune de mes requêtes.

@@ -1175,6 +1175,97 @@
    ],
    "lecture": "La méthode existe : « set_group(group: StringName, property: String, value: Variant) ».",
    "decision": "Groupe vfx_distortion dans les scènes ; GraphicsQualityApplier fait set_group(…, &\"visible\", quality.distortion) ; qualité basse : caché."
+  },
+  {
+   "id": "e25_une_face_n_arrete_que_d_un_cote",
+   "etape": 25,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Le héros saute contre une chaise du saloon et ne repart plus. La trace le montre à y = -0,34, sous le plancher qu'on voit, avec une vitesse réelle nulle. Il a traversé une paroi en entrant, et la suivante l'arrête. Tout le décor est une seule forme concave, faite des coques d'Unity.",
+   "pensee": "Un corps qui traverse une surface d'un côté et bute dessus de l'autre : une forme concave bloque-t-elle des deux côtés ? Je cherche la propriété qui en décide.",
+   "outil": {
+    "genre": "rag",
+    "requete": "ConcavePolygonShape3D backface_collision collisions occur on both sides",
+    "n": 2
+   },
+   "attendu": [
+    "backface_collision",
+    "only along the face normals"
+   ],
+   "lecture": "Par défaut, `backface_collision` est faux : les collisions se font « only along the face normals ».",
+   "decision": "Une face n'arrête que du côté où elle regarde. Je mesure le sens de chaque morceau par le signe de son volume : 376 sur 382 regardent vers l'intérieur. Le générateur les retourne, et je retire le plancher ajouté à l'étape 7 : il masquait cette cause."
+  },
+  {
+   "id": "e25_un_rayon_qui_ne_voit_que_l_avant",
+   "etape": 25,
+   "sujet": "Création de tests",
+   "type": "analyse",
+   "situation": "Le test de l'étape 7 faisait se poser le héros sur le plancher, et les rayons des mesures touchaient bien le décor : rien n'a vu que ses faces étaient à l'envers. Il faut un test qui échoue sur l'ancienne forme, pour chacune des 18 chaises.",
+   "pensee": "Un rayon voyait les chaises à l'envers comme à l'endroit : il doit y avoir une option qui compte le dos des faces. Je vérifie son nom.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "PhysicsRayQueryParameters3D",
+    "membre": "hit_back_faces"
+   },
+   "attendu": [
+    "hit_back_faces"
+   ],
+   "lecture": "La propriété existe : « hit_back_faces: bool ». Elle est vraie par défaut : c'est pour cela que les mesures n'avaient rien montré.",
+   "decision": "Dans le test, `hit_back_faces = false`, et un rayon tiré de dehors vers le centre de la chaise. Sur l'ancienne forme, il passe à travers : je l'ai vérifié, le test échoue."
+  },
+  {
+   "id": "e25_un_saut_qui_finit_toujours",
+   "etape": 25,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "`HeroJumpState` retient `_left_ground`, et ne finit le saut qu'en retrouvant le sol après l'avoir quitté. Un saut qui perd son élan sans décoller ne quitte jamais le sol : le héros reste en Jump, sans roulade, sans soin, sans nouveau saut.",
+   "pensee": "Attendre deux évènements dans l'ordre bloque si le premier n'arrive pas. Une condition sur l'état présent suffit : il ne monte plus et il touche un sol. Je vérifie la méthode.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "CharacterBody3D",
+    "membre": "is_on_floor"
+   },
+   "attendu": [
+    "is_on_floor"
+   ],
+   "lecture": "La méthode existe : « is_on_floor() -> bool ».",
+   "decision": "Le saut finit quand `velocity.y <= 0.0` et `is_on_floor()` ; `_left_ground` disparaît. Au premier instant, l'élan est positif : le saut ne finit pas tout de suite."
+  },
+  {
+   "id": "e25_changer_un_enfant_d_une_scene_instanciee",
+   "etape": 25,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "`saloon.tscn` n'est pas un maître du cours : il est copié depuis le jeu, et les étapes 7 à 24 doivent rester identiques. La forme réparée est donc une nouvelle ressource, et seule `main.tscn` de l'étape 25 doit la prendre, sur le nœud `Saloon/Collision/Shape`.",
+   "pensee": "Une scène peut surcharger la propriété d'un enfant d'une scène instanciée. Pour que l'éditeur garde cette surcharge à l'enregistrement, l'instance doit être éditable : je vérifie le nom de ce réglage.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Node",
+    "membre": "set_editable_instance"
+   },
+   "attendu": [
+    "set_editable_instance"
+   ],
+   "lecture": "La méthode existe : « set_editable_instance(node: Node, is_editable: bool) ». Dans un `.tscn`, c'est la ligne `[editable path=…]`.",
+   "decision": "`[node name=\"Shape\" parent=\"Saloon/Collision\" index=\"0\"]` avec `shape = ExtResource(…)`, et `[editable path=\"Saloon\"]` à la fin du fichier. Les étapes anciennes restent identiques."
+  },
+  {
+   "id": "e25_le_golem_barre_par_le_comptoir",
+   "etape": 25,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Le décor solide arrête aussi le golem. Le héros derrière le comptoir ne reçoit plus aucun coup : à 7,3 m, les coups en main (jusqu'à 6,5 m) ne portent pas, la boule de feu ne part qu'à 9 m, et le coup écrasant, permis à cette distance, n'est pas choisi.",
+   "pensee": "Le coup écrasant passe par `path_clear`, qui teste le trajet de son corps contre le décor. Avant, ses parois à l'envers ne l'arrêtaient pas. Je vérifie ce que fait la méthode qu'il appelle.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "PhysicsDirectSpaceState3D",
+    "membre": "cast_motion"
+   },
+   "attendu": [
+    "cast_motion"
+   ],
+   "lecture": "La méthode existe : « cast_motion(parameters: PhysicsShapeQueryParameters3D) -> PackedFloat32Array ».",
+   "decision": "Le refus est juste : le comptoir barre le chemin. Je ne touche pas à `path_clear` : la boule de feu part à 6,5 m, là où s'arrêtent ses coups en main. Plus de trou : 19 points essayés, au moins 3 coups à chacun."
   }
  ]
 }

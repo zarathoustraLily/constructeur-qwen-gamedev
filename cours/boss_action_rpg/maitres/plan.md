@@ -111,7 +111,11 @@ suivante avant.
 - [ ] 24. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 24+
 - [x] 24. Boule de feu, explosion, éclairs et aura refaits avec le feu cuit
+#@ 24
 - [ ] 25. Le banc lancé sur le petit PC de laurent : le test qui fait foi
+#@ 25+
+- [x] 25. Le décor solide : ses parois tournées vers l'extérieur, et un saut qui finit toujours
+- [ ] 26. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 12+
 #@ 12+
 #@ 1-6

@@ -26,6 +26,9 @@ extends GdUnitTestSuite
 ## commence (il a perdu 30 % de sa vie), ils sortent tous et chassent le héros.
 #@ 13+
 ## Les effets du golem font trembler la caméra du héros ; les étincelles montrent les impacts de ses tirs.
+#@ 25+
+## Les parois du saloon regardent vers l'extérieur : une chaise arrête ce qui vient de dehors, et le héros qui saute
+## contre elle reste dehors, revient au sol et repart.
 #@ all
 
 const MAIN := preload("res://2_sequence/main.tscn")
@@ -286,4 +289,55 @@ func test_immobile_le_heros_tient_dix_secondes_face_aux_spectres() -> void:
 	assert_int(coups.size()).is_between(1, 3)
 	for k: int in coups.size() - 1:
 		assert_float(coups[k + 1] - coups[k]).is_greater(appel.settings.dive_gap)
+#@ all
+#@ 25+
+
+
+func test_une_chaise_arrete_ce_qui_vient_de_dehors() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	await get_tree().physics_frame
+	var espace: PhysicsDirectSpaceState3D = main.get_world_3d().direct_space_state
+	var chaises: int = 0
+	for meuble: Node in main.get_node("Saloon/Meshes").get_children():
+		if not String(meuble.name).contains("_Chair_"):
+			continue
+		var maillage: MeshInstance3D = meuble as MeshInstance3D
+		var boite: AABB = maillage.global_transform * maillage.mesh.get_aabb()
+		var centre: Vector3 = boite.get_center()
+		var rayon: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+				centre + Vector3.RIGHT * boite.size.x, centre, Layers.bit(Layers.WORLD))
+		rayon.hit_back_faces = false
+		assert_bool(espace.intersect_ray(rayon).is_empty()).override_failure_message(String(meuble.name)).is_false()
+		chaises += 1
+	assert_int(chaises).is_equal(18)
+
+
+func test_le_heros_saute_contre_une_chaise_reste_dehors_et_repart() -> void:
+	var main: Node3D = _main()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var hero: Hero = main.get_node("Hero") as Hero
+	hero.get_node("Input").free()
+	(main.get_node("Golem") as Golem).machine.process_mode = Node.PROCESS_MODE_DISABLED
+	hero.camera = null
+	var chaise: MeshInstance3D = main.get_node("Saloon/Meshes/SM_Res_Fur_Chair_Wood_Worn_02_327") as MeshInstance3D
+	var boite: AABB = chaise.global_transform * chaise.mesh.get_aabb()
+	var devant: float = boite.end.x + 0.9
+	await get_tree().physics_frame
+	hero.global_position = Vector3(devant, 0.05, boite.get_center().z)
+	hero.stick = Vector2.LEFT
+	for _i: int in 20:
+		await get_tree().physics_frame
+	hero.jump_buffer.press()
+	for _i: int in 60:
+		await get_tree().physics_frame
+	assert_str(hero.machine.current.name).is_equal("Move")
+	assert_bool(hero.is_on_floor()).is_true()
+	assert_float(hero.global_position.y).is_less(0.2)
+	var contre: float = hero.global_position.x
+	assert_float(contre).is_greater(boite.get_center().x + 0.5)
+	hero.stick = Vector2.RIGHT
+	for _i: int in 30:
+		await get_tree().physics_frame
+	assert_float(hero.global_position.x).is_greater(contre + 2.0)
 #@ all

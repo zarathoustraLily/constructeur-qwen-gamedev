@@ -17,6 +17,9 @@ extends GdUnitTestSuite
 ## plus.
 #@ 7+
 ## Un obstacle entre la caméra et le héros n'arrête pas la visée.
+#@ 25+
+## Un saut qui perd son élan sans quitter le sol finit en course, et il peut ressauter ; un plafond n'empêche pas le saut
+## de finir ; calé entre deux pentes, il peut ressauter ; sa chute est bornée.
 #@ all
 
 const HERO := preload("res://3_entities/hero/hero.tscn")
@@ -427,4 +430,65 @@ func test_sans_endurance_pas_de_saut() -> void:
 	hero.jump_buffer.press()
 	await _frames(5)
 	assert_str(hero.machine.current.name).is_equal("Move")
+#@ all
+#@ 25+
+
+
+## Un bloc fixe du décor, penché de `roulis` radians.
+func _bloc(taille: Vector3, ou: Vector3, roulis: float = 0.0) -> void:
+	var corps: StaticBody3D = StaticBody3D.new()
+	var forme: CollisionShape3D = CollisionShape3D.new()
+	var boite: BoxShape3D = BoxShape3D.new()
+	boite.size = taille
+	forme.shape = boite
+	corps.add_child(forme)
+	corps.position = ou
+	corps.rotation.z = roulis
+	_world.add_child(corps)
+
+
+func test_un_saut_qui_perd_son_elan_sans_quitter_le_sol_finit_en_course() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	hero.machine.transition_to(&"Jump")
+	hero.velocity.y = 0.0
+	await _frames(3)
+	assert_str(hero.machine.current.name).is_equal("Move")
+	hero.jump_buffer.press()
+	await _frames(3)
+	assert_str(hero.machine.current.name).is_equal("Jump")
+
+
+func test_un_plafond_n_empeche_pas_le_saut_de_finir() -> void:
+	var hero: Hero = _hero()
+	await _frames(10)
+	_bloc(Vector3(6.0, 0.2, 6.0), Vector3(0.0, hero.global_position.y + 1.8 + 0.1 + 0.05, 0.0))
+	await _frames(2)
+	var vus: Array[StringName] = []
+	hero.machine.state_changed.connect(func(_from: StringName, to: StringName) -> void: vus.append(to))
+	hero.jump_buffer.press()
+	await _frames(40)
+	assert_array(vus).contains_exactly([&"Jump", &"Move"])
+	assert_bool(hero.is_on_floor()).is_true()
+
+
+func test_cale_entre_deux_pentes_il_peut_ressauter() -> void:
+	var hero: Hero = _hero()
+	_bloc(Vector3(0.4, 8.0, 8.0), Vector3(-1.58, 4.76, 0.0), deg_to_rad(20.0))
+	_bloc(Vector3(0.4, 8.0, 8.0), Vector3(1.58, 4.76, 0.0), deg_to_rad(-20.0))
+	hero.global_position = Vector3(0.0, 4.0, 0.0)
+	await _frames(90)
+	var cale: float = hero.global_position.y
+	assert_float(cale).is_greater(1.0)
+	hero.jump_buffer.press()
+	await _frames(12)
+	assert_str(hero.machine.current.name).is_equal("Jump")
+	assert_float(hero.global_position.y).is_greater(cale + 0.3)
+
+
+func test_sa_chute_est_bornee() -> void:
+	var hero: Hero = _hero()
+	hero.global_position = Vector3(0.0, 2000.0, 0.0)
+	await _frames(150)
+	assert_float(hero.velocity.y).is_equal_approx(-hero.settings.max_fall_speed, 0.01)
 #@ all

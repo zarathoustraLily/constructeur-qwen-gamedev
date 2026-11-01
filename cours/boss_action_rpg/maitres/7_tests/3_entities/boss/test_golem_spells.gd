@@ -9,6 +9,8 @@ extends GdUnitTestSuite
 #@ 24+
 ## Un éclair est un tronc et des branches qui en partent ; il frappe en plusieurs coups qui faiblissent. Le feu de l'aura ne vient qu'en seconde
 ## phase, suit ses os et s'éteint à sa chute.
+#@ 25+
+## Sa boule de feu prend le relais de ses coups en main, sans trou : barré par un meuble, il a toujours une réponse.
 #@ all
 
 const GOLEM := preload("res://3_entities/boss/golem.tscn")
@@ -370,4 +372,11 @@ func test_le_feu_de_l_aura_vient_en_seconde_phase_suit_ses_os_et_s_eteint_a_sa_c
 	golem.fall()
 	assert_bool(flamme.emitting).is_false()
 	(golem.get_node("View") as GolemView).thrown_shield.queue_free()
+#@ all
+#@ 25+
+
+
+func test_sa_boule_de_feu_prend_le_relais_de_ses_coups_en_main_sans_trou() -> void:
+	var golem: Golem = _golem(_cible(Vector3(0.0, 0.0, -25.0)))
+	assert_float(_attaque(golem, &"fireball").min_range).is_less_equal(_attaque(golem, &"sweep").max_range)
 #@ all
