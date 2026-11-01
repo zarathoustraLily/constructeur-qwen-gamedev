@@ -18,6 +18,10 @@ class_name Hud extends CanvasLayer
 @onready var boss_bar: BossBar = $BossBar
 ## L'écran de chute.
 @onready var defeat: DefeatScreen = $Defeat
+#@ 27+
+## L'invite de la main.
+@onready var prompt: InteractPrompt = $Prompt
+#@ all
 
 
 func _ready() -> void:
@@ -56,6 +60,21 @@ func bind_boss(health: HealthComponent) -> void:
 	_bind_health_to(boss_bar.bar, health)
 
 
+#@ 27+
+## Branche d'un coup les quatre jauges du héros.
+func bind_fighter(health: HealthComponent, stamina: StaminaComponent, heat: HeatComponent, flask_component: FlaskComponent) -> void:
+	bind_health(health)
+	bind_stamina(stamina)
+	bind_heat(heat)
+	bind_flasks(flask_component)
+
+
+## Branche l'invite sur la main du héros.
+func bind_interactor(interactor: Interactor) -> void:
+	interactor.focus_changed.connect(prompt.show_prompt)
+
+
+#@ all
 ## Montre l'écran de chute.
 func show_defeat() -> void:
 	defeat.show_defeat(settings.defeat_text)

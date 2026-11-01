@@ -29,7 +29,8 @@ from usine.processus import executer
 # Codes de couleur et autres séquences de contrôle du terminal (GdUnit4 efface l'écran : « ESC[2J ESC[H »).
 COULEURS = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 BRUIT = re.compile(r"^\s*$|^Godot Engine v|^OpenGL API|^Vulkan \d|V-Sync mode|gl_manager_x11|^Using present mode"
-                   r"|Failed to load cached shader|_load_from_cache|^\[\s*\d+% \]|^\[ DONE \]")
+                   r"|Failed to load cached shader|_load_from_cache|^\[\s*\d+% \]|^\[ DONE \]"
+                   r"|^OpArrayLength is not supported yet")  # le compilateur du pilote Intel, pour chaque `.length()` d'un tampon
 # L'image du rendu : dans le dossier caché du projet, que Godot n'importe pas (aucun fichier ajouté à la racine).
 IMAGE_RENDU = ".godot/rendu.png"
 # La ligne que la visite écrit après avoir enregistré l'image (step_viewer.gd, _capture).

@@ -31,6 +31,8 @@ jump_height = 1.0
 jump_cost = 15.0
 air_control = 0.35
 jump_buffer_time = 0.15
+;@ 27+
+interact_buffer_time = 0.25
 ;@ 25+
 max_fall_speed = 30.0
 ;@ all

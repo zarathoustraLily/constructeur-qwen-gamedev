@@ -46,6 +46,9 @@ APPEL_GLSL = re.compile(r"^\t+\w+\(.*\);$")
 # Le message d'un cas rouge : « … <TAB>at 'cas' in res://suite.gd:28 ».
 LIEU = re.compile(r"\s*at '\w+' in (res://\S+:\d+)\s*$")
 ECHEC = re.compile(r"^\s*res://\S+ > (\w+) FAILED\b")
+# Sur la carte, une boucle sans fin ou une lecture hors d'un tampon ne donne pas un test rouge : elle peut bloquer le pilote, et c'est
+# après des plantages en série dans le pilote que le poste de laurent a fait son écran bleu du 2026-11-01. Aucune faute sur ces lignes.
+DANGER_CARTE = re.compile(r"^\s*(?:for|while)\b|\.data\[[^\]]*[-+*][^\]]*\]")
 REMPLACE = re.compile(r"Dans `res://(?P<rel>[^`]+)`, ligne \d+, je remplace :\n```\w*\n(?P<fautif>.*?)\n```\npar :\n```\w*\n(?P<juste>.*?)\n```", re.S)
 AUTRE_CAS = re.compile(r"^\s*res://\S+ > \w+ (STARTED|PASSED|FAILED)\b|^Statistics:")
 
@@ -144,6 +147,8 @@ def fautes(rel: str, texte: str) -> list[Faute]:
     lignes = texte.split("\n")
     sortie: list[Faute] = []
     for n, ligne in lignes_de_calcul(rel, texte):
+        if rel.endswith(".glsl") and DANGER_CARTE.search(ligne):
+            continue
         for genre, motif, gabarit in REGLES:
             for m in motif.finditer(ligne):
                 nouveau = m.expand(gabarit)

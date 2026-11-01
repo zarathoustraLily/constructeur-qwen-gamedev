@@ -57,6 +57,7 @@ def main(argv: list[str] | None = None) -> int:
         cp.add_argument("--par-etape", type=int, default=6)
         cp.add_argument("--graine", type=int, default=1)
         cp.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+        cp.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
     for nom, aide in (("execution", "erreur à l'exécution → correction (chemin de nœud, type du nœud)"),
                       ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape"),
                       ("faute_calcul", "une valeur fausse dans un test → la ligne de calcul (scripts et shaders de calcul)"),
@@ -67,8 +68,7 @@ def main(argv: list[str] | None = None) -> int:
         ex.add_argument("--par-etape", type=int, default=4)
         ex.add_argument("--graine", type=int, default=1)
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
-        if nom == "faute_calcul":
-            ex.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
+        ex.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
@@ -92,11 +92,13 @@ def main(argv: list[str] | None = None) -> int:
     bl.add_argument("--par-etape", type=int, default=60)
     bl.add_argument("--graine", type=int, default=1)
     bl.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+    bl.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
     tc = sous.add_parser("test_cas", help="écrire un cas de test GdUnit4 qui juge vraiment le code (vidé, il échoue)")
     tc.add_argument("--cours", default="kart", choices=COURS)
     tc.add_argument("--par-etape", type=int, default=40)
     tc.add_argument("--graine", type=int, default=1)
     tc.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+    tc.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
     sf = sous.add_parser("shader_fonction", help="écrire une fonction de shader (bâtiments), jugée par l'image rendue")
     sf.add_argument("--par-etape", type=int, default=30)
     sf.add_argument("--graine", type=int, default=1)
@@ -132,7 +134,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.famille in ("compilation", "shader"):
         from usine.paires.compilation import generer as generer_compilation
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
-        bilan = generer_compilation(args.cours, args.par_etape, args.graine, etapes, famille=args.famille)
+        bilan = generer_compilation(args.cours, args.par_etape, args.graine, etapes, famille=args.famille, depuis=args.depuis)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)
@@ -149,7 +151,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             from usine.paires.creation import generer as generer_famille
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
-        options = {"depuis": args.depuis} if args.famille == "faute_calcul" else {}
+        options = {} if args.famille == "execution" else {"depuis": args.depuis}
         bilan = generer_famille(args.cours, args.par_etape, args.graine, etapes, **options)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
@@ -189,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             from usine.paires.test_cas import generer as generer_bloc
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
-        bilan = generer_bloc(args.cours, args.par_etape, args.graine, etapes)
+        bilan = generer_bloc(args.cours, args.par_etape, args.graine, etapes, depuis=args.depuis)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)

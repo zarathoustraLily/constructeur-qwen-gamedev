@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 25
+DERNIERE = 27
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -43,13 +43,15 @@ ETAPES = [
     {"piste": "VFX + Shaders + Outils", "titre": "Le feu et la fumée cuits : une vraie simulation de fluide, et le tir refait"},
     {"piste": "VFX + Shaders", "titre": "La magie refaite : boule de feu, explosion, éclairs en coups répétés, aura de flammes"},
     {"piste": "Gameplay + Outils", "titre": "Le décor solide : ses parois tournées vers l'extérieur, et un saut qui finit toujours"},
+    {"piste": "Procédural + Graphisme 3D", "titre": "Bobine : une héroïne de bois originale, sur le squelette et les clips du héros"},
+    {"piste": "Gameplay + Graphisme 3D + UI", "titre": "Le Terrier : la salle sous le plancher, et ce qu'on y prend à la main"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -296,4 +298,36 @@ FICHIERS = {
     "3_entities/boss/slam_dust.tscn": "24+",
     "3_entities/boss/slam_shock.tscn": "24+",
     "3_entities/boss/hit_sparks.tscn": "24+",
+    "1_core/procedural/puppet_builder.gd": "26+",
+    "3_entities/hero/bobine/bobine_body.gd": "26+",
+    "3_entities/hero/bobine/bobine_model.gd": "26+",
+    "3_entities/hero/bobine/bobine_model.tscn": "26+",
+    "3_entities/hero/bobine/weapon_shapes.gd": "26+",
+    "5_data/hero/bobine_material.tres": "26+",
+    "6_assets/Shader/Characters/bobine.gdshader": "26+",
+    "7_tests/1_core/procedural/test_puppet_builder.gd": "26+",
+    "7_tests/3_entities/hero/test_bobine.gd": "26+",
+    "1_core/interaction/interactable.gd": "27+",
+    "1_core/interaction/interactor.gd": "27+",
+    "1_core/level/solid_prop.gd": "27+",
+    "1_core/data/candle_settings.gd": "27+",
+    "2_sequence/level.gd": "27+",
+    "2_sequence/burrow.tscn": "27+",
+    "3_entities/props/candle/candle.gd": "27+",
+    "3_entities/props/candle/candle.tscn": "27+",
+    "4_ui/hud/interact_prompt/interact_prompt.gd": "27+",
+    "5_data/environment/burrow_environment.tres": "27+",
+    "5_data/environment/burrow_floor.tres": "27+",
+    "5_data/environment/burrow_wall.tres": "27+",
+    "5_data/environment/burrow_beam.tres": "27+",
+    "5_data/environment/burrow_sky.tres": "27+",
+    "5_data/props/candle.tres": "27+",
+    "5_data/props/candle_wax.tres": "27+",
+    "5_data/props/candle_flame.tres": "27+",
+    "7_tests/1_core/interaction/test_interactable.gd": "27+",
+    "7_tests/1_core/interaction/test_interactor.gd": "27+",
+    "7_tests/1_core/level/test_solid_prop.gd": "27+",
+    "7_tests/2_sequence/test_burrow.gd": "27+",
+    "7_tests/3_entities/props/test_candle.gd": "27+",
+    "7_tests/4_ui/hud/test_interact_prompt.gd": "27+",
 }

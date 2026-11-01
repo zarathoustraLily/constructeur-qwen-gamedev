@@ -1,5 +1,9 @@
 class_name HeroView extends Node3D
+#@ 1-25
 ## La vue du héros : le soldat animé. Elle ne décide rien ; elle montre ce que fait le héros. Elle écoute sa machine à
+#@ 26+
+## La vue du héros : Bobine animée. Elle ne décide rien ; elle montre ce que fait le héros. Elle écoute sa machine à
+#@ all
 ## états (Move, Roll, Hit, Heal, Dead) et ses tirs, lit sa vitesse et sa visée, et pilote l'arbre d'animation du
 ## modèle :
 ## - un nœud de transition, une entrée par état ; la roulade et le soin durent ce que durent leurs états ;
@@ -10,8 +14,10 @@ class_name HeroView extends Node3D
 ## sa pose : les tirs partent du canon visible. Le fusil pointe droit devant ; la main gauche le tient par une IK
 ## (LeftHandIK du modèle), que la vue active en course et au tir, et relâche dans les autres états (roulade, coup, soin,
 ## chute : la main gauche suit alors l'animation).
-#@ 13+
+#@ 13-25
 ## Un coup reçu fait flasher le soldat (une couche posée par-dessus ses matériaux), puis le flash s'éteint.
+#@ 26+
+## Un coup reçu fait flasher le modèle (une couche posée par-dessus ses matériaux), puis le flash s'éteint.
 #@ 19+
 ## Un tir allume l'éclair de bouche, tourné dans la direction du tir.
 #@ all
@@ -60,7 +66,11 @@ var aim_pitch: HeroAimModifier
 var flash_material: ShaderMaterial
 #@ all
 
+#@ 1-25
 ## Le soldat : squelette reciblé, fusil, bibliothèque d'animations.
+#@ 26+
+## Bobine : squelette reciblé, arme, bibliothèque d'animations.
+#@ all
 @onready var model: Node3D = $Model
 ## L'arbre d'animation, construit au démarrage.
 @onready var tree: AnimationTree = $AnimationTree

@@ -87,6 +87,15 @@ def test_le_reproche_d_un_cas_est_lu_tel_quel():
     assert fc.reproche(SORTIE, "test_b") is None
 
 
+def test_aucune_faute_sur_une_boucle_ou_un_indice_de_tampon_dans_un_shader():
+    texte = ("void main() {\n\tfor (int k = 0; k < 8 && j != -1; k++) {\n\t\tj = links.data[y * 4 + x];\n\t}\n"
+             "\tfloat a = b - c;\n\tvalues.data[index] = a + d;\n}\n")
+    lignes = {f.ligne for f in fc.fautes("a.glsl", texte)}
+    assert 2 not in lignes and 3 not in lignes
+    assert {5, 6} <= lignes
+    assert 2 in {f.ligne for f in fc.fautes("a.gd", "func f() -> void:\n\tfor x: int in range(a - b, c):\n\t\tg()\n")}
+
+
 def test_une_reprise_connait_les_fautes_deja_gardees(tmp_path):
     fautes = fc.fautes("1_core/demo.gd", GD)
     signe = next(f for f in fautes if f.genre == "signe")

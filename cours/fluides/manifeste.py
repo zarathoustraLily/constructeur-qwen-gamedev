@@ -12,7 +12,7 @@ Le jeu source ne fournit que l'extension GdUnit4 (celui du kart, clé « kart »
 GENRE = "jeu"
 PREFIXE = "fluides"
 SOURCE = "kart"
-DERNIERE = 23
+DERNIERE = 27
 
 ETAPES = [
     {"piste": "Procédural", "titre": "Le champ : une valeur par case, et son image"},
@@ -38,13 +38,17 @@ ETAPES = [
     {"piste": "Shader de calcul + Physique", "titre": "Les vagues : une surface d'eau et l'équation des ondes"},
     {"piste": "Shader de calcul + Physique", "titre": "L'eau peu profonde : des tuyaux entre les cases, et une crue"},
     {"piste": "Shader de calcul + VFX", "titre": "Les particules : des étincelles que le courant emporte, écrites par la carte"},
+    {"piste": "Physique", "titre": "La grille décalée : une divergence enfin nulle"},
+    {"piste": "Physique + VFX", "titre": "FLIP : de l'eau en particules, et un barrage qui cède"},
+    {"piste": "Physique", "titre": "SPH : un liquide sans grille, des voisines et un noyau"},
+    {"piste": "Shader de calcul + Physique", "titre": "SPH sur la carte : une liste chaînée en parallèle"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+PRETES = list(range(1, DERNIERE + 1))
 
 FICHIERS = {
     "project.godot": "1+",
@@ -194,4 +198,25 @@ FICHIERS = {
     "7_tests/1_core/fluid/test_tracer.gd": "23+",
     "7_tests/1_core/gpu/test_gpu_tracers.gd": "23+",
     "7_tests/2_sequence/gpu/test_gpu_sparks.gd": "23+",
+    "1_core/fluid/staggered_grid.gd": "24+",
+    "7_tests/1_core/fluid/test_staggered_grid.gd": "24+",
+    "1_core/data/flip_settings.gd": "25+",
+    "1_core/fluid/flip_solver.gd": "25+",
+    "2_sequence/flip_tank.gd": "25+",
+    "2_sequence/flip_tank.tscn": "25+",
+    "5_data/fluid/dam.tres": "25+",
+    "7_tests/1_core/fluid/test_flip_solver.gd": "25+",
+    "7_tests/2_sequence/test_flip_tank.gd": "25+",
+    "1_core/data/sph_settings.gd": "26+",
+    "1_core/fluid/sph_kernels.gd": "26+",
+    "1_core/fluid/sph_solver.gd": "26+",
+    "7_tests/1_core/fluid/test_sph_kernels.gd": "26+",
+    "7_tests/1_core/fluid/test_sph_solver.gd": "26+",
+    "1_core/gpu/gpu_sph.gd": "27+",
+    "1_core/gpu/shaders/sph_clear.glsl": "27+",
+    "1_core/gpu/shaders/sph_link.glsl": "27+",
+    "1_core/gpu/shaders/sph_density.glsl": "27+",
+    "1_core/gpu/shaders/sph_force.glsl": "27+",
+    "1_core/gpu/shaders/sph_move.glsl": "27+",
+    "7_tests/1_core/gpu/test_gpu_sph.gd": "27+",
 }

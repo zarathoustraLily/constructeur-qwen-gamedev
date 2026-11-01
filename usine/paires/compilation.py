@@ -112,7 +112,7 @@ def paire(projet: Any, m: Any, sujet: str, famille: str = "compilation") -> tupl
 
 def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: list[int] | None = None,
             donnees: Path | None = None, journal: Callable[[str], None] = print,
-            famille: str = "compilation") -> dict[str, Any]:
+            famille: str = "compilation", depuis: int | None = None) -> dict[str, Any]:
     """`par_etape` fautes tirées par étape, réparties entre les genres présents (graine fixe)."""
     from usine.cours.base import assembler, chemins, creation, sessions
     chemins.configurer(cours=cours)
@@ -123,9 +123,11 @@ def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: li
     # Une faute gardée à une étape ne revient pas aux suivantes, où la même ligne existe encore (règle 7.7).
     vues: set[tuple[str, str, str]] = set()
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
-            dispo = [m for m in candidates(apres, fichiers_a_fauter(apres, famille), famille)
+            fichiers = [r for r in fichiers_a_fauter(apres, famille) if fmt.a_change(apres, base, r)]
+            dispo = [m for m in candidates(apres, fichiers, famille)
                      if tuple(fmt.commun(x) for x in (m.fichier, m.avant, m.apres)) not in vues]
             if not dispo:
                 continue

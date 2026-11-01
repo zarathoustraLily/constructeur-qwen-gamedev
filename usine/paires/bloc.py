@@ -189,7 +189,7 @@ def paire(projet: Any, rel: str, f: Any, debut: int, fin: int, juge: dict[str, A
 
 
 def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: list[int] | None = None,
-            donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
+            donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
     """`par_etape` blocs tirés par étape (graine fixe), chaque bloc une seule fois dans le cours (clé sans numéro
     d'étape, `format.commun` ; règle 7.7)."""
     from usine.cours.base import assembler, chemins, creation, etat, sessions
@@ -203,11 +203,12 @@ def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: l
     vues: set[tuple[str, str, str]] = set()
     refuses: set[Any] = set()     # même bloc, mêmes suites : même verdict, on ne rejoue pas
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo = []
             for rel in sorted(apres):
-                if not rel.endswith(".gd") or rel.startswith(("7_tests/", "addons/")):
+                if not rel.endswith(".gd") or rel.startswith(("7_tests/", "addons/")) or not fmt.a_change(apres, base, rel):
                     continue
                 if batiments and not rel.startswith(maillage.GENERATEURS):
                     continue

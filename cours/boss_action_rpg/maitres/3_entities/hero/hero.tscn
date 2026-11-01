@@ -39,13 +39,21 @@
 ;@ 8+
 [ext_resource type="Script" path="res://3_entities/hero/hero_view.gd" id="20_view"]
 [ext_resource type="Resource" path="res://5_data/hero/hero_view.tres" id="21_view_settings"]
+;@ 8-25
 [ext_resource type="PackedScene" path="res://6_assets/Characters/Hero/hero_model.tscn" id="22_model"]
+;@ 26+
+[ext_resource type="PackedScene" path="res://3_entities/hero/bobine/bobine_model.tscn" id="22_model"]
 ;@ 13+
 [ext_resource type="Material" path="res://5_data/vfx/hit_flash_material.tres" id="23_flash"]
 ;@ 16+
 [ext_resource type="Script" path="res://3_entities/hero/states/hero_jump_state.gd" id="24_jump"]
 ;@ 19+
 [ext_resource type="PackedScene" path="res://3_entities/hero/muzzle_flash.tscn" id="25_flash"]
+;@ 27+
+[ext_resource type="Script" path="res://1_core/interaction/interactor.gd" id="26_interactor"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hand"]
+radius = 1.9
 ;@ all
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -169,4 +177,15 @@ hero = NodePath("../..")
 ;@ 19+
 
 [node name="MuzzleFlash" parent="Gun" instance=ExtResource("25_flash")]
+;@ 27+
+
+[node name="InteractBuffer" type="Node" parent="."]
+script = ExtResource("6_buffer")
+
+[node name="Interactor" type="Area3D" parent="."]
+script = ExtResource("26_interactor")
+
+[node name="Shape" type="CollisionShape3D" parent="Interactor"]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("SphereShape3D_hand")
 ;@ all

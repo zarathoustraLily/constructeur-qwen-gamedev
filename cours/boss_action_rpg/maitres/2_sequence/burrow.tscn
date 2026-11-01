@@ -1,0 +1,261 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/level.gd" id="1_level"]
+[ext_resource type="Environment" path="res://5_data/environment/burrow_environment.tres" id="2_env"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_wall.tres" id="3_wall"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_floor.tres" id="4_floor"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_beam.tres" id="5_beam"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_sky.tres" id="6_sky"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/hero.tscn" id="7_hero"]
+[ext_resource type="PackedScene" path="res://1_core/camera/orbit_camera.tscn" id="8_orbit"]
+[ext_resource type="Script" path="res://1_core/combat/projectile_pool.gd" id="9_pool"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/hero_shot.tscn" id="10_shot"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/hud.tscn" id="11_hud"]
+[ext_resource type="Resource" path="res://5_data/ui/hud.tres" id="12_hud_settings"]
+[ext_resource type="Script" path="res://1_core/graphics/graphics_quality_applier.gd" id="13_quality"]
+[ext_resource type="Resource" path="res://5_data/graphics/quality_high.tres" id="14_high"]
+[ext_resource type="Resource" path="res://5_data/graphics/quality_low.tres" id="15_low"]
+[ext_resource type="PackedScene" path="res://3_entities/props/candle/candle.tscn" id="16_candle"]
+[ext_resource type="Script" path="res://1_core/level/solid_prop.gd" id="17_prop"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_Res_Book_Hardback_Paper_Brown_01_LOD0.res" id="18_book"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_Res_Book_Hardback_Paper_Brown_01.tres" id="19_book_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Sal_Cloth_Various_DetailLevels_Cloth_Medium_LOD0.res" id="20_cloth"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Sal_Curtain_01.tres" id="21_cloth_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Wil_Cart_Wheel_Wood_Old_01_LOD0.res" id="22_wheel"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Wil_Cart_Wheel_Wood_Old_01.tres" id="23_wheel_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_Res_Sto_Chest_Wood_Worn_08_LOD0.res" id="24_chest"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_Res_Sto_Chest_Wood_Worn_08.tres" id="25_chest_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Wil_Equipment_Horseshoe_Metal_Rusted_01_LOD0.res" id="26_shoe"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Wil_Equipment_Horseshoe_Metal_Rusted_01.tres" id="27_shoe_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Sal_Bottle_Glass_01_LOD0.res" id="28_bottle"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Sal_Bottle_Glass_02.tres" id="29_bottle_mat"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Sal_Bottle_Cork_01.tres" id="30_cork_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Med_Tableware_Plate_Metal_Old_01_LOD0.res" id="31_plate"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Med_Tableware_Plate_Metal_Old_01.tres" id="32_plate_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_Res_Sto_Flask_Ceramic_Worn_01_LOD0.res" id="33_flask"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_Res_Sto_Flask_Ceramic_Worn_01.tres" id="34_flask_mat"]
+
+[node name="Burrow" type="Node3D"]
+script = ExtResource("1_level")
+
+[node name="World" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_env")
+
+[node name="Walls" type="CSGCombiner3D" parent="."]
+use_collision = true
+collision_mask = 0
+
+[node name="Block" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 3, -13)
+size = Vector3(46, 12, 52)
+material = ExtResource("3_wall")
+
+[node name="Nest" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 2.9, 0)
+operation = 2
+size = Vector3(18, 6.8, 16)
+material = ExtResource("3_wall")
+
+[node name="Passage" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 1.9, -10)
+operation = 2
+size = Vector3(3.4, 4.8, 7)
+material = ExtResource("3_wall")
+
+[node name="Workshop" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 3.3, -19.5)
+operation = 2
+size = Vector3(22, 7.6, 14)
+material = ExtResource("3_wall")
+
+[node name="Floor" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, -0.5, -9)
+size = Vector3(30, 1, 40)
+material = ExtResource("4_floor")
+
+[node name="NestCeiling" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 6.5, 0)
+size = Vector3(20, 1, 18)
+material = ExtResource("4_floor")
+
+[node name="WorkshopCeiling" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 7.3, -19.5)
+size = Vector3(24, 1, 16)
+material = ExtResource("4_floor")
+
+[node name="BeamNorth" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 5.7, -5.5)
+size = Vector3(18.4, 0.6, 0.7)
+material = ExtResource("5_beam")
+
+[node name="BeamMiddle" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 5.7, 0)
+size = Vector3(18.4, 0.6, 0.7)
+material = ExtResource("5_beam")
+
+[node name="BeamSouth" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 5.7, 5.5)
+size = Vector3(18.4, 0.6, 0.7)
+material = ExtResource("5_beam")
+
+[node name="PostWest" type="CSGBox3D" parent="Walls"]
+position = Vector3(-8.75, 3, 0)
+size = Vector3(0.7, 6, 0.7)
+material = ExtResource("5_beam")
+
+[node name="PostEast" type="CSGBox3D" parent="Walls"]
+position = Vector3(8.75, 3, 0)
+size = Vector3(0.7, 6, 0.7)
+material = ExtResource("5_beam")
+
+[node name="WorkshopBeamWest" type="CSGBox3D" parent="Walls"]
+position = Vector3(-6, 6.5, -19.5)
+size = Vector3(0.7, 0.6, 14.4)
+material = ExtResource("5_beam")
+
+[node name="WorkshopBeamEast" type="CSGBox3D" parent="Walls"]
+position = Vector3(6, 6.5, -19.5)
+size = Vector3(0.7, 0.6, 14.4)
+material = ExtResource("5_beam")
+
+[node name="SlitWest" type="CSGBox3D" parent="Walls"]
+position = Vector3(-4.5, 6.9, 0)
+operation = 2
+size = Vector3(0.22, 1.4, 14)
+material = ExtResource("6_sky")
+
+[node name="SlitMiddle" type="CSGBox3D" parent="Walls"]
+position = Vector3(2.5, 6.9, 0)
+operation = 2
+size = Vector3(0.22, 1.4, 14)
+material = ExtResource("6_sky")
+
+[node name="SlitWorkshopWest" type="CSGBox3D" parent="Walls"]
+position = Vector3(-3, 7.7, -19.5)
+operation = 2
+size = Vector3(0.22, 1.2, 11)
+material = ExtResource("6_sky")
+
+[node name="SlitWorkshopEast" type="CSGBox3D" parent="Walls"]
+position = Vector3(3, 7.7, -19.5)
+operation = 2
+size = Vector3(0.22, 1.2, 11)
+material = ExtResource("6_sky")
+
+[node name="Decor" type="Node3D" parent="."]
+
+[node name="ShaftWest" type="SpotLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -4.5, 7.4, 0)
+light_color = Color(0.78, 0.86, 1, 1)
+light_energy = 5.0
+light_volumetric_fog_energy = 3.0
+spot_range = 12.0
+spot_angle = 22.0
+spot_angle_attenuation = 1.6
+
+[node name="ShaftMiddle" type="SpotLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 2.5, 7.4, 2)
+light_color = Color(0.78, 0.86, 1, 1)
+light_energy = 5.0
+light_volumetric_fog_energy = 3.0
+spot_range = 12.0
+spot_angle = 22.0
+spot_angle_attenuation = 1.6
+
+[node name="ShaftWorkshop" type="SpotLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -3, 8.1, -19.5)
+light_color = Color(0.78, 0.86, 1, 1)
+light_energy = 5.0
+light_volumetric_fog_energy = 3.0
+spot_range = 13.0
+spot_angle = 26.0
+spot_angle_attenuation = 1.6
+
+[node name="LampWorkshop" type="OmniLight3D" parent="Decor"]
+position = Vector3(3, 4.6, -19.5)
+light_color = Color(1, 0.76, 0.5, 1)
+light_energy = 2.2
+omni_range = 13.0
+
+[node name="Candle" parent="Decor" instance=ExtResource("16_candle")]
+position = Vector3(-5.6, 0, -3.8)
+
+[node name="BedCandle" parent="Decor" instance=ExtResource("16_candle")]
+position = Vector3(3.6, 0, 2.6)
+
+[node name="BedLower" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(18, 0, 0, 0, 0, -18, 0, 18, 0, 6.2, 0.36, 4.8)
+mesh = ExtResource("18_book")
+surface_material_override/0 = ExtResource("19_book_mat")
+script = ExtResource("17_prop")
+
+[node name="BedUpper" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(17.1, 0, 0, 0, 0, -17.1, 0, 17.1, 0, 6.3, 0.7, 4.7)
+mesh = ExtResource("18_book")
+surface_material_override/0 = ExtResource("19_book_mat")
+script = ExtResource("17_prop")
+
+[node name="BedCloth" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(2.1, 0, 0, 0, 1.2, 0, 0, 0, 3.4, 6.3, 0.95, 3.9)
+mesh = ExtResource("20_cloth")
+surface_material_override/0 = ExtResource("21_cloth_mat")
+
+[node name="Wheel" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(0, -3, 0, 3, 0, 0, 0, 0, 3, 8.4, 2.3, -3.6)
+mesh = ExtResource("22_wheel")
+surface_material_override/0 = ExtResource("23_wheel_mat")
+script = ExtResource("17_prop")
+
+[node name="Chest" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(2.2, 0, 0, 0, 2.2, 0, 0, 0, 2.2, -6.6, 0, 5.2)
+mesh = ExtResource("24_chest")
+surface_material_override/0 = ExtResource("25_chest_mat")
+script = ExtResource("17_prop")
+
+[node name="Horseshoe" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(41, 0, 0, 0, 0, -41, 0, 5, 0, 0, 2.9, -7.9)
+mesh = ExtResource("26_shoe")
+surface_material_override/0 = ExtResource("27_shoe_mat")
+
+[node name="Bottle" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(0, -11, 0, 11, 0, 0, 0, 0, 11, -2, 0.42, 6.4)
+mesh = ExtResource("28_bottle")
+surface_material_override/0 = ExtResource("29_bottle_mat")
+surface_material_override/1 = ExtResource("30_cork_mat")
+script = ExtResource("17_prop")
+
+[node name="Plate" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(0, -13, 0, 13, 0, 0, 0, 0, 13, -8.6, 1.5, 0.8)
+mesh = ExtResource("31_plate")
+surface_material_override/0 = ExtResource("32_plate_mat")
+
+[node name="Jug" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(7, 0, 0, 0, 7, 0, 0, 0, 7, 3.6, 0, 6.2)
+mesh = ExtResource("33_flask")
+surface_material_override/0 = ExtResource("34_flask_mat")
+script = ExtResource("17_prop")
+
+[node name="Hero" parent="." node_paths=PackedStringArray("camera", "aim_camera", "projectiles") instance=ExtResource("7_hero")]
+position = Vector3(0, 0, 3)
+camera = NodePath("../OrbitCamera")
+aim_camera = NodePath("../OrbitCamera/Arm/Camera")
+projectiles = NodePath("../Projectiles")
+
+[node name="OrbitCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("8_orbit")]
+target = NodePath("../Hero")
+
+[node name="Projectiles" type="Node3D" parent="."]
+script = ExtResource("9_pool")
+scene = ExtResource("10_shot")
+size = 32
+
+[node name="Hud" parent="." instance=ExtResource("11_hud")]
+settings = ExtResource("12_hud_settings")
+
+[node name="GraphicsQuality" type="Node" parent="." node_paths=PackedStringArray("world", "lights_root", "focus")]
+script = ExtResource("13_quality")
+high = ExtResource("14_high")
+low = ExtResource("15_low")
+world = NodePath("../World")
+lights_root = NodePath("../Decor")
+focus = NodePath("../Hero")

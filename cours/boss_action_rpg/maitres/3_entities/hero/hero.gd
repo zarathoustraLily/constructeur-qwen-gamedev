@@ -64,6 +64,11 @@ var last_hit_from: Vector3 = Vector3.ZERO
 #@ 16+
 ## La mémoire d'appui du saut.
 @onready var jump_buffer: InputBuffer = $JumpBuffer
+#@ 27+
+## La main : ce qui est assez près pour être actionné.
+@onready var interactor: Interactor = $Interactor
+## La mémoire d'appui de la main.
+@onready var interact_buffer: InputBuffer = $InteractBuffer
 #@ all
 
 
@@ -81,6 +86,8 @@ func _ready() -> void:
 	heal_buffer.window = settings.heal_buffer_time
 #@ 16+
 	jump_buffer.window = settings.jump_buffer_time
+#@ 27+
+	interact_buffer.window = settings.interact_buffer_time
 #@ 6+
 	flasks.fill(settings.flask_count)
 	health.died.connect(_on_died)

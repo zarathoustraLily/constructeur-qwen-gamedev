@@ -229,7 +229,7 @@ def paire_fichier(projet: Any, rel: str, suites: list[str], passe: dict[str, Any
 
 
 def generer_creation(cours: str = "fluides", par_etape: int = 60, graine: int = 1, etapes: list[int] | None = None,
-                     donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
+                     donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
     """Chaque fonction, et chaque fichier, une seule fois dans le cours (règle 7.7)."""
     from usine.cours.base import assembler, chemins, creation, sessions
     from usine.paires import shader_fonction as sf
@@ -240,10 +240,11 @@ def generer_creation(cours: str = "fluides", par_etape: int = 60, graine: int = 
     rng = random.Random(graine)
     vues: set[tuple[str, str]] = set()
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo: list[tuple[str, Any, tuple[str, str]]] = []
-            for rel in sorted(r for r in apres if r.endswith(GLSL) and r.startswith(DOSSIERS)):
+            for rel in sorted(r for r in apres if r.endswith(GLSL) and r.startswith(DOSSIERS) and fmt.a_change(apres, base, r)):
                 texte = apres[rel]
                 lignes = texte.split("\n")
                 if (fmt.commun(rel), texte) not in vues:
@@ -357,7 +358,7 @@ def paire_compilation(projet: Any, f: fc.Faute) -> tuple[dict[str, Any] | None, 
 
 
 def generer_compilation(cours: str = "fluides", par_etape: int = 60, graine: int = 1, etapes: list[int] | None = None,
-                        donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
+                        donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
     """`par_etape` fautes par étape, genres à tour de rôle (graine fixe) ; une faute essayée ne revient pas."""
     from usine.cours.base import assembler, chemins, creation, sessions
     chemins.configurer(cours=cours)
@@ -367,9 +368,10 @@ def generer_compilation(cours: str = "fluides", par_etape: int = 60, graine: int
     rng = random.Random(graine)
     vues: set[tuple[str, str, str]] = set()
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
-            dispo = [f for rel in sorted(r for r in apres if r.endswith(GLSL) and r.startswith(DOSSIERS))
+            dispo = [f for rel in sorted(r for r in apres if r.endswith(GLSL) and r.startswith(DOSSIERS) and fmt.a_change(apres, base, r))
                      for f in fautes_compilation(rel, apres[rel]) if f.cle() not in vues]
             if not dispo:
                 continue

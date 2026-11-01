@@ -36,6 +36,10 @@ const JUMP: StringName = &"jump"
 const LOCK_ON: StringName = &"lock_on"
 ## Boire une fiole de soin (X, E).
 const HEAL: StringName = &"heal"
+#@ 27+
+## Actionner ce qui est à portée de main (Y, F).
+const INTERACT: StringName = &"interact"
+#@ all
 ## Mettre en pause (Menu, Échap).
 const PAUSE: StringName = &"pause"
 
@@ -44,8 +48,10 @@ const PAUSE: StringName = &"pause"
 static func gameplay() -> Array[StringName]:
 #@ 1-15
 	return [MOVE_LEFT, MOVE_RIGHT, MOVE_FORWARD, MOVE_BACK, AIM, SHOOT, DODGE, LOCK_ON, HEAL, PAUSE]
-#@ 16+
+#@ 16-26
 	return [MOVE_LEFT, MOVE_RIGHT, MOVE_FORWARD, MOVE_BACK, AIM, SHOOT, DODGE, JUMP, LOCK_ON, HEAL, PAUSE]
+#@ 27+
+	return [MOVE_LEFT, MOVE_RIGHT, MOVE_FORWARD, MOVE_BACK, AIM, SHOOT, DODGE, JUMP, LOCK_ON, HEAL, INTERACT, PAUSE]
 #@ all
 
 

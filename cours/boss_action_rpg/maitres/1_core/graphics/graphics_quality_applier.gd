@@ -95,7 +95,12 @@ func apply(quality: GraphicsQuality, viewport: Viewport) -> void:
 	viewport.positional_shadow_atlas_size = quality.shadow_atlas
 #@ 21+
 	viewport.mesh_lod_threshold = quality.lod_threshold
+#@ 21-26
 	moon.directional_shadow_mode = quality.moon_shadow_mode
+#@ 27+
+	if moon != null:
+		moon.directional_shadow_mode = quality.moon_shadow_mode
+#@ 21+
 	for i: int in _decor.size():
 		var piece: MeshInstance3D = _decor[i]
 		var reach: float = quality.detail_range if _sizes[i] <= quality.detail_size else 0.0
@@ -116,8 +121,15 @@ func apply(quality: GraphicsQuality, viewport: Viewport) -> void:
 			omni.omni_shadow_mode = OmniLight3D.SHADOW_DUAL_PARABOLOID if cheap_omni else _omni_modes[i]
 		elif light is SpotLight3D:
 			(light as SpotLight3D).spot_range = reach
+#@ 1-26
 	mist.visible = quality.volumetric_fog
 	mist_fallback.visible = not quality.volumetric_fog
+#@ 27+
+	# Une salle fermée n'a ni lune ni brume au sol.
+	if mist != null:
+		mist.visible = quality.volumetric_fog
+		mist_fallback.visible = not quality.volumetric_fog
+#@ all
 #@ 19+
 #@ 19
 	for burst: Node in get_tree().get_nodes_in_group(VfxBurst.GROUP):

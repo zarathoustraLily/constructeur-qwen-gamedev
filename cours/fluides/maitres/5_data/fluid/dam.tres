@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FlipSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/flip_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+width = 40
+height = 30
+gravity = 60.0
+iterations = 30
+relaxation = 1.6
+flip_ratio = 0.95

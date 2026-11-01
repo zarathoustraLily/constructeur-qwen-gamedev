@@ -15,6 +15,9 @@ const BOSS_HITS: int = 5
 #@ 5+
 ## Les zones qui reçoivent les tirs du héros (Hurtbox) : corps du boss, points faibles, bouclier, cibles.
 const TARGETS: int = 6
+#@ 27+
+## Ce que la main du héros peut actionner.
+const INTERACTIONS: int = 7
 #@ all
 
 

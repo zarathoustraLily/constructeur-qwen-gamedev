@@ -128,7 +128,7 @@ def paire(projet: Any, suite: str, cas: Any, cibles: list[tuple[str, Any]],
 
 
 def generer(cours: str = "kart", par_etape: int = 40, graine: int = 1, etapes: list[int] | None = None,
-            donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
+            donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
     """`par_etape` cas tirés par étape (graine fixe), chaque cas une seule fois dans le cours (règle 7.7)."""
     from usine.cours.base import assembler, chemins, creation, sessions
     from usine.projet.gdscript import lire_script
@@ -139,13 +139,14 @@ def generer(cours: str = "kart", par_etape: int = 40, graine: int = 1, etapes: l
     rng = random.Random(graine)
     vues: set[tuple[str, str]] = set()
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             jeu = fonctions_du_jeu(apres)
             dispo = []
             for suite in sorted(r for r in apres if r.startswith("7_tests/") and r.endswith(".gd")):
                 texte = apres[suite]
-                if "extends GdUnitTestSuite" not in texte:
+                if "extends GdUnitTestSuite" not in texte or not fmt.a_change(apres, base, suite):
                     continue
                 lignes = texte.split("\n")
                 for f in lire_script(texte, "res://" + suite).fonctions:

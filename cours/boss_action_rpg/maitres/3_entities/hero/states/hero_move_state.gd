@@ -30,6 +30,9 @@ func physics_update(delta: float) -> void:
 	if hero.flasks.has_charge() and hero.heal_buffer.consume():
 		finish(&"Heal")
 		return
+#@ 27+
+	if hero.interact_buffer.consume():
+		hero.interactor.use_focused()
 #@ all
 	if not hero.dodge_held:
 		winded = false

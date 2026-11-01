@@ -59,6 +59,10 @@ class_name HeroSettings extends Resource
 @export_range(0.0, 1.0, 0.01) var air_control: float = 0.35
 ## Un appui sur le saut un peu avant de toucher le sol compte encore pendant autant de secondes.
 @export_range(0.0, 1.0, 0.01) var jump_buffer_time: float = 0.15
+#@ 27+
+## Mémoire d'appui de la main, en secondes : un objet actionné pendant une roulade répond à sa fin.
+@export_range(0.0, 1.0, 0.01) var interact_buffer_time: float = 0.25
+#@ 16+
 #@ 25+
 ## La vitesse de chute la plus forte, en m/s.
 @export_range(1.0, 100.0, 0.5) var max_fall_speed: float = 30.0

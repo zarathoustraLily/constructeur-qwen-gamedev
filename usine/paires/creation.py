@@ -277,7 +277,7 @@ def empreinte(cle: Any, suites: list[str], apres: dict[str, str]) -> tuple[Any, 
 
 
 def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: list[int] | None = None,
-            donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
+            donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
     """`par_etape` fonctions tirées par étape (graine fixe), chaque fonction une seule fois dans le cours (règle 7.7)."""
     from usine.cours.base import assembler, chemins, creation, sessions
     from usine.paires.compilation import fichiers_a_fauter
@@ -290,10 +290,13 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
     vues: set[tuple[str, str]] = set()
     refusees: set[Any] = set()    # même fonction, mêmes suites : même verdict, on ne rejoue pas
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo = []
             for rel in fichiers_a_fauter(apres, "compilation"):
+                if not fmt.a_change(apres, base, rel):
+                    continue
                 lignes = apres[rel].split("\n")
                 suites = suites_pour(apres, rel)
                 for f in candidates(apres, rel):

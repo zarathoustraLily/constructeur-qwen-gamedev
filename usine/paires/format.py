@@ -116,6 +116,12 @@ def commun(texte: str) -> str:
     return ETAPE.sub("etape_N", texte)
 
 
+def a_change(apres: dict[str, str], base: dict[str, str], rel: str) -> bool:
+    """Vrai si `rel` a changé depuis l'état `base`. Une famille lancée sur des étapes nouvelles (`--depuis N`) ne refait pas ce qu'elle
+    a déjà fait ; sans `base`, tout compte."""
+    return not base or apres[rel] != base.get(rel)
+
+
 def dossier(famille: str, donnees: Path | None = None) -> Path:
     d = Path(donnees or cfg.dossier_donnees()) / "paires" / famille
     d.mkdir(parents=True, exist_ok=True)

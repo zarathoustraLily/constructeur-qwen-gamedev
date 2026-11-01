@@ -151,6 +151,27 @@ func new_color_texture(width: int, height: int) -> RID:
 #@ all
 
 
+#@ 27+
+## Un tampon de vecteurs sur la carte, rempli avec `values`. En `std430`, un `vec2` tient sur 8 octets, comme ici.
+func new_vector_buffer(values: PackedVector2Array) -> RID:
+	var bytes: PackedByteArray = values.to_byte_array()
+	return keep(rd.storage_buffer_create(bytes.size(), bytes))
+
+
+## Les vecteurs du tampon `buffer`.
+func read_vectors(buffer: RID) -> PackedVector2Array:
+	return rd.buffer_get_data(buffer).to_vector2_array()
+
+
+## Un tampon de `count` entiers à zéro.
+func new_int_buffer(count: int) -> RID:
+	var bytes: PackedByteArray = PackedByteArray()
+	bytes.resize(count * 4)
+	bytes.fill(0)
+	return keep(rd.storage_buffer_create(bytes.size(), bytes))
+
+
+#@ all
 ## Envoie à la carte ce qu'on lui a demandé, et attend qu'elle ait fini.
 #@ 16+
 ## L'appareil du rendu n'en a pas besoin : son travail part avec l'image.

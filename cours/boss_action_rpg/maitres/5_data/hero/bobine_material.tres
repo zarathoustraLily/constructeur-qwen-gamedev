@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://6_assets/Shader/Characters/bobine.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://6_assets/Environment/Saloon/Textures/M_Ind_Sup_Beam_Wood_Old_04_A.jpg" id="2_grain"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/grain = ExtResource("2_grain")
+shader_parameter/grain_mean = 0.3
+shader_parameter/wood_grain = 0.75
+shader_parameter/cloth_grain = 0.3

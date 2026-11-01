@@ -26,4 +26,7 @@ func _physics_process(_delta: float) -> void:
 #@ 6+
 	if Input.is_action_just_pressed(Actions.HEAL):
 		hero.heal_buffer.press()
+#@ 27+
+	if Input.is_action_just_pressed(Actions.INTERACT):
+		hero.interact_buffer.press()
 #@ all
