@@ -201,6 +201,7 @@ def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: l
     rejets: list[str] = []
     rng = random.Random(graine)
     vues: set[tuple[str, str, str]] = set()
+    refuses: set[Any] = set()     # même bloc, mêmes suites : même verdict, on ne rejoue pas
     for ville in assembler.ordre_lignes():
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
@@ -216,7 +217,7 @@ def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: l
                 for f in cf.candidates(apres, rel):
                     for debut, fin in blocs(lignes, f):
                         cle = (fmt.commun(rel), fmt.commun(cf.texte_fonction(lignes, f)), str(debut - f.ligne_debut))
-                        if cle not in vues:
+                        if cle not in vues and cf.empreinte(cle, suites_pour(apres, rel), apres) not in refuses:
                             dispo.append((rel, f, debut, fin, cle))
             if not dispo:
                 continue
@@ -243,6 +244,7 @@ def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: l
                 q, raison = paire(projet, rel, f, debut, fin, juge, _sujet(ville, n, rel))
                 if not q:
                     rejets.append(f"{ville}-{n:03d} {rel} {f.nom} l.{debut + 1} : {raison}")
+                    refuses.add(cf.empreinte(cle, suites_pour(apres, rel), apres))
                     continue
                 paires.extend(q if isinstance(q, list) else [q])
                 vues.add(cle)

@@ -56,10 +56,38 @@ def test_une_convention_du_plan_va_au_palier_2():
     assert q["preuve"]["palier"] == 2 and q["messages"][0]["role"] == "system"
 
 
+def test_le_sujet_s_ecrit_comme_dans_les_autres_familles():
+    assert [demarche.sujet(s) for s in ("Graphisme 3D", "VFX", "UI", "Gestion de la mémoire")] == [
+        "graphisme 3D", "VFX", "UI", "gestion de la mémoire"]
+
+
+def test_le_plan_vient_du_manifeste_et_coche_ce_qui_est_fait():
+    (_, arguments, retour), = demarche._plan("boss_action_rpg", {"de": 16, "a": 18})
+    lignes = arguments["content"].splitlines()
+    assert len(lignes) == 18 and lignes[14].startswith("- [x] 15.") and lignes[15].startswith("- [ ] 16. Le saut")
+    assert arguments["path"].endswith("plan.md") and retour.startswith("Wrote file")
+
+
+def test_lire_rend_les_lignes_numerotees_du_projet_de_l_etape(tmp_path, monkeypatch):
+    (tmp_path / "a.gd").write_text("extends Node\nvar x: int = 1\n", encoding="utf-8")
+    monkeypatch.setattr(demarche, "_projet", lambda cours, etape: tmp_path)
+    monkeypatch.setattr(demarche, "chemin_jeu", lambda cours, rel: "D:\\jeu\\" + rel)
+    (nom, arguments, retour), = demarche._lire("essai", {"etape": 1, "fichier": "a.gd", "debut": 2, "fin": 2})
+    assert nom == "read" and arguments == {"path": "D:\\jeu\\a.gd", "offset": 2, "limit": 1}
+    assert "2: var x: int = 1" in retour
+
+
+def test_une_sonde_qui_ne_finit_pas_par_zero_est_ecartee(monkeypatch):
+    faux = {"genre": "sonde", "etape": 1, "script": "s.gd"}
+    monkeypatch.setattr(demarche, "_sonde", lambda cours, outil: [("shell", {"command": "godot"}, "rien\nCommand exited with code 1.")])
+    q, raison = demarche.paire("essai", dict(PAS, outil=faux, attendu=["rien"], lecture="« rien »"), FauxOutils())
+    assert q is None and "code 0" in raison
+
+
 def test_le_journal_du_cours_est_bien_forme():
     journal = json.loads((cfg.RACINE / "cours" / "boss_action_rpg" / "demarche.json").read_text(encoding="utf-8"))
     ids = [p["id"] for p in journal["pas"]]
     assert len(ids) == len(set(ids))
     for p in journal["pas"]:
-        assert p["type"] in fmt.TYPES and p["outil"]["genre"] in demarche.CODES
+        assert p["type"] in fmt.TYPES and p["outil"]["genre"] in ("rag", "vocab", "lire", "sonde", "plan")
         assert {"situation", "pensee", "attendu", "lecture", "decision", "sujet", "etape"} <= set(p)

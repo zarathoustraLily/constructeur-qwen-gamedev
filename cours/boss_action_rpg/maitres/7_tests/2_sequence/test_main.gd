@@ -307,7 +307,6 @@ func test_une_chaise_arrete_ce_qui_vient_de_dehors() -> void:
 		var centre: Vector3 = boite.get_center()
 		var rayon: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 				centre + Vector3.RIGHT * boite.size.x, centre, Layers.bit(Layers.WORLD))
-		rayon.hit_back_faces = false
 		assert_bool(espace.intersect_ray(rayon).is_empty()).override_failure_message(String(meuble.name)).is_false()
 		chaises += 1
 	assert_int(chaises).is_equal(18)

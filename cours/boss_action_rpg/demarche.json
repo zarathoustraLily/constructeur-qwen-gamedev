@@ -2,6 +2,78 @@
  "contexte": "Niveau de boss d'action RPG dans Godot 4.7.2 (le héros tire sur un golem géant, dans un saloon agrandi).",
  "pas": [
   {
+   "id": "e1_du_prompt_au_plan",
+   "etape": 1,
+   "sujet": "Gameplay",
+   "type": "création",
+   "situation": "laurent : « tu crées un niveau de jeu professionnel avec un rendu professionnel avec Godot 4.7, d'un niveau de BOSS action RPG à la DARK SOULS ! » ; « le héros doit tirer sur le golem » ; « change d'échelle le saloon pour qu'il soit plus dramatique ». Découpe ce niveau en étapes dans `plan.md`.",
+   "pensee": "Une demande pareille ne se code pas d'un bloc. Je pars de ce que le joueur sent : d'abord le socle, puis le héros en maquette, la caméra, l'esquive, le tir et la santé, chacun testable seul, chacun appuyé sur le précédent. Puis le décor et le boss, l'interface, les effets. La mesure et la qualité viennent quand il y a quelque chose à mesurer.",
+   "outil": {
+    "genre": "plan",
+    "de": 1,
+    "a": 15
+   },
+   "attendu": [
+    "plan.md"
+   ],
+   "lecture": "Le plan est écrit, une case par étape.",
+   "decision": "Je commence par l'étape 1. Une étape se coche quand ses tests sont verts et qu'on l'a vue tourner ; je ne passe pas à la suivante avant."
+  },
+  {
+   "id": "e1_les_avertissements_en_erreurs",
+   "etape": 1,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Je pose le socle du projet. Je veux que GDScript refuse tout code non typé dès le début, pas au milieu du jeu.",
+   "pensee": "Ce réglage appartient au système d'avertissements de GDScript. Je cherche où la documentation en parle.",
+   "outil": {
+    "genre": "rag",
+    "requete": "debug/gdscript/warnings/untyped_declaration project setting",
+    "n": 1
+   },
+   "attendu": [
+    "warnings aimed specifically at users of typed GDScript"
+   ],
+   "lecture": "La documentation le dit : « We have a number of warnings aimed specifically at users of typed GDScript. »",
+   "decision": "Dans `project.godot`, bloc `[debug]`, je passe ces avertissements à 2 (erreur) : `untyped_declaration`, `integer_division`, `narrowing_conversion`. Corriger un socle coûte peu ; corriger 200 fichiers coûte cher."
+  },
+  {
+   "id": "e2_le_plus_court_chemin",
+   "etape": 2,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Le héros doit pivoter vers sa marche par le plus court chemin. De 170° à -170°, il doit tourner de 20°, pas de 340°.",
+   "pensee": "Une simple soustraction se trompe au passage de ±180°. Godot a sûrement une fonction pour ça : je vérifie sa signature.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "@GlobalScope",
+    "membre": "angle_difference"
+   },
+   "attendu": [
+    "angle_difference"
+   ],
+   "lecture": "La fonction existe : « angle_difference(from: float, to: float) -> float ».",
+   "decision": "`Motion.face` prend `angle_difference(yaw, target)` et le borne par `turn_speed * delta`. Une fonction pure, sans nœud : elle se teste sans scène."
+  },
+  {
+   "id": "e2_l_avant_de_godot",
+   "etape": 2,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Je calcule le lacet qui fait regarder le héros vers sa marche. Le nez orange de la maquette doit pointer dans la bonne direction. Quel est l'avant d'un nœud dans Godot ?",
+   "pensee": "Je ne le suppose pas : je lis la constante de Godot.",
+   "outil": {
+    "genre": "vocab",
+    "classe": "Vector3",
+    "membre": "FORWARD"
+   },
+   "attendu": [
+    "FORWARD=Vector3(0, 0, -1)"
+   ],
+   "lecture": "L'avant est -Z : « FORWARD=Vector3(0, 0, -1) ».",
+   "decision": "Le lacet qui regarde vers (x, z) est donc `atan2(-x, -z)`, et l'inverse `Vector3(-sin(yaw), 0, -cos(yaw))`. Un test vérifie les deux sens."
+  },
+  {
    "id": "e3_bras_ressort",
    "etape": 3,
    "sujet": "Graphisme 3D",
@@ -54,6 +126,46 @@
    ],
    "lecture": "Le cours du kart a déjà un test vérifié : « test_la_souris_capturee_fait_tourner_la_camera ».",
    "decision": "Je reprends sa règle : la souris ne tourne la caméra que lorsqu'elle est capturée (Input.mouse_mode), et son déplacement se multiplie par une sensibilité en degrés par pixel, jamais par delta (sinon la souris ralentirait quand le jeu accélère)."
+  },
+  {
+   "id": "e3_un_flottant_de_32_bits",
+   "etape": 3,
+   "sujet": "Gameplay",
+   "type": "débogage",
+   "situation": "Un test compare `position.x` de la caméra à 0,6 avec `is_equal` et il échoue, alors que le code pose bien 0,6.",
+   "pensee": "Le code a l'air juste : je regarde la valeur que le vecteur garde vraiment, avec un script de quelques lignes.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 3,
+    "script": "flottant_32_bits.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "0.6000000238"
+   ],
+   "lecture": "« x vaut 0.6000000238 ; x == 0.6 : false ; is_equal_approx : true ».",
+   "decision": "Le code est juste, c'est le test qui est faux : un `Vector3` garde ses composantes en float32. Le test compare avec `is_equal_approx(…, 0.0001)`."
+  },
+  {
+   "id": "e4_reprendre_ce_qui_existe",
+   "etape": 4,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "Le héros fait maintenant deux choses qui s'excluent, courir et rouler : il lui faut une machine à états. Une machine testée existe déjà dans `1_core/state_machine/`.",
+   "pensee": "Du code qui compile et qui a ses tests vaut mieux qu'une réécriture de mémoire. Je lis ce qu'il offre avant d'écrire quoi que ce soit.",
+   "outil": {
+    "genre": "lire",
+    "etape": 4,
+    "fichier": "1_core/state_machine/state_machine.gd",
+    "debut": 1,
+    "fin": 45
+   },
+   "attendu": [
+    "transition_to",
+    "state_changed"
+   ],
+   "lecture": "Elle a ce qu'il faut : les états sont ses enfants, un seul tourne, et elle prévient de chaque changement : « signal state_changed(from: StringName, to: StringName) ».",
+   "decision": "Je la reprends telle quelle. `Move` et `Roll` deviennent ses enfants ; la vue, plus tard, n'écoutera que `state_changed`."
   },
   {
    "id": "e5_base_globale",
@@ -111,6 +223,45 @@
    "decision": "Je laisse monitorable à sa valeur par défaut, je coupe monitoring (la zone ne surveille rien : ce sont les rayons qui la trouvent), et un test confirme qu'un rayon touche bien la zone."
   },
   {
+   "id": "e5_le_plus_petit_test",
+   "etape": 5,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Les tirs sont des rayons. La zone qui les reçoit est une `Area3D` qui ne surveille rien. Un rayon la voit-il ? La documentation dit seulement que `collide_with_areas` prend les zones en compte.",
+   "pensee": "Quand la documentation se tait, je ne suppose pas : j'écris le plus petit test qui répond.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 5,
+    "script": "zone_sans_surveillance.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "touché true"
+   ],
+   "lecture": "« monitoring false, collide_with_areas vrai : touché true », et sans cette option : « monitoring false, collide_with_areas faux : touché false ».",
+   "decision": "La zone peut garder `monitoring` faux : elle ne coûte rien à chaque image, et le rayon la voit dès qu'il a `collide_with_areas`."
+  },
+  {
+   "id": "e5_la_cadence_en_images",
+   "etape": 5,
+   "sujet": "Gameplay",
+   "type": "débogage",
+   "situation": "L'arme est réglée à 0,1 s entre deux tirs, soit 10 tirs par seconde. Le test en compte moins, à 60 images par seconde.",
+   "pensee": "Le temps est décompté image par image : je soupçonne l'arrondi. Je compte les tirs des deux façons.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 5,
+    "script": "cadence_en_images.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "86 tirs",
+    "100 tirs"
+   ],
+   "lecture": "« is_zero_approx false : 86 tirs en 10 s », contre « is_zero_approx true : 100 tirs en 10 s ».",
+   "decision": "Après 6 images, il reste un résidu minuscule mais positif : le tir attend une image de plus. `can_fire` compare avec `reste <= 0.0 or is_zero_approx(reste)`."
+  },
+  {
    "id": "e6_jolt_statique",
    "etape": 6,
    "sujet": "Physique",
@@ -127,6 +278,25 @@
    ],
    "lecture": "Le guide de migration parle d'un réglage de Jolt (« areas_detect_static_bodies ») : avec Jolt, ces chevauchements sont toujours signalés depuis 4.5.",
    "decision": "Cette réponse vaut pour Jolt : je vérifie d'abord quel moteur physique le projet utilise avant de m'en servir. Le moteur par défaut est GodotPhysics3D ; le héros est un CharacterBody3D, et le test refait avec une victime CharacterBody3D passe. Un test de collision emploie les mêmes types de corps que le jeu."
+  },
+  {
+   "id": "e6_quel_moteur_physique",
+   "etape": 6,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Trois cas de la zone de coup ne voient pas un corps statique. Le RAG parle d'un comportement propre à Jolt. Est-ce notre moteur ?",
+   "pensee": "Une réponse du RAG vaut pour un contexte : je vérifie que c'est le nôtre avant de m'en servir.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 6,
+    "script": "moteur_physique.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "DEFAULT"
+   ],
+   "lecture": "« physics/3d/physics_engine = DEFAULT ».",
+   "decision": "`DEFAULT` n'est pas Jolt : la réponse du RAG ne s'applique pas telle quelle. Je refais le test avec un `CharacterBody3D`, le type du héros : un test de collision emploie les mêmes corps que le jeu."
   },
   {
    "id": "e7_brume_au_sol",
@@ -272,6 +442,25 @@
    ],
    "lecture": "Le réglage existe : « propriété [SkeletonModifier3D] influence: float ».",
    "decision": "Le TwoBoneIK3D de la main gauche (cible sous le garde-main, coude orienté par un pôle) reste sur le modèle ; la vue fait glisser son influence vers 1 quand la machine du héros est dans Move et vers 0 dans les autres états, en un fondu, et un test le vérifie dans les deux sens."
+  },
+  {
+   "id": "e8_le_nom_d_un_drapeau",
+   "etape": 8,
+   "sujet": "Graphisme 3D",
+   "type": "débogage",
+   "situation": "La scène du saloon pèse 40 Mo : elle recopie ses maillages en `[sub_resource]`, alors qu'ils sont enregistrés à part avec `ResourceSaver.FLAG_CHANGE_PATH`.",
+   "pensee": "Le nom du drapeau promet que la ressource prend son chemin. Je le vérifie en quelques lignes.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 8,
+    "script": "chemin_apres_enregistrement.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "resource_path : []"
+   ],
+   "lecture": "« save : OK ; resource_path : [] » : le drapeau ne donne aucun chemin. Puis « après take_over_path : [user://essai_chemin.res] ».",
+   "decision": "Dans les constructeurs, `take_over_path` après l'enregistrement : la scène désigne ses maillages au lieu de les recopier. Le nom d'un drapeau ne prouve pas son effet."
   },
   {
    "id": "e9_etirement",
@@ -492,6 +681,71 @@
    "decision": "Aim garde une requête créée une fois (static var) et en change from, to et collision_mask à chaque appel ; Golem.path_clear garde la sienne de même ; les deux Tween du combat (braise, chute du bouclier) deviennent des interpolations faites à la main. Nouvelle mesure, seconde phase en pleine fenêtre : 0 allocation en 600 images. Le test test_sans_allocation.gd, rouge sur l'étape précédente, est vert."
   },
   {
+   "id": "e14_mesurer_avant_d_optimiser",
+   "etape": 14,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "La conception exige aucune allocation en combat. Je ne sais pas où on en est. Je mesure sur l'état actuel, sans fenêtre, un combat joué sans joueur : 120 images d'échauffement, 600 de mesure.",
+   "pensee": "Je ne cherche pas au hasard ce qui alloue : je compte d'abord.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 13,
+    "script": "mesurer_combat.gd",
+    "arguments": [
+     "120",
+     "600"
+    ]
+   },
+   "attendu": [
+    "\"images\":600",
+    "\"allocations\":"
+   ],
+   "lecture": "Sur « \"images\":600 », le compteur `allocations` donne environ une allocation par image : c'est régulier, donc c'est dans le code de chaque image, pas dans un évènement.",
+   "decision": "Je coupe les suspects un par un. Sans tir : 0. En visant sans tirer : 0. Reste le tir : je lis le code qu'il appelle à chaque image."
+  },
+  {
+   "id": "e14_une_requete_par_image",
+   "etape": 14,
+   "sujet": "Optimisation",
+   "type": "débogage",
+   "situation": "Le combat alloue un objet par image, et seulement quand le héros tire. Le tir appelle `Aim.point` à chaque image.",
+   "pensee": "Je lis cette fonction en cherchant ce qu'elle crée.",
+   "outil": {
+    "genre": "lire",
+    "etape": 13,
+    "fichier": "1_core/combat/aim.gd",
+    "debut": 1,
+    "fin": 20
+   },
+   "attendu": [
+    "PhysicsRayQueryParameters3D.create"
+   ],
+   "lecture": "Le coupable : « var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, from + forward * max_distance, mask) » : un objet neuf à chaque appel.",
+   "decision": "La requête est créée une fois (`static var`), et chaque appel change seulement `from`, `to` et `collision_mask`. Un test rouge sur l'état d'avant vérifie le zéro."
+  },
+  {
+   "id": "e14_zero_allocation",
+   "etape": 14,
+   "sujet": "Optimisation",
+   "type": "analyse",
+   "situation": "La requête de `Aim.point` et celle du chemin du golem sont créées une fois, les `Tween` du combat remplacés par des interpolations à la main. Je relance la même mesure.",
+   "pensee": "Même commande, mêmes réglages : seule la comparaison prouve le gain.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 14,
+    "script": "mesurer_combat.gd",
+    "arguments": [
+     "120",
+     "600"
+    ]
+   },
+   "attendu": [
+    "\"allocations\":0"
+   ],
+   "lecture": "« \"allocations\":0 » sur « \"images\":600 ».",
+   "decision": "L'exigence est tenue. Je garde cette mesure pour la suite : chaque étape de combat la rejouera, et un test échouera si une allocation revient."
+  },
+  {
    "id": "e15_choisir_selon_la_carte",
    "etape": 15,
    "sujet": "Optimisation",
@@ -601,6 +855,44 @@
    "decision": "Après avoir branché les entrées, build_tree appelle state.set_input_reset(index de jump, true) : chaque saut repart de la foulée choisie."
   },
   {
+   "id": "e16_le_plan_apres_avoir_joue",
+   "etape": 16,
+   "sujet": "Gameplay",
+   "type": "création",
+   "situation": "Les 15 étapes de `plan.md` sont faites. laurent a joué : « le joueur ne peut pas sauter » ; « le canon et le tir ne pointent pas dans la même direction, et pire parfois le joueur tire en bas » ; « dès qu'un fantôme touche je suis mort » ; « il n'y a pas de sound design ». Mets le plan à jour.",
+   "pensee": "Ces retours passent avant tout le reste : c'est ce que le joueur a vécu. Je les regroupe par ce qui se règle ensemble : le saut et la visée touchent le héros, les spectres ont leur étape, le son la sienne. Les étapes faites restent cochées.",
+   "outil": {
+    "genre": "plan",
+    "de": 16,
+    "a": 18
+   },
+   "attendu": [
+    "plan.md"
+   ],
+   "lecture": "Le plan est à jour : trois étapes de plus, à la suite.",
+   "decision": "Je commence par le saut et le tir, le retour le plus grave : un tir qui part vers le sol rend le jeu injouable. Pour les spectres et le son, je mesure avant de changer quoi que ce soit."
+  },
+  {
+   "id": "e16_le_tir_part_vers_le_sol",
+   "etape": 16,
+   "sujet": "Gameplay",
+   "type": "débogage",
+   "situation": "laurent : « le canon et le tir ne pointent pas dans la même direction, et pire parfois le joueur tire en bas ».",
+   "pensee": "« Parfois » veut dire que ça dépend d'une position. Je pose le jeu au repos et je mesure où tombe le point visé.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 15,
+    "script": "rayon_du_centre.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "point visé",
+    "pente"
+   ],
+   "lecture": "« caméra inclinée de -15.0° » ; « le tir part avec une pente de -14.6° » : le rayon du centre de l'écran touche le plancher devant le héros.",
+   "decision": "`aim_point()` prenait toujours le centre de l'écran, or la caméra regarde le héros d'en haut. Trois cas : verrouillé, la cible ; en visée, le rayon du centre ; tir de hanche, droit devant à l'horizontale."
+  },
+  {
    "id": "e17_traine_face_camera",
    "etape": 17,
    "sujet": "VFX",
@@ -653,6 +945,25 @@
    ],
    "lecture": "La propriété existe : « propriété [Node3D] top_level: bool ».",
    "decision": "Le nœud Trail a top_level = true et une transformation identité : ses sommets sont des positions du monde, ceux du bas du linceul aux images passées. Il reste dans l'arbre du spectre et sa visibilité suit toujours le spectre : dissipé, le spectre emporte sa traîne."
+  },
+  {
+   "id": "e17_mesurer_ce_qui_tue",
+   "etape": 17,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "laurent : « dès qu'un fantôme touche je suis mort ». Je trace les coups reçus par un héros immobile, golem figé, spectres appelés.",
+   "pensee": "Avant de changer un chiffre, je regarde ce qui se passe vraiment : combien de dégâts, et à quel rythme.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 16,
+    "script": "trace_spectres.gd"
+   },
+   "attendu": [
+    "coup de Spectre1 : 18.0",
+    "état Move -> Dead"
+   ],
+   "lecture": "Une plongée fait 18 dégâts, une seule fois : « coup de Spectre1 : 18.0 ». Mais les coups se suivent toutes les 70 images environ, les trois spectres sans s'attendre, jusqu'à « état Move -> Dead ».",
+   "decision": "La zone de coup est juste ; le défaut est le rythme. Les spectres plongent chacun leur tour (`SpectreCall.claim_dive`), à 2 s d'écart, et une plongée fait 10 dégâts."
   },
   {
    "id": "e18_un_son_cree_sa_lecture",
@@ -725,6 +1036,28 @@
    ],
    "lecture": "La propriété existe : « propriété [AudioStreamPlayer] volume_linear: float ».",
    "decision": "MusicPlayer garde un niveau de 0 à 1 qui rejoint sa cible dans update (move_toward, sur la durée du fondu) et pose volume_linear = db_to_linear(volume plein) × niveau. Revenue au silence, la musique s'arrête. Aucun Tween."
+  },
+  {
+   "id": "e18_ce_que_cree_un_son",
+   "etape": 18,
+   "sujet": "Audio",
+   "type": "analyse",
+   "situation": "Le combat ne doit rien allouer, or chaque son joué crée quelque chose. Je compare deux façons de jouer 20 sons.",
+   "pensee": "Je compte les objets créés plutôt que de deviner lequel est le moins cher.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 18,
+    "script": "mesurer_sons.gd",
+    "arguments": [
+     "res://6_assets/Audio/SFX/impact/footstep_wood_000.ogg"
+    ]
+   },
+   "attendu": [
+    "play() x20 : 40 objets",
+    "play_stream() x20 : 16 objets"
+   ],
+   "lecture": "« play() x20 : 40 objets », contre « play_stream() x20 : 16 objets ». La ligne de fuite à la fin vient de l'outil, qui quitte avec des sons en cours.",
+   "decision": "Un flux polyphonique à 8 voix. Le moteur crée lui-même la lecture : on ne peut pas descendre à 0. On compte ces objets à part, au lieu de les cacher."
   },
   {
    "id": "e19_rejouer_sans_animation",
@@ -815,6 +1148,24 @@
    ],
    "lecture": "La référence : « Controls the distance attenuation function for omnilights. » et « Use a value of 2.0 for physically accurate lights ».",
    "decision": "Une seule lumière pour tous les impacts (ImpactSparks/Flare), qui saute au dernier, 80 cm devant la surface, sans ombres, atténuation 1,4 pour qu'elle porte un peu plus loin qu'une vraie. La qualité basse coupe les lumières des effets. Mesuré en tirant sans arrêt, en 1280 × 720 : carte 1,734 → 1,763 ms en haute, 0,333 → 0,336 ms en basse."
+  },
+  {
+   "id": "e19_le_plan_des_effets",
+   "etape": 19,
+   "sujet": "VFX",
+   "type": "création",
+   "situation": "laurent : « il n'y a aucun effets dans les tirs... c'est super laids,: trouve des VFX impressionnant pour les tirs » ; « le boss n'a aucun VFX non plus.. pas de boules de feux, pas d'aura magiques par d'eclaires lances... » ; « il faut que le niveau puisse etre joue sur un petit pc ». Mets `plan.md` à jour.",
+   "pensee": "Les effets d'abord, le tir puis le boss, car c'est ce qui manque le plus à l'écran. L'optimisation ensuite : elle n'a de sens que sur le jeu complet, avec ses effets. Elle se fait en deux temps : ce qui se dessine, puis une mesure sur une vraie petite carte.",
+   "outil": {
+    "genre": "plan",
+    "de": 19,
+    "a": 22
+   },
+   "attendu": [
+    "plan.md"
+   ],
+   "lecture": "Le plan est à jour : quatre étapes de plus.",
+   "decision": "Je commence par les tirs. Pour chaque effet, je regarde une planche d'images consécutives : une image seule ne juge pas un effet qui dure quelques images."
   },
   {
    "id": "e20_aura_fresnel",
@@ -1087,6 +1438,24 @@
    "decision": "tonemap_mode = 3 (ACES), tonemap_exposure = 1.5, un peu plus d'ambiance. Le choix se juge sur des images entières, avec l'effet et sans lui : c'est un choix à faire valider par laurent."
   },
   {
+   "id": "e23_le_plan_quand_le_resultat_ne_va_pas",
+   "etape": 23,
+   "sujet": "VFX",
+   "type": "création",
+   "situation": "Les effets sont finis, mais laurent : « cherche sur internet et ameliore tes vfx ce n'est pas du tout au strandard des jeu video de 2026 ». Mets `plan.md` à jour.",
+   "pensee": "Il a raison, regardé image par image : ce sont des plans bruités. Retoucher les réglages ne suffira pas, c'est la façon de fabriquer qui doit changer. Je cherche d'abord comment les jeux actuels les fabriquent, puis je refais le tir, puis la magie, avec les mêmes coups, les mêmes temps et les mêmes zones.",
+   "outil": {
+    "genre": "plan",
+    "de": 23,
+    "a": 24
+   },
+   "attendu": [
+    "plan.md"
+   ],
+   "lecture": "Le plan est à jour : deux étapes de plus.",
+   "decision": "Je commence par la recherche. Les étapes d'avant restent cochées : le gameplay ne bouge pas, seule l'image change."
+  },
+  {
    "id": "e24_traine_dans_le_monde",
    "etape": 24,
    "sujet": "VFX",
@@ -1177,6 +1546,24 @@
    "decision": "Groupe vfx_distortion dans les scènes ; GraphicsQualityApplier fait set_group(…, &\"visible\", quality.distortion) ; qualité basse : caché."
   },
   {
+   "id": "e24_ce_que_veut_dire_damping",
+   "etape": 24,
+   "sujet": "VFX",
+   "type": "analyse",
+   "situation": "Sur les planches d'images, un lobe de l'explosion vole à six mètres alors que je l'ai freiné avec `damping` à 20. Je le prenais pour un coefficient. Qu'est-ce que cette valeur ?",
+   "pensee": "Le nom ne suffit pas : je lis la référence.",
+   "outil": {
+    "genre": "rag",
+    "requete": "ParticleProcessMaterial.damping_max",
+    "n": 1
+   },
+   "attendu": [
+    "damping_max"
+   ],
+   "lecture": "La référence le dit : « The maximum rate at which particles lose velocity. »",
+   "decision": "C'est une perte de vitesse par seconde, pas un coefficient : 16 m/s freinés à 20 m/s² parcourent 6,4 m. Je baisse les vitesses initiales au lieu de monter le freinage."
+  },
+  {
    "id": "e25_une_face_n_arrete_que_d_un_cote",
    "etape": 25,
    "sujet": "Physique",
@@ -1194,24 +1581,6 @@
    ],
    "lecture": "Par défaut, `backface_collision` est faux : les collisions se font « only along the face normals ».",
    "decision": "Une face n'arrête que du côté où elle regarde. Je mesure le sens de chaque morceau par le signe de son volume : 376 sur 382 regardent vers l'intérieur. Le générateur les retourne, et je retire le plancher ajouté à l'étape 7 : il masquait cette cause."
-  },
-  {
-   "id": "e25_un_rayon_qui_ne_voit_que_l_avant",
-   "etape": 25,
-   "sujet": "Création de tests",
-   "type": "analyse",
-   "situation": "Le test de l'étape 7 faisait se poser le héros sur le plancher, et les rayons des mesures touchaient bien le décor : rien n'a vu que ses faces étaient à l'envers. Il faut un test qui échoue sur l'ancienne forme, pour chacune des 18 chaises.",
-   "pensee": "Un rayon voyait les chaises à l'envers comme à l'endroit : il doit y avoir une option qui compte le dos des faces. Je vérifie son nom.",
-   "outil": {
-    "genre": "vocab",
-    "classe": "PhysicsRayQueryParameters3D",
-    "membre": "hit_back_faces"
-   },
-   "attendu": [
-    "hit_back_faces"
-   ],
-   "lecture": "La propriété existe : « hit_back_faces: bool ». Elle est vraie par défaut : c'est pour cela que les mesures n'avaient rien montré.",
-   "decision": "Dans le test, `hit_back_faces = false`, et un rayon tiré de dehors vers le centre de la chaise. Sur l'ancienne forme, il passe à travers : je l'ai vérifié, le test échoue."
   },
   {
    "id": "e25_un_saut_qui_finit_toujours",
@@ -1266,6 +1635,124 @@
    ],
    "lecture": "La méthode existe : « cast_motion(parameters: PhysicsShapeQueryParameters3D) -> PackedFloat32Array ».",
    "decision": "Le refus est juste : le comptoir barre le chemin. Je ne touche pas à `path_clear` : la boule de feu part à 6,5 m, là où s'arrêtent ses coups en main. Plus de trou : 19 points essayés, au moins 3 coups à chacun."
+  },
+  {
+   "id": "e25_le_heros_sous_le_plancher",
+   "etape": 25,
+   "sujet": "Physique",
+   "type": "débogage",
+   "situation": "laurent, après avoir joué : « il y a un enorme probleme de collision avec esc haises etdes que je saute dessus ca bloqe tout ».",
+   "pensee": "Je ne touche à rien avant d'avoir vu le blocage. Je le rejoue sans fenêtre : le héros court vers une chaise et saute, et je relève son état, sa hauteur et ses vitesses.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 24,
+    "script": "heros_bloque.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "Jump y -0.35"
+   ],
+   "lecture": "Reproduit : « 60 Jump y -0.35 vitesse 5.5 réelle 0.0 sol true », et la même ligne jusqu'à la fin. Le plancher qu'on voit est à y = 0 : le héros est dessous, immobile, en saut sans fin. Les deux lignes de fuite viennent de ma sonde, qui quitte en pleine partie.",
+   "decision": "Deux questions, dans l'ordre : pourquoi il passe sous le plancher, et pourquoi le saut ne finit pas. Je ne touche ni à la vitesse ni à la gravité : ce ne sont pas des réglages."
+  },
+  {
+   "id": "e25_une_face_seule",
+   "etape": 25,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "La documentation dit qu'une forme concave ne collisionne que du côté de ses normales. De quel côté regarde une face, selon l'ordre de ses sommets ?",
+   "pensee": "Le plus petit test qui tranche : une seule face, et un corps qui arrive de chaque côté.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 25,
+    "script": "face_d_un_seul_cote.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "arrêté true",
+    "arrêté false"
+   ],
+   "lecture": "« normale de Plane(a, b, c) : (0.0, 1.0, 0.0) ». « descend d'au-dessus : arrêté true », « monte d'en dessous : arrêté false ».",
+   "decision": "Une face arrête du côté de sa normale, et `Plane(a, b, c)` la donne. Je peux donc mesurer de quel côté regarde tout le décor."
+  },
+  {
+   "id": "e25_le_decor_a_l_envers",
+   "etape": 25,
+   "sujet": "Physique",
+   "type": "débogage",
+   "situation": "Le héros entre dans les chaises et sous le plancher, et n'en sort plus. Tout le décor est une seule forme concave, faite des coques d'Unity. Ses faces regardent-elles dehors ?",
+   "pensee": "Le volume signé d'une forme fermée est positif si ses faces regardent dehors. Je le calcule sur l'ancienne forme et sur celle que le générateur corrigé vient d'écrire.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 25,
+    "script": "volume_signe.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "saloon_collision.res",
+    "saloon_solid_collision.res"
+   ],
+   "lecture": "L'ancienne : « saloon_collision.res : 20834 triangles, volume signé -6154 m³ ». La corrigée : « saloon_solid_collision.res : 20694 triangles, volume signé 6632 m³ ».",
+   "decision": "Un volume négatif : le décor était à l'envers. Une paroi laisse entrer et ne laisse plus sortir ; on traverse le dessus du plancher et on s'arrête sur son fond. Le générateur tourne chaque morceau vers l'extérieur. Corriger le générateur, jamais sa sortie."
+  },
+  {
+   "id": "e25_ce_que_les_rayons_disaient",
+   "etape": 25,
+   "sujet": "Physique",
+   "type": "analyse",
+   "situation": "Depuis l'étape 7, on croyait la collision du plancher 0,4 m sous la surface visible, d'après des rayons verticaux. Avec des faces à l'envers, que voit un rayon ? Je le tire vers une chaise, avec et sans `hit_back_faces`.",
+   "pensee": "Si un rayon s'arrête comme un corps, nos mesures lisaient le fond des coques. Je vérifie au lieu de le supposer, et l'option `hit_back_faces` doit trancher.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 24,
+    "script": "rayon_des_deux_cotes.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "hit_back_faces true : rien",
+    "hit_back_faces false : rien"
+   ],
+   "lecture": "« hit_back_faces true : rien », « hit_back_faces false : rien ». Et de haut en bas : « rayon vertical : touché à y = 0.04 » : il traverse toute la chaise.",
+   "decision": "Un rayon traverse le dos des faces comme un corps, et `hit_back_faces` n'y change rien tant que `backface_collision` est faux. La mesure de l'étape 7 disait vrai ; sa lecture était fausse. J'en retire le plancher ajouté alors, qui masquait la cause, et je comparerai désormais ce qu'un rayon touche à la surface qu'on voit."
+  },
+  {
+   "id": "e25_lire_la_fin_du_saut",
+   "etape": 25,
+   "sujet": "Gameplay",
+   "type": "débogage",
+   "situation": "Le décor est réparé, mais il reste une question : pourquoi le héros restait-il en Jump alors qu'il touchait un sol ? Plus de roulade, plus de soin, plus de saut.",
+   "pensee": "Ce défaut est indépendant du décor : il reviendra au prochain plafond bas. Je lis la fin de l'état.",
+   "outil": {
+    "genre": "lire",
+    "etape": 24,
+    "fichier": "3_entities/hero/states/hero_jump_state.gd",
+    "debut": 18,
+    "fin": 35
+   },
+   "attendu": [
+    "_left_ground"
+   ],
+   "lecture": "La fin du saut dépend d'un drapeau : « if not hero.is_on_floor(): » le lève, et « elif _left_ground: » finit le saut. Un saut qui ne décolle pas ne le lève jamais.",
+   "decision": "Un état qui attend deux évènements dans l'ordre reste bloqué si le premier n'arrive pas. Je le remplace par une condition sur le présent : `if hero.velocity.y <= 0.0 and hero.is_on_floor(): finish(&\"Move\")`, et un test met l'élan à zéro."
+  },
+  {
+   "id": "e25_avant_d_ajouter_une_regle",
+   "etape": 25,
+   "sujet": "Gameplay",
+   "type": "analyse",
+   "situation": "J'ai écrit une règle `resting()` pour un héros calé entre deux pentes trop raides, sans sol. Son test échoue : `is_on_floor()` vaut vrai là où je l'attendais faux. Que dit Godot d'un corps calé dans un V ?",
+   "pensee": "Le test contredit ce que je croyais : je mesure le cas seul, sans mon code.",
+   "outil": {
+    "genre": "sonde",
+    "etape": 25,
+    "script": "coin_en_v.gd",
+    "ecrit": true
+   },
+   "attendu": [
+    "sol true"
+   ],
+   "lecture": "« calé à y = 1.68, sol true, mur false, normale du sol (0.0, 1.0, 0.0) ».",
+   "decision": "Godot compte déjà deux pentes qui s'opposent comme un sol : ma règle ne sert à rien. Je la retire et je garde le test, qui vérifie le cas sans elle. Du code inutile est un défaut de plus."
   }
  ]
 }

@@ -32,6 +32,10 @@ Cette cause explique ce qu'on avait réparé ailleurs :
 Une première hypothèse était fausse : un miroir dans les transformations. Seules 2 collisions sur 418 sont en miroir. Ce sont justement les 2 morceaux à l'endroit : les
 maillages `_ConvexHulls` arrivent eux-mêmes à l'envers, et le miroir les remettait dans le bon sens par accident.
 
+Les rayons non plus ne voient pas le dos des faces : `hit_back_faces` ne joue que si `backface_collision` est vrai (mesuré : sur la forme à l'envers, un rayon tiré vers une
+chaise ne touche rien, quelle que soit cette option ; un rayon vertical la traverse et touche le plancher). C'est ce qu'avaient lu les mesures de l'étape 7 : leurs rayons traversaient le
+dessus des coques et touchaient leur fond, 0,4 m plus bas. La mesure disait vrai ; sa lecture était fausse.
+
 ## La réparation du générateur
 
 `_vers_dehors` regroupe les triangles reliés par leurs sommets, et lit le signe du volume de chaque morceau fermé : un volume négatif veut dire que ses faces regardent
@@ -81,8 +85,9 @@ chemin (`path_clear`), et la boule de feu ne partait qu'à 9 m. Elle part mainte
 
 - **L'escalier** : ses morceaux commencent hors de la salle, sa coque est à 4,8 m au plus bas. Le héros n'y accédait pas avant, il n'y accède pas maintenant.
 - **Le vide** : une marche vers un endroit sans sol serait comptée comme une chute. Il n'y en a aucune.
-- **La caméra** : son bras lance un rayon, qui voit les faces des deux côtés. Rien ne change pour elle. Une chaise peut passer devant elle, comme avant.
-- **Les tirs et les sorts** : leurs rayons voient aussi les deux côtés.
+- **La caméra** : son bras lance un rayon, et un rayon s'arrête comme un corps, sur l'avant des faces (plus bas). Il s'arrêtait au fond des coques ; il s'arrête maintenant sur la
+  surface qu'on voit.
+- **Les tirs et les sorts** : même chose : un tir s'arrête sur le meuble, plus au fond de sa coque.
 
 ## Les mesures
 
@@ -104,7 +109,7 @@ Le combat ne coûte pas plus cher, sans fenêtre : image médiane 0,593 → 0,53
 
 ## Les tests
 
-- `test_une_chaise_arrete_ce_qui_vient_de_dehors` : un rayon sans `hit_back_faces`, tiré de dehors vers le centre de chacune des 18 chaises, les touche. À l'envers, il passe.
+- `test_une_chaise_arrete_ce_qui_vient_de_dehors` : un rayon tiré de dehors vers le centre de chacune des 18 chaises les touche. À l'envers, il passe.
 - `test_le_heros_saute_contre_une_chaise_reste_dehors_et_repart`.
 - `test_un_saut_qui_perd_son_elan_sans_quitter_le_sol_finit_en_course`, `test_un_plafond_n_empeche_pas_le_saut_de_finir`, `test_cale_entre_deux_pentes_il_peut_ressauter`,
   `test_sa_chute_est_bornee`.
@@ -121,7 +126,7 @@ Les trois premiers ont été lancés contre l'ancien code : ils échouent. Un te
 
 ## À retenir
 
-- Une collision se vérifie de l'extérieur, par un corps : un rayon qui voit les deux côtés des faces ne montrait rien depuis l'étape 7.
+- Une mesure se lit avec ce qu'elle mesure : un rayon dit où il s'arrête, pas où est la surface qu'on voit. Comparer les deux aurait montré le défaut dès l'étape 7.
 - Quand plusieurs bogues se ressemblent, chercher ce qu'ils ont en commun avant d'en réparer un de plus.
 - Un état qui attend deux évènements dans l'ordre reste bloqué si le premier n'arrive pas : préférer une condition sur l'état présent.
 - Rendre un décor solide change aussi ceux qui le traversaient : ici le golem. Il faut remesurer le combat.

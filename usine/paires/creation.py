@@ -271,6 +271,11 @@ def paire(projet: Any, rel: str, f: Any, suites: list[str], sujet: str,
     return qs, raison
 
 
+def empreinte(cle: Any, suites: list[str], apres: dict[str, str]) -> tuple[Any, int]:
+    """Ce qui fixe le verdict d'un candidat : lui-même et le texte des suites qui le jugent."""
+    return cle, hash(tuple(apres[s] for s in suites))
+
+
 def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: list[int] | None = None,
             donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
     """`par_etape` fonctions tirées par étape (graine fixe), chaque fonction une seule fois dans le cours (règle 7.7)."""
@@ -283,15 +288,17 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
     rejets: list[str] = []
     rng = random.Random(graine)
     vues: set[tuple[str, str]] = set()
+    refusees: set[Any] = set()    # même fonction, mêmes suites : même verdict, on ne rejoue pas
     for ville in assembler.ordre_lignes():
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo = []
             for rel in fichiers_a_fauter(apres, "compilation"):
                 lignes = apres[rel].split("\n")
+                suites = suites_pour(apres, rel)
                 for f in candidates(apres, rel):
                     cle = (fmt.commun(rel), fmt.commun(texte_fonction(lignes, f)))
-                    if cle not in vues and suites_pour(apres, rel):
+                    if cle not in vues and suites and empreinte(cle, suites, apres) not in refusees:
                         dispo.append((rel, f, cle))
             if not dispo:
                 continue
@@ -306,6 +313,7 @@ def generer(cours: str = "kart", par_etape: int = 4, graine: int = 1, etapes: li
                 p, raison = paire(projet, rel, f, suites_pour(apres, rel), _sujet(ville, n, rel), passe)
                 if not p:
                     rejets.append(f"{ville}-{n:03d} {rel} {f.nom} : {raison}")
+                    refusees.add(empreinte(cle, suites_pour(apres, rel), apres))
                     continue
                 paires.extend(p if isinstance(p, list) else [p])
                 vues.add(cle)

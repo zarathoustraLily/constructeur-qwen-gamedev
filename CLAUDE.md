@@ -18,6 +18,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 - On explique ce qu'on veut faire avant de demander une autorisation (dossier, dépôt, outil).
 - Rien ne se lance sur son PC ni sur son llama-server sans son accord, pas même un rejeu court.
 - Pendant une campagne : ne jamais modifier `D:\constructeur-qwen-gamedev` ni `D:\GODOT\projet_starfox` ; personne d'autre n'utilise llama-server.
+- laurent doit pouvoir utiliser son PC pendant qu'on travaille (2026-11-01 : « j'ai besoin de pouvoir utiliser mon pc et de ne pas avoir la souris mobilisee a chaque essai godot »). Aucune fenêtre de Godot en série : sans fenêtre (`--headless`) seulement. Un rendu en fenêtre demande son accord ; `usine/cours/base/godot.py` le refuse sans `USINE_FENETRES=1`.
 
 ### 2. Décisions de laurent (décidé)
 
@@ -67,6 +68,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
        - Godot 4.8 : seulement ses différences avec 4.7.2, mesurées en comparant les `extension_api.json` des deux versions. Par différence utile, 6 paires : création, débogage et analyse (40/40/20), chacune dans un projet 4.8 et dans un projet 4.7.2, la version lue dans `project.godot`, pour qu'il distingue les deux sans oublier 4.7.2 (décision 15). Au plus 10 % des paires courtes ; générées à la sortie de la version stable.
     **Proposés** : la « reflexion » des sessions est écrite avant chaque action, pas un bloc de réflexion (règle 7.6 ; le lanceur d'OpenCode coupe le raisonnement), et tient sous `cutoff_len` ; une campagne de contrôle entre les deux étapes ; l'analyse du mouvement (trajectoire, jugée par rejeu image par image) dans les séquences ; la carte de la seconde étape (H200 ou B300, au prix par jeton mesuré).
 20. Aucun réentraînement tant que les paires d'entraînement ne sont pas finies (2026-10-28 : « tu ne réentraînes rien tant qu'on n'a pas fini les paires d'entraînement »). Le premier LoRA (`donnees/entrainement/lora_etape_1/`) reste tel quel ; la question « réentraîner ou le tester d'abord » est close.
+21. On garde le débogage et on augmente les créations (2026-11-01, sur les 444 000 jetons de débogage du gameplay, que le partage 40/40/20 coupait faute de création : « ui tu conserves les 444 000 jetons tu augmentes les creations »). `usine/paires/assembler.py` règle le partage sur le débogage, jamais coupé. **Proposé** : l'étendre à tous les sujets, ce que fait le code.
 
 ### 3. Pièges et interdits (décidé)
 

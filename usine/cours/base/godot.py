@@ -35,6 +35,18 @@ IMAGE_RENDU = ".godot/rendu.png"
 CAPTURE = re.compile(r"^capture: (\S+) \((\d+), (\d+)\) erreur=(\d+)$", re.M)
 
 
+class FenetreRefusee(RuntimeError):
+    """Une fenêtre de Godot en série sur le poste de laurent, sans son accord."""
+
+
+def _fenetre_permise(prefixe: list[str] | None) -> None:
+    """Une fenêtre de Godot prend la souris du poste, même placée hors de l'écran, et le jeu la capture (laurent,
+    2026-11-01 : « j'ai besoin de pouvoir utiliser mon pc et de ne pas avoir la souris mobilisee a chaque essai godot »).
+    Sur un écran virtuel (`prefixe`), elle ne gêne personne ; sinon il faut `USINE_FENETRES=1`, posé quand il l'accepte."""
+    if not prefixe and _SIMULATION is None and os.environ.get("USINE_FENETRES") != "1":
+        raise FenetreRefusee("rendu dans une fenêtre refusé : il prend la souris de laurent (USINE_FENETRES=1 avec son accord)")
+
+
 @dataclass
 class Sortie:
     commande: str
@@ -226,6 +238,7 @@ def rendre_jeu(projet: str, scene: str | None = None) -> Sortie:
     compilent (règle 5.4). Aucune image n'est enregistrée : la sortie dit si un shader échoue (cours de jeu)."""
     from usine.cours.base import profil
     prefixe, env = prefixe_ecran()
+    _fenetre_permise(prefixe)
     arguments = profil.arguments_rendu(scene)
     texte, code, brut = _lancer(arguments, projet, 180, prefixe, env)
     return Sortie(commande(arguments), texte, code, brut)
@@ -240,6 +253,7 @@ def rendre(projet: str, copie_png: Path | str | None = None, scene: str | None =
     par PowerShell, dont le traitement de `--` n'a pas été vérifié. L'image est ensuite copiée dans `copie_png`,
     s'il est donné (preuve gardée hors du projet)."""
     prefixe, env = prefixe_ecran()
+    _fenetre_permise(prefixe)
     image = Path(projet) / IMAGE_RENDU
     image.unlink(missing_ok=True)
     arguments = ["--path", ".", "--rendering-method", "gl_compatibility", "--rendering-driver", "opengl3",

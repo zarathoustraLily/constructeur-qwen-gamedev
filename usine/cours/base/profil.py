@@ -41,7 +41,9 @@ IMAGES_RENDU = 60
 BENIGNES = [(re.compile(r'^ERROR: Parameter "material" is null\.$'),
              re.compile(r"^\s*at: material_get_instance_shader_parameters \(servers/rendering/dummy/")),
             (re.compile(r"^WARNING: .+ only available when using the Forward\+ (?:or Mobile )?renderer\.$"),
-             re.compile(r"^\s*at: \w+ \((?:servers/rendering|drivers/gles3)/"))]
+             re.compile(r"^\s*at: \w+ \((?:servers/rendering|drivers/gles3)/")),
+            (re.compile(r"^ERROR: shader type fog not supported in OpenGL renderer$"),
+             re.compile(r"^\s*at: shader_set_code \(drivers/gles3/"))]
 FORWARD = re.compile(r"^WARNING: (.+?) (?:is|are) only available when using the (Forward\+(?: or Mobile)?) renderer\.$")
 
 

@@ -9,8 +9,9 @@ Contrôles, dans l'ordre : le palier (une paire de plus de 1 024 jetons sans le 
 pas le plan, est refusée) ; les jetons recomptés avec le tokenizer de Qwen 3.8 (règle 5.8), aucune troncature ; les
 jeux gelés et Starfox (`Exclusion.texte_exclu`, règle 4 ; le mot « starfox ») ; les doublons exacts ; au plus
 `MEMES_REPONSES` paires par réponse identique (règle 7.7 : une case n'écrase pas les autres) ; puis le partage de la
-décision 3 dans chaque sujet, en jetons de réponse (40/40/20). Un sujet auquel il manque un type n'est pas réduit : il
-est signalé (trou à combler par la génération).
+décision 3 dans chaque sujet, en jetons de réponse (40/40/20), réglé sur le débogage : il n'est jamais coupé, et la
+création manquante se comble en générant (décision de laurent du 2026-11-01). Un sujet auquel il manque un type n'est
+pas réduit : il est signalé (trou à combler par la génération).
 
 Sorties dans `donnees/entrainement/` : `palier_<N>.jsonl` (sharegpt, `format.vers_llamafactory`), l'entrée du palier
 dans `dataset_info.json`, `controles_palier_<N>.json`.
@@ -62,8 +63,9 @@ def _cle(p: dict[str, Any]) -> str:
 
 
 def equilibrer(paires: list[dict[str, Any]], rng: random.Random) -> tuple[list[dict[str, Any]], list[str]]:
-    """Dans chaque sujet, la plus grande quantité qui respecte 40/40/20 en jetons de réponse ; on retire au hasard
-    (graine fixe) dans les types en trop. Un sujet sans l'un des types est gardé tel quel et signalé."""
+    """Dans chaque sujet, le partage 40/40/20 en jetons de réponse, réglé sur le débogage, gardé entier : création et
+    analyse reçoivent leur part de ce total, et on retire au hasard (graine fixe) ce qui la dépasse. Un type trop court
+    reste entier et n'enlève rien aux autres : il est signalé. Un sujet sans l'un des types est gardé tel quel et signalé."""
     par_sujet: dict[str, list[dict[str, Any]]] = {}
     for p in paires:
         par_sujet.setdefault(p["sujet"], []).append(p)
@@ -76,13 +78,15 @@ def equilibrer(paires: list[dict[str, Any]], rng: random.Random) -> tuple[list[d
             trous.append(f"{sujet} : pas de {', '.join(manquants)}")
             gardees += liste
             continue
-        total = min(dispo[t] / CIBLE[t] for t in CIBLE)
+        total = dispo["débogage"] / CIBLE["débogage"]
         for t in CIBLE:
             du_type = [p for p in liste if p["type"] == t]
             rng.shuffle(du_type)
             budget, pris = CIBLE[t] * total, 0
+            if dispo[t] < budget * 0.98:
+                trous.append(f"{sujet} : {t} à {dispo[t]} jetons sur {round(budget)}")
             for p in du_type:
-                if pris + p["jetons_reponse"] <= budget * 1.02 or pris == 0:
+                if t == "débogage" or pris + p["jetons_reponse"] <= budget * 1.02 or pris == 0:
                     gardees.append(p)
                     pris += p["jetons_reponse"]
     return gardees, trous

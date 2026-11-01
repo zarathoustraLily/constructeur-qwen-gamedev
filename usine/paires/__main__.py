@@ -26,6 +26,8 @@ import argparse
 import json
 import sys
 
+COURS = ["kart", "roguelike", "atelier", "boss_action_rpg"]
+
 
 def main(argv: list[str] | None = None) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -46,14 +48,14 @@ def main(argv: list[str] | None = None) -> int:
     for nom, aide in (("compilation", "erreur de compilation → ligne corrigée (code vérifié des cours)"),
                       ("shader", "erreur de shader → correction, compilée au rendu (code vérifié des cours)")):
         cp = sous.add_parser(nom, help=aide)
-        cp.add_argument("--cours", default="kart", choices=["kart", "roguelike", "atelier", "batiments_proceduraux"])
+        cp.add_argument("--cours", default="kart", choices=COURS + ["batiments_proceduraux"])
         cp.add_argument("--par-etape", type=int, default=6)
         cp.add_argument("--graine", type=int, default=1)
         cp.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     for nom, aide in (("execution", "erreur à l'exécution → correction (chemin de nœud, type du nœud)"),
                       ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape")):
         ex = sous.add_parser(nom, help=aide)
-        ex.add_argument("--cours", default="kart", choices=["kart", "roguelike", "atelier", "batiments_proceduraux"])
+        ex.add_argument("--cours", default="kart", choices=COURS + ["batiments_proceduraux"])
         ex.add_argument("--par-etape", type=int, default=4)
         ex.add_argument("--graine", type=int, default=1)
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
@@ -61,24 +63,24 @@ def main(argv: list[str] | None = None) -> int:
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
     pt = sous.add_parser("points", help="réaliser un point de l'étape d'après sa description (tests rouges sans, verts avec)")
-    pt.add_argument("--cours", default="kart", choices=["kart", "roguelike", "atelier"])
+    pt.add_argument("--cours", default="kart", choices=COURS)
     pt.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     mg = sous.add_parser("maillage", help="écrire une fonction d'un générateur de bâtiment, jugée par l'empreinte du maillage")
     mg.add_argument("--par-etape", type=int, default=30)
     mg.add_argument("--graine", type=int, default=1)
     mg.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     mc = sous.add_parser("morceaux", help="écrire un changement d'un point de l'étape (bâtiments), jugé par le maillage")
-    mc.add_argument("--cours", default="batiments_proceduraux", choices=["kart", "roguelike", "atelier", "batiments_proceduraux"])
+    mc.add_argument("--cours", default="batiments_proceduraux", choices=COURS + ["batiments_proceduraux"])
     mc.add_argument("--par-etape", type=int, default=40)
     mc.add_argument("--graine", type=int, default=1)
     mc.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     bl = sous.add_parser("bloc", help="écrire les lignes qui manquent à une fonction, jugées par les tests ou le maillage")
-    bl.add_argument("--cours", default="kart", choices=["kart", "roguelike", "atelier", "batiments_proceduraux"])
+    bl.add_argument("--cours", default="kart", choices=COURS + ["batiments_proceduraux"])
     bl.add_argument("--par-etape", type=int, default=60)
     bl.add_argument("--graine", type=int, default=1)
     bl.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     tc = sous.add_parser("test_cas", help="écrire un cas de test GdUnit4 qui juge vraiment le code (vidé, il échoue)")
-    tc.add_argument("--cours", default="kart", choices=["kart", "roguelike", "atelier"])
+    tc.add_argument("--cours", default="kart", choices=COURS)
     tc.add_argument("--par-etape", type=int, default=40)
     tc.add_argument("--graine", type=int, default=1)
     tc.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")

@@ -18,7 +18,7 @@ from typing import Any, Callable
 
 from usine import config as cfg
 
-COURS = ("kart", "roguelike", "atelier", "batiments_proceduraux")
+COURS = ("kart", "roguelike", "atelier", "batiments_proceduraux", "boss_action_rpg")
 # (famille, fautes ou fonctions tirées par étape) : assez pour épuiser les candidats de chaque étape (dédoublonnés
 # d'une étape à l'autre), sans dépasser les cibles du PLAN.
 PAR_ETAPE = {"creation": 30, "execution": 30, "compilation": 150, "shader": 60, "maillage": 30, "morceaux": 40, "bloc": 60}

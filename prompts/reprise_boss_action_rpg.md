@@ -129,6 +129,7 @@ importé) ; la cible de `conception.md` reste proposée (question 3).
   concerne pas : n'y toucher ni à ses processus.
 - **Rien sur llama-server, aucun entraînement** (décision 20). Lancer Godot sans fenêtre (`--headless`) pour
   fabriquer, importer, tester fait partie du travail accepté.
+- **laurent doit pouvoir utiliser son PC** : « j'ai besoin de pouvoir utiliser mon pc et de ne pas avoir la souris mobilisee a chaque essai godot » (2026-11-01). Aucune fenêtre de Godot en série : la famille `shader` lançait le jeu dans une fenêtre à chaque essai, le jeu capture la souris (`main.gd`), et sa zone est restée bloquée après la fermeture (`ClipCursor(NULL)` l'a libérée). `godot.py` refuse désormais ces rendus sans `USINE_FENETRES=1`, posé seulement avec son accord.
 - **Fenêtres de rendu hors de l'écran** (`--position -6000,-6000`), jamais sur l'écran de laurent ; **jamais capturer
   sa souris** (`capturer_jeu.gd` la libère dans la même image) ; ne jamais lancer Godot sur un projet en cours de
   fabrication (boîte d'alerte sur son écran).
@@ -422,7 +423,7 @@ les meubles géants font 2 m de large : vérifier toute nouvelle position).
 - PowerShell 5.1 lit un `.ps1` sans BOM en ANSI : pas d'accent dans une chaîne de script ; une variable `$outil` écrase le paramètre `$Outil`.
 - `--gpu-index` ne vaut que pour Vulkan : `--rendering-method gl_compatibility` reste sur la 5090.
 - `write_text` de Python écrit des CRLF sous Windows : `write_bytes` pour les maîtres. Un bloc inséré se referme sur la balise de son bloc, pas sur `#@ all`.
-- Une forme concave ne bloque que du côté de ses faces, et un rayon voit les deux côtés (`hit_back_faces` vaut vrai par défaut) : une collision se vérifie avec un corps, de l'extérieur.
+- Une forme concave ne bloque que du côté de ses faces, les corps comme les rayons (`hit_back_faces` ne joue que si `backface_collision` est vrai) : un rayon traverse le dessus d'une coque à l'envers et touche son fond. Comparer ce qu'un rayon touche à la surface qu'on voit.
 - Un script lancé par `-s` qui plante dans `_initialize` ne quitte pas : Godot tourne sans fin. Ajouter `--quit-after`, et n'arrêter que le processus qu'on a lancé.
 - `git push` échoue dans l'outil de commande (« could not read Username », `GCM_INTERACTIVE=never`) alors que les identifiants
   de laurent sont enregistrés : `git -c credential.username=zarathoustraLily push origin claude/observation-visuelle`.
