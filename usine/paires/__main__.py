@@ -21,6 +21,7 @@
     python -m usine.paires bloc [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires test_cas [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires shader_fonction [--par-etape N] [--graine G] [--etapes 1,2]   (rend des images)
+    python -m usine.paires voir_fluide [--scenes N] [--fautes N] [--graine G] [--genres gaz,feu,vagues,crue,flip,sph]   (rend des images)
     python -m usine.paires assembler --palier 1|2 [--graine G]
     python -m usine.paires volume [--seulement creation,execution,...] [--cours kart,...]
 """
@@ -103,6 +104,11 @@ def main(argv: list[str] | None = None) -> int:
     sf.add_argument("--par-etape", type=int, default=30)
     sf.add_argument("--graine", type=int, default=1)
     sf.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+    vf = sous.add_parser("voir_fluide", help="des séquences de 5 images de fluides : code, faute, lecture, tempo (sans fenêtre ni carte)")
+    vf.add_argument("--scenes", type=int, default=40, help="scènes saines par genre")
+    vf.add_argument("--fautes", type=int, default=60, help="fautes essayées par genre")
+    vf.add_argument("--graine", type=int, default=1)
+    vf.add_argument("--genres", default=None, help="genres séparés par des virgules (défaut : tous)")
     vol = sous.add_parser("volume", help="génération en volume, famille après famille, puis lectures et paliers")
     vol.add_argument("--seulement", default=None, help="familles séparées par des virgules (défaut : toutes)")
     vol.add_argument("--cours", default=None, help="cours séparés par des virgules (défaut : tous)")
@@ -206,6 +212,14 @@ def main(argv: list[str] | None = None) -> int:
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
         bilan = (generer_maillage(args.cours, args.par_etape, args.graine, etapes) if args.famille == "morceaux"
                  else generer_maillage(args.par_etape, args.graine, etapes))
+        print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
+        for r in bilan["rejets"]:
+            print("rejet :", r)
+        return 0 if bilan["paires"] else 1
+    if args.famille == "voir_fluide":
+        from usine.paires.voir_fluide import GENRES, generer as generer_voir
+        genres = tuple(args.genres.split(",")) if args.genres else GENRES
+        bilan = generer_voir(genres, args.scenes, args.fautes, args.graine)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)

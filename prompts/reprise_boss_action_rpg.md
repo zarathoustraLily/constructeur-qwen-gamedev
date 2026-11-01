@@ -7,13 +7,13 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## 0. Où en sont les paires (2026-11-01, soir)
 
-Les étapes 1 à 25 du boss et 1 à 23 du cours des fluides (`cours/fluides`) sont faites. Le travail en cours, ce sont les paires.
+Les étapes 1 à 29 du boss et 1 à 27 du cours des fluides (`cours/fluides`) sont faites. Une partie des fichiers du boss 26 à 29 reste non commitée : elle attend la décision de laurent. Le travail en cours, ce sont les paires.
 
 **Règles nées de l'écran bleu du 2026-11-01** (mémoire `ecran-bleu-du-2026-11-01`) : tout Godot sur la carte passe par `usine/garde_carte.py`, par `usine/bureau_cache.py` ou `godot.tester_gdunit`, jamais lancé à la main. Un seul Godot sur la carte à la fois, Vulkan sur la carte Intel, OpenGL en attente tant que ComfyUI ou `llama-server` tourne. Au plus deux chaînes, en priorité basse (`chaine.ps1` de la session de l'incident). `llama-server` sur le port 8080 sert OpenCode : ne pas y toucher. Rien dans `F:\REVERSe` : voir la mémoire `reverse-hades-ii`.
 
 **Comment fabriquer.** Après tout changement de maître, comparer les projets aux maîtres (fabriquer dans un dossier temporaire avec `--sortie`, puis comparer) : les projets des étapes 11 à 13 sont restés périmés neuf heures sans que rien ne le dise. Ne pas refabriquer une étape qu'une famille est sur le point de lire.
 
-**Reste à faire, dans l'ordre :** finir `test_cas`, `morceaux`, `points` et `faute_calcul` des fluides ; puis `debogage_boucle`, `analyse_sessions`, `lecture`, `rag`, `demarche`, sans Godot ; `shader` du boss et sessions longues du boss, qui demandent la 5090, donc Qwen arrêté, avec l'accord de laurent ; assembler ; les 3 000 paires de séquences d'images.
+**Reste à faire, dans l'ordre :** finir `points`, `faute_calcul` et les familles des étapes 24 à 27 des fluides, puis `voir_fluide` (cinq passes, journal `donnees/paires/fluides_familles.log`) ; renommer `compilation/paires_fluides_reprise_textures.jsonl.a_fusionner` en `paires_fluides_reprise.jsonl` ; puis `debogage_boucle`, `analyse_sessions`, `lecture`, `rag`, `demarche`, sans Godot ; `shader` du boss et sessions longues du boss, qui demandent la 5090, donc Qwen arrêté, avec l'accord de laurent ; assembler ; les séquences d'images des autres jeux (les fluides sont couverts par `voir_fluide`).
 
 ---
 

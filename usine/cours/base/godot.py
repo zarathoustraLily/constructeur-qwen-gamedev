@@ -242,8 +242,9 @@ def verifier_script(projet: str, res: str) -> Sortie:
     return Sortie(commande(arguments), texte, code, brut)
 
 
-def tester(projet: str, res: str, delai: int = 90) -> Sortie:
-    arguments = ["--headless", "--path", ".", "-s", res]
+def tester(projet: str, res: str, delai: int = 90, options: list[str] | None = None) -> Sortie:
+    """`options` : les arguments du script, après `++`."""
+    arguments = ["--headless", "--path", ".", "-s", res, *(["++", *options] if options else [])]
     texte, code, brut = _lancer(arguments, projet, delai)
     return Sortie(commande(arguments), texte, code, brut)
 
