@@ -7,7 +7,7 @@ Réunit les paires de toutes les familles (`donnees/paires/<famille>/paires*.jso
 
 Contrôles, dans l'ordre : le palier (une paire de plus de 1 024 jetons sans le plan, ou dont le message système n'est
 pas le plan, est refusée) ; les jetons recomptés avec le tokenizer de Qwen 3.8 (règle 5.8), aucune troncature ; les
-jeux gelés et Starfox (`Exclusion.texte_exclu`, règle 4 ; le mot « starfox ») ; les doublons exacts ; au plus
+jeux gelés et Starfox (`Exclusion.texte_exclu`, règle 4 ; le mot « starfox ») ; les doublons, durées de GdUnit4 mises à part ; au plus
 `MEMES_REPONSES` paires par réponse identique (règle 7.7 : une case n'écrase pas les autres) ; puis le partage de la
 décision 3 dans chaque sujet, en jetons de réponse (40/40/20), réglé sur le plus grand de la création et du débogage :
 ni l'une ni l'autre n'est coupée, et ce qui manque se comble en générant (décisions de laurent du 2026-11-01). Un sujet
@@ -36,6 +36,7 @@ PLAFOND_IMAGES = 2040
 CIBLE = {"création": 0.4, "débogage": 0.4, "analyse": 0.2}
 MEMES_REPONSES = 20
 STARFOX = re.compile(r"star\s*fox", re.I)
+DUREE = re.compile(r"\b\d+s \d+ms\b|\b\d+ms\b")
 
 
 def palier(p: dict[str, Any]) -> tuple[int | None, str]:
@@ -59,7 +60,10 @@ def lire_familles(racine: Path) -> list[dict[str, Any]]:
 
 
 def _cle(p: dict[str, Any]) -> str:
-    return hashlib.sha256(json.dumps(p["messages"], ensure_ascii=False).encode("utf-8")).hexdigest()
+    """La demande et la réponse finale, sans les durées de GdUnit4 : le même travail refait à une autre étape, ou gardé dans une
+    copie, change les durées de sa sortie mais n'apprend rien de plus."""
+    demande = next(m["content"] for m in p["messages"] if m["role"] == "user")
+    return hashlib.sha256(DUREE.sub("", demande + "\0" + p["messages"][-1]["content"]).encode("utf-8")).hexdigest()
 
 
 def equilibrer(paires: list[dict[str, Any]], rng: random.Random) -> tuple[list[dict[str, Any]], list[str]]:
@@ -134,7 +138,7 @@ def assembler(numero: int, graine: int = 1, donnees: Path | None = None,
             continue
         cle = _cle(p)
         if cle in vues:
-            rejeter("doublon exact")
+            rejeter("doublon")
             continue
         vues.add(cle)
         reponse = p["messages"][-1]["content"]

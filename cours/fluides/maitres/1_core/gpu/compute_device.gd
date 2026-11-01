@@ -100,7 +100,8 @@ func new_mask(walls: ObstacleMask) -> RID:
 	format.format = RenderingDevice.DATA_FORMAT_R8_UNORM
 	format.width = walls.width
 	format.height = walls.height
-	format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+	format.usage_bits = (RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+			| RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT)
 	return keep(rd.texture_create(format, RDTextureView.new(), [walls.solid]))
 #@ 17+
 

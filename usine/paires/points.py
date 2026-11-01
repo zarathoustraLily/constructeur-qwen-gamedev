@@ -177,6 +177,7 @@ def generer(cours: str = "kart", etapes: list[int] | None = None, donnees: Path 
                             gardees += 1
                 fait |= du_point
             journal(f"{ville}-{n:03d} : {gardees} paire(s) sur {len(note.points)} points")
+            fmt.ecrire(paires, sortie / f"paires_{cours}.jsonl")  # un arrêt ne perd que l'étape en cours
     fmt.ecrire(paires, sortie / f"paires_{cours}.jsonl")
     bilan: dict[str, Any] = {"famille": FAMILLE, "cours": cours, "paires": len(paires), "rejets": rejets,
                              "par_sujet": {}, "jetons_max": max((p["jetons"] for p in paires), default=0),

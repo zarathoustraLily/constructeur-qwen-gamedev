@@ -19,7 +19,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
 - Rien ne se lance sur son PC ni sur son llama-server sans son accord, pas même un rejeu court.
 - Pendant une campagne : ne jamais modifier `D:\constructeur-qwen-gamedev` ni `D:\GODOT\projet_starfox` ; personne d'autre n'utilise llama-server.
 - laurent doit pouvoir utiliser son PC pendant qu'on travaille (2026-11-01 : « j'ai besoin de pouvoir utiliser mon pc et de ne pas avoir la souris mobilisee a chaque essai godot »). Aucune fenêtre de Godot en série : sans fenêtre (`--headless`) seulement. Un rendu en fenêtre demande son accord ; `usine/cours/base/godot.py` le refuse sans `USINE_FENETRES=1`.
-- La carte graphique se protège depuis l'écran bleu du 2026-11-01 (accord de laurent : « Oui, fais-le ») : tout Godot passé par `usine/bureau_cache.py` obéit à `usine/garde_carte.py` : un seul à la fois, Vulkan sur la carte Intel (`--gpu-index 1`, ajouté là pour ne pas entrer dans les paires), rien sur la 5090 tant que ComfyUI tourne, tout s'arrête après 3 plantages en 10 minutes. `python usine/bureau_cache.py --rearmer` seulement avec son accord.
+- La carte graphique se protège depuis l'écran bleu du 2026-11-01 (accord de laurent : « Oui, fais-le ») : tout Godot passé par `usine/bureau_cache.py` obéit à `usine/garde_carte.py` : un seul à la fois, Vulkan sur la carte Intel (`--gpu-index 1`, ajouté là pour ne pas entrer dans les paires), rien sur la 5090 tant que ComfyUI ou llama-server tourne, tout s'arrête après 3 plantages en 10 minutes (8 sur la carte Intel, où une faute injectée peut faire tomber Godot). `python usine/bureau_cache.py --rearmer` seulement avec son accord.
 
 ### 2. Décisions de laurent (décidé)
 

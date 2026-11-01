@@ -115,7 +115,24 @@ suivante avant.
 - [ ] 25. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 25+
 - [x] 25. Le décor solide : ses parois tournées vers l'extérieur, et un saut qui finit toujours
+#@ 25
 - [ ] 26. Le banc lancé sur le petit PC de laurent : le test qui fait foi
+#@ 26+
+- [x] 26. Bobine : une héroïne de bois originale, sur le squelette et les clips du héros
+#@ 26
+- [ ] 27. Le Terrier : la salle sous le plancher, et ce qu'on y prend à la main
+#@ 27+
+- [x] 27. Le Terrier : la salle sous le plancher, et ce qu'on y prend à la main
+#@ 26-27
+- [ ] 28. L'Établi : quatre armes, le choix à la manette, l'essai sur une boîte de conserve
+#@ 28+
+- [x] 28. L'Établi : quatre armes, le choix à la manette, l'essai sur une boîte de conserve
+#@ 26-28
+- [ ] 29. La plinthe et la première salle : la porte, le passage d'une salle à l'autre, la boucle jusqu'au Gardien
+#@ 29+
+- [x] 29. La plinthe et la première salle : la porte, le passage d'une salle à l'autre, la boucle jusqu'au Gardien
+#@ 26+
+- [ ] 30. Le banc lancé sur le petit PC de laurent : le test qui fait foi
 #@ 12+
 #@ 12+
 #@ 1-6

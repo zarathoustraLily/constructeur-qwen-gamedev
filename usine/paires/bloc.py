@@ -250,6 +250,7 @@ def generer(cours: str = "kart", par_etape: int = 60, graine: int = 1, etapes: l
                 vues.add(cle)
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{essais} paires")
+            fmt.ecrire(paires, sortie / f"paires_{cours}.jsonl")  # un arrêt ne perd que l'étape en cours
     fmt.ecrire(paires, sortie / f"paires_{cours}.jsonl")
     bilan: dict[str, Any] = {"famille": FAMILLE, "cours": cours, "paires": len(paires), "rejets": rejets,
                              "par_sujet": {}, "par_palier": {},

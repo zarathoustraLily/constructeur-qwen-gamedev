@@ -2369,6 +2369,14 @@ prendre sur Mixamo par laurent. Effets de Binbun : scripts non typés, à repren
 - Une fenêtre de rendu hors de l'écran ne doit jamais capturer la souris de laurent : `capturer_jeu.gd` la libère dans
   la même image.
 
+### Cours fluides — 2026-11-01 (branche `claude/observation-visuelle`)
+
+`cours/fluides` : 23 étapes. 1 à 10 sur le processeur (champ, transport, diffusion, pression, solveur, murs, MacCormack, tourbillons, feu) ; 11 à 16 sur la carte (shader de calcul, transport, pression, solveur, feu, affichage sans relire) ; 17 à 20 en volume (3D, raymarching, flipbook, six directions) ; 21 à 23 (vagues, eau peu profonde, particules). Le code du processeur reste le juge du code de la carte, à un dix-millième près en 2D ; pour le volume, un volume qui ne varie pas en profondeur doit redonner le 2D tranche par tranche.
+
+Familles propres aux shaders de calcul : `faute_calcul` (une valeur fausse → la ligne, scripts et `.glsl`), `compilation_calcul` (une erreur de glslang, vérifiée par `7_tests/check_shaders.gd`, sans carte ni fenêtre), `creation_calcul` (une fonction ou un fichier `.glsl`, jugé sur la carte). Une suite d'un dossier `gpu` tourne sur le bureau caché et sur la carte Intel (`profil.carte_requise`, `godot.tester_gdunit`).
+
+Pièges mesurés, à garder : une texture neuve garde ce que la précédente a laissé ; Godot ne relit un `.glsl` qu'à l'import, sans quoi le test reste vert sur l'ancien shader ; glslang compte les lignes à partir de `#version` ; les constantes poussées ont la taille exacte du bloc ; GLSL refuse un format d'image sur un paramètre de fonction ; le crochet Vulkan d'OBS fait planter l'ouverture d'un appareil local (`DISABLE_VULKAN_OBS_CAPTURE=1`). Sur cette grille collocalisée, la divergence ne tombe pas à zéro : 1,47 → 0,25, puis plus rien, de 50 à 1 000 passes.
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.

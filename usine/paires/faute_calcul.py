@@ -16,7 +16,10 @@ Un `.glsl` n'est relu par Godot qu'à l'import : chaque changement de shader est
 La demande montre la sortie du cas et la fonction fautive ; la réponse lit le message, cherche dans le contrat de la fonction,
 corrige la ligne, relance (sortie non écrite, règle 7.2). Palier 1 si la paire tient en 1 024 jetons, sinon palier 2 avec le plan.
 
-    python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2] [--depuis N]
+
+Une reprise (`--etapes`) ne repose pas les fautes déjà gardées. `--depuis N` ne regarde que les fichiers qui ont changé depuis
+l'étape N : les fautes écartées avant n'ont pas été notées, et les réessayer coûterait des heures.
 """
 
 from __future__ import annotations
@@ -43,6 +46,7 @@ APPEL_GLSL = re.compile(r"^\t+\w+\(.*\);$")
 # Le message d'un cas rouge : « … <TAB>at 'cas' in res://suite.gd:28 ».
 LIEU = re.compile(r"\s*at '\w+' in (res://\S+:\d+)\s*$")
 ECHEC = re.compile(r"^\s*res://\S+ > (\w+) FAILED\b")
+REMPLACE = re.compile(r"Dans `res://(?P<rel>[^`]+)`, ligne \d+, je remplace :\n```\w*\n(?P<fautif>.*?)\n```\npar :\n```\w*\n(?P<juste>.*?)\n```", re.S)
 AUTRE_CAS = re.compile(r"^\s*res://\S+ > \w+ (STARTED|PASSED|FAILED)\b|^Statistics:")
 
 # (genre, motif, remplacement). Le remplacement est un gabarit de `re.Match.expand`.
@@ -213,10 +217,10 @@ def reproche(texte: str, cas: str) -> tuple[str, str] | None:
     return None
 
 
-def _importer(projet: Any, f: Faute) -> None:
+def _importer(projet: Any, f: Faute) -> Any:
+    """La sortie de l'import d'un shader, ou None pour un script : Godot n'a rien à relire."""
     from usine.cours.base import godot
-    if f.fichier.endswith(".glsl"):
-        godot.importer(projet.chemin)
+    return godot.importer(projet.chemin) if f.fichier.endswith(".glsl") else None
 
 
 def _se_charge(projet: Any, f: Faute) -> bool:
@@ -289,7 +293,7 @@ def paire(projet: Any, f: Faute, sujet: str) -> tuple[dict[str, Any] | None, str
             return None, "aucune suite ne voit la faute"
         s, suite, cas, ignorer, dit = vu
         projet.remettre()
-        _importer(projet, f)
+        importation = _importer(projet, f)
         remis = True
         apres = godot.tester_gdunit(projet.chemin, ["res://" + suite], DELAI_TEST, ignorer)
         if not profil.test_reussi(apres.code, apres.texte, profil.messages_attendus(projet.apres)):
@@ -307,6 +311,8 @@ def paire(projet: Any, f: Faute, sujet: str) -> tuple[dict[str, Any] | None, str
     preuve = {"outil": "gdunit4", "commande": s.commande, "sortie": s.texte, "code": s.code, "sortie_apres": apres.texte,
               "code_apres": apres.code, "etape": f"{projet.ville}-{projet.n:03d}", "fichier": f.fichier, "ligne": f.ligne,
               "genre": f.genre, "suite": suite, "cas": cas, "fonction": nom}
+    if importation is not None:
+        preuve.update(commande_import=importation.commande, sortie_import=importation.texte, code_import=importation.code)
     courte = fmt.paire(FAMILLE, sujet, "débogage", demande, texte, dict(preuve, palier=1))
     if courte["jetons"] <= PLAFOND_COURT:
         return courte, ""
@@ -321,8 +327,21 @@ def _sujet(ville: str, n: int, rel: str) -> str:
     return "shaders" if rel.endswith(".glsl") else sujet_fichier(ville, n, rel)
 
 
+def deja_gardees(sortie: Path, cours: str) -> set[tuple[str, str, str]]:
+    """Les fautes déjà gardées pour ce cours, dans tous ses fichiers de paires. Une génération reprise à une étape ne les repose pas
+    (règle 7.7) : la même faute redonnerait une paire presque identique, que le contrôle des doublons exacts ne voit pas, parce que
+    les durées de la sortie changent à chaque lancement."""
+    vues: set[tuple[str, str, str]] = set()
+    for f in sorted(sortie.glob(f"paires_{cours}*.jsonl")):
+        for ligne in f.read_text(encoding="utf-8").splitlines():
+            m = REMPLACE.search(json.loads(ligne)["messages"][-1]["content"]) if ligne.strip() else None
+            if m:
+                vues.add((fmt.commun(m["rel"]), fmt.commun(m["juste"]), fmt.commun(m["fautif"])))
+    return vues
+
+
 def generer(cours: str = "fluides", par_etape: int = 60, graine: int = 1, etapes: list[int] | None = None,
-            donnees: Path | None = None, journal: Callable[[str], None] = print) -> dict[str, Any]:
+            donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
     """`par_etape` fautes essayées par étape, genres à tour de rôle (graine fixe) ; une faute essayée ne revient pas à l'étape suivante."""
     from usine.cours.base import assembler, chemins, creation, sessions
     chemins.configurer(cours=cours)
@@ -330,12 +349,13 @@ def generer(cours: str = "fluides", par_etape: int = 60, graine: int = 1, etapes
     paires: list[dict[str, Any]] = []
     rejets: list[str] = []
     rng = random.Random(graine)
-    vues: set[tuple[str, str, str]] = set()
+    vues = deja_gardees(sortie, cours) if etapes else set()
     for ville in assembler.ordre_lignes():
+        base = creation.etats(ville, depuis)[1] if depuis else {}
         for n in etapes or list(assembler.etapes_du_cours()):
             _, apres = creation.etats(ville, n)
             dispo = [f for rel in sorted(apres) if rel.endswith((".gd", ".glsl")) and rel.startswith(DOSSIERS)
-                     for f in fautes(rel, apres[rel]) if f.cle() not in vues]
+                     and apres[rel] != base.get(rel) for f in fautes(rel, apres[rel]) if f.cle() not in vues]
             if not dispo:
                 continue
             par_genre: dict[str, list[Faute]] = {}

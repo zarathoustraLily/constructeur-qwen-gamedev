@@ -24,11 +24,11 @@ func after_test() -> void:
 
 
 func _volume(field: FluidField) -> RID:
-	return _device.rd.texture_create(_format(false), RDTextureView.new(), [VolumeCheck.scalar_of(field, DEPTH)])
+	return _device.keep(_device.rd.texture_create(_format(false), RDTextureView.new(), [VolumeCheck.scalar_of(field, DEPTH)]))
 
 
 func _speed(u: FluidField, v: FluidField) -> RID:
-	return _device.rd.texture_create(_format(true), RDTextureView.new(), [VolumeCheck.velocity_of(u, v, DEPTH)])
+	return _device.keep(_device.rd.texture_create(_format(true), RDTextureView.new(), [VolumeCheck.velocity_of(u, v, DEPTH)]))
 
 
 func _format(vector: bool) -> RDTextureFormat:

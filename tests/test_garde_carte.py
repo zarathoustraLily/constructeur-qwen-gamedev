@@ -17,23 +17,24 @@ from usine.processus import Resultat
 
 RACINE = Path(__file__).resolve().parents[1]
 windows = pytest.mark.skipif(sys.platform != "win32", reason="verrou et bureau caché de Windows")
-VRAI_COMFYUI = garde_carte.comfyui_tourne
+VRAI_CARTE_PRISE = garde_carte.carte_prise
 # Ce que le poste de laurent montrait le 2026-11-01.
 SORTIE_COMFYUI = ("D:\\Comfyui 04 Vace\\python_embeded\\python.exe\n"
                   ".\\python_embeded\\python.exe  -s ComfyUI\\main.py --windows-standalone-build\n")
 SORTIE_USINE = "C:\\Python312\\python.exe\npython -m usine.paires bloc --cours fluides\n"
+SORTIE_QWEN = "E:\llama\llama-server.exe\nllama-server.exe  -m \"E:\llama_models\qwen3.8\modele.gguf\" -ngl 99\n"
 VIOLATION = -1073741819  # 0xC0000005
 # bureau_cache.main dans un processus à part, sans regarder ComfyUI : ces lancements ne se servent pas de la carte.
 SANS_COMFYUI = ("import sys\n"
                 "from usine import bureau_cache, garde_carte\n"
-                "garde_carte.comfyui_tourne = lambda: False\n"
+                "garde_carte.carte_prise = lambda: False\n"
                 "sys.exit(bureau_cache.main(sys.argv[1:]))\n")
 
 
 @pytest.fixture(autouse=True)
 def carte_libre(tmp_path, monkeypatch):
     monkeypatch.setattr(garde_carte, "_fichier", lambda extension: tmp_path / f"carte.{extension}")
-    monkeypatch.setattr(garde_carte, "comfyui_tourne", lambda: False)
+    monkeypatch.setattr(garde_carte, "carte_prise", lambda: False)
     yield
     if garde_carte._VERROU is not None:
         garde_carte._VERROU.close()
@@ -88,10 +89,10 @@ def test_un_seul_godot_a_la_fois_sur_la_carte():
 
 
 @windows
-@pytest.mark.parametrize("sortie, attendu", [(SORTIE_COMFYUI, True), (SORTIE_USINE, False)])
+@pytest.mark.parametrize("sortie, attendu", [(SORTIE_COMFYUI, True), (SORTIE_QWEN, True), (SORTIE_USINE, False)])
 def test_comfyui_se_reconnait_a_ses_processus(monkeypatch, sortie, attendu):
     monkeypatch.setattr(garde_carte.subprocess, "run", lambda *a, **k: SimpleNamespace(returncode=0, stdout=sortie))
-    assert VRAI_COMFYUI() is attendu
+    assert VRAI_CARTE_PRISE() is attendu
 
 
 @windows
@@ -99,22 +100,30 @@ def test_dans_le_doute_la_carte_attend(monkeypatch):
     def echec(*a, **k):
         raise subprocess.TimeoutExpired("powershell", 60)
     monkeypatch.setattr(garde_carte.subprocess, "run", echec)
-    assert VRAI_COMFYUI() is True
+    assert VRAI_CARTE_PRISE() is True
 
 
 def test_comfyui_fait_attendre(monkeypatch):
-    monkeypatch.setattr(garde_carte, "comfyui_tourne", lambda: True)
+    monkeypatch.setattr(garde_carte, "carte_prise", lambda: True)
     code, raison = garde_carte.entrer()
     assert code == garde_carte.CODE_OCCUPEE and "ComfyUI" in raison
 
 
 def test_la_carte_integree_n_attend_pas_comfyui(monkeypatch):
-    monkeypatch.setattr(garde_carte, "comfyui_tourne", lambda: True)
+    monkeypatch.setattr(garde_carte, "carte_prise", lambda: True)
     assert garde_carte.entrer(sur_la_5090=False) is None
 
 
 def test_la_carte_integree_garde_l_arret_apres_les_plantages():
     plantages(0, 60, 120)
+    assert garde_carte.entrer(sur_la_5090=False)[0] == garde_carte.CODE_REFUSEE
+
+
+def test_sur_la_carte_integree_il_faut_huit_plantages():
+    for t in range(garde_carte.PLANTAGES_MAX_INTEGREE - 1):
+        assert garde_carte.noter_fin(0xC0000005, t, limite=garde_carte.PLANTAGES_MAX_INTEGREE)
+    assert garde_carte.entrer(sur_la_5090=False) is None
+    garde_carte.noter_fin(0xC0000005, 8, limite=garde_carte.PLANTAGES_MAX_INTEGREE)
     assert garde_carte.entrer(sur_la_5090=False)[0] == garde_carte.CODE_REFUSEE
 
 

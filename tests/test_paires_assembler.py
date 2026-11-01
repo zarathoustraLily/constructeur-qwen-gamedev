@@ -5,6 +5,15 @@ import random
 from usine.paires import assembler, format as fmt
 
 
+def test_un_doublon_se_reconnait_a_la_duree_pres():
+    paire = lambda sortie, fin: {"messages": [{"role": "system", "content": "plan"}, {"role": "user", "content": "demande"},  # noqa: E731
+                                              {"role": "assistant", "content": sortie}, {"role": "assistant", "content": fin}]}
+    a = dict(paire("x", "cas FAILED 25ms, total 1s 102ms"), jetons=1)
+    b = dict(paire("y", "cas FAILED 31ms, total 2s 9ms"), jetons=1)
+    c = dict(paire("x", "cas PASSED 25ms"), jetons=1)
+    assert assembler._cle(a) == assembler._cle(b) != assembler._cle(c)
+
+
 def _p(type_, sujet, n, systeme=None, jetons=500):
     messages = ([{"role": "system", "content": systeme}] if systeme else []) + [
         {"role": "user", "content": "demande"}, {"role": "assistant", "content": f"réponse {type_} {n}"}]

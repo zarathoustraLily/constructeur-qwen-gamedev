@@ -1,5 +1,7 @@
 """La famille « une valeur fausse → la ligne de calcul » : les fautes posées et la lecture des sorties, sans Godot."""
 
+import json
+
 from usine.paires import faute_calcul as fc
 
 GD = """class_name Demo extends RefCounted
@@ -83,6 +85,17 @@ def test_le_reproche_d_un_cas_est_lu_tel_quel():
     assert fc.reproche(SORTIE, "test_a") == ("Expecting: 0.285737 in range between 17.990000 <> 18.010000",
                                             "res://7_tests/test_demo.gd:28")
     assert fc.reproche(SORTIE, "test_b") is None
+
+
+def test_une_reprise_connait_les_fautes_deja_gardees(tmp_path):
+    fautes = fc.fautes("1_core/demo.gd", GD)
+    signe = next(f for f in fautes if f.genre == "signe")
+    oubli = next(f for f in fautes if f.genre == "oubli")
+    for nom, f in (("paires_demo_etapes_1_a_3.jsonl", signe), ("paires_demo.jsonl", oubli)):
+        reponse = fc.reponse(f, "test_a", ("m", "res://t.gd:1"), "moyenne", "Demo", [])
+        (tmp_path / nom).write_text(json.dumps({"messages": [{"role": "assistant", "content": reponse}]}) + "\n", encoding="utf-8")
+    (tmp_path / "paires_autre.jsonl").write_text("", encoding="utf-8")
+    assert fc.deja_gardees(tmp_path, "demo") == {signe.cle(), oubli.cle()}
 
 
 def test_un_shader_est_juge_par_les_suites_de_ce_qui_le_charge(monkeypatch):

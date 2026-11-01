@@ -103,7 +103,8 @@ def main(commande: list[str]) -> int:
             user.ClipCursor(ctypes.byref(zone))
     code = w.DWORD()
     kernel.GetExitCodeProcess(infos.hProcess, ctypes.byref(code))
-    if garde_carte.noter_fin(code.value):
+    limite = garde_carte.PLANTAGES_MAX if integree is None else garde_carte.PLANTAGES_MAX_INTEGREE
+    if garde_carte.noter_fin(code.value, limite=limite):
         noter(f"Godot a planté sur la carte : code {code.value:#x}")
     return code.value
 

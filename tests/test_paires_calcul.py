@@ -1,6 +1,8 @@
 """Les familles des shaders de calcul : ce qu'une demande montre, et les fautes de compilation, sans Godot."""
 
-from usine.paires import calcul
+from pathlib import Path
+
+from usine.paires import calcul, debogage_boucle, lecture
 from usine.paires import shader_fonction as sf
 
 GLSL = """#[compute]
@@ -29,6 +31,41 @@ void main() {
 	imageStore(target, cell, vec4(source_at(cell) * constants.delta));
 }
 """
+
+
+SORTIE_ROUGE = """Run Test Suite: res://7_tests/t.gd
+  res://7_tests/t.gd > test_a STARTED
+  res://7_tests/t.gd > test_a FAILED 3ms
+  Report:
+  Expecting to be less than:
+ 0.001000 but was 1.261507\tat 'test_a' in res://7_tests/t.gd:48
+Statistics: 1 test cases | 0 errors | 1 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 9ms
+Overall Summary: 1 test cases | 0 errors | 1 failures | 0 flaky | 0 skipped | 0 orphans |
+"""
+SORTIE_GLSLANG = ("res://1_core/gpu/shaders/a.glsl : Failed parse:\nERROR: 0:8: '' :  syntax error, unexpected RIGHT_BRACE\n"
+                  "ERROR: 0:9: '' : compilation terminated\nERROR: 2 compilation errors.  No code generated.\n\n1 shaders faux\n")
+
+
+def test_la_lecture_d_une_valeur_fausse_dit_que_la_ligne_est_celle_du_test():
+    r = lecture.reponse_valeur(SORTIE_ROUGE, 100, "test_a")
+    assert "catégorie `assertion`" in r and "Expecting to be less than: 0.001000 but was 1.261507" in r
+    assert "`res://7_tests/t.gd:48` est la ligne du test, pas celle de la faute" in r
+    assert lecture.reponse_valeur(SORTIE_ROUGE, 0, "test_a") is None
+    assert lecture.reponse_valeur(SORTIE_ROUGE, 100, "test_b") is None
+
+
+def test_la_lecture_de_glslang_compte_les_lignes_depuis_version():
+    r = lecture.reponse_glsl(SORTIE_GLSLANG, 1, "1_core/gpu/shaders/a.glsl")
+    assert "ligne 9 du fichier" in r and "`0:8`" in r and "syntax error, unexpected RIGHT_BRACE" in r and "compilation terminated" not in r
+    assert lecture.reussite_glsl("0 shaders faux\n", 0).startswith("**Verdict.** Réussite")
+    assert lecture.reussite_glsl(SORTIE_GLSLANG, 1) is None
+
+
+def test_un_fichier_de_paires_dit_son_cours():
+    assert debogage_boucle.cours_de(Path("paires_fluides_etapes_1_a_13.jsonl")) == "fluides"
+    assert debogage_boucle.cours_de(Path("paires_kart_avant_plafond_200.jsonl")) == "kart"
+    assert debogage_boucle.cours_de(Path("paires_boss_action_rpg.jsonl")) == "boss_action_rpg"
+    assert debogage_boucle.cours_de(Path("paires_fluides_reprise.jsonl")) == "fluides"
 
 
 def test_les_declarations_sont_lues_avec_leur_nom():

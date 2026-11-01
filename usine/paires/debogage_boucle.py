@@ -32,7 +32,9 @@ from usine.paires import format as fmt
 FAMILLE = "debogage_boucle"
 FAMILLE_ANALYSE = "analyse_boucle"
 PLAFOND = 2048
-SOURCES = {"compilation": "analyse", "shader": "rendu"}
+SOURCES = {"compilation": "analyse", "shader": "rendu", "faute_calcul": "test"}
+# Un même cours peut avoir plusieurs fichiers : `paires_fluides_etapes_1_a_13.jsonl`, `paires_fluides_reprise.jsonl`.
+SUFFIXE = re.compile(r"_(?:etape|avant|reprise).*$")
 REMPLACE = re.compile(r"Dans `res://(?P<rel>[^`]+)`, ligne (?P<ligne>\d+), je remplace :\n"
                       r"```\w*\n(?P<avant>.*?)\n```\npar :\n```\w*\n(?P<apres>.*?)\n```", re.S)
 CORRIGER = "**Corriger.**"
@@ -44,6 +46,16 @@ def dossier_jeu(cours: str) -> str:
     config = cfg.charger_config()
     cle = "dossier_cours" if cours == "batiments_proceduraux" else f"dossier_{cours}"
     return config.get("opencode", {}).get(cle) or config.get("sources", {}).get(cours) or f"D:\\GODOT\\{cours}"
+
+
+def cours_de(fichier: Path) -> str:
+    """Le cours d'un fichier de paires."""
+    return SUFFIXE.sub("", fichier.stem.removeprefix("paires_"))
+
+
+def demande_de(source: dict[str, Any]) -> str:
+    """La demande d'une paire : le premier message de l'utilisateur, après le plan s'il y en a un."""
+    return next(m["content"] for m in source["messages"] if m["role"] == "user")
 
 
 def correction(reponse: str) -> tuple[str, dict[str, str]] | None:
@@ -68,24 +80,32 @@ def paire(cours: str, source: dict[str, Any], fichier: str | None) -> tuple[dict
     if fichier is None or avant in fichier:
         return None, "passage fautif introuvable ou non unique"
     phase = SOURCES[source["famille"]]
+    shader = c["rel"].endswith(".glsl")
+    if shader and preuve.get("code_import") is None:
+        return None, "pas de sortie de l'import : Godot ne relit un shader qu'à l'import"
     apres = godot.Sortie(preuve["commande"], preuve["sortie_apres"], preuve["code_apres"])
     quoi = f"la ligne {c['ligne']} de `{c['rel']}` corrigée"
-    lecture = boucle.lecture([(apres, phase)], quoi, [], None)
+    lecture = boucle.lecture([(apres, phase)], quoi, [preuve["cas"]] if "cas" in preuve else [], preuve.get("suite"))
     if lecture is None:
         return None, "la sortie après correction ne passe pas la lecture"
     ident = f"boucle_{source['famille']}_{preuve['etape']}_{c['ligne']}"
     chemin = str(PureWindowsPath(dossier_jeu(cours)) / PureWindowsPath(c["rel"]))
-    texte = f"{lire}\n\n{CORRIGER} Une seule ligne change, la ligne {c['ligne']}.\n\n{TESTER} Je relance la même commande."
+    relance = ("Godot ne relit un `.glsl` qu'à l'import : je réimporte, puis je relance la même commande." if shader
+               else "Je relance la même commande.")
+    texte = f"{lire}\n\n{CORRIGER} Une seule ligne change, la ligne {c['ligne']}.\n\n{TESTER} {relance}"
     sortie = (apres.texte.strip() + "\n") if apres.texte.strip() else ""
-    tours = [
-        {"role": "user", "content": source["messages"][0]["content"]},
-        {"role": "assistant", "content": texte, "tool_calls": [
-            fmt.appel(f"{ident}_0", "edit", {"path": chemin, "oldString": c["avant"], "newString": c["apres"]}),
-            fmt.appel(f"{ident}_1", "shell", {"command": boucle.commande_shell(apres.commande)})]},
-        {"role": "tool", "tool_call_id": f"{ident}_0", "content": opencode.EDIT_FAIT.format(chemin=c["rel"])},
-        {"role": "tool", "tool_call_id": f"{ident}_1", "content": opencode.retour_shell(sortie, apres.code)},
-        {"role": "assistant", "content": lecture},
-    ]
+    retour = boucle.retour(apres, "test") if "cas" in preuve else opencode.retour_shell(sortie, apres.code)
+    appels = [fmt.appel(f"{ident}_0", "edit", {"path": chemin, "oldString": c["avant"], "newString": c["apres"]})]
+    retours = [{"role": "tool", "tool_call_id": f"{ident}_0", "content": opencode.EDIT_FAIT.format(chemin=c["rel"])}]
+    if shader:
+        appels.append(fmt.appel(f"{ident}_i", "shell", {"command": boucle.commande_shell(preuve["commande_import"])}))
+        vu = preuve["sortie_import"].strip()
+        retours.append({"role": "tool", "tool_call_id": f"{ident}_i",
+                        "content": opencode.retour_shell(vu + "\n" if vu else "", preuve["code_import"])})
+    appels.append(fmt.appel(f"{ident}_1", "shell", {"command": boucle.commande_shell(apres.commande)}))
+    retours.append({"role": "tool", "tool_call_id": f"{ident}_1", "content": retour})
+    tours = [{"role": "user", "content": demande_de(source)}, {"role": "assistant", "content": texte, "tool_calls": appels}, *retours,
+             {"role": "assistant", "content": lecture}]
     q = fmt.paire_tours(FAMILLE, source["sujet"], "débogage", tours,
                         {"source": source["famille"], "cours": cours, "etape": preuve["etape"], "fichier": c["rel"],
                          "ligne": int(c["ligne"]), "genre": preuve.get("genre"), "commande": apres.commande,
@@ -97,12 +117,13 @@ def paire_analyse(source: dict[str, Any]) -> tuple[dict[str, Any] | None, str]:
     """La même faute, analysée sans rien modifier : la lecture de la source, puis les lignes à changer, en texte."""
     from usine.cours.base import analyse
     trouve = correction(source["messages"][-1]["content"])
-    demande = source["messages"][0]["content"]
+    demande = demande_de(source)
     if trouve is None or "Corrige l'erreur." not in demande:
         return None, "correction illisible"
     lire, c = trouve
-    reponse = (f"{lire}\n\n**À changer.** Dans `res://{c['rel']}`, ligne {c['ligne']}, remplacer :\n```gdscript\n{c['avant']}\n```\n"
-               f"par :\n```gdscript\n{c['apres']}\n```\n\n{analyse.FIN}")
+    lang = "glsl" if c["rel"].endswith(".glsl") else "gdscript"
+    reponse = (f"{lire}\n\n**À changer.** Dans `res://{c['rel']}`, ligne {c['ligne']}, remplacer :\n```{lang}\n{c['avant']}\n```\n"
+               f"par :\n```{lang}\n{c['apres']}\n```\n\n{analyse.FIN}")
     preuve = source["preuve"]
     q = fmt.paire(FAMILLE_ANALYSE, source["sujet"], "analyse", demande.replace("Corrige l'erreur.", analyse.ANALYSER_NEUTRE), reponse,
                   {"source": source["famille"], "etape": preuve["etape"], "fichier": c["rel"], "ligne": int(c["ligne"]),
@@ -145,15 +166,14 @@ def generer(graine: int = 1, donnees: Path | None = None, journal: Callable[[str
     sources = []
     for famille in SOURCES:
         for f in sorted((racine / famille).glob("paires_*.jsonl")):
-            cours = f.stem.removeprefix("paires_")
-            sources += [(cours, json.loads(l)) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
+            sources += [(cours_de(f), json.loads(l)) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
     random.Random(graine).shuffle(sources)
     paires, rejets, vus = [], [], set()
     analyses, rejets_analyse = [], []
     etats: dict[tuple[str, int], dict[str, str]] = {}
     for cours, s in sources:
         preuve = s["preuve"]
-        cle = (cours, preuve["fichier"], preuve["ligne"], preuve.get("genre"))
+        cle = (cours, preuve["fichier"], preuve["ligne"], preuve.get("genre"), hash(s["messages"][-1]["content"]))
         if cle in vus:
             continue
         vus.add(cle)

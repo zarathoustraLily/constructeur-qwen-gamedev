@@ -5,9 +5,10 @@ pour un Godot (vidage lu avec WinDbg), pendant que Godot plantait en boucle dans
 ComfyUI rechargeait ses modèles sur la même carte. Accord de laurent du même jour pour ces garde-fous : « Oui, fais-le ».
 
 - Un seul Godot à la fois sur la carte, toutes familles confondues : un verrou que le système rend si le processus meurt.
-- Aucun lancement sur la 5090 tant que ComfyUI tourne. Les shaders de calcul (Vulkan) passent sur la carte Intel, qui ne
-  porte pas l'écran et ne partage rien avec lui : 135 cas verts sur l'étape 17 des fluides, en 50 s, comme sur la 5090.
-- Trois plantages en dix minutes : plus aucun lancement, jusqu'à `python usine/bureau_cache.py --rearmer`, avec son accord.
+- Aucun lancement sur la 5090 tant que ComfyUI ou llama-server tourne : Qwen la remplit (31 960 Mo sur 32 607, le 2026-11-01).
+  Les shaders de calcul (Vulkan) passent sur la carte Intel, qui ne porte pas l'écran et ne partage rien avec eux : 135 cas verts sur l'étape 17 des fluides, en 50 s, comme sur la 5090.
+- Trois plantages en dix minutes sur la 5090, huit sur la carte Intel : plus aucun lancement, jusqu'à
+  `python usine/bureau_cache.py --rearmer`, avec son accord.
 
 Les deux premiers font attendre son tour (`CODE_OCCUPEE`), le dernier arrête la famille (`CarteRefusee`). `bureau_cache.py`
 rend la main aussitôt : l'attente se fait dans `executer_carte`, hors du délai du lancement.
@@ -28,14 +29,17 @@ from usine.processus import Resultat, executer
 CODE_OCCUPEE = 7501  # loin des codes de Godot et de GdUnit4 : seul `bureau_cache.py` les rend
 CODE_REFUSEE = 7502
 PLANTAGES_MAX = 3
+# Sur la carte Intel, une faute injectée peut faire tomber Godot : trois fois de suite le 2026-11-01 à 18:31, sans conséquence pour
+# le poste, et toute la génération des fluides s'est arrêtée. La limite y sert seulement à couper une vraie boucle.
+PLANTAGES_MAX_INTEGREE = 8
 FENETRE_S = 600
 ATTENTE_S = 20
 # Un code à partir de là n'est pas un `quit()` : c'est une exception du système, comme 0xC0000005 (violation d'accès).
 PLANTAGE = 0x80000000
 CARTE_INTEGREE = ["--gpu-index", "1"]  # « Using Device #1: Intel - Intel(R) Graphics » sur le poste de laurent
-COMFYUI = re.compile("comfyui", re.I)
+CARTE_PRISE = re.compile("comfyui|llama-server", re.I)
 PROCESSUS = ["powershell", "-NoProfile", "-NonInteractive", "-Command",
-             "Get-CimInstance Win32_Process -Filter \"Name like 'python%' or Name like 'comfyui%'\" "
+             "Get-CimInstance Win32_Process -Filter \"Name like 'python%' or Name like 'comfyui%' or Name like 'llama-server%'\" "
              "| ForEach-Object { $_.ExecutablePath; $_.CommandLine }"]
 
 _VERROU = None  # gardé ouvert : le verrou tient autant que ce processus
@@ -67,14 +71,14 @@ def est_plantage(code: int) -> bool:
     return code >= PLANTAGE
 
 
-def noter_fin(code: int, maintenant: float | None = None) -> bool:
-    """Compte un plantage, et arrête la carte au troisième en dix minutes. L'arrêt tient jusqu'au réarmement."""
+def noter_fin(code: int, maintenant: float | None = None, limite: int = PLANTAGES_MAX) -> bool:
+    """Compte un plantage, et arrête la carte au `limite`-ième en dix minutes. L'arrêt tient jusqu'au réarmement."""
     if not est_plantage(code):
         return False
     maintenant = time.time() if maintenant is None else maintenant
     etat = _lire()
     etat["plantages"] = [t for t in etat.get("plantages", []) if maintenant - t < FENETRE_S] + [maintenant]
-    if len(etat["plantages"]) >= PLANTAGES_MAX:
+    if len(etat["plantages"]) >= limite:
         etat["arret"] = (f"carte arrêtée : {len(etat['plantages'])} plantages de Godot en {FENETRE_S // 60} minutes. "
                          "Comprendre pourquoi, puis, avec l'accord de laurent : python usine/bureau_cache.py --rearmer")
     _ecrire(etat)
@@ -85,14 +89,14 @@ def rearmer() -> None:
     _fichier("json").unlink(missing_ok=True)
 
 
-def comfyui_tourne() -> bool:
+def carte_prise() -> bool:
     """Vrai aussi si on ne peut pas le savoir : dans le doute, la carte attend."""
     try:
         r = subprocess.run(PROCESSUS, capture_output=True, text=True, errors="replace", timeout=60,
                            creationflags=subprocess.CREATE_NO_WINDOW)
     except (OSError, subprocess.SubprocessError):
         return True
-    return r.returncode != 0 or COMFYUI.search(r.stdout) is not None
+    return r.returncode != 0 or CARTE_PRISE.search(r.stdout) is not None
 
 
 def _prendre_verrou() -> bool:
@@ -126,8 +130,8 @@ def entrer(sur_la_5090: bool = True) -> tuple[int, str] | None:
     arret = _lire().get("arret")
     if arret:
         return CODE_REFUSEE, arret
-    if sur_la_5090 and comfyui_tourne():
-        return CODE_OCCUPEE, "carte occupée : ComfyUI tourne"
+    if sur_la_5090 and carte_prise():
+        return CODE_OCCUPEE, "carte occupée : ComfyUI ou llama-server tourne"
     return None
 
 

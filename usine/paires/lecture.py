@@ -30,14 +30,18 @@ from usine.paires import format as fmt
 
 PLAFOND = 1024
 FAMILLE = "lire_sortie"
-SOURCES = {"compilation": "analyse", "shader": "rendu", "execution": "test"}
+SOURCES = {"compilation": "analyse", "shader": "rendu", "execution": "test", "faute_calcul": "valeur", "compilation_calcul": "glsl"}
 QUESTION = ("La commande a-t-elle réussi ? Si non, quelle erreur faut-il traiter d'abord (fichier, ligne, catégorie) ? "
             "Ne modifie rien.")
 SUITE_ECHEC = "**Suite.** Lire le code autour de la ligne {ligne} de `res://{fichier}`, corriger cette seule ligne, puis relancer la même commande."
 SUITE_REUSSITE = ("**Suite.** Rien à corriger : cette vérification est acquise. On ne retouche pas ce code, on passe à "
                   "l'étape suivante.")
+SUITE_VALEUR = ("**Suite.** Lire ce que le cas vérifie, remonter à la fonction qu'il exerce, comparer son calcul à son contrat, "
+                "corriger la ligne fausse, puis relancer la même commande.")
 NOMS = {"analyse": "L'analyse du script", "rendu": "Le rendu", "test": "La suite de tests",
-        "scene": "La scène, lancée sans fenêtre,"}
+        "scene": "La scène, lancée sans fenêtre,", "valeur": "La suite de tests",
+        "glsl": "La vérification des shaders de calcul"}
+ERREUR_GLSL = re.compile(r"^ERROR: 0:(\d+): (.*)$", re.M)
 
 
 def bloc(phase: str, commande: str, texte: str, code: int) -> str:
@@ -45,7 +49,9 @@ def bloc(phase: str, commande: str, texte: str, code: int) -> str:
     from usine.cours.base import godot, sessions
     from usine.paires import execution
     s = godot.Sortie(commande, texte, code)
-    return execution.bloc_court(s) if phase in ("test", "scene") else sessions.bloc_sortie(s, phase)
+    if phase == "glsl":
+        return f"```\n$ {commande}\n{texte.strip()}\n(code de sortie : {code})\n```"
+    return execution.bloc_court(s) if phase in ("test", "scene", "valeur") else sessions.bloc_sortie(s, phase)
 
 
 def categorie(message: str) -> str:
@@ -159,6 +165,60 @@ def reponse_reussite(phase: str, texte: str, code: int) -> str | None:
     return "\n\n".join([v] + (["**Le reste.** " + " ".join(notes)] if notes else []) + [SUITE_REUSSITE])
 
 
+def reponse_valeur(texte: str, code: int, cas: str) -> str | None:
+    """La lecture d'un cas rouge sur une valeur (famille `faute_calcul`) : rien ne plante, et la ligne citée est celle du test, pas
+    celle de la faute. None si la sortie n'a pas cette forme."""
+    from usine.cours.base import profil
+    from usine.paires.faute_calcul import reproche
+    dit = reproche(texte, cas)
+    resume = profil.resume_gdunit(texte)
+    if dit is None or resume is None or code == 0 or "SCRIPT ERROR" in texte:
+        return None
+    message, lieu = dit
+    return "\n\n".join([
+        f"**Verdict.** Échec : code de sortie {code}, et GdUnit4 compte {resume[1]} erreur{'s' if resume[1] > 1 else ''} et "
+        f"{resume[2]} échec{'s' if resume[2] > 1 else ''} sur {resume[0]} cas (« Overall Summary »).",
+        f"**Erreur à traiter d'abord.** Le cas `{cas}`, catégorie `assertion` : « {message} ». Aucune « SCRIPT ERROR » : le code tourne, "
+        "c'est son résultat qui est faux.",
+        f"**Le reste.** `{lieu}` est la ligne du test, pas celle de la faute : elle dit quelle valeur est fausse, pas où elle naît.",
+        SUITE_VALEUR])
+
+
+def reponse_glsl(texte: str, code: int, fichier: str) -> str | None:
+    """La lecture d'une erreur de glslang (famille `compilation_calcul`) ; None si la sortie n'en montre aucune."""
+    m = next((e for e in ERREUR_GLSL.finditer(texte) if "compilation" not in e[2]), None)
+    if m is None or code == 0:
+        return None
+    ligne = int(m[1]) + 1
+    return "\n\n".join([
+        f"**Verdict.** Échec : code de sortie {code}, un shader de calcul ne compile pas. L'import n'en dit rien : c'est cette "
+        "vérification qui le montre.",
+        f"**Erreur à traiter d'abord.** `res://{fichier}`, ligne {ligne} du fichier, catégorie `parse_error` : « {m[2].strip()} ». glslang "
+        f"dit `0:{m[1]}` parce qu'il compte à partir de `#version`, une fois `#[compute]` retiré.",
+        f"**Suite.** Lire le code autour de la ligne {ligne} de `res://{fichier}`, corriger cette seule ligne, réimporter (Godot ne relit "
+        "un `.glsl` qu'à l'import), puis relancer la même commande."])
+
+
+def reussite_glsl(texte: str, code: int) -> str | None:
+    if code != 0 or "0 shaders faux" not in texte:
+        return None
+    return ("**Verdict.** Réussite : « 0 shaders faux », code de sortie 0 : tous les shaders de calcul du projet compilent.\n\n"
+            + SUITE_REUSSITE)
+
+
+def lire_paire(phase: str, verdict: str, texte: str, code: int, pr: dict[str, Any]) -> str | None:
+    """La lecture d'une sortie, selon ce qu'elle montre et d'où elle vient."""
+    if verdict == "échec":
+        if phase == "valeur":
+            return reponse_valeur(texte, code, pr["cas"])
+        if phase == "glsl":
+            return reponse_glsl(texte, code, pr["fichier"])
+        return reponse_echec(phase, texte, code, pr["fichier"], pr["ligne"], pr["genre"])
+    if phase == "glsl":
+        return reussite_glsl(texte, code)
+    return reponse_reussite("test" if phase == "valeur" else phase, texte, code)
+
+
 def paires_de(source: dict[str, Any], famille_source: str) -> list[dict[str, Any]]:
     """Les deux lectures d'une paire source : la sortie fautive, la sortie corrigée."""
     pr = source["preuve"]
@@ -168,8 +228,7 @@ def paires_de(source: dict[str, Any], famille_source: str) -> list[dict[str, Any
     sortie = []
     cas = [("échec", pr["sortie"], pr["code"]), ("réussite", pr["sortie_apres"], pr["code_apres"])]
     for verdict, texte, code in cas:
-        r = (reponse_echec(phase, texte, code, pr["fichier"], pr["ligne"], pr["genre"]) if verdict == "échec" else
-             reponse_reussite(phase, texte, code))
+        r = lire_paire(phase, verdict, texte, code, pr)
         if r is None:
             continue
         demande = (f"Projet Godot 4.7.2. {NOMS[phase]} donne :\n{bloc(phase, pr['commande'], texte, code)}\n\n"
