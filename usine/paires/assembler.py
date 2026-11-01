@@ -60,10 +60,12 @@ def lire_familles(racine: Path) -> list[dict[str, Any]]:
 
 
 def _cle(p: dict[str, Any]) -> str:
-    """La demande et la réponse finale, sans les durées de GdUnit4 : le même travail refait à une autre étape, ou gardé dans une
-    copie, change les durées de sa sortie mais n'apprend rien de plus."""
+    """La demande, la réponse finale et les images, sans les durées de GdUnit4 : le même travail refait à une autre étape, ou gardé
+    dans une copie, change les durées de sa sortie mais n'apprend rien de plus. La même question sur une autre image, elle, est une
+    autre paire."""
     demande = next(m["content"] for m in p["messages"] if m["role"] == "user")
-    return hashlib.sha256(DUREE.sub("", demande + "\0" + p["messages"][-1]["content"]).encode("utf-8")).hexdigest()
+    texte = "\0".join([demande, p["messages"][-1]["content"], *(p.get("images") or [])])
+    return hashlib.sha256(DUREE.sub("", texte).encode("utf-8")).hexdigest()
 
 
 def equilibrer(paires: list[dict[str, Any]], rng: random.Random) -> tuple[list[dict[str, Any]], list[str]]:

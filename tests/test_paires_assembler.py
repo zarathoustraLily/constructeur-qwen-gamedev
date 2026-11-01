@@ -12,6 +12,7 @@ def test_un_doublon_se_reconnait_a_la_duree_pres():
     b = dict(paire("y", "cas FAILED 31ms, total 2s 9ms"), jetons=1)
     c = dict(paire("x", "cas PASSED 25ms"), jetons=1)
     assert assembler._cle(a) == assembler._cle(b) != assembler._cle(c)
+    assert assembler._cle(dict(a, images=["a.png"])) != assembler._cle(dict(a, images=["b.png"]))
 
 
 def _p(type_, sujet, n, systeme=None, jetons=500):
