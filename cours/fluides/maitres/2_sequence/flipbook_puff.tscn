@@ -1,0 +1,31 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://2_sequence/flipbook_puff.gd" id="1_puff"]
+[ext_resource type="Resource" path="res://5_data/fluid/puff_volume.tres" id="2_volume"]
+[ext_resource type="Resource" path="res://5_data/fluid/puff_flipbook.tres" id="3_flipbook"]
+[ext_resource type="Shader" path="res://1_core/gpu/shaders/flipbook_view.gdshader" id="4_view"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_quad"]
+size = Vector2(2, 3)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_view"]
+shader = ExtResource("4_view")
+
+[sub_resource type="Environment" id="Environment_night"]
+background_mode = 1
+background_color = Color(0.05, 0.06, 0.09, 1)
+
+[node name="FlipbookPuff" type="Node3D"]
+script = ExtResource("1_puff")
+volume_settings = ExtResource("2_volume")
+settings = ExtResource("3_flipbook")
+
+[node name="Quad" type="MeshInstance3D" parent="."]
+mesh = SubResource("QuadMesh_quad")
+material_override = SubResource("ShaderMaterial_view")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_night")

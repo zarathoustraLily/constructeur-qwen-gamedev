@@ -5,6 +5,8 @@ rem Lance tous les tests du jeu (GdUnit4) sans fenêtre, à cadence fixe (60 ima
 #@ 11+
 rem Lance tous les tests du jeu (GdUnit4) à cadence fixe (60 images par seconde). Un shader de calcul demande une carte :
 rem Godot n'en ouvre aucune sans fenêtre, il en ouvre donc une petite, qui se referme à la fin.
+rem Le crochet de capture d'OBS peut faire planter l'ouverture d'un appareil local : on le retire pour ce seul lancement.
+set DISABLE_VULKAN_OBS_CAPTURE=1
 #@ all
 rem Adapter GODOT si l'exécutable est ailleurs. Rapport HTML : .godot\rapports_tests\report_N\index.html
 set GODOT=D:\GODOT\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe

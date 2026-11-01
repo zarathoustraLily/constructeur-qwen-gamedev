@@ -8,6 +8,8 @@
     python -m usine.paires execution [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires creation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires creation_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires compilation_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires lecture
     python -m usine.paires rag
     python -m usine.paires demarche
@@ -57,7 +59,9 @@ def main(argv: list[str] | None = None) -> int:
         cp.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     for nom, aide in (("execution", "erreur à l'exécution → correction (chemin de nœud, type du nœud)"),
                       ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape"),
-                      ("faute_calcul", "une valeur fausse dans un test → la ligne de calcul (scripts et shaders de calcul)")):
+                      ("faute_calcul", "une valeur fausse dans un test → la ligne de calcul (scripts et shaders de calcul)"),
+                      ("creation_calcul", "écrire une fonction ou un fichier de shader de calcul, jugé sur la carte"),
+                      ("compilation_calcul", "une erreur de glslang → la ligne corrigée, sans carte ni fenêtre")):
         ex = sous.add_parser(nom, help=aide)
         ex.add_argument("--cours", default="kart", choices=COURS + ["batiments_proceduraux"])
         ex.add_argument("--par-etape", type=int, default=4)
@@ -131,11 +135,15 @@ def main(argv: list[str] | None = None) -> int:
         for r in bilan["rejets"]:
             print("rejet :", r)
         return 0 if bilan["paires"] else 1
-    if args.famille in ("execution", "creation", "faute_calcul"):
+    if args.famille in ("execution", "creation", "faute_calcul", "creation_calcul", "compilation_calcul"):
         if args.famille == "execution":
             from usine.paires.execution import generer as generer_famille
         elif args.famille == "faute_calcul":
             from usine.paires.faute_calcul import generer as generer_famille
+        elif args.famille == "creation_calcul":
+            from usine.paires.calcul import generer_creation as generer_famille
+        elif args.famille == "compilation_calcul":
+            from usine.paires.calcul import generer_compilation as generer_famille
         else:
             from usine.paires.creation import generer as generer_famille
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None

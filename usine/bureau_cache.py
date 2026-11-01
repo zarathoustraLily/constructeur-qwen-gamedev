@@ -5,7 +5,10 @@ avoir la souris mobilisee a chaque essai godot »). C'est l'équivalent de xvfb-
 Sa sortie est celle de la commande, son code de sortie aussi. Pendant qu'elle tourne, la zone de la souris est surveillée :
 si elle change, elle est remise comme elle était, et l'incident est noté dans `bureau_cache.log` du dossier temporaire.
 
+Tout Godot qui se sert de la carte passe par ici : les garde-fous de `garde_carte.py` décident s'il part.
+
     python usine/bureau_cache.py <programme> [arguments…]
+    python usine/bureau_cache.py --rearmer     (après un arrêt de la carte, avec l'accord de laurent)
 """
 
 from __future__ import annotations
@@ -19,12 +22,19 @@ import time
 from ctypes import wintypes as w
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # lancé comme un script, depuis le dossier d'un projet
+from usine import garde_carte  # noqa: E402
+
 BUREAU = "usine_rendu"
 ACCES = 0x000F01FF  # tous les droits sur le bureau
 SANS_CONSOLE = 0x08000000  # CREATE_NO_WINDOW
 FLUX = 0x00000100  # STARTF_USESTDHANDLES
 HERITABLE = 0x00000001  # HANDLE_FLAG_INHERIT
 SURVEILLANCE_MS = 50
+# Le crochet de capture d'OBS Studio (`graphics-hook64.dll`) entre dans chaque application Vulkan, et fait planter l'ouverture d'un
+# appareil local dans le pilote : mesuré le 2026-11-01, 3 plantages sur 3 à la première carte d'une suite complète, 0 sans lui. Il
+# se retire pour ce seul processus, par la variable que sa couche prévoit : ni OBS ni le système ne sont touchés.
+SANS_CROCHET_OBS = "DISABLE_VULKAN_OBS_CAPTURE"
 
 
 class Debut(ctypes.Structure):
@@ -45,6 +55,17 @@ def noter(texte: str) -> None:
 
 
 def main(commande: list[str]) -> int:
+    if commande == ["--rearmer"]:
+        garde_carte.rearmer()
+        print("carte réarmée", flush=True)
+        return 0
+    integree = garde_carte.vers_carte_integree(commande)
+    refus = garde_carte.entrer(sur_la_5090=integree is None)
+    if refus:
+        print(refus[1], flush=True)
+        return refus[0]
+    commande = integree or commande
+    os.environ[SANS_CROCHET_OBS] = "1"
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     user = ctypes.WinDLL("user32", use_last_error=True)
     user.CreateDesktopW.restype = w.HANDLE
@@ -82,6 +103,8 @@ def main(commande: list[str]) -> int:
             user.ClipCursor(ctypes.byref(zone))
     code = w.DWORD()
     kernel.GetExitCodeProcess(infos.hProcess, ctypes.byref(code))
+    if garde_carte.noter_fin(code.value):
+        noter(f"Godot a planté sur la carte : code {code.value:#x}")
     return code.value
 
 

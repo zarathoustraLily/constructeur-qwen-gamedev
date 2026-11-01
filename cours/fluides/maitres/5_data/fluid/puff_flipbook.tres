@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FlipbookSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/flipbook_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+columns = 4
+rows = 4
+steps_per_frame = 2
+delta = 0.033
+absorption = 8.0

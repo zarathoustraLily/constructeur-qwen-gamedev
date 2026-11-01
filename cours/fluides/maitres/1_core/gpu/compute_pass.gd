@@ -5,15 +5,28 @@ class_name ComputePass extends RefCounted
 
 ## Le côté des groupes des shaders de grille : `layout(local_size_x = 8, local_size_y = 8)`.
 const GRID_GROUP := 8
+#@ 17+
+## Le côté des groupes des shaders de volume : 64 invocations, comme un groupe de grille.
+const VOLUME_GROUP := 4
 #@ all
 
 var _device: ComputeDevice
 var _shader: RID
 var _pipeline: RID
+#@ 17+
+var _filtered: Array[int] = []
+#@ all
 
 
+#@ 11-16
 func _init(device: ComputeDevice, path: String) -> void:
 	_device = device
+#@ 17+
+## `filtered` : les `binding` déclarés en `sampler3D`, lus par le filtre de la carte.
+func _init(device: ComputeDevice, path: String, filtered: Array[int] = []) -> void:
+	_device = device
+	_filtered = filtered
+#@ all
 	var spirv: RDShaderSPIRV = (load(path) as RDShaderFile).get_spirv()
 	if not spirv.compile_error_compute.is_empty():
 		push_error("%s : %s" % [path, spirv.compile_error_compute])
@@ -36,6 +49,12 @@ static func groups_for(count: int, group_size: int) -> int:
 ## Les groupes qui couvrent une grille de `width` × `height` cases.
 static func grid_groups(width: int, height: int) -> Vector3i:
 	return Vector3i(groups_for(width, GRID_GROUP), groups_for(height, GRID_GROUP), 1)
+#@ 17+
+
+
+## Les groupes qui couvrent un volume de `size` cases.
+static func volume_groups(size: Vector3i) -> Vector3i:
+	return Vector3i(groups_for(size.x, VOLUME_GROUP), groups_for(size.y, VOLUME_GROUP), groups_for(size.z, VOLUME_GROUP))
 #@ all
 
 
@@ -65,6 +84,10 @@ func _uniforms(resources: Array[RID]) -> Array[RDUniform]:
 #@ 12+
 		var image: bool = _device.rd.texture_is_valid(resources[i])
 		uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE if image else RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+#@ 17+
+		if i in _filtered:
+			uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+			uniform.add_id(_device.trilinear())
 #@ all
 		uniform.binding = i
 		uniform.add_id(resources[i])

@@ -23,6 +23,7 @@ from pathlib import Path
 from usine import config as cfg
 from usine.cours.base import chemins
 from usine.cours.verifier import prefixe_ecran
+from usine.garde_carte import executer_carte
 from usine.processus import executer
 
 # Codes de couleur et autres séquences de contrôle du terminal (GdUnit4 efface l'écran : « ESC[2J ESC[H »).
@@ -211,11 +212,12 @@ def _lancer_vraiment(arguments: list[str], projet: str, delai: int, prefixe: lis
                      env: dict[str, str] | None) -> tuple[str, int, str]:
     if "--headless" not in arguments:
         _fenetre_permise(prefixe)
-    res = executer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
+    lancer = executer_carte if prefixe else executer
+    res = lancer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
     if "Could not load editor settings" in res.sortie:
         # Deux éditeurs lancés en même temps se disputent le fichier de réglages commun à toute la machine
         # (editor_settings-4.7.tres) : un incident de la machine, pas du projet (relevé le 2026-10-22). On relance.
-        res = executer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
+        res = lancer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
     texte = nettoyer(res.sortie, projet)
     if res.expire:
         return texte + f"\n[délai dépassé : {delai} s]", -1, res.sortie

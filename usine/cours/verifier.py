@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from usine import config as cfg
+from usine.garde_carte import executer_carte
 from usine.processus import executer
 from usine.regles import par_regle, verifier_regles
 
@@ -51,7 +52,8 @@ def prefixe_ecran() -> tuple[list[str], dict[str, str]]:
     if sys.platform.startswith("linux") and not os.environ.get("DISPLAY") and shutil.which("xvfb-run"):
         return ["xvfb-run", "-a", "-s", "-screen 0 960x540x24"], {"LIBGL_ALWAYS_SOFTWARE": "1"}
     if sys.platform == "win32":
-        return [sys.executable, str(Path(__file__).resolve().parents[1] / "bureau_cache.py")], {}
+        # PYTHONIOENCODING : `bureau_cache.py` dit ses refus en français, et `executer` lit de l'UTF-8.
+        return [sys.executable, str(Path(__file__).resolve().parents[1] / "bureau_cache.py")], {"PYTHONIOENCODING": "utf-8"}
     return [], {}
 
 
@@ -221,9 +223,9 @@ def verifier_projet(projet: Path, godot: Path | None = None, rendu: bool = True,
         # Chemin absolu : avec --path, Godot travaille depuis le dossier du projet.
         png = (Path(image) if image else projet / ".godot" / "verification.png").resolve()
         png.parent.mkdir(parents=True, exist_ok=True)
-        r = executer([*prefixe, godot, "--path", projet, "--rendering-method", "gl_compatibility",
-                      "--rendering-driver", "opengl3", "--audio-driver", "Dummy", "--resolution", "960x540",
-                      "--quit-after", "6000", "--", f"--shot={png}"], delai_s=delai_s, env=env)
+        r = executer_carte([*prefixe, godot, "--path", projet, "--rendering-method", "gl_compatibility",
+                            "--rendering-driver", "opengl3", "--audio-driver", "Dummy", "--resolution", "960x540",
+                            "--quit-after", "6000", "--", f"--shot={png}"], delai_s=delai_s, env=env)
         texte = nettoyer_sortie(r.sortie, projet)
         bilan["rendu"] = {"code": r.code, "erreurs": [l for l in texte.splitlines() if "ERROR" in l],
                           "image": png.is_file()}

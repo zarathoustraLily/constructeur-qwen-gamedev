@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="VolumeSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/volume_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+size = Vector3i(32, 48, 32)
+iterations = 16
+relaxation = 1.7
+dissipation = 0.8
+cooling = 1.0
+buoyancy = 30.0
+weight = 2.0
+vortex_strength = 4.0

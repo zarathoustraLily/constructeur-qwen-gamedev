@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="WaveSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/wave_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+width = 256
+height = 256
+speed = 60.0
+damping = 0.998

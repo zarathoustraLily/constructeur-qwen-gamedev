@@ -26,8 +26,9 @@ de la scène : `ramp` dans `main.tscn`. Une image RGB8 est un tableau de trois o
 
 ### 3. Ce que coûte le processeur
 
-Sur le processeur, en GDScript, 64 × 64 cases et 16 passes tiennent à peine la cadence. C'est la limite de cette partie du cours :
-le même calcul sur la carte graphique, avec des shaders de calcul, en fera des millions de cases.
+Mesuré sur la machine du cours, occupée par ailleurs : un pas de `flame.tres` (48 × 64 cases, 16 passes, transport simple) prend environ
+400 ms en GDScript, soit 24 fois trop pour tenir 60 images par seconde. C'est la limite de cette partie du cours : le même calcul sur la
+carte graphique, avec des shaders de calcul, en fera des millions de cases.
 
 ## Ce qu'il faut retenir
 

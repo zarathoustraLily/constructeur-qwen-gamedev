@@ -12,7 +12,23 @@ config_version=5
 
 config/name="Fluides · étape {STEP}"
 config/description="{TITLE}"
+;@ 1-15
 run/main_scene="res://2_sequence/main.tscn"
+;@ 16-17
+run/main_scene="res://2_sequence/gpu_fire.tscn"
+;@ 18
+run/main_scene="res://2_sequence/gpu_smoke.tscn"
+;@ 19
+run/main_scene="res://2_sequence/flipbook_puff.tscn"
+;@ 20
+run/main_scene="res://2_sequence/six_way_puff.tscn"
+;@ 21
+run/main_scene="res://2_sequence/gpu_waves.tscn"
+;@ 22
+run/main_scene="res://2_sequence/gpu_flood.tscn"
+;@ 23+
+run/main_scene="res://2_sequence/gpu_sparks.tscn"
+;@ all
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [debug]

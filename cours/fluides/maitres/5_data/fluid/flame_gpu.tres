@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FluidSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/fluid_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+width = 256
+height = 384
+iterations = 30
+relaxation = 1.7
+dissipation = 0.4
+sharp_transport = true
+vortex_strength = 12.0

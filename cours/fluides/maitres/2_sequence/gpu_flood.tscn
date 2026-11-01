@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://2_sequence/gpu_flood.gd" id="1_flood"]
+[ext_resource type="Resource" path="res://5_data/fluid/valley_flood.tres" id="2_settings"]
+[ext_resource type="Shader" path="res://1_core/gpu/shaders/flood_view.gdshader" id="3_view"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_view"]
+shader = ExtResource("3_view")
+
+[node name="GpuFlood" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_flood")
+settings = ExtResource("2_settings")
+
+[node name="View" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_view")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 5

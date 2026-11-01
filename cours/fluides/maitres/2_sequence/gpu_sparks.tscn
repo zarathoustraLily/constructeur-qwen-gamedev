@@ -1,0 +1,38 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://2_sequence/gpu_sparks.gd" id="1_sparks"]
+[ext_resource type="Resource" path="res://5_data/fluid/flame_gpu.tres" id="2_settings"]
+[ext_resource type="Resource" path="res://5_data/fluid/fire_gpu.tres" id="3_fire"]
+[ext_resource type="Shader" path="res://1_core/gpu/shaders/fire_view.gdshader" id="4_view"]
+
+[sub_resource type="Gradient" id="Gradient_fire"]
+offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.6, 0.08, 0.02, 1, 1, 0.55, 0.1, 1, 1, 0.95, 0.75, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fire"]
+gradient = SubResource("Gradient_fire")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_view"]
+shader = ExtResource("4_view")
+shader_parameter/ramp = SubResource("GradientTexture1D_fire")
+shader_parameter/brightest = 3.0
+
+[node name="GpuSparks" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_sparks")
+settings = ExtResource("2_settings")
+fire = ExtResource("3_fire")
+
+[node name="View" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_view")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+
+[node name="Sparks" type="MultiMeshInstance2D" parent="."]
+modulate = Color(1, 0.8, 0.4, 1)
