@@ -46,9 +46,12 @@ def nettoyer_sortie(texte: str, projet: Path) -> str:
 
 
 def prefixe_ecran() -> tuple[list[str], dict[str, str]]:
-    """(préfixe de commande, variables d'environnement) pour un rendu : xvfb-run sous Linux sans écran."""
+    """(préfixe de commande, variables d'environnement) pour un rendu : xvfb-run sous Linux sans écran, un bureau caché
+    sous Windows : la fenêtre de Godot n'y prend pas le focus."""
     if sys.platform.startswith("linux") and not os.environ.get("DISPLAY") and shutil.which("xvfb-run"):
         return ["xvfb-run", "-a", "-s", "-screen 0 960x540x24"], {"LIBGL_ALWAYS_SOFTWARE": "1"}
+    if sys.platform == "win32":
+        return [sys.executable, str(Path(__file__).resolve().parents[1] / "bureau_cache.py")], {}
     return [], {}
 
 

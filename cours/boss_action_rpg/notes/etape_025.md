@@ -36,7 +36,9 @@ Les rayons non plus ne voient pas le dos des faces : `hit_back_faces` ne joue qu
 chaise ne touche rien, quelle que soit cette option ; un rayon vertical la traverse et touche le plancher). C'est ce qu'avaient lu les mesures de l'étape 7 : leurs rayons traversaient le
 dessus des coques et touchaient leur fond, 0,4 m plus bas. La mesure disait vrai ; sa lecture était fausse.
 
-## La réparation du générateur
+## Ce qu'on a fait, dans l'ordre
+
+### 1. La réparation du générateur
 
 `_vers_dehors` regroupe les triangles reliés par leurs sommets, et lit le signe du volume de chaque morceau fermé : un volume négatif veut dire que ses faces regardent
 vers l'intérieur. Ce calcul vaut pour une forme non convexe, contrairement à une comparaison avec le centre. Bilan : 399 morceaux, 396 retournés, 1 ouvert (un cadre
@@ -46,7 +48,7 @@ accroché au mur, hors de portée), laissé tel quel.
 
 Le générateur accepte un dernier argument, un fichier : il ne refait alors que la forme, sans toucher aux maillages, aux matériaux ni à la scène.
 
-## Pourquoi une nouvelle ressource
+### 2. Pourquoi une nouvelle ressource
 
 `saloon.tscn` n'est pas un maître : il est copié depuis le jeu. Écraser `saloon_collision.res` aurait changé toutes les étapes depuis la 7, et cette étape-ci n'aurait
 montré aucune différence. `saloon_solid_collision.res` s'ajoute, et `main.tscn` remplace la forme du nœud `Saloon/Collision/Shape` :
@@ -58,7 +60,7 @@ shape = ExtResource("33_solid")
 
 C'est une surcharge d'un enfant de scène instanciée. `[editable path="Saloon"]`, à la fin du fichier, la garde quand on enregistre la scène dans l'éditeur.
 
-## Le saut qui ne finissait jamais
+### 3. Le saut qui ne finissait jamais
 
 Deuxième défaut, indépendant : `HeroJumpState` attendait d'avoir quitté le sol pour pouvoir y revenir. Un saut qui perd son élan sans décoller ne le quitte jamais :
 le héros reste en Jump pour toujours, sans roulade, sans soin, sans nouveau saut, avec un tiers de son contrôle. C'est ce que laurent appelle « ça bloque tout ».
@@ -72,7 +74,7 @@ s'annulent vers le haut comptent comme un sol (`is_on_floor()` vaut vrai dans un
 
 La chute est bornée (`max_fall_speed`, 30 m/s, `Hero.fall`) : les traces montraient -151 m/s chez un héros retenu sans sol, de quoi traverser le plancher en se libérant.
 
-## Le golem
+### 4. Le golem
 
 Solides, les meubles arrêtent aussi le golem, qui marche droit sur sa cible. `outils/scenarios/golem_chasse.gd` pose le héros, intouchable, en des points du sol libre, et compte ses
 coups en 24 s. Il pousse moins qu'avant : une capsule glisse sur une coque ; à l'envers, elle restait prise dedans. Avant, plusieurs points donnaient de 3 à 16 s de poussée sans

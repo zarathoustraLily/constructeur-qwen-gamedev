@@ -48,6 +48,7 @@ JEUX = {
                   "boutique", "le jeu"),
     "atelier": ("un jeu d'action en 3D construit sujet par sujet : menus et options, manette, gameplay, physique, "
                 "caméra, effets visuels", "le jeu"),
+    "fluides": ("un simulateur de fluides en GDScript et en shaders de calcul : fumée, feu, écoulements", "le simulateur"),
     "boss": ("un niveau de boss d'action RPG en 3D : un héros tire sur un golem géant dans un saloon agrandi",
              "le jeu"),
 }

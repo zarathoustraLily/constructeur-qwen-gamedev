@@ -8,7 +8,9 @@ carte, et donne le banc à lancer sur le PC de laurent. Aucun fichier du jeu ne 
 
 {FILES_TABLE}
 
-## Regarder d'abord ce qu'on a sous la main
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Regarder d'abord ce qu'on a sous la main
 
 Le processeur de la machine, un Core Ultra 7 265K, a une carte intégrée : « Intel(R) Graphics » (`Win32_VideoController`). Elle n'a
 pas d'écran branché, mais Vulkan la voit. `--gpu-index 1` y fait tourner Godot, fenêtre hors de l'écran :
@@ -20,7 +22,7 @@ Vulkan 1.4.348 - Forward+ - Using Device #1: Intel - Intel(R) Graphics
 Sans `--qualite`, le jeu y a choisi tout seul la qualité basse : la règle de l'étape 15 (`RenderingServer.get_video_adapter_type`)
 marche sur une vraie carte intégrée, plus seulement dans un test.
 
-## Mesurer le temps de chaque image
+### 2. Mesurer le temps de chaque image
 
 Le temps de la carte ne suffit plus. Une image peut être lente pour une autre raison : un shader compilé à son premier emploi, le
 processeur, la mémoire. `mesurer_rendu.gd` donne maintenant la carte utilisée, le temps de chaque image (médiane, 99e centile, pire

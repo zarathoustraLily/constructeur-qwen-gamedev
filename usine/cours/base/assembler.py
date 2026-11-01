@@ -34,9 +34,12 @@ def ordre_lignes() -> dict[str, int]:
     return {ch.manifeste["PREFIXE"]: 0} if ch.jeu else ORDRE_VILLES
 
 
-def etapes_du_cours() -> range:
+def etapes_du_cours() -> list[int]:
+    """Les étapes prêtes : une étape en cours d'écriture peut être au manifeste sans entrer dans les données."""
     ch = chemins.actuels()
-    return range(1, (ch.manifeste["DERNIERE"] if ch.jeu else 13) + 1)
+    if not ch.jeu:
+        return list(range(1, 14))
+    return list(ch.manifeste.get("PRETES", range(1, ch.manifeste["DERNIERE"] + 1)))
 # Un bloc de commande demandé à la fin d'une réponse : « ```\n$ commande\n``` ».
 DEMANDE = re.compile(r"```\n\$ (.+)\n```\s*$")
 BLOC = re.compile(r"```[^\n]*\n(.*?)```", re.S)

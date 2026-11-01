@@ -7,9 +7,12 @@
     python -m usine.paires shader [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires execution [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires creation [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires lecture
     python -m usine.paires rag
     python -m usine.paires demarche
+    python -m usine.paires debogage_boucle [--graine G]
+    python -m usine.paires analyse_sessions
     python -m usine.paires points [--cours kart] [--etapes 1,2]
     python -m usine.paires maillage [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires morceaux [--cours batiments_proceduraux] [--par-etape N] [--graine G] [--etapes 1,2]
@@ -26,7 +29,7 @@ import argparse
 import json
 import sys
 
-COURS = ["kart", "roguelike", "atelier", "boss_action_rpg"]
+COURS = ["kart", "roguelike", "atelier", "boss_action_rpg", "fluides"]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -53,7 +56,8 @@ def main(argv: list[str] | None = None) -> int:
         cp.add_argument("--graine", type=int, default=1)
         cp.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
     for nom, aide in (("execution", "erreur à l'exécution → correction (chemin de nœud, type du nœud)"),
-                      ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape")):
+                      ("creation", "écrire une fonction d'après son contrat ##, jugée par les tests de l'étape"),
+                      ("faute_calcul", "une valeur fausse dans un test → la ligne de calcul (scripts et shaders de calcul)")):
         ex = sous.add_parser(nom, help=aide)
         ex.add_argument("--cours", default="kart", choices=COURS + ["batiments_proceduraux"])
         ex.add_argument("--par-etape", type=int, default=4)
@@ -62,6 +66,9 @@ def main(argv: list[str] | None = None) -> int:
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
+    db = sous.add_parser("debogage_boucle", help="corriger par edit, relancer, lire la vraie sortie (palier 2, sans Godot)")
+    db.add_argument("--graine", type=int, default=1)
+    sous.add_parser("analyse_sessions", help="les analyses des bases d'OpenCode, avec le plan (palier 2, sans Godot)")
     pt = sous.add_parser("points", help="réaliser un point de l'étape d'après sa description (tests rouges sans, verts avec)")
     pt.add_argument("--cours", default="kart", choices=COURS)
     pt.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
@@ -124,9 +131,11 @@ def main(argv: list[str] | None = None) -> int:
         for r in bilan["rejets"]:
             print("rejet :", r)
         return 0 if bilan["paires"] else 1
-    if args.famille in ("execution", "creation"):
+    if args.famille in ("execution", "creation", "faute_calcul"):
         if args.famille == "execution":
             from usine.paires.execution import generer as generer_famille
+        elif args.famille == "faute_calcul":
+            from usine.paires.faute_calcul import generer as generer_famille
         else:
             from usine.paires.creation import generer as generer_famille
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
@@ -140,6 +149,14 @@ def main(argv: list[str] | None = None) -> int:
         bilan = generer_rag()
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         return 0 if bilan["paires"] else 1
+    if args.famille == "debogage_boucle":
+        from usine.paires.debogage_boucle import generer as generer_boucle
+        print(json.dumps(generer_boucle(args.graine), ensure_ascii=False, indent=1))
+        return 0
+    if args.famille == "analyse_sessions":
+        from usine.paires.analyse_sessions import generer as generer_analyses
+        print(json.dumps(generer_analyses(), ensure_ascii=False, indent=1))
+        return 0
     if args.famille == "demarche":
         from usine.paires.demarche import generer as generer_demarche
         bilan = generer_demarche()

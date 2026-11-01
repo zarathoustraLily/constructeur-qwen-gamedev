@@ -23,7 +23,9 @@ plate et des bâtons, les marques au sol ressemblaient à une interface. Des ré
 
 Le dernier mot vient de la consigne : on ne télécharge rien sans accord de laurent. Or tout ceci se fabrique : la RTX 5090 et OpenGL 4.3 sont là.
 
-## Un simulateur de fluide sur la carte
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Un simulateur de fluide sur la carte
 
 `SUIVIS_PROGRESSION/outils/fluide_gpu.py` est un fluide 3D en shaders de calcul (moderngl) : forces, combustion, projection, advection
 MacCormack. PyTorch n'a pas pu servir : sa version n'accepte pas la RTX 5090 (`sm_120`). Les shaders de calcul, si : une grille de 400³ et
@@ -39,7 +41,7 @@ Une erreur à retenir : **le souffle d'un tir n'est pas un fluide lent**. Simul�
 milliseconde a des pointes nettes. `_souffle` le dessine donc en coordonnées polaires : une longueur par direction, déchirée par un bruit très
 fin autour du centre et très long le long du rayon. La forme vient de ce qu'on veut voir, pas de l'outil qu'on vient d'écrire.
 
-## Le shader de flipbook
+### 2. Le shader de flipbook
 
 `flipbook.gdshaderinc` : deux images voisines, chacune poussée le long de ses vecteurs, se fondent : 36 images suffisent. `flipbook_lit.gdshader`
 mêle les six lumières dans `light()`, que le moteur répète pour chaque lumière du niveau. Trois pièges, tous vus à l'image :
@@ -51,13 +53,13 @@ mêle les six lumières dans `light()`, que le moteur répète pour chaque lumi�
 - **`shadows_disabled` n'a pas été mis** : le plan ne projette pas d'ombre (`cast_shadow = 0`), mais il doit recevoir celle du toit, sinon la
   fumée s'éclaire à la lune à l'intérieur de la salle.
 
-## La couleur du niveau
+### 3. La couleur du niveau
 
 Sous AgX, le feu vif virait au blanc-rose. ACES garde l'orangé : `tonemap_mode = 3`. Il assombrit les ombres : `tonemap_exposure = 1.5`,
 `ambient_light_energy = 0.42`. Le plan émissif blanc derrière la porte (noté à l'étape 8, jamais repris) devient une nuit bleue : il écrasait
 la moitié de chaque image. Le niveau est plus sombre et plus contrasté : ces choix se discutent, laurent ne les a pas vus.
 
-## Le tir
+### 4. Le tir
 
 - `MuzzleFlash` : le jet (tourné autour du canon), l'étoile (face à la caméra, ce qu'on voit de derrière le héros), des étincelles, une lumière,
   et un **flux** de fumée.

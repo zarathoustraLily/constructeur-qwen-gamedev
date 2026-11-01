@@ -74,14 +74,21 @@ def suites(fichiers: dict[str, str], parmi: set[str] | None = None) -> list[str]
                   and (parmi is None or rel in parmi) and SUITE.search(t))
 
 
+def carte_requise(suites_res: list[str]) -> bool:
+    """Une suite d'un dossier `gpu` lance des shaders de calcul : sans fenêtre, Godot n'ouvre aucune carte
+    (`create_local_rendering_device` rend null, mesuré le 2026-11-01). Elle tourne sur le bureau caché."""
+    return any("/gpu/" in res for res in suites_res)
+
+
 def arguments_gdunit(suites_res: list[str], ignorer: list[str] | None = None) -> list[str]:
     """Comme `7_tests/lancer_tests.bat`, sans le débogueur : ces suites seulement. `ignorer` : des cas écartés,
     « suite:cas » (option `-i` de GdUnit4 6.2.1, qui n'a pas d'option pour lancer un seul cas)."""
+    ecran = ["--path", ".", "--rendering-driver", "vulkan", "--audio-driver", "Dummy", "--resolution", "64x64"]
     # « -rc 1 » : un seul rapport, réécrit à chaque passage. Avec l'historique par défaut, GdUnit4 finit par
     # supprimer ses anciens rapports, et sous Windows la suppression échoue (« ERROR: Delete .godot/rapports_tests/
     # report_1/css/breadcrumb.css failed », relevé le 2026-10-22 en relançant les tests dans le même projet).
-    args = ["--headless", "--path", ".", "--fixed-fps", "60", "-s", GDUNIT, "--ignoreHeadlessMode", "-c", "-rc", "1",
-            "-rd", ".godot/rapports_tests"]
+    args = [*(ecran if carte_requise(suites_res) else ["--headless", "--path", "."]), "--fixed-fps", "60", "-s", GDUNIT,
+            "--ignoreHeadlessMode", "-c", "-rc", "1", "-rd", ".godot/rapports_tests"]
     for res in suites_res:
         args += ["-a", res]
     for cas in ignorer or []:

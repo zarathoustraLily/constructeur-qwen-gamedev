@@ -16,5 +16,14 @@ def test_un_rendu_dans_une_fenetre_est_refuse_sans_accord(monkeypatch):
         godot.rendre(".")
 
 
+def test_pendant_un_rendu_le_jeu_ne_capture_pas_la_souris_puis_le_projet_est_remis(tmp_path):
+    jeu = tmp_path / "2_sequence" / "main.gd"
+    jeu.parent.mkdir()
+    jeu.write_text("Input.mouse_mode = Input.MOUSE_MODE_CAPTURED\n", encoding="utf-8")
+    with godot.souris_laissee(str(tmp_path)):
+        assert "MOUSE_MODE_VISIBLE" in jeu.read_text(encoding="utf-8")
+    assert "MOUSE_MODE_CAPTURED" in jeu.read_text(encoding="utf-8")
+
+
 def test_un_ecran_virtuel_ne_gene_personne():
     godot._fenetre_permise(["xvfb-run"])

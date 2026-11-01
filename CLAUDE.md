@@ -69,6 +69,7 @@ Elles l'emportent sur le reste de ce fichier, sur le code et sur les documents d
     **Proposés** : la « reflexion » des sessions est écrite avant chaque action, pas un bloc de réflexion (règle 7.6 ; le lanceur d'OpenCode coupe le raisonnement), et tient sous `cutoff_len` ; une campagne de contrôle entre les deux étapes ; l'analyse du mouvement (trajectoire, jugée par rejeu image par image) dans les séquences ; la carte de la seconde étape (H200 ou B300, au prix par jeton mesuré).
 20. Aucun réentraînement tant que les paires d'entraînement ne sont pas finies (2026-10-28 : « tu ne réentraînes rien tant qu'on n'a pas fini les paires d'entraînement »). Le premier LoRA (`donnees/entrainement/lora_etape_1/`) reste tel quel ; la question « réentraîner ou le tester d'abord » est close.
 21. On garde le débogage et on augmente les créations (2026-11-01, sur les 444 000 jetons de débogage du gameplay, que le partage 40/40/20 coupait faute de création : « ui tu conserves les 444 000 jetons tu augmentes les creations »). `usine/paires/assembler.py` règle le partage sur le débogage, jamais coupé. **Proposé** : l'étendre à tous les sujets, ce que fait le code.
+22. 600 sessions longues pour RunPod (2026-11-01 : « ok tu en feras 600 longue pour runpod mais oui reprneds la genese des paires de creation pour 1024 et 2048 jetons mais ne bloque pas ma souris ») ; la décision 19 en prévoyait 3 000. La carte reste à choisir.
 
 ### 3. Pièges et interdits (décidé)
 

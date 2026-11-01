@@ -58,7 +58,7 @@ def lire(ville: str, etape: int) -> Note:
     piste, intro = (m.group(1).strip(), m.group(2).strip()) if m else ("", "")
     sections = re.split(r"\n## ", "\n" + brut)
     par_titre = {s.split("\n", 1)[0].strip(): s.split("\n", 1)[1] if "\n" in s else "" for s in sections[1:]}
-    fait = next((v for k, v in par_titre.items() if k.startswith("Ce qu")), "")
+    fait = next((v for k, v in par_titre.items() if k.startswith("Ce qu'on a fait")), "")
     points: list[Point] = []
     for bloc in re.split(r"\n### ", "\n" + fait)[1:]:
         tete, _, corps = bloc.partition("\n")

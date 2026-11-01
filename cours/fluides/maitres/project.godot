@@ -1,0 +1,76 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Fluides · étape {STEP}"
+config/description="{TITLE}"
+run/main_scene="res://2_sequence/main.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+
+[debug]
+
+gdscript/warnings/unused_variable=2
+gdscript/warnings/unused_local_constant=2
+gdscript/warnings/unused_private_class_variable=2
+gdscript/warnings/unused_parameter=2
+gdscript/warnings/unused_signal=2
+gdscript/warnings/shadowed_variable=2
+gdscript/warnings/shadowed_variable_base_class=2
+gdscript/warnings/shadowed_global_identifier=2
+gdscript/warnings/unreachable_code=2
+gdscript/warnings/unreachable_pattern=2
+gdscript/warnings/standalone_expression=2
+gdscript/warnings/standalone_ternary=2
+gdscript/warnings/incompatible_ternary=2
+gdscript/warnings/unassigned_variable=2
+gdscript/warnings/unassigned_variable_op_assign=2
+gdscript/warnings/narrowing_conversion=2
+gdscript/warnings/integer_division=2
+gdscript/warnings/int_as_enum_without_cast=2
+gdscript/warnings/int_as_enum_without_match=2
+gdscript/warnings/confusable_local_declaration=2
+gdscript/warnings/confusable_local_usage=2
+gdscript/warnings/confusable_capture_reassignment=2
+gdscript/warnings/static_called_on_instance=2
+gdscript/warnings/redundant_await=2
+gdscript/warnings/assert_always_true=2
+gdscript/warnings/assert_always_false=2
+gdscript/warnings/empty_file=2
+gdscript/warnings/return_value_discarded=0
+gdscript/warnings/untyped_declaration=2
+gdscript/warnings/inferred_declaration=0
+gdscript/warnings/unsafe_property_access=0
+gdscript/warnings/unsafe_method_access=0
+gdscript/warnings/unsafe_cast=0
+gdscript/warnings/unsafe_call_argument=0
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[editor]
+
+import/use_multiple_threads=false
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+
+;@ 4+
+[layer_names]
+
+3d_physics/layer_1="monde"
+3d_physics/layer_2="joueur"
+3d_physics/layer_3="ennemis"
+3d_physics/layer_4="coups"
+
+;@ all

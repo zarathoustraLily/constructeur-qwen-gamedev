@@ -16,7 +16,9 @@ d'étincelles ; les départs ne diffèrent que de deux ou trois images ([realtim
 Une critique détaillée donne le reste : la poussière reste basse et s'attarde, les débris partent en cône, jamais en sphère, la brûlure garde
 une lueur qui s'éteint lentement, l'éclat est une forme à pointes plutôt qu'une boule floue ([realtimevfx](https://realtimevfx.com/t/looking-for-feedback-on-explosion-vfx/29528)).
 
-## La boule de feu
+## Ce qu'on a fait, dans l'ordre
+
+### 1. La boule de feu
 
 - **L'annonce** : la boule grandit au bout du marteau, et des braises convergent vers elle (`Gather` : `radial_velocity` négative).
 - **Le vol** : `Core` est le flipbook `boule`, une sphère qui brûle en surface, en boucle. Flammes, fumée et braises vivent dans le monde
@@ -24,7 +26,7 @@ une lueur qui s'éteint lentement, l'éclat est une forme à pointes plutôt qu'
 - `heat_haze.gdshader` relit l'écran (`hint_screen_texture`), à une priorité négative : l'image relue ne contient pas les objets transparents, il ne
   doit pas les effacer.
 
-## L'explosion
+### 2. L'explosion
 
 Dans l'ordre : `Flash` (l'étoile, deux images), `Shock` (un anneau qui déforme l'image), `Ball` (trois plans de l'atlas `explosion`, qui passent du feu à la
 fumée sombre), `Lobes` (des plans plus petits, jetés loin puis freinés), étincelles, braises portées par la turbulence, éclats, un anneau de
@@ -36,7 +38,7 @@ poussière basse, des flammes qui restent au sol (`Stream`, comme la fumée du t
 - **Les éclats orange ressemblaient à des confettis** : plus petits, sombres, sans émission.
 - **Un lobe volait à six mètres** : `damping` est une décélération en m/s², pas un coefficient : 16 m/s freinés à 20 m/s² parcourent 6,4 m.
 
-## L'éclair
+### 3. L'éclair
 
 L'ancien ruban avait 24 points au hasard : un zigzag. Un éclair est une ligne brisée à toutes les échelles : `_zigzag` part des deux bouts et coupe
 chaque morceau en deux, six fois, en écartant le milieu d'un peu moins à chaque passe (`ROUGHNESS`). Six branches repartent du tronc.
@@ -50,13 +52,13 @@ chaque forme, pas à chaque image). Le fil est très fin : c'est lui qui nourrit
 La marque n'est plus un anneau parfait : un bord irrégulier, des filaments qui gagnent le cercle, qui vacillent de plus en plus vite ; des étincelles
 montent du sol. Elle doit rester un cercle : le joueur y lit où ne pas rester. Après le coup, la brûlure garde ses fissures bleues.
 
-## L'aura
+### 4. L'aura
 
 En seconde phase, du feu monte des épaules, du torse, de la main et du marteau. Un GPUParticles3D suit chaque os, et ses flammes vivent dans le monde : quand
 le Gardien bouge, elles traînent. Le nom du nœud est le nom de l'os : pas de table à tenir. Les premières flammes noyaient le golem : plus petites, moins
 chaudes (`aura_flame_material`).
 
-## Qualité basse
+### 5. Qualité basse
 
 `effect_detail` 0,6 ; `distortion` faux : `set_group` cache tout ce qui relit l'écran (groupe `vfx_distortion`). Les chiffres de la carte Intel sont dans `suivi.md`.
 

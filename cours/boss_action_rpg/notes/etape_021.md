@@ -47,7 +47,9 @@ Ce que ça apprend :
   à la limite.
 - **8 px** gagne encore, mais les silhouettes changent un peu. On reste à 4.
 
-## Ce qu'on a fait
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Ce que règle la qualité
 
 `GraphicsQuality` gagne cinq réglages : `lod_threshold`, `detail_range`, `detail_size`, `shadow_min_size`, `moon_shadow_mode`.
 `GraphicsQualityApplier` les applique. Il garde la taille et l'ombre d'origine de chaque objet : revenir à la qualité haute rend

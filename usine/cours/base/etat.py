@@ -12,7 +12,7 @@ from usine.cours.base import chemins
 from usine.cours.fabriquer import nom_projet
 
 CODE = (".gd", ".gdshader", ".gdshaderinc")
-TEXTE = CODE + (".tscn", ".tres", ".godot", ".md", ".cfg")
+TEXTE = CODE + (".glsl", ".tscn", ".tres", ".godot", ".md", ".cfg")
 BANDEAU = re.compile(r"^\s*(#|//) (>>> NOUVEAU À L'ÉTAPE \d{3}|<<< FIN DU NOUVEAU)\s*$")
 ENTETE = re.compile(r"^\s*(##|//) Étape \d{3} · .*$")
 

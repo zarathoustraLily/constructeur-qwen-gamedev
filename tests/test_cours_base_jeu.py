@@ -28,6 +28,12 @@ def test_les_suites_de_l_etape_seulement():
     assert args[-4:] == ["-a", "res://7_tests/b/test_b.gd", "++", "cadence_fixe"] and "-d" not in args
 
 
+def test_une_suite_gpu_tourne_avec_la_carte_sans_headless():
+    assert "--headless" in profil.arguments_gdunit(["res://7_tests/b/test_b.gd"])
+    args = profil.arguments_gdunit(["res://7_tests/1_core/gpu/test_a.gd", "res://7_tests/b/test_b.gd"])
+    assert "--headless" not in args and args[args.index("--rendering-driver") + 1] == "vulkan"
+
+
 def test_erreurs_du_moteur_sans_lien_avec_le_projet():
     texte = ("It was recognized that GdUnit4 is running in a test environment, therefore the GdUnit4 plugin will not be executed!\n"
              'ERROR: Parameter "material" is null.\n'

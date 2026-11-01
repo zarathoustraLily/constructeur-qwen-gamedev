@@ -33,6 +33,18 @@ def test_le_debogage_n_est_jamais_coupe_et_un_type_court_n_enleve_rien():
     assert any("création" in t for t in trous)
 
 
+def test_la_creation_n_est_jamais_coupee_non_plus():
+    def paire(type_: str) -> dict:
+        return {"sujet": "gameplay", "type": type_, "jetons_reponse": 100}
+
+    paires = [paire("création") for _ in range(40)] + [paire("débogage") for _ in range(10)]
+    paires += [paire("analyse") for _ in range(50)]
+    gardees, trous = assembler.equilibrer(paires, random.Random(1))
+    compte = {t: sum(1 for p in gardees if p["type"] == t) for t in assembler.CIBLE}
+    assert compte["création"] == 40 and compte["débogage"] == 10 and 19 <= compte["analyse"] <= 21
+    assert any("débogage" in t for t in trous)
+
+
 def test_le_partage_par_sujet_vise_40_40_20():
     paires = ([_p("création", "UI", 100) for _ in range(9)] + [_p("débogage", "UI", 100) for _ in range(9)]
               + [_p("analyse", "UI", 100) for _ in range(9)] + [_p("analyse", "audio", 100)])

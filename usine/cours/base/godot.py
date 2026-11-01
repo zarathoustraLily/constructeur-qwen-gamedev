@@ -35,6 +35,10 @@ IMAGE_RENDU = ".godot/rendu.png"
 CAPTURE = re.compile(r"^capture: (\S+) \((\d+), (\d+)\) erreur=(\d+)$", re.M)
 
 
+# Ce qui capture la souris dans le code d'un jeu.
+CAPTURE_SOURIS = re.compile(r"MOUSE_MODE_(?:CAPTURED|CONFINED(?:_HIDDEN)?)\b")
+
+
 class FenetreRefusee(RuntimeError):
     """Une fenêtre de Godot en série sur le poste de laurent, sans son accord."""
 
@@ -45,6 +49,27 @@ def _fenetre_permise(prefixe: list[str] | None) -> None:
     Sur un écran virtuel (`prefixe`), elle ne gêne personne ; sinon il faut `USINE_FENETRES=1`, posé quand il l'accepte."""
     if not prefixe and _SIMULATION is None and os.environ.get("USINE_FENETRES") != "1":
         raise FenetreRefusee("rendu dans une fenêtre refusé : il prend la souris de laurent (USINE_FENETRES=1 avec son accord)")
+
+
+@contextmanager
+def souris_laissee(projet: str):
+    """Le temps d'un rendu, le jeu ne capture pas la souris : une capture vaut pour tout le poste, même lancée depuis le
+    bureau caché (mesuré le 2026-11-01). Le projet est ensuite remis tel quel, et sa sortie n'en dépend pas."""
+    gardes: dict[Path, bytes] = {}
+    racine = Path(projet)
+    for f in racine.rglob("*.gd"):
+        if f.relative_to(racine).parts[0] in ("addons", "7_tests", ".godot"):
+            continue
+        octets = f.read_bytes()
+        texte = octets.decode("utf-8", errors="replace")
+        if CAPTURE_SOURIS.search(texte):
+            gardes[f] = octets
+            f.write_bytes(CAPTURE_SOURIS.sub("MOUSE_MODE_VISIBLE", texte).encode("utf-8"))
+    try:
+        yield
+    finally:
+        for f, octets in gardes.items():
+            f.write_bytes(octets)
 
 
 @dataclass
@@ -184,6 +209,8 @@ def _lancer(arguments: list[str], projet: str, delai: int = 300, prefixe: list[s
 
 def _lancer_vraiment(arguments: list[str], projet: str, delai: int, prefixe: list[str] | None,
                      env: dict[str, str] | None) -> tuple[str, int, str]:
+    if "--headless" not in arguments:
+        _fenetre_permise(prefixe)
     res = executer([*(prefixe or []), cfg.chemin_godot(), *arguments], cwd=Path(projet), delai_s=delai, env=env)
     if "Could not load editor settings" in res.sortie:
         # Deux éditeurs lancés en même temps se disputent le fichier de réglages commun à toute la machine
@@ -222,7 +249,8 @@ def tester_gdunit(projet: str, suites_res: list[str], delai: int = 300, ignorer:
     """Les suites GdUnit4 de l'étape, comme `7_tests/lancer_tests.bat` (cours de jeu, profil.arguments_gdunit)."""
     from usine.cours.base import profil
     arguments = profil.arguments_gdunit(suites_res, ignorer)
-    texte, code, brut = _lancer(arguments, projet, delai)
+    prefixe, env = prefixe_ecran() if profil.carte_requise(suites_res) else (None, None)
+    texte, code, brut = _lancer(arguments, projet, delai, prefixe, env)
     return Sortie(commande(arguments), texte, code, brut)
 
 
@@ -240,7 +268,8 @@ def rendre_jeu(projet: str, scene: str | None = None) -> Sortie:
     prefixe, env = prefixe_ecran()
     _fenetre_permise(prefixe)
     arguments = profil.arguments_rendu(scene)
-    texte, code, brut = _lancer(arguments, projet, 180, prefixe, env)
+    with souris_laissee(projet):
+        texte, code, brut = _lancer(arguments, projet, 180, prefixe, env)
     return Sortie(commande(arguments), texte, code, brut)
 
 
@@ -261,7 +290,8 @@ def rendre(projet: str, copie_png: Path | str | None = None, scene: str | None =
     if scene:
         arguments.append(scene)
     arguments += ["++", f"--shot={IMAGE_RENDU}"]
-    texte, code, brut = _lancer(arguments, projet, 180, prefixe, env)
+    with souris_laissee(projet):
+        texte, code, brut = _lancer(arguments, projet, 180, prefixe, env)
     if copie_png is not None and _SIMULATION is None:
         copie = Path(copie_png)
         copie.parent.mkdir(parents=True, exist_ok=True)

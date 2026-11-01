@@ -117,7 +117,11 @@ class Harnais:
         p = ENV["session"].sub(lambda m: m.group(1) + "ses_" + hashlib.sha256(graine.encode()).hexdigest()[:12]
                                + _base62(graine, 14), self.systeme)
         p = ENV["dossier"].sub(lambda m: m.group(1) + dossier, p)
-        return ENV["racine"].sub(lambda m: m.group(1) + dossier, p)
+        p = ENV["racine"].sub(lambda m: m.group(1) + dossier, p)
+        # OpenCode ajoute l'AGENTS.md du projet à la fin de son message système (capture du 2026-10-27, requete_02) :
+        # c'est là que vit le plan (section 3 des règles qui priment).
+        from usine.paires import format as fmt
+        return f"{p}\n\nInstructions from: {PureWindowsPath(dossier) / 'AGENTS.md'}\n{fmt.plan()}"
 
     def commande(self, neutre: str) -> str:
         """La commande `godot …` des exemples, lancée chez laurent : Godot par son chemin complet."""

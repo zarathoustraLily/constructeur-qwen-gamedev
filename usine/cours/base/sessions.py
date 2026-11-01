@@ -46,10 +46,11 @@ def quoi(m: mutations.Mutation) -> tuple[str, int]:
 class Projet:
     """Un projet Godot matérialisé une fois par étape ; chaque session y pose ses erreurs puis les corrige."""
 
-    def __init__(self, ville: str, n: int, apres: dict[str, str], touchees: set[str] | None = None):
+    def __init__(self, ville: str, n: int, apres: dict[str, str], touchees: set[str] | None = None, espace: str = "sess"):
+        """`espace` : le préfixe du dossier de travail, pour deux générations en même temps sur un cours."""
         self.ville, self.n, self.apres = ville, n, apres
         self.jeu = actuels().jeu
-        self.chemin = godot.materialiser(dict(apres), f"sess_{ville}_{n:03d}", etat.dossier(ville, n) if self.jeu else None)
+        self.chemin = godot.materialiser(dict(apres), f"{espace}_{ville}_{n:03d}", etat.dossier(ville, n) if self.jeu else None)
         godot.oublier(self.chemin)      # les sessions modifient le projet : aucune sortie gardée
         godot.importer(self.chemin)
         self.code = {k: v for k, v in apres.items() if k.endswith(CODE)}

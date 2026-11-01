@@ -1,0 +1,39 @@
+;@ 1-4
+[gd_scene load_steps=2 format=3]
+;@ 5-9
+[gd_scene load_steps=3 format=3]
+;@ 10+
+[gd_scene load_steps=6 format=3]
+;@ all
+
+[ext_resource type="Script" path="res://2_sequence/main.gd" id="1_main"]
+;@ 5-9
+[ext_resource type="Resource" path="res://5_data/fluid/smoke.tres" id="2_settings"]
+;@ 10+
+[ext_resource type="Resource" path="res://5_data/fluid/flame.tres" id="2_settings"]
+[ext_resource type="Resource" path="res://5_data/fluid/fire.tres" id="3_fire"]
+
+[sub_resource type="Gradient" id="Gradient_fire"]
+offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.6, 0.08, 0.02, 1, 1, 0.55, 0.1, 1, 1, 0.95, 0.75, 1)
+;@ all
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_main")
+;@ 5+
+settings = ExtResource("2_settings")
+;@ 10+
+fire = ExtResource("3_fire")
+ramp = SubResource("Gradient_fire")
+;@ all
+
+[node name="View" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch_mode = 5
