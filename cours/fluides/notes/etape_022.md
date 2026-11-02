@@ -28,6 +28,10 @@ Un tuyau ne coule que dans un sens : `max(0.0, …)`. Le débit inverse est celu
 
 Sur une pente, une case presque sèche voit de grands écarts de niveau : ses débits lui retireraient plus d'eau qu'elle n'en a, et sa profondeur deviendrait négative. Si ce qu'elle veut donner dépasse ce qu'elle a, tous ses débits sont réduits d'autant. Quatre lignes suffisent (`leaving` et `share`), et elles évitent toute une famille de bugs.
 
+Une chose à ne pas oublier : ce qu'une case a n'est jamais tout à fait sûr. Un arrondi peut la laisser à -0,0000000005. Si elle n'a aucun débit à réduire, la division donne l'infini, zéro fois l'infini donne un NaN, et le NaN gagne toute la grille en quelques pas. D'où `maxf(depth.at(x, y), 0.0)` : une case sous zéro n'a rien à donner. `test_une_profondeur_a_peine_negative_ne_casse_rien` pose ce cas directement : l'attendre serait une affaire de chance.
+
+Le nombre de pas a le même genre de piège. Une onde va à la racine de `pull`, mais quand le courant s'inverse, un tuyau perd de l'élan pendant que celui d'en face en prend : l'écart de débit vaut deux fois la poussée. Le compte se fait donc sur `2.0 * settings.pull`. À 300, en un seul pas de 1/30 s, la surface se met à bouillir en damier sans jamais donner de NaN : aucun test de masse ne le voit, seul `test_une_forte_poussee_garde_une_surface_lisse` le voit.
+
 ### 4. L'eau ne se perd jamais
 
 Ce qu'une case donne, sa voisine le reçoit : c'est le même nombre, lu des deux côtés. La somme des profondeurs ne peut donc pas changer. Les bords sont des murs : aucun débit n'y entre. `test_l_eau_ne_se_perd_jamais` n'est pas un réglage : c'est une propriété du schéma.

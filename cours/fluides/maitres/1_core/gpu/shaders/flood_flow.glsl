@@ -39,7 +39,7 @@ void main() {
 	vec4 flows = vec4(pushed(kept.r, here, cell + ivec2(1, 0)), pushed(kept.g, here, cell + ivec2(-1, 0)),
 			pushed(kept.b, here, cell + ivec2(0, 1)), pushed(kept.a, here, cell + ivec2(0, -1)));
 	float leaving = (flows.r + flows.g + flows.b + flows.a) * constants.delta;
-	float water = imageLoad(depth, cell).r;
+	float water = max(imageLoad(depth, cell).r, 0.0);
 	if (leaving > water) {
 		flows *= water / leaving;
 	}

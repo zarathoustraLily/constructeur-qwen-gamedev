@@ -68,6 +68,28 @@ func test_un_lac_au_repos_reste_au_repos() -> void:
 			assert_float(solver.level(x, y)).is_equal_approx(2.0, 0.0001)
 
 
+## Un arrondi peut laisser une case à -0,000000001. Sans débit à réduire, la division donnerait l'infini, et zéro fois l'infini un NaN qui gagne toute la grille.
+func test_une_profondeur_a_peine_negative_ne_casse_rien() -> void:
+	var solver: FloodSolver = FloodSolver.new(_settings(), _flat())
+	solver.depth.put(8, 8, -0.000000001)
+	solver.step(1.0 / 30.0)
+	assert_bool(is_nan(solver.depth.total())).is_false()
+
+
+## Quand le courant s'inverse, la poussée compte double. Sans en tenir compte, à 300 et en un seul pas, la surface bout en damier : 259 au lieu de 7.
+func test_une_forte_poussee_garde_une_surface_lisse() -> void:
+	var settings: FloodSettings = _settings()
+	settings.pull = 300.0
+	var solver: FloodSolver = FloodSolver.new(settings, _flat())
+	solver.add_water(16.0, 16.0, 8.0, 2.0)
+	_run(solver, 60)
+	var rough: float = 0.0
+	for y: int in SIZE:
+		for x: int in SIZE - 1:
+			rough += absf(solver.depth.at(x + 1, y) - solver.depth.at(x, y))
+	assert_float(rough).is_less(30.0)
+
+
 func test_l_eau_descend_la_pente() -> void:
 	var pente: FluidField = _flat()
 	for y: int in SIZE:

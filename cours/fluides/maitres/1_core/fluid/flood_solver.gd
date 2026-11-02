@@ -38,9 +38,10 @@ func add_water(center_x: float, center_y: float, radius: float, amount: float) -
 	depth.add_disc(center_x, center_y, radius, amount)
 
 
-## Avance de `delta` secondes. Une onde va à la racine de `pull` : c'est la même limite que pour les vagues.
+## Avance de `delta` secondes. Une onde va à la racine de `pull`, mais quand le courant s'inverse, un tuyau et celui d'en face réagissent
+## ensemble : la poussée compte double, et c'est elle qui fixe la limite, la même que pour les vagues.
 func step(delta: float) -> void:
-	var count: int = WaveSolver.substeps(delta, sqrt(settings.pull))
+	var count: int = WaveSolver.substeps(delta, sqrt(2.0 * settings.pull))
 	var part: float = delta / count
 	for _i: int in count:
 		_update_flows(part)
@@ -48,6 +49,7 @@ func step(delta: float) -> void:
 
 
 ## Les débits sortants de chaque case. Une case ne peut pas donner plus d'eau qu'elle n'en a : au-delà, ses débits sont réduits d'autant.
+## Un arrondi peut la laisser à peine sous zéro : elle n'a alors rien à donner.
 func _update_flows(delta: float) -> void:
 	for y: int in depth.height:
 		for x: int in depth.width:
@@ -57,9 +59,10 @@ func _update_flows(delta: float) -> void:
 			var down: float = _pushed(_down.at(x, y), here, x, y + 1, delta)
 			var up: float = _pushed(_up.at(x, y), here, x, y - 1, delta)
 			var leaving: float = (right + left + down + up) * delta
+			var water: float = maxf(depth.at(x, y), 0.0)
 			var share: float = 1.0
-			if leaving > depth.at(x, y):
-				share = depth.at(x, y) / leaving
+			if leaving > water:
+				share = water / leaving
 			_right.put(x, y, right * share)
 			_left.put(x, y, left * share)
 			_down.put(x, y, down * share)

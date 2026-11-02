@@ -59,6 +59,19 @@ func test_sur_un_relief_la_carte_suit_le_processeur() -> void:
 	assert_float(GridCheck.largest_gap(_depth_of(flood), solver.depth)).is_less(TOLERANCE)
 
 
+func test_a_forte_poussee_la_carte_fait_autant_de_pas_que_le_processeur() -> void:
+	var settings: FloodSettings = _settings()
+	settings.pull = 300.0
+	var flood: GpuFlood = GpuFlood.new(_device, settings, FluidField.new(SIZE, SIZE))
+	var solver: FloodSolver = FloodSolver.new(settings, FluidField.new(SIZE, SIZE))
+	flood.add_water(12.0, 16.0, 7.0, 2.0)
+	solver.add_water(12.0, 16.0, 7.0, 2.0)
+	for _pas: int in 10:
+		flood.step(1.0 / 30.0)
+		solver.step(1.0 / 30.0)
+	assert_float(GridCheck.largest_gap(_depth_of(flood), solver.depth)).is_less(TOLERANCE)
+
+
 func test_la_carte_ne_perd_pas_d_eau() -> void:
 	var flood: GpuFlood = GpuFlood.new(_device, _settings(), FluidField.new(SIZE, SIZE))
 	flood.add_water(4.0, 4.0, 6.0, 2.0)

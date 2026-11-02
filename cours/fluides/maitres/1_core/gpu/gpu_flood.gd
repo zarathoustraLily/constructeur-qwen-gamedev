@@ -42,7 +42,7 @@ func add_water(center_x: float, center_y: float, radius: float, amount: float) -
 
 ## Avance de `delta` secondes.
 func step(delta: float) -> void:
-	var count: int = WaveSolver.substeps(delta, sqrt(settings.pull))
+	var count: int = WaveSolver.substeps(delta, sqrt(2.0 * settings.pull))
 	var part: float = delta / count
 	var flow_constants: PackedFloat32Array = PackedFloat32Array([part, settings.pull, settings.friction])
 	var depth_constants: PackedFloat32Array = PackedFloat32Array([part])
