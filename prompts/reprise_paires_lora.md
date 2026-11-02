@@ -1,6 +1,6 @@
 # Prompt de reprise — les paires du LoRA de Qwen pour Godot
 
-Écrit le 2026-11-02 au matin, d'après l'état relevé à 09:15, juste après le second assemblage. Une copie est dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_paires_lora.md`. Le niveau de boss lui-même a son propre prompt : `PROMPT_REPRISE.md`, dans ce dossier.
+Écrit le 2026-11-02 à 23:54, à la demande de laurent, d'après l'état relevé à 09:15, juste après le second assemblage ; vérifié inchangé à 23:54 (paliers de 09:01, aucun commit ni aucune chaîne depuis). Une copie est dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_paires_lora.md`. Le niveau de boss lui-même a son propre prompt : `PROMPT_REPRISE.md`, dans ce dossier.
 
 ---
 
