@@ -70,6 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         ex.add_argument("--graine", type=int, default=1)
         ex.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
         ex.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
+        if nom == "faute_calcul":
+            ex.add_argument("--avec-plan", action="store_true", help="toujours au palier 2, avec le plan")
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
@@ -158,6 +160,8 @@ def main(argv: list[str] | None = None) -> int:
             from usine.paires.creation import generer as generer_famille
         etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
         options = {} if args.famille == "execution" else {"depuis": args.depuis}
+        if args.famille == "faute_calcul":
+            options["avec_plan"] = args.avec_plan
         bilan = generer_famille(args.cours, args.par_etape, args.graine, etapes, **options)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:

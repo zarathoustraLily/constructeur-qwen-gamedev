@@ -16,7 +16,7 @@ Un `.glsl` n'est relu par Godot qu'à l'import : chaque changement de shader est
 La demande montre la sortie du cas et la fonction fautive ; la réponse lit le message, cherche dans le contrat de la fonction,
 corrige la ligne, relance (sortie non écrite, règle 7.2). Palier 1 si la paire tient en 1 024 jetons, sinon palier 2 avec le plan.
 
-    python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2] [--depuis N]
+    python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2] [--depuis N] [--avec-plan]
 
 Une reprise (`--etapes`) ne repose pas les fautes déjà gardées. `--depuis N` ne regarde que les fichiers qui ont changé depuis
 l'étape N : les fautes écartées avant n'ont pas été notées, et les réessayer coûterait des heures.
@@ -36,7 +36,7 @@ from usine.paires import format as fmt
 
 FAMILLE = "faute_calcul"
 PLAFOND_COURT, PLAFOND = 1024, 2048
-DOSSIERS = ("1_core/", "2_sequence/")
+DOSSIERS = ("1_core/", "2_sequence/", "3_entities/")
 DELAI_TEST = 90
 FONCTION_GD = re.compile(r"^(?:static )?func (\w+)\(")
 CHECK_SHADERS = "res://7_tests/check_shaders.gd"
@@ -275,8 +275,9 @@ def reponse(f: Faute, cas: str, dit: tuple[str, str], nom: str, classe: str | No
     return "\n".join(lignes)
 
 
-def paire(projet: Any, f: Faute, sujet: str) -> tuple[dict[str, Any] | None, str]:
-    """La paire de cette faute, ou (None, raison du rejet). Le projet revient à l'état de l'étape."""
+def paire(projet: Any, f: Faute, sujet: str, avec_plan: bool = False) -> tuple[dict[str, Any] | None, str]:
+    """La paire de cette faute, ou (None, raison du rejet). Le projet revient à l'état de l'étape. `avec_plan` : au palier 2 même si elle
+    tiendrait au palier 1, pour les cours où c'est au palier 2 que le débogage manque."""
     from usine.cours.base import godot, profil
     from usine.paires import execution
     suites = suites_de(projet.apres, f.fichier)
@@ -318,9 +319,10 @@ def paire(projet: Any, f: Faute, sujet: str) -> tuple[dict[str, Any] | None, str
               "genre": f.genre, "suite": suite, "cas": cas, "fonction": nom}
     if importation is not None:
         preuve.update(commande_import=importation.commande, sortie_import=importation.texte, code_import=importation.code)
-    courte = fmt.paire(FAMILLE, sujet, "débogage", demande, texte, dict(preuve, palier=1))
-    if courte["jetons"] <= PLAFOND_COURT:
-        return courte, ""
+    if not avec_plan:
+        courte = fmt.paire(FAMILLE, sujet, "débogage", demande, texte, dict(preuve, palier=1))
+        if courte["jetons"] <= PLAFOND_COURT:
+            return courte, ""
     longue = fmt.paire(FAMILLE, sujet, "débogage", demande, texte, dict(preuve, palier=2), systeme=fmt.plan())
     if longue["jetons"] > PLAFOND:
         return None, f"trop longue ({longue['jetons']} jetons)"
@@ -346,7 +348,8 @@ def deja_gardees(sortie: Path, cours: str) -> set[tuple[str, str, str]]:
 
 
 def generer(cours: str = "fluides", par_etape: int = 60, graine: int = 1, etapes: list[int] | None = None,
-            donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None) -> dict[str, Any]:
+            donnees: Path | None = None, journal: Callable[[str], None] = print, depuis: int | None = None,
+            avec_plan: bool = False) -> dict[str, Any]:
     """`par_etape` fautes essayées par étape, genres à tour de rôle (graine fixe) ; une faute essayée ne revient pas à l'étape suivante."""
     from usine.cours.base import assembler, chemins, creation, sessions
     chemins.configurer(cours=cours)
@@ -377,7 +380,7 @@ def generer(cours: str = "fluides", par_etape: int = 60, graine: int = 1, etapes
             gardees = 0
             for f in choisies:
                 vues.add(f.cle())
-                p, raison = paire(projet, f, _sujet(ville, n, f.fichier))
+                p, raison = paire(projet, f, _sujet(ville, n, f.fichier), avec_plan)
                 if p is None:
                     rejets.append(f"{ville}-{n:03d} {f.fichier}:{f.ligne} {f.genre} : {raison}")
                     continue
