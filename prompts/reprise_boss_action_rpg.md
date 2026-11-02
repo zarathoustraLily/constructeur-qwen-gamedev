@@ -5,7 +5,7 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ---
 
-## 0. Où en sont les paires (2026-11-01, soir)
+## 0. Où en sont les paires (2026-11-02, matin)
 
 Les étapes 1 à 29 du boss et 1 à 27 du cours des fluides (`cours/fluides`) sont faites. Une partie des fichiers du boss 26 à 29 reste non commitée : elle attend la décision de laurent. Le travail en cours, ce sont les paires.
 
@@ -13,7 +13,13 @@ Les étapes 1 à 29 du boss et 1 à 27 du cours des fluides (`cours/fluides`) so
 
 **Comment fabriquer.** Après tout changement de maître, comparer les projets aux maîtres (fabriquer dans un dossier temporaire avec `--sortie`, puis comparer) : les projets des étapes 11 à 13 sont restés périmés neuf heures sans que rien ne le dise. Ne pas refabriquer une étape qu'une famille est sur le point de lire.
 
-**Reste à faire, dans l'ordre :** finir `points`, `faute_calcul` et les familles des étapes 24 à 27 des fluides, puis `voir_fluide` (cinq passes, journal `donnees/paires/fluides_familles.log`) ; renommer `compilation/paires_fluides_reprise_textures.jsonl.a_fusionner` en `paires_fluides_reprise.jsonl` ; puis `debogage_boucle`, `analyse_sessions`, `lecture`, `rag`, `demarche`, sans Godot ; `shader` du boss et sessions longues du boss, qui demandent la 5090, donc Qwen arrêté, avec l'accord de laurent ; assembler ; les séquences d'images des autres jeux (les fluides sont couverts par `voir_fluide`).
+**Fait le 2026-11-02.** `FloodSolver` et `GpuFlood` corrigés (commit 17dd4e4 ; étapes 22 à 27 des fluides vertes par la garde de la carte) ; les 515 paires faites avec l'ancien solveur sont écartées dans `donnees/paires/perimees_fluides_crue.jsonl`. Les familles des fluides sur l'étape 22 refaite ont donné 213 paires ; les lectures (`lecture`, `debogage_boucle`, `analyse_sessions`, `rag`) sont refaites, et plus aucune paire ne cite les anciennes lignes. `voir_fluide` : 3 930 paires en huit passes (graines 1 et 3 à 9 ; la graine 2 a planté sans rien écrire). Assemblage à 09:01 : palier 1, 18 444 paires, 12,6 M jetons, environ 13,1 h sur la 5090 ; palier 2, 11 879 paires, 19,4 M jetons, environ 20,2 h. Bilan par projet et par catégorie : `bilan_paires_2026-11-02.md`, dans ce dossier.
+
+**Le 40/40/20 n'est pas atteint.** En jetons de réponse, création / débogage / analyse : 27,7 / 47,5 / 24,8 au palier 1, 36,0 / 42,8 / 21,2 au palier 2, 31,6 / 45,3 / 23,1 ensemble. L'assembleur garde toute la création et tout le débogage ; il manque environ 1,27 M jetons de création pour égaler le débogage (1,73 M sujet par sujet). Aucun réglage d'une famille ne le comble : ce que `bloc` rejette encore, ce sont des lignes qu'aucun test ne juge. Pour le moment, laurent a dit « conserve le ratio et ocntinue ton travail » (2026-11-02).
+
+**Attend laurent :** comment combler la création (de nouveaux tests, un autre juge, ou couper du débogage) ; `demarche`, les familles du boss sur ses étapes 26 à 29 (`--etapes 26,27,28,29 --depuis 25`) et `faute_calcul` sur le boss ; `shader` et les 600 sessions longues du boss, qui demandent la 5090, donc Qwen arrêté. **Reste ensuite :** les séquences d'images des autres jeux ; la base longue des bâtiments, à régénérer (elle n'existe que dans le cloud).
+
+**Laissés en place, rien supprimé :** deux dossiers `%TEMP%\usine_voir_fluide_*` de passes interrompues, et dans `donnees/paires/voir_fluide/images` les images sans paire de la graine 2 et de la crue des graines 1 et 3.
 
 ---
 
