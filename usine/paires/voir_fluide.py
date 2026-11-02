@@ -599,6 +599,9 @@ def essayer_faute(projet: Any, s: Scene, f: faute_calcul.Faute, saines: list[dic
     r = verite.get(s.nom)
     if r is None or "erreur" in r or len(r.get("mesures", [])) != IMAGES:
         return [], "ne tourne plus : une erreur, pas une faute de calcul"
+    # Une grille à zéro case tourne sans erreur et donne ses mesures, mais aucune image.
+    if not all((dossier / f"{s.nom}_{i}.png").is_file() for i in range(IMAGES)):
+        return [], "rien à voir : la scène ne donne pas ses images"
     fautif = r["mesures"]
     vus = symptomes(s, saines, fautif)
     if not vus:

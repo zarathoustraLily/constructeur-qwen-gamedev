@@ -217,3 +217,17 @@ def test_un_nan_devient_un_calcul_emballe(tmp_path, monkeypatch):
     assert list(verite) == ["a"]        # un résultat vide, sans nom, ne donne rien
     assert verite["a"]["mesures"][0]["emballe"] is True
     assert verite["a"]["mesures"][1]["emballe"] is False
+
+
+def test_une_faute_sans_images_est_ecartee_sans_tout_arreter(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    s = scene_fumee()
+    saines = [mesure(0.1 * i) for i in range(vf.IMAGES)]
+    vides = [mesure(0.1 * i, pic=0.0, total=0.0) for i in range(vf.IMAGES)]
+    monkeypatch.setattr(vf, "jouer", lambda _projet, _scenes, _dossier: ({s.nom: {"nom": s.nom, "mesures": vides}}, None))
+    projet = SimpleNamespace(remettre=lambda: None, ecrire=lambda _rel, _texte: None)
+    faute = SimpleNamespace(fichier="1_core/fluid/fluid_field.gd", texte="")
+    paires, raison = vf.essayer_faute(projet, s, faute, saines, tmp_path, tmp_path, 1)
+    assert paires == []
+    assert "images" in raison
