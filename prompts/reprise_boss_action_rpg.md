@@ -7,6 +7,8 @@ dans le dépôt de l'usine : `D:\constructeur-qwen-gamedev\prompts\reprise_boss_
 
 ## 0. Où en sont les paires (2026-11-02, matin)
 
+**Pour reprendre les paires** : `PROMPT_REPRISE_PAIRES.md`, dans ce dossier (copie : `prompts/reprise_paires_lora.md` dans le dépôt) : le prompt à donner tel quel et la situation complète au 2026-11-02.
+
 Les étapes 1 à 29 du boss et 1 à 27 du cours des fluides (`cours/fluides`) sont faites. Une partie des fichiers du boss 26 à 29 reste non commitée : elle attend la décision de laurent. Le travail en cours, ce sont les paires.
 
 **Règles nées de l'écran bleu du 2026-11-01** (mémoire `ecran-bleu-du-2026-11-01`) : tout Godot sur la carte passe par `usine/garde_carte.py`, par `usine/bureau_cache.py` ou `godot.tester_gdunit`, jamais lancé à la main. Un seul Godot sur la carte à la fois, Vulkan sur la carte Intel, OpenGL en attente tant que ComfyUI ou `llama-server` tourne. Au plus deux chaînes, en priorité basse (`chaine.ps1` de la session de l'incident). `llama-server` sur le port 8080 sert OpenCode : ne pas y toucher. Rien dans `F:\REVERSe` : voir la mémoire `reverse-hades-ii`.
