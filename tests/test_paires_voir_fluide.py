@@ -97,6 +97,21 @@ def test_passer_a_travers_le_mur_se_voit():
     assert any("passe à travers le mur" in v for v in vf.symptomes(s, sain, fautif))
 
 
+def test_une_eau_toute_plate_n_a_pas_zero_cases_d_epaisseur():
+    s = scene_fumee()
+    s.genre = "sph"
+    sain = [mesure(0.1), mesure(2.0, haut=4, bas=30, gauche=2, droite=60)]
+    fautif = [mesure(0.1), mesure(2.0, haut=18, bas=18, gauche=4, droite=36)]
+    assert any("une simple ligne de 32 cases" in v for v in vf.symptomes(s, sain, fautif))
+
+
+def test_lire_ne_repete_pas_des_colonnes_qui_ne_changent_pas():
+    s = scene_fumee()
+    s.genre = "sph"
+    images = [mesure(0.1, gauche=1, droite=12, centre=(6, 12)), mesure(0.5, gauche=1, droite=12, centre=(7, 14))]
+    assert vf.lecture(s, [0, 1], images).startswith("Le liquide reste entre les colonnes 1 et 12. Son centre passe de (6, 12) à (7, 14).")
+
+
 def test_deux_symptomes_font_une_seule_phrase():
     assert vf._phrase(["la fumée reste ramassée", "La fumée s'éteint"]) == "La fumée reste ramassée ; la fumée s'éteint"
 
@@ -154,6 +169,35 @@ def test_rien_a_chercher_si_c_est_atteint_des_le_debut_ou_jamais():
     s = scene_fumee()
     assert vf.reponse_tempo(s, [0, 1, 2, 3, 4], _serie([4] * 12)) is None
     assert vf.reponse_tempo(s, [0, 1, 2, 3, 4], _serie([30] * 12)) is None
+
+
+@pytest.mark.parametrize("genre", vf.GENRES)
+def test_reconnaitre_nomme_ce_qu_on_voit_et_son_solveur(genre):
+    s = vf.scene(genre, random.Random(4), "essai")
+    texte = vf.texte_reconnaitre(s, mesure(1.0))
+    assert texte.startswith(vf.NATURES[genre])
+    assert f"`{vf.CLASSES[genre]}`" in texte
+    assert "de la colonne 20 à la colonne 40, et de la ligne 10 à la ligne 30" in texte
+
+
+def test_reconnaitre_cite_ce_qui_ne_bouge_pas():
+    s = scene_fumee(mur=(20, 12, 40, 13))
+    s.repere = "Le trait gris est un mur."
+    assert "Le trait gris est un mur." in vf.texte_reconnaitre(s, mesure(1.0))
+
+
+def test_deux_instants_sont_assez_loin_et_dans_la_scene():
+    rng = random.Random(1)
+    for _ in range(200):
+        a, b = vf._deux_instants(rng)
+        assert 0 <= a and b < vf.IMAGES and b - a >= vf.ECART_DEUX
+
+
+def test_chaque_palier_a_son_plafond():
+    assert vf.tient({"jetons": 2040, "preuve": {"palier": 2}})
+    assert not vf.tient({"jetons": 2041, "preuve": {"palier": 2}})
+    assert vf.tient({"jetons": 1024, "preuve": {"palier": 1}})
+    assert not vf.tient({"jetons": 1025, "preuve": {"palier": 1}})
 
 
 def test_un_nan_devient_un_calcul_emballe(tmp_path, monkeypatch):

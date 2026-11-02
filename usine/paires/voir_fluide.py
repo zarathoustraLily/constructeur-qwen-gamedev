@@ -7,13 +7,15 @@ réponse vient de la mesure de cette image. Six genres : fumée et feu (`FluidSo
 particules (`FlipSolver`, `SphSolver`).
 
 Pour 40/40/20, en jetons de réponse :
-- création : la séquence voulue → le `build()` et le `feed()` qui la donnent, ceux qui ont tourné ;
+- création : les images voulues → le `build()` et le `feed()` qui les donnent, ceux qui ont tourné ;
 - débogage : une seule faute posée dans un solveur (mêmes règles que `faute_calcul`), gardée si elle se voit : un écart franc avec la scène
   saine, jugé par les mesures. La réponse ne cite que ce que montrent les images fautives : la scène saine ne sert qu'à décider ;
-- analyse : lire la séquence, ou dire si ces 5 images montrent ce qu'on cherche et quelles images prendre ensuite. Le prochain essai se
-  déduit des images, et il n'est gardé que s'il encadre le vrai instant.
+- analyse : reconnaître, comparer deux instants, dire si c'est normal, lire la séquence, ou dire si ces 5 images montrent ce qu'on cherche
+  et quelles images prendre ensuite. Le prochain essai se déduit des images, et il n'est gardé que s'il encadre le vrai instant.
 
-Le plan (554 jetons) et 5 images (1 100) laissent environ 370 jetons au texte : une paire qui dépasse 2 040 jetons est rejetée.
+Deux paliers, les mêmes images : au palier 2, 5 images avec le plan (554 jetons + 1 100 d'images : environ 370 jetons de texte, 2 040 au plus) ;
+au palier 1, une ou deux images sans le plan (1 024 au plus), les quatre niveaux de la décision 19.3. C'est au palier 1 que la création manque
+et au palier 2 que le débogage et l'analyse manquent : le partage des scènes et des fautes suit ce besoin.
 
     python -m usine.paires voir_fluide [--scenes N] [--fautes N] [--graine G] [--genres gaz,feu,vagues,crue,flip,sph]
 """
@@ -34,8 +36,8 @@ from usine.paires import faute_calcul
 from usine.paires import format as fmt
 
 FAMILLE = "voir_fluide"
-PLAFOND = 2040
-OUTIL = cfg.RACINE / "cours" / "fluides" / "outils" / "voir_fluide.gd"
+PLAFOND, PLAFOND_COURT = 2040, 1024
+OUTIL =cfg.RACINE / "cours" / "fluides" / "outils" / "voir_fluide.gd"
 GENRES = ("gaz", "feu", "vagues", "crue", "flip", "sph")
 ETAPE = 27
 IMAGES = 12
@@ -47,6 +49,12 @@ SUJET = "physique"          # le partage 40/40/20 se fait par sujet : au palier 
 NOMS = {"gaz": "la fumée", "feu": "le feu", "vagues": "l'onde", "crue": "l'eau", "flip": "l'eau", "sph": "le liquide"}
 PRONOMS = {"gaz": "Elle", "feu": "Il", "vagues": "Elle", "crue": "Elle", "flip": "Elle", "sph": "Il"}
 CLASSES = {"gaz": "FluidSolver", "feu": "FluidSolver", "vagues": "WaveSolver", "crue": "FloodSolver", "flip": "FlipSolver", "sph": "SphSolver"}
+_POINTS = "De l'eau en particules, vue de côté dans une cuve : chaque point est une particule, plus clair quand elle va vite."
+NATURES = {"gaz": "De la fumée : une simulation de fluide sur une grille, où la clarté donne la densité.",
+           "feu": "Du feu : une simulation de fluide sur une grille, où la couleur donne la température.",
+           "vagues": "Une surface d'eau vue de dessus : le clair montre les crêtes, le sombre les creux.",
+           "crue": "De l'eau vue de dessus sur un terrain : le bleu est l'eau, le brun clair le sol qui monte.",
+           "flip": _POINTS, "sph": _POINTS}
 FICHIERS = {"gaz": ("fluid_solver", "advection", "fluid_projection", "obstacle_mask", "fluid_field", "vorticity"),
             "feu": ("fluid_solver", "combustion", "advection", "fluid_projection", "obstacle_mask", "fluid_field"),
             "vagues": ("wave_solver",), "crue": ("flood_solver",), "flip": ("flip_solver", "staggered_grid"),
@@ -63,6 +71,7 @@ TOT = 2                     # l'image où un anneau n'a pas encore touché les b
 LARGEUR_PETITE, LARGEUR_GRANDE = 0.6, 1.5
 FENETRES_LARGES = ([0, 2, 4, 6, 8], [0, 3, 6, 9, 11], [0, 1, 3, 6, 10], [0, 2, 5, 8, 11])
 IMAGES_FAUTE = [0, 3, 6, 9, 11]
+ECART_DEUX = 3
 
 
 @dataclass
@@ -83,6 +92,7 @@ class Scene:
     fichiers: tuple[str, ...]
     mur: tuple[int, int, int, int] | None = None
     mortes: tuple[str, ...] = ()    # les fonctions que cette scène n'appelle pas : une faute y serait invisible
+    repere: str = ""                # ce qui ne bouge pas dans l'image, en mots
 
     def instants(self) -> list[float]:
         return [(pas + 1) * self.delta for pas in self.pas()]
@@ -177,7 +187,8 @@ def panache(rng: random.Random, nom: str, feu: bool) -> Scene:
         decor += f" ; un mur va de ({mur[0]}, {mur[1]}) à ({mur[2]}, {mur[3]})"
     genre = "feu" if feu else "gaz"
     return Scene(nom, genre, "\n".join(lignes) + "\n", delta, 1 if feu else rng.choice((0, 2)), 2.0 if feu else 1.0, largeur, hauteur, (x, y), decor,
-                 f"monter depuis ({x}, {y})" if feu else f"aller vers {sens} depuis ({x}, {y})", ", ".join(reglages), cible, FICHIERS[genre], mur, mortes)
+                 f"monter depuis ({x}, {y})" if feu else f"aller vers {sens} depuis ({x}, {y})", ", ".join(reglages), cible, FICHIERS[genre], mur, mortes,
+                 f"Le trait gris est un mur, de ({mur[0]}, {mur[1]}) à ({mur[2]}, {mur[3]})." if mur else "")
 
 
 def vagues(rng: random.Random, nom: str) -> Scene:
@@ -215,7 +226,7 @@ def crue(rng: random.Random, nom: str) -> Scene:
     return Scene(nom, "crue", code, 1 / 30, 0, volume, largeur, hauteur, (x, y),
                  f"l'eau part de ({x}, {y}), rayon {_n(eau, 0)} ; une colline en ({colline_x}, {colline_y}), rayon {_n(rayon, 0)}",
                  f"s'étaler depuis ({x}, {y}) et contourner la colline", f"tirage de {_n(pousse, 0)}, frein de {_n(frein, 2)}, colline de hauteur {_n(haut)}, eau de hauteur {_n(volume)}",
-                 bord, FICHIERS["crue"])
+                 bord, FICHIERS["crue"], repere=f"La tache claire en ({colline_x}, {colline_y}) est une colline.")
 
 
 def particules(rng: random.Random, nom: str, genre: str) -> Scene:
@@ -311,8 +322,15 @@ def _images(s: Scene, indices: list[int]) -> str:
     return "\n".join(f"{fmt.MARQUE_IMAGE} {_s(s.instants()[i])}" for i in indices)
 
 
-def _paire(s: Scene, type_: str, demande: str, reponse: str, indices: list[int], chemins: list[str], preuve: dict[str, Any]) -> dict[str, Any]:
-    return fmt.paire(FAMILLE, SUJET, type_, f"{_images(s, indices)}\n{demande}", reponse, preuve, systeme=fmt.plan(), images=chemins)
+def _paire(s: Scene, type_: str, demande: str, reponse: str, indices: list[int], chemins: list[str], preuve: dict[str, Any],
+           court: bool = False) -> dict[str, Any]:
+    """Palier 2 avec le plan ; `court` : palier 1, sans le plan."""
+    return fmt.paire(FAMILLE, SUJET, type_, f"{_images(s, indices)}\n{demande}", reponse, dict(preuve, palier=1 if court else 2),
+                     systeme=None if court else fmt.plan(), images=chemins)
+
+
+def tient(p: dict[str, Any]) -> bool:
+    return p["jetons"] <= (PLAFOND if p["preuve"]["palier"] == 2 else PLAFOND_COURT)
 
 
 def _preuve(s: Scene, indices: list[int], mesures: list[dict[str, Any]], question: str) -> dict[str, Any]:
@@ -335,12 +353,36 @@ def _direction(dx: float, dy: float) -> str:
     return f"{vertical} et {horizontal}"
 
 
-def paire_creation(s: Scene, indices: list[int], chemins: list[str], mesures: list[dict[str, Any]]) -> dict[str, Any]:
+def paire_creation(s: Scene, indices: list[int], chemins: list[str], mesures: list[dict[str, Any]], court: bool = False) -> dict[str, Any]:
     nourrit = "feed(" in s.code
-    demande = (f"Je veux cette séquence avec `{CLASSES[s.genre]}`, sur une {_grille(s)}, par pas de {_pas(s.delta)}. {s.reglages[:1].upper()}{s.reglages[1:]}. "
+    demande = (f"Je veux ce résultat avec `{CLASSES[s.genre]}`, sur une {_grille(s)}, par pas de {_pas(s.delta)}. {s.reglages[:1].upper()}{s.reglages[1:]}. "
                f"Écris `build()`{' et `feed(solver, delta)`' if nourrit else ''}.")
     reponse = f"Je lis les images : {s.decor}.\n```gdscript\n{s.code.strip()}\n```"
-    return _paire(s, "création", demande, reponse, indices, chemins, _preuve(s, indices, mesures, "code"))
+    return _paire(s, "création", demande, reponse, indices, chemins, _preuve(s, indices, mesures, "code"), court)
+
+
+def texte_reconnaitre(s: Scene, m: dict[str, Any]) -> str:
+    etendue = f"Ce qui se voit va de la colonne {m['gauche']:.0f} à la colonne {m['droite']:.0f}, et de la ligne {m['haut']:.0f} à la ligne {m['bas']:.0f}."
+    return " ".join(x for x in (NATURES[s.genre], s.repere, etendue, f"C'est le rendu de `{CLASSES[s.genre]}`.") if x)
+
+
+def paire_reconnaitre(s: Scene, i: int, chemins: list[str], mesures: list[dict[str, Any]]) -> dict[str, Any]:
+    """Niveau 1 de la décision 19.3 : reconnaître ce qu'on voit."""
+    demande = f"Qu'est-ce que cette image montre ? Une {_grille(s)}."
+    return _paire(s, "analyse", demande, texte_reconnaitre(s, mesures[i]), [i], chemins, _preuve(s, [i], mesures, "reconnaitre"), True)
+
+
+def paire_comparer(s: Scene, indices: list[int], chemins: list[str], mesures: list[dict[str, Any]]) -> dict[str, Any]:
+    """Niveau 2 : comparer deux instants."""
+    demande = f"Qu'est-ce qui change entre ces deux images ? Une {_grille(s)}."
+    return _paire(s, "analyse", demande, lecture(s, indices, mesures), indices, chemins, _preuve(s, indices, mesures, "comparer"), True)
+
+
+def paire_normale(s: Scene, indices: list[int], chemins: list[str], mesures: list[dict[str, Any]], vus: list[str] | None = None) -> dict[str, Any]:
+    """Niveau 3 : voulu ou défaut. La même question sur des images saines : sans elles, la bonne réponse serait toujours non."""
+    demande = f"{NOMS[s.genre][:1].upper()}{NOMS[s.genre][1:]} doit {s.attendu}. Ce que je vois est-il normal ?"
+    reponse = f"Non. {_phrase(vus)}." if vus else f"Oui. {lecture(s, indices, mesures)}"
+    return _paire(s, "analyse", demande, reponse, indices, chemins, _preuve(s, indices, mesures, "normal"), True)
 
 
 def _contact(s: Scene, indices: list[int], mesures: list[dict[str, Any]]) -> str:
@@ -368,8 +410,10 @@ def lecture(s: Scene, indices: list[int], mesures: list[dict[str, Any]]) -> str:
         texte = (f"{nom} s'élargit depuis ({s.depart[0]}, {s.depart[1]}) : de {a['droite'] - a['gauche']} à {b['droite'] - b['gauche']} cases de large. "
                  f"Le plus grand écart à l'eau plate passe de {_n(a['pic'], 2)} à {_n(b['pic'], 2)}.")
     else:
-        texte = (f"{nom} va de la colonne {a['gauche']:.0f} à la colonne {a['droite']:.0f} au début, de {b['gauche']:.0f} à {b['droite']:.0f} à la fin. "
-                 f"Son centre passe de ({ax:.0f}, {ay:.0f}) à ({bx:.0f}, {by:.0f}).")
+        debut, fini = (round(a["gauche"]), round(a["droite"])), (round(b["gauche"]), round(b["droite"]))
+        texte = (f"{nom} reste entre les colonnes {debut[0]} et {debut[1]}." if debut == fini
+                 else f"{nom} va de la colonne {debut[0]} à la colonne {debut[1]} au début, de {fini[0]} à {fini[1]} à la fin.")
+        texte += f" Son centre passe de ({ax:.0f}, {ay:.0f}) à ({bx:.0f}, {by:.0f})."
         if s.genre == "crue":
             texte += f" Le volume reste à {_n(b['total'], 0)} : l'eau ne se perd pas." if abs(b["total"] / a["total"] - 1) < 0.01 else ""
         else:
@@ -483,7 +527,8 @@ def symptomes(s: Scene, sain: list[dict[str, Any]], fautif: list[dict[str, Any]]
             vus.append(f"{nom} se disperse à peine : le pic ne descend que {va}")
     if s.genre != "vagues":
         rapport = _aire(b1) / _aire(b0)
-        taille_vue = f"{b1['droite'] - b1['gauche']:.0f} × {b1['bas'] - b1['haut']:.0f} cases"
+        large, epais = b1["droite"] - b1["gauche"], b1["bas"] - b1["haut"]
+        taille_vue = f"{large:.0f} × {epais:.0f} cases" if epais >= 1 else f"une simple ligne de {large:.0f} cases"
         if rapport < AIRE_PETITE:
             vus.append(f"{nom} reste ramassé{'e' if PRONOMS[s.genre] == 'Elle' else ''} : {taille_vue}")
         elif rapport > AIRE_GRANDE:
@@ -512,7 +557,8 @@ def _extrait(code: str, f: faute_calcul.Faute) -> str | None:
 
 
 def paire_faute(s: Scene, f: faute_calcul.Faute, vus: list[str], indices: list[int], chemins: list[str], mesures: list[dict[str, Any]],
-                saines: list[dict[str, Any]], sortie: Any) -> tuple[dict[str, Any] | None, str]:
+                saines: list[dict[str, Any]], sortie: Any, court: bool = False) -> tuple[dict[str, Any] | None, str]:
+    """Niveau 4 : relier le défaut à sa ligne. `court` : deux images, sans le plan."""
     trouve = faute_calcul.fonction_de(f.fichier, f.texte, f.ligne)
     if trouve is None:
         return None, "hors d'une fonction"
@@ -533,15 +579,16 @@ def paire_faute(s: Scene, f: faute_calcul.Faute, vus: list[str], indices: list[i
         if corps is None:
             continue
         demande = (f"{NOMS[s.genre][:1].upper()}{NOMS[s.genre][1:]} devrait {s.attendu}. Le code, dans `res://{f.fichier}` :\n```gdscript\n{corps}\n```\nTrouve la faute.")
-        p = _paire(s, "débogage", demande, reponse, indices, chemins, preuve)
-        if p["jetons"] <= PLAFOND:
+        p = _paire(s, "débogage", demande, reponse, indices, chemins, preuve, court)
+        if tient(p):
             return p, ""
     return None, f"trop longue ({p['jetons'] if p else '?'} jetons)"
 
 
-def essayer_faute(projet: Any, s: Scene, f: faute_calcul.Faute, saines: list[dict[str, Any]], travail: Path,
-                  images: Path, rang: int) -> tuple[dict[str, Any] | None, str]:
-    """La paire de cette faute sur cette scène, ou (None, raison). Le projet revient à l'état de l'étape."""
+def essayer_faute(projet: Any, s: Scene, f: faute_calcul.Faute, saines: list[dict[str, Any]], travail: Path, images: Path,
+                  rang: int) -> tuple[list[dict[str, Any]], str]:
+    """Les paires de cette faute sur cette scène, ou ([], raison). Le projet revient à l'état de l'étape. Une faute donne une paire au
+    palier 2, où le débogage manque, et une au palier 1 : à tour de rôle, relier le défaut à sa ligne ou dire que ce n'est pas normal."""
     projet.remettre()
     projet.ecrire(f.fichier, f.texte)
     try:
@@ -551,23 +598,33 @@ def essayer_faute(projet: Any, s: Scene, f: faute_calcul.Faute, saines: list[dic
         projet.remettre()
     r = verite.get(s.nom)
     if r is None or "erreur" in r or len(r.get("mesures", [])) != IMAGES:
-        return None, "ne tourne plus : une erreur, pas une faute de calcul"
+        return [], "ne tourne plus : une erreur, pas une faute de calcul"
     fautif = r["mesures"]
     vus = symptomes(s, saines, fautif)
     if not vus:
-        return None, "ne se voit pas"
+        return [], "ne se voit pas"
     emballe = next((i for i, m in enumerate(fautif) if m.get("emballe")), None)
     if emballe == 0:
-        return None, "rien à voir : le calcul est faux dès la première image"
+        return [], "rien à voir : le calcul est faux dès la première image"
     if emballe is None:
-        indices = IMAGES_FAUTE
+        indices, deux = IMAGES_FAUTE, [IMAGES_FAUTE[2], IMAGES_FAUTE[-1]]
     else:
         debut = min(max(emballe - 3, 0), IMAGES - 5)
-        indices = list(range(debut, debut + 5))
-    chemins = _garder(dossier, s, indices, images, f"f{rang:04d}_")
-    p, raison = paire_faute(s, f, vus, indices, chemins, fautif, saines, sortie)
+        indices, deux = list(range(debut, debut + 5)), [emballe - 1, emballe]
+    prefixe = f"f{rang:04d}_"
+    p, raison = paire_faute(s, f, vus, indices, _garder(dossier, s, indices, images, prefixe), fautif, saines, sortie)
+    if p is None:
+        shutil.rmtree(dossier, ignore_errors=True)
+        return [], raison
+    paires = [p]
+    vues_courtes = _garder(dossier, s, deux, images, prefixe)
+    if rang % 2 == 0:
+        paires.append(paire_normale(s, deux, vues_courtes, fautif, vus))
+    else:
+        courte, _ = paire_faute(s, f, vus, deux, vues_courtes, fautif, saines, sortie, court=True)
+        paires += [courte] if courte else []
     shutil.rmtree(dossier, ignore_errors=True)
-    return p, raison
+    return paires, ""
 
 
 def fautes_de(s: Scene, apres: dict[str, str], vues: set[tuple[str, str, str]]) -> list[faute_calcul.Faute]:
@@ -590,6 +647,45 @@ def _fenetres(rng: random.Random) -> tuple[list[int], list[int]]:
     pas = rng.choice((1, 2))
     debut = rng.randrange(0, IMAGES - 4 * pas)
     return rng.choice(FENETRES_LARGES), [debut + k * pas for k in range(5)]
+
+
+def _deux_instants(rng: random.Random) -> list[int]:
+    """Deux images assez éloignées pour que la différence se voie."""
+    a = rng.randrange(0, IMAGES - ECART_DEUX)
+    return [a, rng.randrange(a + ECART_DEUX, IMAGES)]
+
+
+def paires_saines(s: Scene, k: int, rng: random.Random, dossier: Path, images: Path, mesures: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str]]:
+    """Les paires d'une scène saine, et ce qui en a été écarté. Le palier 1 manque de création : chaque scène lui en donne une ; le palier 2
+    en a assez : une scène sur trois. L'analyse suit, pour rester au cinquième."""
+    paires: list[dict[str, Any]] = []
+    rejets: list[str] = []
+    large, autre = _fenetres(rng)
+
+    def vues(indices: list[int]) -> list[str]:
+        return _garder(dossier, s, indices, images)
+
+    fin = rng.randrange(6, IMAGES)
+    paires.append(paire_creation(s, [0, fin], vues([0, fin]), mesures, court=True))
+    if k % 3 == 0:
+        paires.append(paire_creation(s, large, vues(large), mesures))
+    if k % 2 == 0:
+        paires.append(paire_lecture(s, autre, vues(autre), mesures))
+    else:
+        p = paire_tempo(s, autre, vues(autre), mesures)
+        if p is None:
+            rejets.append(f"{s.nom} : pas de question de tempo")
+        else:
+            paires.append(p)
+    i = rng.randrange(2, IMAGES)
+    paires.append(paire_reconnaitre(s, i, vues([i]), mesures))
+    if k % 2 == 1:
+        deux = _deux_instants(rng)
+        paires.append(paire_comparer(s, deux, vues(deux), mesures))
+    if k % 3 == 1:
+        deux = _deux_instants(rng)
+        paires.append(paire_normale(s, deux, vues(deux), mesures))
+    return paires, rejets
 
 
 def generer(genres: tuple[str, ...] = GENRES, scenes: int = 40, fautes: int = 60, graine: int = 1, donnees: Path | None = None,
@@ -623,17 +719,9 @@ def generer(genres: tuple[str, ...] = GENRES, scenes: int = 40, fautes: int = 60
                     continue
                 mesures = r["mesures"]
                 jouees.append((s, mesures))
-                large, autre = _fenetres(rng)
-                vues_large = _garder(dossier, s, large, images)
-                paires.append(paire_creation(s, large, vues_large, mesures))
-                if k % 2 == 0:
-                    paires.append(paire_lecture(s, autre, _garder(dossier, s, autre, images), mesures))
-                else:
-                    p = paire_tempo(s, autre, _garder(dossier, s, autre, images), mesures)
-                    if p is None:
-                        rejets.append(f"{s.nom} : pas de question de tempo")
-                    else:
-                        paires.append(p)
+                nouvelles, ecartees = paires_saines(s, k, rng, dossier, images, mesures)
+                paires += nouvelles
+                rejets += ecartees
                 shutil.rmtree(dossier, ignore_errors=True)
             journal(f"{genre} : {len(jouees)}/{scenes} scènes saines, {len(paires)} paires")
             vues: set[tuple[str, str, str]] = set()
@@ -648,22 +736,24 @@ def generer(genres: tuple[str, ...] = GENRES, scenes: int = 40, fautes: int = 60
                 f = rng.choice(possibles)
                 vues.add(f.cle())
                 rang += 1
-                p, raison = essayer_faute(projet, s, f, saines, travail, images, rang)
-                if p is None:
+                nouvelles, raison = essayer_faute(projet, s, f, saines, travail, images, rang)
+                if not nouvelles:
                     rejets.append(f"{s.nom} {f.fichier}:{f.ligne} {f.genre} : {raison}")
                     continue
-                paires.append(p)
+                paires += nouvelles
                 gardees += 1
             journal(f"{genre} : {gardees}/{fautes} fautes visibles")
-            fmt.ecrire([p for p in paires if p["jetons"] <= PLAFOND], fichier)
-    retenues = [p for p in paires if p["jetons"] <= PLAFOND]
-    rejets += [f"{p['preuve']['scene']} {p['preuve']['question']} : trop longue ({p['jetons']} jetons)" for p in paires if p["jetons"] > PLAFOND]
+            fmt.ecrire([p for p in paires if tient(p)], fichier)
+    retenues = [p for p in paires if tient(p)]
+    rejets += [f"{p['preuve']['scene']} {p['preuve']['question']} : trop longue ({p['jetons']} jetons)" for p in paires if not tient(p)]
     fmt.ecrire(retenues, fichier)
     bilan: dict[str, Any] = {"famille": FAMILLE, "graine": graine, "paires": len(retenues), "rejets": rejets, "par_type": {}, "par_question": {},
-                             "par_genre": {}, "jetons_max": max((p["jetons"] for p in retenues), default=0),
-                             "jetons_reponse": {t: sum(p["jetons_reponse"] for p in retenues if p["type"] == t) for t in fmt.TYPES}}
+                             "par_genre": {}, "par_palier": {}, "jetons_max": max((p["jetons"] for p in retenues), default=0),
+                             "jetons_reponse": {str(n): {t: sum(p["jetons_reponse"] for p in retenues if p["type"] == t and p["preuve"]["palier"] == n)
+                                                         for t in fmt.TYPES} for n in (1, 2)}}
     for p in retenues:
-        for cle, val in (("par_type", p["type"]), ("par_question", p["preuve"]["question"]), ("par_genre", p["preuve"]["genre"])):
+        for cle, val in (("par_type", p["type"]), ("par_question", p["preuve"]["question"]), ("par_genre", p["preuve"]["genre"]),
+                         ("par_palier", p["preuve"]["palier"])):
             bilan[cle][val] = bilan[cle].get(val, 0) + 1
     (sortie / f"bilan_g{graine:03d}.json").write_text(json.dumps(bilan, indent=1, ensure_ascii=False), encoding="utf-8")
     return bilan
