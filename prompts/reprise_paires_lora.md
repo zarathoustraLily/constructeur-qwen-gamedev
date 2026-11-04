@@ -28,6 +28,12 @@
 
 ## 2. La situation au 2026-11-02, 09:15
 
+### 2.0 Mise à jour du 2026-11-04
+
+Étapes 26 à 29 du boss commitées (`bf1ae6e`) puis changées en paires, à la demande de laurent (« comit et transfome en paire les session 26 a 29 du boss »). Vérification avant le commit : suites GdUnit4 vertes (299, 327, 350, 367 cas), étapes 1 à 25 inchangées ; juge des règles : 940 écarts à l'étape 29 contre 626 à l'étape 25, déjà commitée, dont 303 DAT-01 dans `3_entities/hero/bobine/bobine_body.gd` (mesures écrites dans un script d'entité). Familles sur les étapes 26 à 29 (`--etapes 26,27,28,29 --depuis 25`, fichiers des étapes 1 à 25 mis de côté en `…_etapes_jusqu_a_25.jsonl`) : compilation 554 paires (5 min), execution 53 (11 min), creation 54 (7 min), bloc 152 (24 min), test_cas 50 (5 min), morceaux et points 0 (aucun candidat) ; puis lecture, debogage_boucle, analyse_sessions, rag. Pas faites : `shader` (OpenGL, la 5090), `faute_calcul` (accord de laurent), `demarche` (aucun pas pour ces étapes). Réassemblage : palier 1 18 444 → 19 512 paires (13,2 M jetons, 13,8 h), palier 2 11 879 → 12 236 (20,0 M, 20,8 h), 0 au-dessus du plafond ; ensemble 31,5 / 45,4 / 23,1 en jetons de réponse ; boss 5 285 → 6 672 paires. Bilan : `bilan_paires_2026-11-04.md`.
+
+Les chiffres des § 2.2 et 2.3 sont ceux du 2026-11-02 ; les nouveaux sont dans `bilan_paires_2026-11-04.md` et `donnees/entrainement/controles_palier_*.json` (ceux du 2026-11-02 gardés en `controles_palier_*_2026-11-02.json`). Suite demandée par laurent : les 600 sessions longues du boss.
+
 ### 2.1 Ce qui est fait
 
 - `FloodSolver` et `GpuFlood`, le solveur de crue des fluides, sont corrigés : commit 17dd4e4, après l'accord de laurent (« Oui, après les chaînes »). Plus de NaN, plus de surface qui bout à forte poussée ; les étapes 22 à 27 des fluides sont vertes par la garde de la carte. Les 515 paires faites avec l'ancien solveur sont écartées dans `donnees/paires/perimees_fluides_crue.jsonl` : un fichier posé à la racine de `donnees/paires/` n'est pas lu par l'assembleur.
@@ -95,7 +101,7 @@ Attention : `cours/boss_action_rpg/` porte des changements non commités de l'au
 
 ### 2.5 Ce qui attend aussi laurent
 
-- `demarche` et les familles du boss sur ses étapes 26 à 29 (`--etapes 26,27,28,29 --depuis 25`), et `faute_calcul` sur le boss : après sa décision sur ces étapes.
+- ~~les familles du boss sur ses étapes 26 à 29~~ : faites le 2026-11-04 (§ 2.0). Restent `demarche` (aucun pas écrit pour ces étapes) et `faute_calcul` sur le boss (son accord).
 - `shader` du boss et ses 600 sessions longues : il faut la 5090, donc Qwen arrêté (le `llama-server` du port 8080 sert OpenCode), avec son accord.
 
 ### 2.6 Reste ensuite
