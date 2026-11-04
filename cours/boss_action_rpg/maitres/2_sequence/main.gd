@@ -64,6 +64,8 @@ func _ready() -> void:
 	_golem.woke.connect(_on_golem_woke)
 #@ 13+
 	(_golem.get_node(^"Effects") as GolemEffects).camera = _orbit
+#@ 29+
+	_hero.weapon_changed.connect(_on_weapon_changed)
 #@ 9+
 #@ 6+
 
@@ -82,4 +84,10 @@ func _restart() -> void:
 
 func _on_golem_woke() -> void:
 	_hud.bind_boss(_golem.health)
+#@ all
+#@ 29+
+
+
+func _on_weapon_changed(kit: WeaponKit) -> void:
+	_hud.show_weapon(kit.display_name)
 #@ all

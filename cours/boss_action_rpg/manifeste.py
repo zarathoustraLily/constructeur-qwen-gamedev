@@ -15,7 +15,7 @@ par les outils de `SUIVIS_PROGRESSION/outils/`). Jusqu'à l'étape 6, c'était l
 GENRE = "jeu"
 PREFIXE = "boss"
 SOURCE = "boss_action_rpg"
-DERNIERE = 27
+DERNIERE = 29
 
 ETAPES = [
     {"piste": "Architecture + Contrôles", "titre": "Le socle : nomenclature, réglages stricts, actions, ordre d'exécution"},
@@ -45,13 +45,15 @@ ETAPES = [
     {"piste": "Gameplay + Outils", "titre": "Le décor solide : ses parois tournées vers l'extérieur, et un saut qui finit toujours"},
     {"piste": "Procédural + Graphisme 3D", "titre": "Bobine : une héroïne de bois originale, sur le squelette et les clips du héros"},
     {"piste": "Gameplay + Graphisme 3D + UI", "titre": "Le Terrier : la salle sous le plancher, et ce qu'on y prend à la main"},
+    {"piste": "Gameplay + Architecture + Contrôles", "titre": "L'Établi : quatre armes, le choix à la manette, l'essai sur une boîte de conserve"},
+    {"piste": "Architecture + Gameplay", "titre": "La plinthe et la première salle : la porte, le passage d'une salle à l'autre, la boucle jusqu'au Gardien"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -302,7 +304,7 @@ FICHIERS = {
     "3_entities/hero/bobine/bobine_body.gd": "26+",
     "3_entities/hero/bobine/bobine_model.gd": "26+",
     "3_entities/hero/bobine/bobine_model.tscn": "26+",
-    "3_entities/hero/bobine/weapon_shapes.gd": "26+",
+    "1_core/procedural/weapon_shapes.gd": "26+",
     "5_data/hero/bobine_material.tres": "26+",
     "6_assets/Shader/Characters/bobine.gdshader": "26+",
     "7_tests/1_core/procedural/test_puppet_builder.gd": "26+",
@@ -330,4 +332,32 @@ FICHIERS = {
     "7_tests/2_sequence/test_burrow.gd": "27+",
     "7_tests/3_entities/props/test_candle.gd": "27+",
     "7_tests/4_ui/hud/test_interact_prompt.gd": "27+",
+    "1_core/data/weapon_kit.gd": "28+",
+    "2_sequence/burrow.gd": "28+",
+    "3_entities/props/armory/armory.gd": "28+",
+    "3_entities/props/tin_can/tin_can.gd": "28+",
+    "3_entities/props/tin_can/tin_can.tscn": "28+",
+    "3_entities/props/armory/weapon_stand.gd": "28+",
+    "3_entities/props/armory/weapon_stand.tscn": "28+",
+    "5_data/props/tin.tres": "28+",
+    "5_data/props/tin_label.tres": "28+",
+    "5_data/weapons/caps.tres": "28+",
+    "5_data/weapons/cork.tres": "28+",
+    "5_data/weapons/nailer.tres": "28+",
+    "5_data/weapons/needle.tres": "28+",
+    "7_tests/3_entities/hero/test_equip.gd": "28+",
+    "7_tests/3_entities/props/test_armory.gd": "28+",
+    "7_tests/3_entities/props/test_tin_can.gd": "28+",
+    "7_tests/3_entities/props/test_weapon_kits.gd": "28+",
+    "1_core/level/threshold.gd": "29+",
+    "2_sequence/game.gd": "29+",
+    "2_sequence/game.tscn": "29+",
+    "2_sequence/cellar.tscn": "29+",
+    "3_entities/props/plinth_door/plinth_door.gd": "29+",
+    "3_entities/props/plinth_door/plinth_door.tscn": "29+",
+    "5_data/props/iron.tres": "29+",
+    "7_tests/1_core/level/test_threshold.gd": "29+",
+    "7_tests/2_sequence/test_cellar.gd": "29+",
+    "7_tests/2_sequence/test_game.gd": "29+",
+    "7_tests/3_entities/props/test_plinth_door.gd": "29+",
 }

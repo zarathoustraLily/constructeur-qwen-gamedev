@@ -43,6 +43,8 @@ Le shader dessine les faces arrière : la jupe et la cape n'ont qu'une épaisseu
 
 Mesures : 3 666 sommets, une surface, bâtie en 4,7 ms au chargement. Le combat reste à 0 allocation de notre code.
 
+Les formes d'armes vivent dans `1_core/procedural/weapon_shapes.gd`, à part de Bobine : l'Établi s'en servira sans dépendre du héros.
+
 ## Ce que l'image a corrigé
 
 La première planche passait les tests, et quatre défauts se voyaient :

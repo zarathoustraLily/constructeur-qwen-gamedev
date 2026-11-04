@@ -74,6 +74,17 @@ func test_le_canon_de_son_arme_finit_a_la_bouche_que_lit_la_vue() -> void:
 	assert_float(weapon.mesh.get_aabb().position.z).is_equal_approx(muzzle.position.z, 0.02)
 
 
+#@ 28+
+func test_chaque_arme_a_sa_bouche_au_bout_de_son_canon() -> void:
+	var model: BobineModel = _model()
+	var weapon: MeshInstance3D = model.get_node(^"%WeaponMesh") as MeshInstance3D
+	var muzzle: Marker3D = model.get_node(^"%Muzzle") as Marker3D
+	for shape: WeaponKit.Shape in WeaponKit.Shape.values():
+		model.show_weapon(shape)
+		assert_float(muzzle.position.z).is_equal_approx(weapon.mesh.get_aabb().position.z, 0.001)
+
+
+#@ all
 func test_le_heros_de_la_scene_est_bobine() -> void:
 	var hero: Hero = auto_free(HERO.instantiate())
 	add_child(hero)

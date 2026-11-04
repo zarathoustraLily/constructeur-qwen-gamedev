@@ -1,6 +1,25 @@
 [gd_scene format=3]
 
+;@ 27
 [ext_resource type="Script" path="res://2_sequence/level.gd" id="1_level"]
+;@ 29+
+[ext_resource type="PackedScene" path="res://3_entities/props/plinth_door/plinth_door.tscn" id="60_door"]
+[ext_resource type="Script" path="res://1_core/level/threshold.gd" id="61_threshold"]
+;@ 28+
+[ext_resource type="Script" path="res://2_sequence/burrow.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://3_entities/props/armory/weapon_stand.tscn" id="40_stand"]
+[ext_resource type="Script" path="res://3_entities/props/armory/armory.gd" id="41_armory"]
+[ext_resource type="Resource" path="res://5_data/weapons/nailer.tres" id="42_nailer"]
+[ext_resource type="Resource" path="res://5_data/weapons/cork.tres" id="43_cork"]
+[ext_resource type="Resource" path="res://5_data/weapons/needle.tres" id="44_needle"]
+[ext_resource type="Resource" path="res://5_data/weapons/caps.tres" id="45_caps"]
+[ext_resource type="PackedScene" path="res://3_entities/props/tin_can/tin_can.tscn" id="46_can"]
+[ext_resource type="Script" path="res://1_core/combat/impact_sparks.gd" id="47_sparks"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/shot_impact.tscn" id="48_burst"]
+[ext_resource type="Script" path="res://1_core/vfx/vfx_burst.gd" id="49_vfx"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Med_Storage_Barrel_Wood_Worn_01_LOD0.res" id="50_barrel"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Med_Storage_Barrel_Wood_Worn_01.tres" id="51_barrel_mat"]
+;@ all
 [ext_resource type="Environment" path="res://5_data/environment/burrow_environment.tres" id="2_env"]
 [ext_resource type="Material" path="res://5_data/environment/burrow_wall.tres" id="3_wall"]
 [ext_resource type="Material" path="res://5_data/environment/burrow_floor.tres" id="4_floor"]
@@ -34,6 +53,11 @@
 [ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Med_Tableware_Plate_Metal_Old_01.tres" id="32_plate_mat"]
 [ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_Res_Sto_Flask_Ceramic_Worn_01_LOD0.res" id="33_flask"]
 [ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_Res_Sto_Flask_Ceramic_Worn_01.tres" id="34_flask_mat"]
+;@ 29+
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_exit"]
+size = Vector3(1.6, 3, 3.2)
+;@ all
 
 [node name="Burrow" type="Node3D"]
 script = ExtResource("1_level")
@@ -68,6 +92,14 @@ operation = 2
 size = Vector3(22, 7.6, 14)
 material = ExtResource("3_wall")
 
+;@ 29+
+[node name="Tunnel" type="CSGBox3D" parent="Walls"]
+position = Vector3(12.6, 1.6, -17.5)
+operation = 2
+size = Vector3(3.6, 4.2, 3.4)
+material = ExtResource("3_wall")
+
+;@ all
 [node name="Floor" type="CSGBox3D" parent="Walls"]
 position = Vector3(0, -0.5, -9)
 size = Vector3(30, 1, 40)
@@ -171,6 +203,12 @@ spot_range = 13.0
 spot_angle = 26.0
 spot_angle_attenuation = 1.6
 
+[node name="LampPassage" type="OmniLight3D" parent="Decor"]
+position = Vector3(0, 3.2, -10.5)
+light_color = Color(1, 0.76, 0.5, 1)
+light_energy = 1.2
+omni_range = 7.0
+
 [node name="LampWorkshop" type="OmniLight3D" parent="Decor"]
 position = Vector3(3, 4.6, -19.5)
 light_color = Color(1, 0.76, 0.5, 1)
@@ -213,7 +251,7 @@ surface_material_override/0 = ExtResource("25_chest_mat")
 script = ExtResource("17_prop")
 
 [node name="Horseshoe" type="MeshInstance3D" parent="Decor"]
-transform = Transform3D(41, 0, 0, 0, 0, -41, 0, 5, 0, 0, 2.9, -7.9)
+transform = Transform3D(0, 0, 41, 41, 0, 0, 0, 5, 0, -0.2, 2.9, -7.9)
 mesh = ExtResource("26_shoe")
 surface_material_override/0 = ExtResource("27_shoe_mat")
 
@@ -235,8 +273,106 @@ mesh = ExtResource("33_flask")
 surface_material_override/0 = ExtResource("34_flask_mat")
 script = ExtResource("17_prop")
 
+;@ 28+
+[node name="ShaftBench" type="SpotLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 6.4, -21.5)
+light_color = Color(0.86, 0.9, 1, 1)
+light_energy = 7.0
+light_volumetric_fog_energy = 2.0
+spot_range = 11.0
+spot_angle = 52.0
+spot_angle_attenuation = 1.4
+shadow_enabled = true
+
+[node name="LampBench" type="OmniLight3D" parent="Decor"]
+position = Vector3(0, 4.4, -17)
+light_color = Color(1, 0.84, 0.66, 1)
+light_energy = 2.4
+omni_range = 16.0
+
+[node name="BarrelEast" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(2.6, 0, 0, 0, 2.6, 0, 0, 0, 2.6, 8.8, 0, -24.4)
+mesh = ExtResource("50_barrel")
+surface_material_override/0 = ExtResource("51_barrel_mat")
+script = ExtResource("17_prop")
+
+[node name="BarrelWest" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(2.2, 0, 0, 0, 2.2, 0, 0, 0, 2.2, -9.2, 0, -24.6)
+mesh = ExtResource("50_barrel")
+surface_material_override/0 = ExtResource("51_barrel_mat")
+script = ExtResource("17_prop")
+
+;@ 29+
+[node name="LampTunnel" type="OmniLight3D" parent="Decor"]
+position = Vector3(13.4, 2.2, -17.5)
+light_color = Color(1, 0.7, 0.4, 1)
+light_energy = 2.6
+omni_range = 8.0
+
+[node name="Door" parent="." instance=ExtResource("60_door")]
+position = Vector3(11.1, 0, -17.5)
+
+[node name="ToTheCellar" type="Area3D" parent="."]
+position = Vector3(13.6, 1.5, -17.5)
+script = ExtResource("61_threshold")
+next = "res://2_sequence/cellar.tscn"
+
+[node name="Shape" type="CollisionShape3D" parent="ToTheCellar"]
+shape = SubResource("BoxShape3D_exit")
+
+;@ 28+
+[node name="Armory" type="Node3D" parent="."]
+script = ExtResource("41_armory")
+
+[node name="Nailer" parent="Armory" instance=ExtResource("40_stand")]
+position = Vector3(-6, 0, -21.5)
+kit = ExtResource("42_nailer")
+
+[node name="Cork" parent="Armory" instance=ExtResource("40_stand")]
+position = Vector3(-2.2, 0, -23.5)
+kit = ExtResource("43_cork")
+
+[node name="Needle" parent="Armory" instance=ExtResource("40_stand")]
+position = Vector3(2.2, 0, -23.5)
+kit = ExtResource("44_needle")
+
+[node name="Caps" parent="Armory" instance=ExtResource("40_stand")]
+position = Vector3(6, 0, -21.5)
+kit = ExtResource("45_caps")
+
+[node name="CanNorth" parent="." instance=ExtResource("46_can")]
+position = Vector3(-8.5, 0, -19.5)
+
+[node name="CanSouth" parent="." instance=ExtResource("46_can")]
+position = Vector3(-8, 0, -15.5)
+
+[node name="ImpactSparks" type="Node3D" parent="." node_paths=PackedStringArray("pool")]
+script = ExtResource("47_sparks")
+pool = NodePath("../Projectiles")
+
+[node name="Burst1" parent="ImpactSparks" instance=ExtResource("48_burst")]
+
+[node name="Burst2" parent="ImpactSparks" instance=ExtResource("48_burst")]
+
+[node name="Burst3" parent="ImpactSparks" instance=ExtResource("48_burst")]
+
+[node name="Flare" type="Node3D" parent="ImpactSparks"]
+script = ExtResource("49_vfx")
+duration = 0.16
+light_energy = 14.0
+
+[node name="Light" type="OmniLight3D" parent="ImpactSparks/Flare"]
+light_color = Color(1, 0.75, 0.45, 1)
+light_energy = 0.0
+omni_range = 10.0
+omni_attenuation = 1.4
+
+;@ all
 [node name="Hero" parent="." node_paths=PackedStringArray("camera", "aim_camera", "projectiles") instance=ExtResource("7_hero")]
 position = Vector3(0, 0, 3)
+;@ 28+
+unarmed = true
+;@ all
 camera = NodePath("../OrbitCamera")
 aim_camera = NodePath("../OrbitCamera/Arm/Camera")
 projectiles = NodePath("../Projectiles")

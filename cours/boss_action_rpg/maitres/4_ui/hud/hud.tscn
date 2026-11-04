@@ -89,4 +89,15 @@ theme_override_font_sizes/font_size = 30
 horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("6_prompt")
+;@ 28+
+
+[node name="WeaponName" type="Label" parent="."]
+offset_left = 48.0
+offset_top = 100.0
+offset_right = 448.0
+offset_bottom = 134.0
+theme_override_colors/font_color = Color(0.96, 0.9, 0.76, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
 ;@ all

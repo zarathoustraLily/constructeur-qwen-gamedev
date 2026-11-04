@@ -54,6 +54,16 @@ func tick(delta: float) -> void:
 		cooled_down.emit()
 
 
+#@ 28+
+## Repart à froid : une arme qu'on vient de prendre n'a pas chauffé.
+func reset() -> void:
+	is_overheated = false
+	_delay_left = 0.0
+	heat = 0.0
+	changed.emit(heat, settings.max_heat)
+
+
+#@ all
 ## La part de chaleur, de 0 à 1 (pour une jauge).
 func ratio() -> float:
 	return clampf(heat / settings.max_heat, 0.0, 1.0)

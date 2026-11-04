@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponKit" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/weapon_kit.gd" id="1_kit"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_gun.tres" id="2_gun"]
+[ext_resource type="Resource" path="res://5_data/hero/hero_gun_heat.tres" id="3_heat"]
+
+[resource]
+script = ExtResource("1_kit")
+display_name = "La Cloueuse"
+description = "rapide et régulière"
+shape = 0
+gun = ExtResource("2_gun")
+heat = ExtResource("3_heat")

@@ -103,6 +103,11 @@ func _ready() -> void:
 	tree.active = true
 	machine.state_changed.connect(_on_state_changed)
 	gun.fired.connect(_on_fired)
+#@ 28+
+	hero.weapon_changed.connect(_on_weapon_changed)
+	if hero.unarmed:
+		_show_weapon(WeaponKit.Shape.STICK)
+#@ all
 	show_state(machine.current.name)
 #@ 13+
 	flash_material = hit_flash.duplicate() as ShaderMaterial
@@ -153,6 +158,11 @@ func update(delta: float) -> void:
 ## Porte la bouche de l'arme à celle du fusil, calculée depuis l'os de la main droite : le squelette vient de finir sa
 ## pose (pendant la physique, l'os garde encore la pose de l'image précédente).
 func follow_muzzle() -> void:
+#@ 29+
+	# Le squelette peut finir sa pose alors que la salle quitte l'arbre : un changement de salle, un rechargement.
+	if not _skeleton.is_inside_tree():
+		return
+#@ all
 	gun.global_position = (_skeleton.global_transform * _skeleton.get_bone_global_pose(_hand) * _hand_to_muzzle).origin
 
 
@@ -284,6 +294,17 @@ func _on_fired(_origin: Vector3, direction: Vector3) -> void:
 	var up: Vector3 = Vector3.UP if absf(direction.y) < 0.99 else Vector3.BACK
 	muzzle_flash.look_at(muzzle_flash.global_position + direction, up)
 	muzzle_flash.play()
+#@ 28+
+
+
+func _on_weapon_changed(kit: WeaponKit) -> void:
+	_show_weapon(kit.shape)
+
+
+## Met en main la forme `shape`, et retient sa bouche : les tirs partent de son canon.
+func _show_weapon(shape: WeaponKit.Shape) -> void:
+	(model as BobineModel).show_weapon(shape)
+	_hand_to_muzzle = (muzzle.get_parent() as Node3D).transform * muzzle.transform
 #@ 13+
 
 

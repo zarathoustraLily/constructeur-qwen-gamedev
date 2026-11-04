@@ -3,6 +3,10 @@ extends GdUnitTestSuite
 ## course contre chaque mur, elle reste dedans ; elle passe de la chambre à l'atelier par le couloir ; près de la bougie,
 ## l'invite la nomme ; le bouton Y de la manette la souffle, la touche F la rallume ; la qualité basse s'applique sans lune ni
 ## brume au sol.
+#@ 28+
+## Elle arrive avec une baguette, qui ne tire pas. Quatre armes attendent sur leurs socles ; le bouton Y en prend une : elle
+## est en main, l'interface la nomme, et le socle se vide. Un tir sur une boîte de conserve l'affiche.
+#@ all
 
 const BURROW := preload("res://2_sequence/burrow.tscn")
 ## Un point de chaque salle.
@@ -120,3 +124,55 @@ func test_la_qualite_basse_s_applique_sans_lune_ni_brume_au_sol() -> void:
 	quality.apply(quality.low, level.get_viewport())
 	assert_bool((level.get_node("World") as WorldEnvironment).environment.volumetric_fog_enabled).is_false()
 	quality.apply(quality.high, level.get_viewport())
+#@ 28+
+
+
+func _stand(level: Level, stand_name: String) -> WeaponStand:
+	return level.get_node("Armory/" + stand_name) as WeaponStand
+
+
+## Pose Bobine tout près du socle, et laisse sa main le voir.
+func _beside(level: Level, stand: WeaponStand) -> void:
+	await _frames(3)
+	level.hero.global_position = stand.global_position + Vector3(0.0, 0.0, 1.4)
+	await _frames(4)
+
+
+func test_elle_arrive_avec_une_baguette_qui_ne_tire_pas() -> void:
+	var level: Level = _burrow()
+	await _frames(3)
+	assert_bool(level.hero.unarmed).is_true()
+	var ready_shots: int = level.hero.projectiles.available()
+	level.hero.trigger = true
+	await _frames(20)
+	level.hero.trigger = false
+	assert_int(level.hero.projectiles.available()).is_equal(ready_shots)
+
+
+func test_quatre_armes_attendent_sur_leurs_socles() -> void:
+	assert_int((_burrow().get_node("Armory") as Armory).stands.size()).is_equal(4)
+
+
+func test_le_bouton_y_prend_l_arme_du_socle() -> void:
+	var level: Level = _burrow()
+	var stand: WeaponStand = _stand(level, "Cork")
+	await _beside(level, stand)
+	assert_str(level.hud.prompt.text).contains(stand.kit.display_name)
+	await _press(_gamepad_y(true))
+	await _press(_gamepad_y(false))
+	assert_that(level.hero.weapon).is_same(stand.kit)
+	assert_that(level.hero.gun.settings).is_same(stand.kit.gun)
+	assert_str(level.hud.weapon_name.text).is_equal(stand.kit.display_name)
+	assert_bool(stand.empty).is_true()
+
+
+func test_un_tir_sur_une_boite_de_conserve_l_affiche() -> void:
+	var level: Level = _burrow()
+	await _frames(3)
+	level.hero.equip(_stand(level, "Nailer").kit)
+	var can: TinCan = level.get_node("CanSouth") as TinCan
+	var from: Vector3 = can.global_position + Vector3(4.0, 1.1, 0.0)
+	level.hero.projectiles.fire(from, Vector3.LEFT, 70.0, 12.0, 0.6)
+	await _frames(20)
+	assert_str((can.get_node("Damage") as Label3D).text).is_equal("12")
+#@ all

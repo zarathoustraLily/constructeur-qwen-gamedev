@@ -45,8 +45,11 @@ func physics_update(delta: float) -> void:
 	if hero.is_on_floor() and hero.stamina.can_spend() and hero.jump_buffer.consume():
 		finish(&"Jump")
 		return
-#@ 5+
+#@ 5-27
 	if hero.trigger:
+#@ 28+
+	if hero.trigger and not hero.unarmed:
+#@ 5+
 		hero.gun.pull(hero.aim_point())
 #@ all
 	hero.step(delta)

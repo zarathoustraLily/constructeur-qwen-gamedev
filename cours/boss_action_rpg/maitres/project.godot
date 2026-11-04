@@ -12,7 +12,11 @@ config_version=5
 
 config/name="Gardien du Comptoir · étape {STEP}"
 config/description="{TITLE}"
+;@ 1-28
 run/main_scene="res://2_sequence/main.tscn"
+;@ 29+
+run/main_scene="res://2_sequence/game.tscn"
+;@ all
 config/features=PackedStringArray("4.7", "Forward Plus")
 ;@ 18+
 

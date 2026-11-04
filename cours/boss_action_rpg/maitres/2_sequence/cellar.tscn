@@ -1,0 +1,227 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/level.gd" id="1_level"]
+[ext_resource type="Environment" path="res://5_data/environment/burrow_environment.tres" id="2_env"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_wall.tres" id="3_wall"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_floor.tres" id="4_floor"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_beam.tres" id="5_beam"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_sky.tres" id="6_sky"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/hero.tscn" id="7_hero"]
+[ext_resource type="PackedScene" path="res://1_core/camera/orbit_camera.tscn" id="8_orbit"]
+[ext_resource type="Script" path="res://1_core/combat/projectile_pool.gd" id="9_pool"]
+[ext_resource type="PackedScene" path="res://3_entities/hero/hero_shot.tscn" id="10_shot"]
+[ext_resource type="PackedScene" path="res://4_ui/hud/hud.tscn" id="11_hud"]
+[ext_resource type="Resource" path="res://5_data/ui/hud.tres" id="12_hud_settings"]
+[ext_resource type="Script" path="res://1_core/graphics/graphics_quality_applier.gd" id="13_quality"]
+[ext_resource type="Resource" path="res://5_data/graphics/quality_high.tres" id="14_high"]
+[ext_resource type="Resource" path="res://5_data/graphics/quality_low.tres" id="15_low"]
+[ext_resource type="Script" path="res://1_core/level/solid_prop.gd" id="16_prop"]
+[ext_resource type="Script" path="res://1_core/level/threshold.gd" id="17_threshold"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Sal_Bottle_Glass_01_LOD0.res" id="18_bottle"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Sal_Bottle_Glass_02.tres" id="19_glass"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Sal_Bottle_Glass_03.tres" id="20_glass_dark"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Sal_Bottle_Cork_01.tres" id="21_cork"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_Res_Sto_Chest_Wood_Worn_08_LOD0.res" id="22_chest"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_Res_Sto_Chest_Wood_Worn_08.tres" id="23_chest_mat"]
+[ext_resource type="ArrayMesh" path="res://6_assets/Environment/Saloon/Meshes/SM_His_Med_Storage_Barrel_Wood_Worn_01_LOD0.res" id="24_barrel"]
+[ext_resource type="Material" path="res://6_assets/Environment/Saloon/Materials/M_His_Med_Storage_Barrel_Wood_Worn_01.tres" id="25_barrel_mat"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_exit"]
+size = Vector3(4, 3, 2)
+
+[node name="Cellar" type="Node3D"]
+script = ExtResource("1_level")
+
+[node name="World" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_env")
+
+[node name="Walls" type="CSGCombiner3D" parent="."]
+use_collision = true
+collision_mask = 0
+
+[node name="Block" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 4, -18)
+size = Vector3(28, 14, 48)
+material = ExtResource("3_wall")
+
+[node name="Hall" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 3.8, -16)
+operation = 2
+size = Vector3(16, 8.6, 34)
+material = ExtResource("3_wall")
+
+[node name="Exit" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 1.9, -35)
+operation = 2
+size = Vector3(4, 4.8, 6)
+material = ExtResource("3_wall")
+
+[node name="Floor" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, -0.5, -18)
+size = Vector3(20, 1, 44)
+material = ExtResource("4_floor")
+
+[node name="Ceiling" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 8.5, -16)
+size = Vector3(20, 1, 38)
+material = ExtResource("4_floor")
+
+[node name="Plank" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 0.4, -16)
+size = Vector3(16.4, 0.8, 0.6)
+material = ExtResource("5_beam")
+
+[node name="BeamA" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 7.65, -6)
+size = Vector3(16.4, 0.7, 0.8)
+material = ExtResource("5_beam")
+
+[node name="BeamB" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 7.65, -16)
+size = Vector3(16.4, 0.7, 0.8)
+material = ExtResource("5_beam")
+
+[node name="BeamC" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 7.65, -26)
+size = Vector3(16.4, 0.7, 0.8)
+material = ExtResource("5_beam")
+
+[node name="SlitSouth" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 8.7, -11)
+operation = 2
+size = Vector3(10, 1.4, 0.24)
+material = ExtResource("6_sky")
+
+[node name="SlitNorth" type="CSGBox3D" parent="Walls"]
+position = Vector3(0, 8.7, -21)
+operation = 2
+size = Vector3(10, 1.4, 0.24)
+material = ExtResource("6_sky")
+
+[node name="Decor" type="Node3D" parent="."]
+
+[node name="ShaftSouth" type="SpotLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 7.6, -11)
+light_color = Color(0.78, 0.86, 1, 1)
+light_energy = 7.0
+light_volumetric_fog_energy = 3.0
+spot_range = 12.0
+spot_angle = 42.0
+spot_angle_attenuation = 1.5
+shadow_enabled = true
+
+[node name="ShaftNorth" type="SpotLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 7.6, -21)
+light_color = Color(0.78, 0.86, 1, 1)
+light_energy = 7.0
+light_volumetric_fog_energy = 3.0
+spot_range = 12.0
+spot_angle = 42.0
+spot_angle_attenuation = 1.5
+shadow_enabled = true
+
+[node name="LampStart" type="OmniLight3D" parent="Decor"]
+position = Vector3(0, 4, -3)
+light_color = Color(1, 0.8, 0.58, 1)
+light_energy = 2.0
+omni_range = 13.0
+
+[node name="LampMiddle" type="OmniLight3D" parent="Decor"]
+position = Vector3(0, 5, -25)
+light_color = Color(1, 0.84, 0.66, 1)
+light_energy = 2.2
+omni_range = 15.0
+
+[node name="LampExit" type="OmniLight3D" parent="Decor"]
+position = Vector3(0, 2.4, -34)
+light_color = Color(1, 0.7, 0.4, 1)
+light_energy = 4.0
+omni_range = 13.0
+shadow_enabled = true
+
+[node name="BottleWestA" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(14, 0, 0, 0, 14, 0, 0, 0, 14, -5.8, 0, -7.5)
+mesh = ExtResource("18_bottle")
+surface_material_override/0 = ExtResource("19_glass")
+surface_material_override/1 = ExtResource("21_cork")
+script = ExtResource("16_prop")
+
+[node name="BottleEastA" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(16, 0, 0, 0, 16, 0, 0, 0, 16, 5.6, 0, -9.5)
+mesh = ExtResource("18_bottle")
+surface_material_override/0 = ExtResource("20_glass_dark")
+surface_material_override/1 = ExtResource("21_cork")
+script = ExtResource("16_prop")
+
+[node name="BottleWestB" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(17, 0, 0, 0, 17, 0, 0, 0, 17, -5.4, 0, -20.5)
+mesh = ExtResource("18_bottle")
+surface_material_override/0 = ExtResource("20_glass_dark")
+surface_material_override/1 = ExtResource("21_cork")
+script = ExtResource("16_prop")
+
+[node name="BottleEastB" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(14, 0, 0, 0, 14, 0, 0, 0, 14, 5.9, 0, -23.5)
+mesh = ExtResource("18_bottle")
+surface_material_override/0 = ExtResource("19_glass")
+surface_material_override/1 = ExtResource("21_cork")
+script = ExtResource("16_prop")
+
+[node name="BottleWestC" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -6.2, 0, -27.5)
+mesh = ExtResource("18_bottle")
+surface_material_override/0 = ExtResource("19_glass")
+surface_material_override/1 = ExtResource("21_cork")
+script = ExtResource("16_prop")
+
+[node name="BottleEastC" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(17, 0, 0, 0, 17, 0, 0, 0, 17, 4.9, 0, -29)
+mesh = ExtResource("18_bottle")
+surface_material_override/0 = ExtResource("20_glass_dark")
+surface_material_override/1 = ExtResource("21_cork")
+script = ExtResource("16_prop")
+
+[node name="ChestWest" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(2.2, 0, 0, 0, 2.2, 0, 0, 0, 2.2, -6, 0, -2.6)
+mesh = ExtResource("22_chest")
+surface_material_override/0 = ExtResource("23_chest_mat")
+script = ExtResource("16_prop")
+
+[node name="BarrelEast" type="MeshInstance3D" parent="Decor"]
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 6.2, 0, -2.8)
+mesh = ExtResource("24_barrel")
+surface_material_override/0 = ExtResource("25_barrel_mat")
+script = ExtResource("16_prop")
+
+[node name="Hero" parent="." node_paths=PackedStringArray("camera", "aim_camera", "projectiles") instance=ExtResource("7_hero")]
+position = Vector3(0, 0, -2)
+camera = NodePath("../OrbitCamera")
+aim_camera = NodePath("../OrbitCamera/Arm/Camera")
+projectiles = NodePath("../Projectiles")
+
+[node name="OrbitCamera" parent="." node_paths=PackedStringArray("target") instance=ExtResource("8_orbit")]
+target = NodePath("../Hero")
+
+[node name="Projectiles" type="Node3D" parent="."]
+script = ExtResource("9_pool")
+scene = ExtResource("10_shot")
+size = 32
+
+[node name="Hud" parent="." instance=ExtResource("11_hud")]
+settings = ExtResource("12_hud_settings")
+
+[node name="GraphicsQuality" type="Node" parent="." node_paths=PackedStringArray("world", "lights_root", "focus")]
+script = ExtResource("13_quality")
+high = ExtResource("14_high")
+low = ExtResource("15_low")
+world = NodePath("../World")
+lights_root = NodePath("../Decor")
+focus = NodePath("../Hero")
+
+[node name="ToTheKeeper" type="Area3D" parent="."]
+position = Vector3(0, 1.5, -36.5)
+script = ExtResource("17_threshold")
+next = "res://2_sequence/main.tscn"
+
+[node name="Shape" type="CollisionShape3D" parent="ToTheKeeper"]
+shape = SubResource("BoxShape3D_exit")

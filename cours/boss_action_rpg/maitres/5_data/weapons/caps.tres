@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="WeaponKit" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://1_core/data/weapon_kit.gd" id="1_kit"]
+[ext_resource type="Script" path="res://1_core/data/gun_settings.gd" id="2_gun"]
+[ext_resource type="Script" path="res://1_core/data/heat_settings.gd" id="3_heat"]
+
+[sub_resource type="Resource" id="Resource_gun"]
+script = ExtResource("2_gun")
+fire_interval = 0.42
+heat_per_shot = 24.0
+projectile_speed = 58.0
+damage = 9.0
+lifetime = 0.28
+aim_range = 60.0
+pellets = 7
+spread_degrees = 5.0
+
+[sub_resource type="Resource" id="Resource_heat"]
+script = ExtResource("3_heat")
+max_heat = 100.0
+cool_rate = 50.0
+cool_delay = 0.3
+
+[resource]
+script = ExtResource("1_kit")
+display_name = "La Capsuleuse"
+description = "une gerbe, de tout près"
+shape = 3
+gun = SubResource("Resource_gun")
+heat = SubResource("Resource_heat")

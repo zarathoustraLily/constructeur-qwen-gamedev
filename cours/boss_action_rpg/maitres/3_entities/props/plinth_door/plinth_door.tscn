@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://3_entities/props/plinth_door/plinth_door.gd" id="1_door"]
+[ext_resource type="Material" path="res://5_data/environment/burrow_beam.tres" id="2_wood"]
+[ext_resource type="Script" path="res://1_core/interaction/interactable.gd" id="3_hand"]
+[ext_resource type="Material" path="res://5_data/props/iron.tres" id="4_iron"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_panel"]
+material = ExtResource("2_wood")
+size = Vector3(0.4, 3.9, 3.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bar"]
+material = ExtResource("4_iron")
+size = Vector3(0.14, 0.3, 3.9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_panel"]
+size = Vector3(0.4, 3.9, 3.8)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hand"]
+radius = 1.6
+
+[node name="PlinthDoor" type="Node3D"]
+script = ExtResource("1_door")
+
+[node name="Panel" type="StaticBody3D" parent="."]
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Panel"]
+position = Vector3(0, 1.95, 0)
+mesh = SubResource("BoxMesh_panel")
+
+[node name="BarLow" type="MeshInstance3D" parent="Panel"]
+position = Vector3(-0.22, 1, 0)
+mesh = SubResource("BoxMesh_bar")
+
+[node name="BarHigh" type="MeshInstance3D" parent="Panel"]
+position = Vector3(-0.22, 2.9, 0)
+mesh = SubResource("BoxMesh_bar")
+
+[node name="Shape" type="CollisionShape3D" parent="Panel"]
+position = Vector3(0, 1.95, 0)
+shape = SubResource("BoxShape3D_panel")
+
+[node name="Hand" type="Area3D" parent="."]
+position = Vector3(-0.6, 1, 0)
+script = ExtResource("3_hand")
+prompt = "La plinthe ne cède pas : il te faut une arme de l'Établi"
+
+[node name="Shape" type="CollisionShape3D" parent="Hand"]
+shape = SubResource("SphereShape3D_hand")

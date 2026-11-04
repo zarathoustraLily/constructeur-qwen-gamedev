@@ -13,3 +13,9 @@ class_name GunSettings extends Resource
 @export_range(0.05, 5.0, 0.05) var lifetime: float = 0.6
 ## La portée du rayon de visée, en mètres.
 @export_range(1.0, 500.0, 1.0) var aim_range: float = 60.0
+#@ 28+
+## Combien de projectiles part un tir.
+@export_range(1, 16, 1) var pellets: int = 1
+## L'écart de la gerbe, en degrés, quand un tir part en plusieurs projectiles.
+@export_range(0.0, 30.0, 0.5) var spread_degrees: float = 0.0
+#@ all

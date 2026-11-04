@@ -21,6 +21,9 @@ class_name Hud extends CanvasLayer
 #@ 27+
 ## L'invite de la main.
 @onready var prompt: InteractPrompt = $Prompt
+#@ 28+
+## Le nom de l'arme en main.
+@onready var weapon_name: Label = $WeaponName
 #@ all
 
 
@@ -69,6 +72,13 @@ func bind_fighter(health: HealthComponent, stamina: StaminaComponent, heat: Heat
 	bind_flasks(flask_component)
 
 
+#@ 28+
+## Montre le nom de l'arme en main.
+func show_weapon(text: String) -> void:
+	weapon_name.text = text
+
+
+#@ 27+
 ## Branche l'invite sur la main du héros.
 func bind_interactor(interactor: Interactor) -> void:
 	interactor.focus_changed.connect(prompt.show_prompt)

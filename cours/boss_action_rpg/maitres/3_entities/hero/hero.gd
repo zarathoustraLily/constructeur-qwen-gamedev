@@ -13,10 +13,17 @@ class_name Hero extends CharacterBody3D
 
 ## Le héros vient de tomber : le niveau va recommencer (la scène principale l'écoute).
 signal defeated
+#@ 28+
+## Le héros vient de prendre l'arme `kit`.
+signal weapon_changed(kit: WeaponKit)
 #@ all
 
 ## Vitesses, accélérations, virage, gravité.
 @export var settings: HeroSettings
+#@ 28+
+## Vrai : le héros n'a pas encore d'arme, il ne tire pas (le Terrier le pose).
+@export var unarmed: bool = false
+#@ all
 ## Ce qui donne le lacet de la caméra (la caméra, ou son pivot).
 @export var camera: Node3D
 #@ 5+
@@ -43,6 +50,9 @@ var trigger: bool = false
 #@ 6+
 ## D'où venait le dernier coup reçu : le recul l'en éloigne.
 var last_hit_from: Vector3 = Vector3.ZERO
+#@ 28+
+## L'arme prise à l'établi, ou null : il garde alors les réglages de sa scène.
+var weapon: WeaponKit = null
 #@ 4+
 
 ## L'endurance : la roulade et le sprint la dépensent.
@@ -243,4 +253,16 @@ func jump_speed() -> float:
 ## lui ferait traverser le plancher en se libérant.
 func fall(delta: float) -> void:
 	velocity.y = maxf(velocity.y - settings.gravity * delta, -settings.max_fall_speed)
+#@ all
+#@ 28+
+
+
+## Prend l'arme `kit` : son arme reçoit ses réglages et repart à froid, et sa vue en change la forme.
+func equip(kit: WeaponKit) -> void:
+	weapon = kit
+	unarmed = false
+	gun.settings = kit.gun
+	gun.heat.settings = kit.heat
+	gun.heat.reset()
+	weapon_changed.emit(kit)
 #@ all
