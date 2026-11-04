@@ -7,7 +7,9 @@ les chiffres et les formes sont mes choix, à faire valider.
 
 {FILES_TABLE}
 
-## Une arme est une donnée
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Une arme est une donnée
 
 `HeroGun` savait déjà tirer avec des réglages. Une arme n'a donc pas besoin d'une classe : `WeaponKit` est une ressource qui porte un nom, une description, une forme, ses `GunSettings` et ses `HeatSettings`. Le nœud de
 l'arme reste le même, et `Hero.equip` lui donne d'autres réglages. Ajouter une arme, c'est écrire un `.tres`.
@@ -21,7 +23,7 @@ l'arme reste le même, et `Hero.equip` lui donne d'autres réglages. Ajouter une
 
 `equip` remet aussi la chaleur à zéro (`HeatComponent.reset`) : sans cela, changer d'arme aurait gardé une surchauffe d'une arme à l'autre.
 
-## La gerbe
+### 2. La gerbe
 
 Un seul champ de plus dans `GunSettings` : `pellets`, et `spread_degrees`. Tout reste dans la réserve de 32 projectiles, sans en créer un seul en combat.
 
@@ -31,18 +33,18 @@ Un seul champ de plus dans `GunSettings` : `pellets`, et `spread_degrees`. Tout 
 
 `test_ce_qui_vole_tient_dans_la_reserve` multiplie, pour chaque arme, la durée de vol par la cadence et par le nombre de projectiles. C'est le calcul qui était écrit en commentaire de `ProjectilePool` à l'étape 5 : il devient une règle.
 
-## Les mains vides
+### 3. Les mains vides
 
 Sans arme, la porte doit rester fermée. Il fallait donc une Bobine désarmée, et ses clips la tiennent en position de tir, les mains fermées sur une arme. Montrer des mains vides dans cette pose aurait l'air d'une erreur.
 
 Elle tient donc une **baguette de bois** : la forme `STICK`, qui ne tire pas. `Hero.unarmed` se pose dans la scène du Terrier, et l'état `Move` le lit. Le combat de `main.tscn` n'en sait rien : le champ y reste faux.
 
-## La bouche suit l'arme
+### 4. La bouche suit l'arme
 
 Les quatre armes n'ont pas la même longueur. `HeroView` retenait la bouche une fois pour toutes dans son `_ready`, et le tir serait parti de l'air, ou du milieu du canon. `BobineModel.show_weapon` porte le marqueur au bout du maillage (`get_aabb`), et la vue recalcule `_hand_to_muzzle`.
 La longueur n'est écrite nulle part : elle se lit sur la forme.
 
-## Le socle et l'Établi
+### 5. Le socle et l'Établi
 
 Chacun tient une seule règle.
 
@@ -52,7 +54,7 @@ Chacun tient une seule règle.
 
 L'arme présentée utilise le maillage de la main, avec le matériau de Bobine. Il n'y a qu'une forme à entretenir pour chaque arme.
 
-## La boîte de conserve
+### 6. La boîte de conserve
 
 Essayer une arme veut dire la comparer. La boîte réutilise `Hurtbox`, sans santé : un tir y fait 0 dégât. Elle encaisse donc sans fin, penche à proportion du tir, et affiche sa valeur (`Label3D`).
 

@@ -26,7 +26,9 @@ Le texte peut changer sans signal : `refresh` compare à chaque image l'invite m
 
 Dans `Hud`, seule l'invite connaît la main, et `Interactor` est dans `1_core` : la règle des dossiers tient (`4_ui` ne dépend pas de `3_entities`).
 
-## Les murs : du CSG, pour une raison précise
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Les murs : du CSG, pour une raison précise
 
 Il faut une salle fermée, avec des ouvertures, modifiable dans l'éditeur. Des boîtes séparées laisseraient des faces cachées et des joints. Le CSG soustrait les salles d'un bloc plein :
 
@@ -41,7 +43,7 @@ Le mesurer évite de le supposer : `mesurer_salle.gd`.
 
 Les matières sont en triplanaire **dans le monde** (`uv1_world_triplanar`) : une boîte CSG n'a pas de coordonnées de texture utiles, et le bois garde la même échelle sur toutes les parois. Sur ce décor qui ne bouge pas, le défaut vu à l'étape précédente n'existe pas.
 
-## Les objets du géant
+### 2. Les objets du géant
 
 Le monde se raconte par l'échelle : un livre devient un lit, un fer à cheval le cadre d'une porte, une roue de charrette tient contre le mur. `SolidProp` donne à chacun une boîte à sa taille.
 
@@ -49,7 +51,7 @@ Le corps n'hérite pas de l'échelle du maillage : il est `top_level`, et prend 
 
 `outils/tailles_decor.gd` lit la taille des maillages et leurs matières dans `saloon.tscn` : on pose un objet sans deviner.
 
-## La qualité sans lune
+### 3. La qualité sans lune
 
 `GraphicsQualityApplier` attendait une lune et une brume, et le Terrier n'a ni l'une ni l'autre. Les tests de l'ancien chemin restent, et le nouveau cas a le sien. Il n'y a pas de réglage vide à remplir dans la scène, seulement deux tests de `null` sur des choses qui peuvent ne pas exister.
 

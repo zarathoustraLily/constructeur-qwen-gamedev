@@ -7,7 +7,9 @@ réglages et le retour au Terrier après une chute sont mes choix, à faire vali
 
 {FILES_TABLE}
 
-## Un jeu au-dessus des salles
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Un jeu au-dessus des salles
 
 Jusqu'ici, `main.tscn` était le jeu. Pour passer d'une salle à l'autre en gardant une arme, il fallait quelque chose qui survive au changement. Deux réponses sont possibles :
 
@@ -20,17 +22,17 @@ La seconde a un effet heureux. `main.gd` faisait déjà `reload_current_scene` �
 
 `Level` trouve ses seuils avec `find_children`, une seule fois, au chargement. Une salle de plus n'a rien à brancher.
 
-## Le noir qui retombe
+### 2. Le noir qui retombe
 
 Le passage est fait de deux fondus autour du changement de salle. Le risque connu d'un voile d'écran est qu'il reste allumé, ou qu'il attrape les clics : d'où `mouse_filter = 2` sur le `ColorRect`, et un test qui lit l'opacité à zéro après chaque arrivée.
 
 `changing` refuse un second seuil pendant un passage. Sans lui, deux `go_to` se croiseraient, et chacun libérerait la salle de l'autre.
 
-## La manette après un changement de salle
+### 3. La manette après un changement de salle
 
 Un héros neuf arrive à chaque salle, avec son `HeroInput` : il n'y a rien à réassigner. Comme un défaut de ce type se cache facilement, `test_sa_manette_repond_apres_un_changement_de_salle` envoie un vrai évènement de stick et mesure le déplacement.
 
-## La plinthe
+### 4. La plinthe
 
 `PlinthDoor` se lève quand Bobine a une arme. Fermée, elle garde une `Interactable` : son bouton ne fait rien, mais l'invite dit pourquoi elle ne cède pas. Le joueur apprend la règle en cognant à la porte.
 
@@ -38,13 +40,13 @@ Sa collision se coupe avec `set_deferred` : `open_door` part d'un signal émis p
 
 Le tunnel est soustrait **avant** le plancher dans le `CSGCombiner3D`. L'ordre des enfants fait partie de la scène, comme à l'étape 27.
 
-## Sous le Comptoir
+### 5. Sous le Comptoir
 
 Une salle sans combat, pour marcher, sauter et regarder. Les bouteilles du géant font des colonnes. Une planche de 80 cm barre le passage, et Bobine saute à 1 m : c'est un obstacle qui enseigne le saut, et `test_la_planche_l_arrete_a_pied_et_se_passe_en_sautant` vérifie les deux moitiés de cette phrase.
 
 Une lumière chaude au fond dit où aller, sans flèche.
 
-## Jouer toute la boucle
+### 6. Jouer toute la boucle
 
 Les tests vérifient chaque passage. Reste à savoir si un joueur peut tout enchaîner. `outils/scenarios/parcours_boucle.gd` joue du lit au Gardien avec de vrais évènements, à la manette puis au clavier, sans fenêtre.
 

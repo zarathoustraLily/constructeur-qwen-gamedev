@@ -19,13 +19,15 @@ des bas rayés, des sabots, une cape rapiécée.
 
 Quand une contrainte technique pèse, on cherche le personnage ou le décor qui en fait une qualité, avant d'y mettre des heures de technique.
 
-## Garder le squelette, changer le corps
+## Ce qu'on a fait, dans l'ordre
+
+### 1. Garder le squelette, changer le corps
 
 `HeroView` lit quatre noms : `%GeneralSkeleton`, `AnimationPlayer`, `%Muzzle` et `%LeftHandIK`. Il ne sait rien du soldat. Une nouvelle scène avec ces quatre nœuds, et le même
 squelette, reçoit donc les 13 clips, l'arbre d'animation, la visée et l'IK de la main gauche sans une ligne de plus. `construire_bobine.py` écrit cette scène à partir de celle du
 soldat, sans ses maillages. Le prix d'une vue qui ne décide rien s'est payé à l'étape 8 ; il rapporte ici.
 
-## Le maillage
+### 2. Le maillage
 
 `PuppetBuilder` hérite de `MeshBuilder`, sans le changer. Ce sont les deux méthodes qu'il remplace qui font son travail :
 
