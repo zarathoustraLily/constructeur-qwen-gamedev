@@ -51,6 +51,9 @@ JEUX = {
              "effets, météo, poissons et objets"),
     "roguelike": ("un roguelike d'action sous Godot 4.7.2", "le roguelike : contrôles au clavier, à la souris et à la "
                   "manette, machine à états, combat, ennemis, vagues, niveaux, boutique, pause et commandes"),
+    "boss_action_rpg": ("un niveau de boss d'action RPG sous Godot 4.7.2", "le boss : contrôles au clavier, à la souris "
+                        "et à la manette, caméra et verrouillage, tir, roulade et saut, golem et ses attaques, spectres, "
+                        "interface, effets, son et musique, qualités graphiques, salles, armes et portes"),
 }
 
 
