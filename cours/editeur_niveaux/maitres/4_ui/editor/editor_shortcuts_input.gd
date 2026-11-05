@@ -4,6 +4,12 @@ extends Node
 ## supprime la sélection ; Ctrl+D la duplique et sélectionne les doubles ; les flèches la déplacent d'un pas de grille
 ## (avec Maj : de quatre pas). Les touches qu'aucun champ de saisie n'a prises arrivent ici
 ## (`_unhandled_key_input`) : taper un nom dans l'inspecteur ne supprime rien.
+#@ 9+
+## Ctrl+S demande l'enregistrement : la coquille s'en charge, après validation.
+
+## Ctrl+S vient d'être pressé.
+signal save_requested
+#@ all
 
 ## Le nombre de pas de grille d'un déplacement aux flèches avec Maj.
 const FAST_STEPS: float = 4.0
@@ -38,6 +44,11 @@ func handle(event: InputEvent) -> bool:
 		return _document.undo()
 	if ctrl and (key.keycode == KEY_Y or (key.keycode == KEY_Z and key.shift_pressed)):
 		return _document.redo()
+#@ 9+
+	if ctrl and key.keycode == KEY_S:
+		save_requested.emit()
+		return true
+#@ all
 	if _selection.is_empty():
 		return false
 	var ids: Array[int] = _selection.ids()

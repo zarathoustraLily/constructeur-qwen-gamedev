@@ -82,6 +82,15 @@ func test_une_fleche_deplace_d_un_pas_quatre_avec_maj() -> void:
 			0.001)
 
 
+#@ 9+
+func test_ctrl_s_demande_l_enregistrement() -> void:
+	var asked: Array[bool] = []
+	_shortcuts.save_requested.connect(func() -> void: asked.append(true))
+	assert_bool(_key(KEY_S, true)).is_true()
+	assert_array(asked).is_equal([true])
+
+
+#@ all
 func test_sans_selection_suppr_ne_fait_rien() -> void:
 	var count: int = _document.ids().size()
 	assert_bool(_key(KEY_DELETE)).is_false()

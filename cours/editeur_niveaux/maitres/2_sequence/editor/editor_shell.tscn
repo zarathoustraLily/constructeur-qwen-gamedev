@@ -46,9 +46,30 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+;@ 1-8
 [node name="Title" type="Label" parent="Layout"]
 layout_mode = 2
 text = "Éditeur de niveaux"
+;@ 9+
+[node name="TopBar" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Layout/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Éditeur de niveaux"
+
+[node name="RoomPicker" type="OptionButton" parent="Layout/TopBar"]
+layout_mode = 2
+
+[node name="SaveButton" type="Button" parent="Layout/TopBar"]
+layout_mode = 2
+text = "Enregistrer"
+
+[node name="DiscardButton" type="Button" parent="Layout/TopBar"]
+layout_mode = 2
+text = "Abandonner les modifications"
+;@ all
 
 [node name="Body" type="Control" parent="Layout"]
 layout_mode = 2

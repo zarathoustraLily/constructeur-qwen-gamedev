@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 FICHIERS = {
     "project.godot": "1+",

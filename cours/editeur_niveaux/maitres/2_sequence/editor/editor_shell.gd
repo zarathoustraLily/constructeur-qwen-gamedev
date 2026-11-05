@@ -13,6 +13,11 @@ extends Control
 #@ 8+
 ## À gauche, la hiérarchie des calques et la palette (un double-clic pose l'asset au centre de la vue) ; à droite,
 ## l'inspecteur de la sélection ; au clavier, Ctrl+Z, Ctrl+Y, Suppr, Ctrl+D et les flèches.
+#@ 9+
+## En haut, la liste des salles du dossier des salles, « Enregistrer » (Ctrl+S) et « Abandonner les modifications ».
+## Une salle s'enregistre seulement si elle est valide et ne cite que des calques et des assets du catalogue ; le titre
+## porte un astérisque tant qu'elle a des modifications non enregistrées, et l'éditeur refuse alors d'ouvrir une autre
+## salle sans qu'on ait choisi d'enregistrer ou d'abandonner.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -20,6 +25,11 @@ signal status_changed(text: String)
 
 ## Ce que dit la barre d'état quand rien n'est ouvert.
 const NOTHING_OPEN: String = "Aucune salle ouverte"
+#@ 9+
+## Le nom de l'application, en tête du titre.
+const APP_TITLE: String = "Éditeur de niveaux"
+## Ce que dit la barre d'état quand on veut changer de salle avec des modifications non enregistrées.
+const UNSAVED: String = "Modifications non enregistrées : « Enregistrer » (Ctrl+S) ou « Abandonner les modifications »"
 #@ 6+
 
 ## La salle ouverte au démarrage.
@@ -28,6 +38,10 @@ const NOTHING_OPEN: String = "Aucune salle ouverte"
 @export var catalog: AssetCatalogDef
 ## Les réglages de l'éditeur.
 @export var settings: EditorSettingsDef
+#@ 9+
+## Le dossier des salles : la liste en haut de la fenêtre, et là où l'on enregistre.
+@export_dir var rooms_dir: String = RoomStore.DEFAULT_ROOT
+#@ 6+
 
 var _store: RoomStore = RoomStore.new()
 var _document: RoomDocument = RoomDocument.new()
@@ -35,6 +49,8 @@ var _transform: ViewTransform = ViewTransform.new()
 #@ 7+
 var _selection: SelectionModel = SelectionModel.new()
 var _actions: EditorActions = EditorActions.new()
+#@ 9+
+var _current_file: String = ""
 #@ all
 
 @onready var _status: Label = $Layout/Status
@@ -49,6 +65,11 @@ var _actions: EditorActions = EditorActions.new()
 @onready var _palette: PalettePanel = $Layout/Body/Left/PalettePanel
 @onready var _inspector: InspectorPanel = $Layout/Body/InspectorPanel
 @onready var _shortcuts: EditorShortcutsInput = $Layout/Body/EditorShortcutsInput
+#@ 9+
+@onready var _title: Label = $Layout/TopBar/Title
+@onready var _picker: OptionButton = $Layout/TopBar/RoomPicker
+@onready var _save_button: Button = $Layout/TopBar/SaveButton
+@onready var _discard_button: Button = $Layout/TopBar/DiscardButton
 #@ all
 
 
@@ -70,6 +91,14 @@ func _ready() -> void:
 	_palette.asset_chosen.connect(place_asset)
 	_inspector.setup(_document, _selection, _actions, catalog)
 	_shortcuts.setup(_document, _selection, _actions, settings)
+#@ 9+
+	_store.setup(rooms_dir)
+	_document.dirty_changed.connect(_on_dirty_changed)
+	_shortcuts.save_requested.connect(save_room)
+	_save_button.pressed.connect(save_room)
+	_discard_button.pressed.connect(discard_changes)
+	_picker.item_selected.connect(_on_room_picked)
+	refresh_rooms()
 #@ 6+
 	_view.resized.connect(frame_room)
 	if start_room.is_empty():
@@ -116,8 +145,18 @@ func place_asset(asset_id: StringName) -> int:
 #@ 6+
 
 
+#@ 6-8
 ## Ouvre la salle `path` : elle doit être valide, et ne citer que des calques et des assets du catalogue.
 func open_room(path: String) -> bool:
+#@ 9+
+## Ouvre la salle `path` : elle doit être valide, et ne citer que des calques et des assets du catalogue. Refusé si la
+## salle ouverte a des modifications non enregistrées, sauf si `discard` demande de les abandonner.
+func open_room(path: String, discard: bool = false) -> bool:
+	if _document.is_dirty() and not discard:
+		show_status(UNSAVED)
+		_select_current()
+		return false
+#@ 6+
 	var room: RoomData = _store.load_room(path)
 	var errors: Array[String] = _store.errors.duplicate()
 	if room != null:
@@ -127,6 +166,11 @@ func open_room(path: String) -> bool:
 		show_status("Ouverture impossible : " + "; ".join(errors))
 		return false
 	frame_room()
+#@ 9+
+	_current_file = path.get_file()
+	_update_title()
+	_select_current()
+#@ 6+
 	show_status("%s : %d choses" % [room.display_name, room.thing_count()])
 	return true
 
@@ -142,4 +186,72 @@ func frame_room() -> void:
 # Après une suppression ou une annulation, la sélection ne garde que les choses qui existent encore.
 func _forget_removed() -> void:
 	_selection.retain(_document.ids())
+#@ 9+
+
+
+## Enregistre la salle ouverte dans le dossier des salles, si elle est valide et ne cite que ce que le catalogue connaît.
+func save_room() -> bool:
+	var room: RoomData = _document.snapshot()
+	if room == null:
+		show_status(NOTHING_OPEN)
+		return false
+	var errors: Array[String] = catalog.room_errors(room)
+	if errors.is_empty() and _store.save_room(room, _current_file):
+		_document.mark_saved()
+		show_status("%s enregistré" % room.display_name)
+		refresh_rooms()
+		return true
+	errors.append_array(_store.errors)
+	show_status("Enregistrement impossible : " + "; ".join(errors))
+	return false
+
+
+## Abandonne les modifications non enregistrées : rouvre la salle telle qu'elle est sur le disque.
+func discard_changes() -> bool:
+	return not _current_file.is_empty() and open_room(_store.path_of(_current_file), true)
+
+
+## Relit la liste des salles du dossier des salles.
+func refresh_rooms() -> void:
+	_picker.clear()
+	if DirAccess.dir_exists_absolute(rooms_dir):
+		for file: String in DirAccess.get_files_at(rooms_dir):
+			if file.get_extension() == "tres" and not file.begins_with("."):
+				_picker.add_item(file)
+	_select_current()
+
+
+## Les fichiers de la liste des salles, dans l'ordre.
+func room_files() -> PackedStringArray:
+	var files: PackedStringArray = PackedStringArray()
+	for index: int in _picker.item_count:
+		files.append(_picker.get_item_text(index))
+	return files
+
+
+## Le titre de la fenêtre.
+func title() -> String:
+	return _title.text
+
+
+func _on_room_picked(index: int) -> void:
+	var file: String = _picker.get_item_text(index)
+	if file != _current_file:
+		open_room(_store.path_of(file))
+
+
+func _on_dirty_changed(_dirty: bool) -> void:
+	_update_title()
+
+
+func _update_title() -> void:
+	var room: RoomData = _document.snapshot()
+	var marker: String = " *" if _document.is_dirty() else ""
+	_title.text = APP_TITLE if room == null else "%s · %s%s" % [APP_TITLE, room.display_name, marker]
+
+
+func _select_current() -> void:
+	for index: int in _picker.item_count:
+		if _picker.get_item_text(index) == _current_file:
+			_picker.select(index)
 #@ all
