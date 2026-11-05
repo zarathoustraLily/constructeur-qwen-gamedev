@@ -44,10 +44,10 @@ func test_l_apercu_compte_ses_particules_et_se_repete() -> void:
 
 func test_une_particule_nait_au_centre_puis_s_eloigne_en_s_effacant() -> void:
 	var sparks: FxDef = _effects().filter(func(effect: FxDef) -> bool: return effect.id == &"etincelles")[0]
-	var born: Dictionary = EffectPreview.particles(sparks, Vector2.ZERO, 0.0)[0]
+	var born: Variant = EffectPreview.particles(sparks, Vector2.ZERO, 0.0)[0]
 	assert_vector(born[&"position"]).is_equal(Vector2.ZERO)
 	assert_float(born[&"alpha"]).is_equal(sparks.color.a)
-	var later: Dictionary = EffectPreview.particles(sparks, Vector2.ZERO, sparks.lifetime_s * 0.5)[0]
+	var later: Variant = EffectPreview.particles(sparks, Vector2.ZERO, sparks.lifetime_s * 0.5)[0]
 	assert_float(Vector2(later[&"position"]).length()).is_greater(0.0)
 	assert_float(later[&"alpha"]).is_less(born[&"alpha"])
 	assert_float(later[&"radius"]).is_greater(born[&"radius"])

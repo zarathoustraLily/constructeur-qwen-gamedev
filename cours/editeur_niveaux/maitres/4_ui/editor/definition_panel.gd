@@ -104,7 +104,7 @@ func _build_form() -> void:
 	var title: Label = Label.new()
 	title.text = String(_editor.id())
 	_form.add_child(title)
-	for entry: Dictionary in _editor.fields():
+	for entry: Variant in _editor.fields():
 		_form.add_child(_row(entry[&"name"], entry[&"type"]))
 
 

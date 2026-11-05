@@ -14,13 +14,13 @@ const HERO_COLOR: Color = Color(0.3, 0.9, 0.4)
 ## Le rayon d'un point, en pixels.
 const RADIUS: float = 9.0
 
-var _transform: ViewTransform
+var _transform: ViewProjection
 var _input: SpawnInput
 var _document: RoomDocument
 
 
 ## Dessine les apparitions de `document`, au cadrage `transform`, avec le point choisi et l'aperçu de `input`.
-func setup(document: RoomDocument, transform: ViewTransform, input: SpawnInput) -> void:
+func setup(document: RoomDocument, transform: ViewProjection, input: SpawnInput) -> void:
 	_document = document
 	_transform = transform
 	_input = input

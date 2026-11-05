@@ -169,7 +169,7 @@ func add_things(list: Array[Dictionary]) -> Array[int]:
 	var next_id: int = 1
 	for thing_id: int in candidate.thing_ids:
 		next_id = maxi(next_id, thing_id + 1)
-	for fields: Dictionary in list:
+	for fields: Variant in list:
 		var ids_column: PackedInt32Array = candidate.thing_ids
 		ids_column.append(next_id)
 		candidate.thing_ids = ids_column

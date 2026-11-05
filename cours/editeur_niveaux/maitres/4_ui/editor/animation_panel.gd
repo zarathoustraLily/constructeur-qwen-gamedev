@@ -98,8 +98,8 @@ func _build_rows() -> void:
 		child.queue_free()
 	_pickers.clear()
 	var offered: PackedStringArray = offered_clips()
-	var clips: Dictionary = _editor.value(&"clips")
-	var speeds: Dictionary = _editor.value(&"speeds")
+	var clips: Dictionary[StringName, StringName] = _editor.value(&"clips")
+	var speeds: Dictionary[StringName, float] = _editor.value(&"speeds")
 	for state: StringName in AnimationDef.STATES:
 		var row: HBoxContainer = HBoxContainer.new()
 		var label: Label = Label.new()

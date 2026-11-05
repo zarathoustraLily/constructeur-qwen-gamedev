@@ -4,9 +4,10 @@ extends Control
 ## La coquille de l'éditeur de niveaux : la fenêtre, son titre et sa barre d'état. À cette étape, elle s'ouvre vide (F5)
 ## et dit qu'aucune salle n'est ouverte ; la salle, la vue et les panneaux s'y logeront aux étapes suivantes.
 #@ 6+
-## La coquille de l'éditeur de niveaux : la fenêtre, son titre, la vue de dessus et la barre d'état. Au démarrage, elle
-## ouvre la salle de départ (`start_room`), vérifiée face au catalogue, et la cadre dans la vue ; on la parcourt à la
-## souris (molette : zoom autour du curseur ; bouton du milieu : déplacer la vue).
+## La coquille de l'éditeur de niveaux : la fenêtre, son titre, la vue rendue (la salle telle que le jeu la montre, par
+## sa caméra inclinée), la carte de navigation vue de dessus, dans un coin, et la barre d'état. Au démarrage, elle ouvre
+## la salle de départ (`start_room`), vérifiée face au catalogue, et la cadre ; on la parcourt à la souris (molette :
+## zoom autour du curseur ; bouton du milieu : déplacer la vue ; clic sur la carte : y centrer la vue).
 #@ 7+
 ## Le bouton gauche sélectionne (clic, Maj+clic, rectangle) et manipule la sélection par son cadre bleu : déplacer,
 ## agrandir par les poignées d'angle, tourner par la poignée ronde ; Page haut et Page bas règlent sa profondeur.
@@ -76,9 +77,11 @@ const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"ef
 @export var catalog: AssetCatalogDef
 ## Les réglages de l'éditeur.
 @export var settings: EditorSettingsDef
+## La caméra du jeu : la vue rendue filme la salle comme elle.
+@export var camera_def: CameraDef
 #@ 9+
 ## Le dossier des salles : la liste en haut de la fenêtre, et là où l'on enregistre.
-@export_dir var rooms_dir: String = RoomStore.DEFAULT_ROOT
+@export_dir var rooms_dir: String = "res://5_data/salles"
 #@ 11+
 ## Le dossier des définitions d'ennemis du jeu.
 @export_dir var enemies_dir: String = "res://5_data/ennemis"
@@ -92,7 +95,8 @@ const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"ef
 
 var _store: RoomStore = RoomStore.new()
 var _document: RoomDocument = RoomDocument.new()
-var _transform: ViewTransform = ViewTransform.new()
+var _transform: CameraTransform = CameraTransform.new()
+var _map_transform: ViewTransform = ViewTransform.new()
 #@ 7+
 var _selection: SelectionModel = SelectionModel.new()
 var _actions: EditorActions = EditorActions.new()
@@ -106,8 +110,10 @@ var _effects: Array[FxDef] = []
 
 @onready var _status: Label = $Layout/Status
 #@ 6+
-@onready var _view: RoomView = $Layout/Body/RoomView
+@onready var _view: RenderedView = $Layout/Body/RoomView
 @onready var _view_input: RoomViewInput = $Layout/Body/RoomViewInput
+@onready var _map: RoomView = $Layout/Body/MapView
+@onready var _map_input: MapInput = $Layout/Body/MapInput
 #@ 7+
 @onready var _overlay: SelectionOverlay = $Layout/Body/SelectionOverlay
 @onready var _selection_input: SelectionInput = $Layout/Body/SelectionInput
@@ -152,9 +158,15 @@ func _ready() -> void:
 #@ 1-5
 	show_status(NOTHING_OPEN)
 #@ 6+
-	_transform.setup(settings)
+	_transform.setup(settings, camera_def)
+	_view.set_renderer(Room3DView.new())
 	_view.setup(_document, catalog, _transform)
 	_view_input.setup(_view, _transform, settings)
+	_map_transform.setup(settings)
+	_map.setup(_document, catalog, _map_transform)
+	_map_input.setup(_map, _transform)
+	_transform.changed.connect(_update_map_outline)
+	_map.resized.connect(frame_room)
 #@ 7+
 	_actions.setup(_document, catalog, settings)
 	_selection_input.setup(_view, _document, _selection, _actions, settings)
@@ -288,11 +300,26 @@ func open_room(path: String, discard: bool = false) -> bool:
 	return true
 
 
-## Cadre la salle ouverte dans la vue (au démarrage, puis chaque fois que la vue change de taille).
+## Montre la salle ouverte comme le jeu : la vue rendue au zoom du jeu, sur le départ du héros ; la carte, entière (au
+## démarrage, puis chaque fois qu'une vue change de taille).
 func frame_room() -> void:
 	var room: RoomData = _document.snapshot()
 	if room != null and _view.size.x > 0.0 and _view.size.y > 0.0:
-		_transform.frame(room.size_m, _view.size)
+		_transform.show_like_game(room.hero_start, _view.size)
+	if room != null and _map.size.x > 0.0 and _map.size.y > 0.0:
+		_map_transform.frame(room.size_m, _map.size)
+	_update_map_outline()
+
+
+## La carte de navigation (pour les tests).
+func map() -> RoomView:
+	return _map
+
+
+# Sur la carte, le contour blanc de ce que filme la vue rendue.
+func _update_map_outline() -> void:
+	_map.outline_m = _map_input.footprint(_view.size)
+	_map.queue_redraw()
 #@ 7+
 
 
@@ -400,6 +427,7 @@ func set_mode(mode: StringName) -> void:
 	_bench_panel.visible = mode == &"banc"
 	_bench_input.active = mode == &"banc"
 	_view.visible = mode != &"banc"
+	_map.visible = mode != &"banc"
 #@ 10+
 	_mode_picker.select(MODES.find(mode))
 	if mode != &"choses":

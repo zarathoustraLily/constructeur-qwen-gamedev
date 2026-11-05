@@ -1,14 +1,10 @@
 class_name ViewTransform
-extends RefCounted
-## Le passage entre la salle (en mètres, plan x, z) et l'écran de la vue de dessus (en pixels). Un mètre fait
+extends ViewProjection
+## Le passage entre la salle (en mètres, plan x, z) et l'écran de la carte vue de dessus (en pixels). Un mètre fait
 ## `pixels_per_meter × zoom` pixels ; `origin` est l'endroit de l'écran où tombe le point (0, 0) de la salle. Le zoom
-## à la molette garde immobile le point sous le curseur : c'est ce qu'attend la main.
+## à la molette garde immobile le point sous le curseur : c'est ce qu'attend la main. La vue de dessus sert de carte
+## de navigation ; la vue où l'on édite est celle de la caméra du jeu (`CameraTransform`).
 
-## Le zoom ou le déplacement de la vue vient de changer.
-signal changed
-
-## Le zoom courant (1 : `pixels_per_meter` pixels par mètre).
-var zoom: float = 1.0
 ## La position, à l'écran, du point (0, 0) de la salle.
 var origin: Vector2 = Vector2.ZERO
 var _settings: EditorSettingsDef
@@ -38,7 +34,7 @@ func screen_to_world(screen: Vector2) -> Vector3:
 ## Déplace la vue de `delta` pixels.
 func pan(delta: Vector2) -> void:
 	origin += delta
-	changed.emit()
+	notify_changed()
 
 
 ## Multiplie le zoom par `factor` (dans les bornes des réglages), en gardant immobile le point sous `screen`.
@@ -46,7 +42,7 @@ func zoom_at(screen: Vector2, factor: float) -> void:
 	var anchor: Vector3 = screen_to_world(screen)
 	zoom = clampf(zoom * factor, _settings.min_zoom, _settings.max_zoom)
 	origin = screen - Vector2(anchor.x, anchor.z) * pixels_per_meter()
-	changed.emit()
+	notify_changed()
 
 
 ## Cadre la salle de taille `size_m` (en mètres) au milieu d'une vue de `view_size` pixels, au plus grand zoom qui la
@@ -55,4 +51,4 @@ func frame(size_m: Vector2, view_size: Vector2) -> void:
 	var fit: float = minf(view_size.x / size_m.x, view_size.y / size_m.y) / _settings.pixels_per_meter
 	zoom = clampf(fit, _settings.min_zoom, _settings.max_zoom)
 	origin = (view_size - size_m * pixels_per_meter()) / 2.0
-	changed.emit()
+	notify_changed()

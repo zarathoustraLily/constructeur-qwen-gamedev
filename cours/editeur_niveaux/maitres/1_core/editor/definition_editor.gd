@@ -38,7 +38,7 @@ func fields() -> Array[Dictionary]:
 	if _definition == null:
 		return result
 	var wanted: int = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
-	for property: Dictionary in _definition.get_property_list():
+	for property: Variant in _definition.get_property_list():
 		if int(property["usage"]) & wanted == wanted and property["name"] != "id":
 			result.append({&"name": StringName(property["name"]), &"type": int(property["type"])})
 	return result
@@ -59,7 +59,7 @@ func id() -> StringName:
 func set_value(field: StringName, new_value: Variant) -> bool:
 	errors.clear()
 	var expected: int = -1
-	for entry: Dictionary in fields():
+	for entry: Variant in fields():
 		if entry[&"name"] == field:
 			expected = entry[&"type"]
 	if expected < 0:

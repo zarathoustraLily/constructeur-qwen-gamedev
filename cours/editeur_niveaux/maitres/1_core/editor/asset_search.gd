@@ -11,42 +11,48 @@ const ACCENTS: Dictionary[String, String] = {
 	"ù": "u", "û": "u", "ü": "u", "ç": "c",
 }
 
-var _entries: Array[Dictionary] = []
+# Les assets indexés, en tableaux parallèles : l'identifiant, sa clé normalisée, et tout le texte où chercher.
+var _ids: Array[StringName] = []
+var _keys: PackedStringArray = PackedStringArray()
+var _texts: PackedStringArray = PackedStringArray()
 
 
 ## Indexe les assets de `catalog`.
 func setup(catalog: AssetCatalogDef) -> void:
-	_entries.clear()
+	_ids.clear()
+	_keys = PackedStringArray()
+	_texts = PackedStringArray()
 	for asset: AssetDef in catalog.assets:
 		var words: PackedStringArray = PackedStringArray([normalize(String(asset.id)), normalize(String(asset.category))])
 		for tag: String in asset.tags:
 			words.append(normalize(tag))
-		_entries.append({"id": asset.id, "key": normalize(String(asset.id)), "text": " ".join(words)})
+		_ids.append(asset.id)
+		_keys.append(normalize(String(asset.id)))
+		_texts.append(" ".join(words))
 
 
 ## Les identifiants des assets qui répondent à `query`, du meilleur au moins bon ; tous si la requête est vide.
 func search(query: String) -> Array[StringName]:
 	var words: PackedStringArray = normalize(query).split(" ", false)
 	var joined: String = " ".join(words)
-	var found: Array[Dictionary] = []
-	for entry: Dictionary in _entries:
+	var found: Array[int] = []
+	var ranks: Array[int] = []
+	for index: int in _ids.size():
 		var matches: bool = true
 		for word: String in words:
-			if not String(entry["text"]).contains(word):
+			if not _texts[index].contains(word):
 				matches = false
 				break
 		if matches:
-			var rank: int = 2
-			if entry["key"] == joined:
-				rank = 0
-			elif String(entry["key"]).begins_with(joined):
-				rank = 1
-			found.append({"id": entry["id"], "key": entry["key"], "rank": rank})
-	found.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return a["rank"] < b["rank"] or (a["rank"] == b["rank"] and String(a["key"]) < String(b["key"])))
+			found.append(index)
+			ranks.append(0 if _keys[index] == joined else (1 if _keys[index].begins_with(joined) else 2))
+	var order: Array[int] = []
+	order.assign(range(found.size()))
+	order.sort_custom(func(a: int, b: int) -> bool:
+		return ranks[a] < ranks[b] or (ranks[a] == ranks[b] and _keys[found[a]] < _keys[found[b]]))
 	var result: Array[StringName] = []
-	for entry: Dictionary in found:
-		result.append(entry["id"])
+	for position_in_found: int in order:
+		result.append(_ids[found[position_in_found]])
 	return result
 
 

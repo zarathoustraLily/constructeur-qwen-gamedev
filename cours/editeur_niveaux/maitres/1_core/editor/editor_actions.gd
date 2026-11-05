@@ -51,7 +51,7 @@ func rotate(ids: Array[int], delta_deg: float, snap: bool = false) -> bool:
 		var angle: float = _float(thing_id, &"rotation") + delta_deg
 		if snap:
 			angle = snappedf(angle, _settings.rotation_step_deg)
-		var fields: Dictionary = {&"rotation": fposmod(angle, RoomData.FULL_TURN)}
+		var fields: Dictionary[StringName, Variant] = {&"rotation": fposmod(angle, RoomData.FULL_TURN)}
 		if ids.size() > 1:
 			var offset: Vector2 = Vector2(_position(thing_id).x - pivot.x, _position(thing_id).z - pivot.z)
 			offset = offset.rotated(deg_to_rad(delta_deg))
@@ -66,7 +66,7 @@ func scale_by(ids: Array[int], factor: float) -> bool:
 	var pivot: Vector3 = center_of(ids)
 	var changes: Dictionary[int, Dictionary] = {}
 	for thing_id: int in ids:
-		var fields: Dictionary = {
+		var fields: Dictionary[StringName, Variant] = {
 			&"scale": clampf(_float(thing_id, &"scale") * factor, _settings.min_scale, _settings.max_scale)}
 		if ids.size() > 1:
 			var spread: Vector3 = (_position(thing_id) - pivot) * factor
@@ -109,7 +109,7 @@ func to_extreme_depth(ids: Array[int], to_front: bool) -> bool:
 func duplicate(ids: Array[int]) -> Array[int]:
 	var list: Array[Dictionary] = []
 	for thing_id: int in ids:
-		var fields: Dictionary = {}
+		var fields: Dictionary[StringName, Variant] = {}
 		for field: StringName in RoomDocument.COLUMNS:
 			fields[field] = _document.value(thing_id, field)
 		fields[&"position"] = _position(thing_id) + _settings.duplicate_offset_m

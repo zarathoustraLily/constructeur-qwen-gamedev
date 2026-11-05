@@ -32,7 +32,7 @@ func _vider() -> void:
 
 func _field_names() -> Array[StringName]:
 	var names: Array[StringName] = []
-	for entry: Dictionary in _editor.fields():
+	for entry: Variant in _editor.fields():
 		names.append(entry[&"name"])
 	return names
 

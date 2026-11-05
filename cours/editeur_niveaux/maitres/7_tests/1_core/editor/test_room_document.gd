@@ -166,7 +166,8 @@ func test_un_champ_de_salle_inconnu_ou_mal_type_est_refuse() -> void:
 
 func test_une_collision_croisee_est_refusee_par_le_document() -> void:
 	var document: RoomDocument = _document()
-	var polygons: Array = document.room_value(&"collisions")
+	var polygons: Array[PackedVector2Array] = []
+	polygons.assign(document.room_value(&"collisions"))
 	polygons.append(PackedVector2Array([Vector2(0, 0), Vector2(2, 2), Vector2(2, 0), Vector2(0, 2)]))
 	assert_bool(document.set_room_fields({&"collisions": polygons})).is_false()
 	assert_array(document.errors).contains(["collision %d : des côtés se croisent" % (polygons.size() - 1)])

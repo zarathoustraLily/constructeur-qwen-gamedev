@@ -140,9 +140,9 @@ func _click(point: Vector2) -> void:
 
 
 # Le geste en cours, en aperçu : ce que deviendrait la sélection si l'on relâchait la souris en `point`.
-func _preview_for(point: Vector2) -> Dictionary:
+func _preview_for(point: Vector2) -> Dictionary[StringName, Variant]:
 	var ids: Array[int] = _selection.ids()
-	var preview: Dictionary = {&"ids": ids, &"move": Vector3.ZERO, &"angle": 0.0, &"factor": 1.0,
+	var preview: Dictionary[StringName, Variant] = {&"ids": ids, &"move": Vector3.ZERO, &"angle": 0.0, &"factor": 1.0,
 			&"pivot": _actions.center_of(ids)}
 	match gizmo.dragging():
 		TransformGizmo.Handle.BODY:

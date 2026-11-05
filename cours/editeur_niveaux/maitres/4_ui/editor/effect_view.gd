@@ -10,13 +10,13 @@ const MARK_RADIUS: float = 6.0
 ## Le temps de l'aperçu, en secondes.
 var time: float = 0.0
 var _document: RoomDocument
-var _transform: ViewTransform
+var _transform: ViewProjection
 var _input: EffectInput
 var _effects: Dictionary[StringName, FxDef] = {}
 
 
 ## Dessine les effets placés de `document`, au cadrage `transform`, d'après les définitions `effects`.
-func setup(document: RoomDocument, transform: ViewTransform, input: EffectInput, effects: Array[FxDef]) -> void:
+func setup(document: RoomDocument, transform: ViewProjection, input: EffectInput, effects: Array[FxDef]) -> void:
 	_document = document
 	_transform = transform
 	_input = input
@@ -46,7 +46,7 @@ func _draw() -> void:
 		if effect == null:
 			draw_circle(screen, MARK_RADIUS, Color.MAGENTA)
 			continue
-		for particle: Dictionary in EffectPreview.particles(effect, Vector2(points[index].x, points[index].z), time):
+		for particle: Variant in EffectPreview.particles(effect, Vector2(points[index].x, points[index].z), time):
 			var position_m: Vector2 = particle[&"position"]
 			draw_circle(_transform.world_to_screen(Vector3(position_m.x, 0.0, position_m.y)),
 					maxf(float(particle[&"radius"]) * ppm, 1.0), Color(effect.color, float(particle[&"alpha"])))

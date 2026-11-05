@@ -14,12 +14,12 @@ const LINE_WIDTH: float = 2.0
 const POINT_RADIUS: float = 5.0
 
 var _document: RoomDocument
-var _transform: ViewTransform
+var _transform: ViewProjection
 var _input: CollisionInput
 
 
 ## Dessine les formes de `document`, au cadrage `transform`, avec la forme choisie et l'aperçu de `input`.
-func setup(document: RoomDocument, transform: ViewTransform, input: CollisionInput) -> void:
+func setup(document: RoomDocument, transform: ViewProjection, input: CollisionInput) -> void:
 	_document = document
 	_transform = transform
 	_input = input

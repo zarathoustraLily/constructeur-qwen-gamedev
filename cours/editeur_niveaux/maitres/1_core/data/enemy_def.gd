@@ -63,7 +63,8 @@ static func pool_errors(room: RoomData, enemies: Array[EnemyDef]) -> Array[Strin
 		if not by_id.has(StringName(enemy_id)):
 			errors.append("rencontre : ennemi inconnu %s" % enemy_id)
 			continue
-		var accepted: Array = ROLES.get(by_id[StringName(enemy_id)].role, [])
+		var accepted: Array[String] = []
+		accepted.assign(ROLES.get(by_id[StringName(enemy_id)].role, []))
 		var has_point: bool = false
 		for spawn_role: String in room.spawn_roles:
 			has_point = has_point or accepted.has(spawn_role)

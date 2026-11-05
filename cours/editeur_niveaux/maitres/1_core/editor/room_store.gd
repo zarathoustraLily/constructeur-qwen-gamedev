@@ -6,16 +6,14 @@ extends RefCounted
 ## voisin, qui ne remplace l'ancien qu'une fois complet ; en cas d'échec, l'ancien fichier reste intact. Seul le
 ## dossier des salles peut recevoir une écriture, sous un nom simple.
 
-## Le dossier des salles du jeu.
-const DEFAULT_ROOT: String = "res://5_data/salles"
-
 ## Les erreurs de la dernière opération, une phrase par erreur.
 var errors: Array[String] = []
-var _root: String = DEFAULT_ROOT
+var _root: String = ""
 var _saver: StableSaver = StableSaver.new()
 
 
-## Choisit le dossier où les salles se lisent et s'écrivent (les tests en prennent un à eux).
+## Choisit le dossier où les salles s'écrivent : celui des salles du jeu, que donne la coquille (le cœur ne connaît
+## pas les dossiers de données), ou celui d'un test.
 func setup(root: String) -> void:
 	_root = root.simplify_path()
 

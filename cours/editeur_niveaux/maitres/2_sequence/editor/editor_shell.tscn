@@ -1,28 +1,11 @@
-;@ 1-5
-[gd_scene load_steps=2 format=3]
-;@ 6
-[gd_scene load_steps=6 format=3]
-;@ 7
-[gd_scene load_steps=8 format=3]
-;@ 8-9
-[gd_scene load_steps=12 format=3]
-;@ 10
-[gd_scene load_steps=14 format=3]
-;@ 11
-[gd_scene load_steps=17 format=3]
-;@ 12
-[gd_scene load_steps=20 format=3]
-;@ 13
-[gd_scene load_steps=21 format=3]
-;@ 14
-[gd_scene load_steps=22 format=3]
-;@ 15+
-[gd_scene load_steps=25 format=3]
-;@ all
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
 ;@ 6+
-[ext_resource type="Script" path="res://4_ui/editor/room_view.gd" id="2_view"]
+[ext_resource type="Script" path="res://4_ui/editor/rendered_view.gd" id="2_view"]
+[ext_resource type="Script" path="res://4_ui/editor/room_view.gd" id="25_map_view"]
+[ext_resource type="Script" path="res://4_ui/editor/map_input.gd" id="26_map_input"]
+[ext_resource type="Resource" path="res://5_data/camera/camera.tres" id="27_camera"]
 [ext_resource type="Script" path="res://4_ui/editor/room_view_input.gd" id="3_view_input"]
 [ext_resource type="Resource" path="res://5_data/catalogue/catalogue.tres" id="4_catalog"]
 [ext_resource type="Resource" path="res://5_data/editeur/reglages.tres" id="5_settings"]
@@ -67,6 +50,7 @@ script = ExtResource("1_shell")
 start_room = "res://5_data/salles/hangar.tres"
 catalog = ExtResource("4_catalog")
 settings = ExtResource("5_settings")
+camera_def = ExtResource("27_camera")
 ;@ all
 
 [node name="Layout" type="VBoxContainer" parent="."]
@@ -146,6 +130,26 @@ script = ExtResource("2_view")
 
 [node name="RoomViewInput" type="Node" parent="Layout/Body"]
 script = ExtResource("3_view_input")
+
+[node name="MapView" type="Control" parent="Layout/Body"]
+clip_contents = true
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+;@ 6-7
+offset_left = 10.0
+offset_right = 250.0
+;@ 8+
+offset_left = 280.0
+offset_right = 520.0
+;@ 6+
+offset_top = -190.0
+offset_bottom = -10.0
+grow_vertical = 0
+script = ExtResource("25_map_view")
+
+[node name="MapInput" type="Node" parent="Layout/Body"]
+script = ExtResource("26_map_input")
 ;@ 7+
 
 [node name="SelectionOverlay" type="Control" parent="Layout/Body"]

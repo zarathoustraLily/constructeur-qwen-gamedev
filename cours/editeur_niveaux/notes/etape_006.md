@@ -1,17 +1,21 @@
 # Éditeur de niveaux · étape {STEP} · {TITLE}
 
-**Piste : {TRACK}.** La salle apparaît enfin : une vue de dessus qui dessine chaque chose depuis la planche du
-catalogue, à sa place, à sa taille, tournée, dans le bon ordre. On la parcourt à la souris. Rien ne se modifie encore à
-la souris : la vue montre, c'est tout ; le cadre bleu viendra à l'étape suivante.
+**Piste : {TRACK}.** La salle apparaît enfin, et telle que le jeu la montrera : chaque chose est un sprite posé à plat sur
+le sol, filmé par la caméra du jeu, orthographique et inclinée de 30°. On édite dans cette vue, texture par texture : une
+vue de dessus ne montre pas ce que verra le joueur (les dalles y sont carrées, alors qu'en jeu la profondeur est écrasée de
+moitié). Elle reste utile autrement : en petit, dans un coin, c'est la carte de navigation.
 
-Ce qu'on obtient : F5 ouvre le hangar, cadré au milieu de la fenêtre ; la molette zoome autour du curseur, le bouton du
-milieu déplace la vue ; la barre d'état dit « Le hangar : 203 choses ».
+Ce qu'on obtient : F5 ouvre le hangar dans la vue rendue, comme le jeu : au zoom du jeu, centré sur le départ du héros
+(un roguelike se joue près du héros, pas en vue d'ensemble) ; la molette zoome autour du curseur, le bouton du milieu
+déplace la vue ; en bas, la carte montre toute la salle vue de dessus et, en blanc, ce que filme la vue rendue ; un
+clic sur la carte y centre la vue. La barre d'état dit « Le hangar : 203 choses ».
 
 ## Ouvrir le projet
 
 1. Dans Godot 4.7.2, importer ce dossier.
-2. F5 : le hangar, ses dalles, ses détails, ses obstacles et son avant-plan.
-3. Les tests : `7_tests/lancer_tests.bat`, ou le panneau GdUnit4.
+2. F5 : le hangar vu par la caméra du jeu ; la carte en bas à gauche.
+3. `5_data/camera/camera.tres` : l'inclinaison (30°), la hauteur de salle montrée, la distance.
+4. Les tests : `7_tests/lancer_tests.bat`, ou le panneau GdUnit4.
 
 ## Les fichiers du projet
 
@@ -19,58 +23,70 @@ milieu déplace la vue ; la barre d'état dit « Le hangar : 203 choses ».
 
 ## Ce qu'on a fait, dans l'ordre
 
-### 1. Des mètres aux pixels
+### 1. La caméra du jeu, en données
 
-`1_core/editor/view_transform.gd` fait le passage entre la salle (en mètres, dans le plan x, z : la vue regarde d'en
-haut) et l'écran (en pixels). Un mètre fait `pixels_per_meter × zoom` pixels ; `origin` est l'endroit de l'écran où
-tombe le point (0, 0) de la salle. `world_to_screen` et `screen_to_world` vont dans les deux sens ; les tests vérifient
-qu'un aller-retour retombe sur le même point. Le pixel par mètre et les bornes du zoom viennent des réglages.
+`1_core/data/camera_def.gd` décrit la caméra que le jeu et l'éditeur partagent : orthographique (les tailles ne
+rétrécissent pas avec la distance), inclinée de `pitch_deg` = 30° au-dessus du sol, et la hauteur montrée au zoom 1
+(sa taille orthographique) : 9 m, soit 18 m de sol en profondeur autour du héros. Le premier jet montrait 20 m et
+ouvrait la salle entière : une vue de stratégie, pas celle d'un roguelike. L'éditeur s'ouvre maintenant comme le jeu
+(`show_like_game`), et la salle entière se voit sur la carte. À 30°, une profondeur au sol se voit à sin(30°) = 0,5 de sa longueur, une hauteur à
+cos(30°) ≈ 0,866 : c'est la perspective précise que doivent suivre les textures peintes.
 
-Le zoom à la molette garde immobile **le point sous le curseur** : on retient le point de la salle sous le curseur,
-on change le zoom, puis on recalcule `origin` pour que ce point retombe sous le curseur. Sans cela, la salle fuirait
-vers un coin à chaque cran. `frame` cadre une salle entière au milieu de la vue, au plus grand zoom qui la montre.
+### 2. La projection, en calcul pur, et la caméra de Godot au même pixel
 
-### 2. L'ordre de dessin
+`1_core/editor/camera_transform.gd` calcule la projection sans nœud : un point écarté du point regardé (`focus`) de
+`(dx, dy, dz)` s'affiche à `(dx, dz × sin 30° − dy × cos 30°)`, en pixels par mètre. On en tire le chemin inverse (le
+point du sol sous la souris), le zoom autour du curseur, le déplacement et le cadrage. `apply_to` règle la vraie
+`Camera3D` d'après la même projection : orthographique, `size` = la hauteur montrée, tournée de −30° autour de x, en
+recul du point regardé. Le test `test_le_calcul_et_godot_tombent_au_meme_pixel` le vérifie : pour plusieurs points,
+`Camera3D.unproject_position` et le calcul tombent au même pixel. Tout le reste de l'éditeur s'appuie sur le calcul, que
+l'on sait juste.
 
-`1_core/editor/draw_order.gd` trie les choses par calque (dans l'ordre des calques : sol, détails, obstacles,
-avant-plan), puis par rang, puis par identifiant. Le dernier critère paraît inutile ; il ne l'est pas : sans lui, deux
-choses de même rang se dessineraient dans l'ordre des tableaux, qui change après une suppression, et la vue
-clignoterait d'un ordre à l'autre. Le tri passe par des clés `Vector3i` (calque, rang, identifiant), que Godot compare
-dans cet ordre. Le jeu dessinera la salle avec la même règle.
+### 3. Un contrat commun aux deux vues
 
-### 3. La vue dessine, une autre partie écoute
+La carte vue de dessus (`ViewTransform`) et la vue rendue (`CameraTransform`) remplissent le même contrat,
+`1_core/editor/view_projection.gd` : de la salle à l'écran et retour, déplacer, zoomer, cadrer, et le signal `changed`.
+La souris, la sélection et les calques ne parlent qu'à ce contrat. L'emprise d'une chose (`RoomView.corners_of`) se
+calcule donc **dans la salle**, en mètres, tournée autour de son ancre, puis se projette : la même emprise sert à la carte
+et à la vue rendue. Le contrat déclare `changed` et l'émet par `notify_changed()` : un signal déclaré mais jamais émis par
+sa classe est un avertissement, donc une erreur ici.
 
-`4_ui/editor/room_view.gd` dessine dans `_draw()` : pour chaque chose, `draw_set_transform_matrix` place l'origine sur
-sa position et la tourne de sa rotation, puis `draw_texture_rect_region` dessine la région de la planche dans
-l'emprise de la chose (la taille de son asset, en mètres, fois son échelle, convertie en pixels), décalée de son
-ancre. Une chose inactive est dessinée en transparence ; un asset sans image, en magenta : on voit ce qui manque au
-lieu de ne rien voir. La vue redessine (`queue_redraw`) quand le document ou le cadrage change, jamais à chaque image.
+### 4. Les sprites à plat, le code du jeu
 
-Elle ne dessine que les choses dont l'emprise touche la vue (`visible_ids`) : au zoom fort, sur une grande salle, la
-plupart sont hors champ. La vue ne lit aucune entrée : `4_ui/editor/room_view_input.gd` écoute son signal `gui_input`,
-reçoit les événements de souris qui la visent, et les traduit en commandes de cadrage (`pan`, `zoom_at`). C'est la
-règle du projet : un script `_input` traduit les appareils en commandes ; les autres ne les connaissent pas. Ses tests
-lui envoient des événements fabriqués (`InputEventMouseButton`, `InputEventMouseMotion`).
+`3_entities/room/room_3d_view.gd` construit la salle comme le jeu la montrera : une chose = un `Sprite3D` qui affiche la
+région de son asset dans la planche (`region_rect`), à sa couleur, sans éclairage, et couché sur le sol.
+`1_core/graphics/flat_layout.gd` en fait le calcul :
+- la taille d'un pixel (`pixel_size`) donne à l'image sa largeur en jeu ; la profondeur est ajustée à part ;
+- un décalage (`offset`) pose le point d'ancrage de l'image sur la position de la chose ;
+- l'orientation couche le quad (−90° autour de x), puis le tourne de la rotation de la chose autour de la verticale, dans
+  le même sens que sur la carte ;
+- l'ordre de dessin devient une hauteur : chaque calque monte d'un cran, chaque rang d'un cran plus fin. Vu par la caméra
+  inclinée, le plus haut passe devant. Les crans sont trop fins pour se voir (une fraction de pixel).
+Une chose inactive est cachée en jeu, et montrée en transparence par l'éditeur.
 
-### 4. La coquille ouvre la salle de départ
+### 5. La vue rendue, et ce qu'elle a le droit de connaître
 
-`editor_shell.gd` reçoit, par la scène, la salle de départ, le catalogue et les réglages (`@export`). Au démarrage, il
-ouvre la salle par `RoomStore`, la vérifie face au catalogue (`room_errors`) et la confie au document ; en cas d'échec,
-la barre d'état dit pourquoi et rien n'est ouvert. Le cadrage attend que la vue ait une taille : le conteneur ne la
-lui donne qu'après le premier passage de mise en page. La coquille cadre donc à chaque changement de taille de la vue
-(signal `resized`).
+`4_ui/editor/rendered_view.gd` hérite de la vue de dessus et ne change que la projection et le dessin : elle a sa propre
+`SubViewport` (son monde 3D, sa caméra), où vit la salle en 3D, et dessine l'image de cette fenêtre. La règle des dossiers
+interdit à l'interface (`4_ui`) de connaître les entités du jeu (`3_entities`) : la vue ne parle qu'à un contrat de
+`1_core`, `RoomRenderer`, que la salle du jeu remplit ; c'est la coquille (`2_sequence`, qui connaît tout) qui la lui
+donne (`set_renderer`). De même, le cœur ne connaît pas les dossiers de données : le dossier des salles vient de la
+coquille, plus d'une constante du magasin.
 
-### 5. Un défaut qui ne se voit qu'à l'image
+### 6. La carte de navigation
 
-Tous les tests passaient, mais la première image du hangar montrait un quadrillage de joints vides entre les dalles
-du sol, comme si elles étaient posées avec un espace. Le code de la vue n'y était pour rien : les dalles sont bien
-posées bord à bord (4 m de côté, tous les 4 m). La cause était dans la planche : chaque image y était dessinée avec une
-marge transparente de 8 pixels dans sa case, et la région de l'asset couvrait la case entière, marge comprise. Pour un
-obstacle, la marge ne gêne pas ; pour une dalle qui doit se raccorder à sa voisine, si. Le générateur de la planche
-dessine maintenant les dalles de sol sans marge. On corrige ce qui a produit le défaut, pas l'image.
+La vue de dessus de l'étape précédente devient la carte : en petit, en bas à gauche, elle montre toute la salle et, en
+blanc, le contour au sol de ce que filme la vue rendue (`MapInput.footprint` : les quatre coins de la vue ramenés au
+sol). Un clic ou un glisser sur la carte centre la vue rendue sur le point visé.
+
+### 7. Ce que le juge des règles a trouvé
+
+Le juge des règles d'architecture a relevé, en plus, des conteneurs sans type (`Dictionary` et `Array` nus, règle COD-02),
+dans ce qu'on venait d'écrire et dans des étapes plus anciennes : un aperçu, des dictionnaires de champs. Ils sont
+maintenant typés (`Dictionary[StringName, Variant]`, `Array[int]`), ou parcourus en `Variant` quand ils viennent de Godot
+sans type (`get_property_list()`). La recherche de la palette range ses entrées en tableaux parallèles typés.
 
 ## Vérifier
 
 - `7_tests/lancer_tests.bat` : tous les tests passent, sans fuite signalée à la fin ;
-- F5 : le hangar s'affiche entier, les dalles du sol bord à bord ; la molette zoome autour du curseur ; le bouton du
-  milieu déplace la vue.
+- F5 : le hangar vu à 30°, ses dalles bord à bord ; la molette, le bouton du milieu ; un clic sur la carte recentre.

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CameraDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/camera_def.gd" id="1_camera"]
+
+[resource]
+script = ExtResource("1_camera")
+id = &"camera"
+pitch_deg = 30.0
+yaw_deg = 45.0
+view_height_m = 9.0
+distance_m = 80.0

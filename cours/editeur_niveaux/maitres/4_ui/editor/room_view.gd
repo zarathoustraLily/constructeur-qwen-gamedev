@@ -1,6 +1,8 @@
 class_name RoomView
 extends Control
-## La vue de dessus : la salle du document, dessinée depuis la planche du catalogue, dans l'ordre de `DrawOrder`.
+## La vue de dessus, qui sert de carte : la salle du document, dessinée depuis la planche du catalogue, dans l'ordre de
+## `DrawOrder`. Son emprise et ses désignations à la souris passent par le contrat `ViewProjection` : la vue rendue
+## (`RenderedView`) en hérite et ne change que la projection et le dessin.
 ## Chaque chose occupe à l'écran son emprise au sol (la taille de son asset, en mètres, fois son échelle), tournée
 ## autour de son point d'ancrage. Une chose inactive est dessinée en transparence. Seules les choses dont l'emprise
 ## touche la vue sont dessinées. La vue ne modifie rien : elle redessine quand le document ou le cadrage change.
@@ -13,9 +15,13 @@ extends Control
 const MISSING_COLOR: Color = Color(1.0, 0.0, 1.0, 0.6)
 ## L'opacité d'une chose inactive.
 const INACTIVE_ALPHA: float = 0.35
+## L'épaisseur du contour tracé par-dessus (`outline_m`), en pixels.
+const OUTLINE_WIDTH: float = 2.0
 
-## Le cadrage de la vue (zoom, déplacement).
-var view_transform: ViewTransform
+## Le cadrage de la vue (zoom, déplacement) : la projection de la carte, ou celle de la caméra du jeu.
+var view_transform: ViewProjection
+## Le contour à tracer par-dessus, en mètres (x, z) : sur la carte, ce que montre la vue rendue.
+var outline_m: PackedVector2Array = PackedVector2Array()
 #@ 7+
 ## Les calques qu'un clic ou un rectangle ne sélectionne pas (le sol, par défaut).
 var locked_layers: PackedStringArray = PackedStringArray(["sol"])
@@ -23,12 +29,12 @@ var locked_layers: PackedStringArray = PackedStringArray(["sol"])
 var _document: RoomDocument
 var _catalog: AssetCatalogDef
 #@ 7+
-var _preview: Dictionary = {}
+var _preview: Dictionary[StringName, Variant] = {}
 #@ all
 
 
 ## Branche la vue sur `document`, `catalog` et `transform`.
-func setup(document: RoomDocument, catalog: AssetCatalogDef, transform: ViewTransform) -> void:
+func setup(document: RoomDocument, catalog: AssetCatalogDef, transform: ViewProjection) -> void:
 	_document = document
 	_catalog = catalog
 	view_transform = transform
@@ -40,7 +46,7 @@ func setup(document: RoomDocument, catalog: AssetCatalogDef, transform: ViewTran
 
 ## Montre les choses `preview.ids` déplacées de `preview.move` (en mètres), puis tournées de `preview.angle` degrés
 ## et agrandies de `preview.factor` autour de `preview.pivot`, sans modifier le document.
-func set_preview(preview: Dictionary) -> void:
+func set_preview(preview: Dictionary[StringName, Variant]) -> void:
 	_preview = preview
 	queue_redraw()
 
@@ -52,20 +58,29 @@ func clear_preview() -> void:
 #@ all
 
 
-## Les quatre coins de l'emprise de la chose `thing_id` à l'écran.
+## Les quatre coins de l'emprise de la chose `thing_id` à l'écran : calculés dans la salle (en mètres, tournés autour du
+## point d'ancrage), puis projetés par la vue. La même emprise sert donc à la carte et à la vue rendue.
 func corners_of(thing_id: int) -> PackedVector2Array:
 	var asset: AssetDef = _catalog.find(StringName(_document.value(thing_id, &"asset")))
 	var size_m: Vector2 = Vector2.ONE if asset == null else asset.size_m
 	var anchor: Vector2 = Vector2(0.5, 0.5) if asset == null else asset.anchor
 #@ 6
-	var size_px: Vector2 = size_m * float(_document.value(thing_id, &"scale")) * view_transform.pixels_per_meter()
+	var place_m: Vector3 = _document.value(thing_id, &"position")
+	var turn_deg: float = _document.value(thing_id, &"rotation")
+	var factor: float = _document.value(thing_id, &"scale")
 #@ 7+
-	var size_px: Vector2 = size_m * float(_shown(thing_id)[&"scale"]) * view_transform.pixels_per_meter()
+	var shown: Dictionary[StringName, Variant] = _shown(thing_id)
+	var place_m: Vector3 = shown[&"position"]
+	var turn_deg: float = shown[&"rotation"]
+	var factor: float = shown[&"scale"]
 #@ all
-	var place: Transform2D = _placement(thing_id)
-	var top_left: Vector2 = -anchor * size_px
-	return PackedVector2Array([place * top_left, place * (top_left + Vector2(size_px.x, 0)),
-			place * (top_left + size_px), place * (top_left + Vector2(0, size_px.y))])
+	var extent: Vector2 = size_m * factor
+	var top_left: Vector2 = -anchor * extent
+	var result: PackedVector2Array = PackedVector2Array()
+	for local: Vector2 in [top_left, top_left + Vector2(extent.x, 0), top_left + extent, top_left + Vector2(0, extent.y)]:
+		var flat: Vector2 = Vector2(place_m.x, place_m.z) + local.rotated(deg_to_rad(turn_deg))
+		result.append(view_transform.world_to_screen(Vector3(flat.x, place_m.y, flat.y)))
+	return result
 
 
 ## Le rectangle (aligné sur l'écran) qui contient l'emprise de la chose `thing_id`.
@@ -139,6 +154,12 @@ func _draw() -> void:
 		else:
 			draw_texture_rect_region(asset.atlas, target, Rect2(asset.region), color)
 	draw_set_transform_matrix(Transform2D.IDENTITY)
+	if outline_m.size() >= 2:
+		var closed: PackedVector2Array = PackedVector2Array()
+		for point: Vector2 in outline_m:
+			closed.append(view_transform.world_to_screen(Vector3(point.x, 0.0, point.y)))
+		closed.append(closed[0])
+		draw_polyline(closed, Color.WHITE, OUTLINE_WIDTH)
 
 
 func _placement(thing_id: int) -> Transform2D:
@@ -146,13 +167,13 @@ func _placement(thing_id: int) -> Transform2D:
 	var screen: Vector2 = view_transform.world_to_screen(_document.value(thing_id, &"position"))
 	return Transform2D(deg_to_rad(float(_document.value(thing_id, &"rotation"))), screen)
 #@ 7+
-	var shown: Dictionary = _shown(thing_id)
+	var shown: Dictionary[StringName, Variant] = _shown(thing_id)
 	var screen: Vector2 = view_transform.world_to_screen(shown[&"position"])
 	return Transform2D(deg_to_rad(float(shown[&"rotation"])), screen)
 
 
 # La position, la rotation et l'échelle à montrer pour `thing_id` : celles du document, ou l'aperçu du geste en cours.
-func _shown(thing_id: int) -> Dictionary:
+func _shown(thing_id: int) -> Dictionary[StringName, Variant]:
 	# Pas de variables nommées position, rotation ou scale : elles masqueraient celles du Control (une erreur, ici).
 	var place_m: Vector3 = _document.value(thing_id, &"position")
 	var turn_deg: float = _document.value(thing_id, &"rotation")
