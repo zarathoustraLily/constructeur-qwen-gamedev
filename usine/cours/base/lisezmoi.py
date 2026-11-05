@@ -254,6 +254,16 @@ par défaut : la perte porte sur chaque réponse, pas seulement la dernière), `
     return t
 
 
+def hors_livraison(st: dict) -> str:
+    """La phrase des exemples trop longs, gardés dans leur étape mais hors de la livraison (règle 7.5)."""
+    trop = st.get("trop_longs_hors_livraison") or []
+    if not trop:
+        return ""
+    return (f"\n  {nb(len(trop))} exemple{'s' if len(trop) > 1 else ''} au-dessus de 32 768 jetons "
+            f"{'restent' if len(trop) > 1 else 'reste'} hors de la livraison, plutôt que tronqué{'s' if len(trop) > 1 else ''} : "
+            + ", ".join(f"`{x}`" for x in trop) + ".")
+
+
 def texte_jeu(c: dict, cours: str, manifeste: dict, dossier: str) -> str:
     """Le LISEZMOI d'une base de cours de jeu : mêmes chiffres, mêmes contrôles ; tests GdUnit4, rendu sans image."""
     st = c["statistiques"]
@@ -288,7 +298,7 @@ du dépôt (demande de laurent du 2026-10-22 : la même base que les bâtiments,
 - **Taille, en jetons de Qwen 3.8, gabarit de chat compris** : {nb(j['total'])} en tout, dont {nb(j['prompt_et_outils'])} par
   exemple pour le prompt système d'OpenCode et la définition de ses outils. Le plus long exemple en compte {nb(j['max'])}
   (`{j['plus_long']}`), soit {nb(j['marge_plus_long'])} de moins que les 32 768 de l'entraînement : aucun exemple n'est
-  tronqué. Création : {nb(jt['creation']['moyenne'])} jetons en moyenne ; débogage : {nb(jt['debogage']['moyenne'])}.
+  tronqué. Création : {nb(jt['creation']['moyenne'])} jetons en moyenne ; débogage : {nb(jt['debogage']['moyenne'])}.{hors_livraison(st)}
 - **Jetons** comptés avec le tokenizer de Qwen 3.8 ({j['tokenizer']}) et le gabarit de chat de son GGUF ; le bloc de
   réflexion vide devant chaque réponse compte dans le total, pas dans les jetons de réponse (`enable_thinking: false`).
 

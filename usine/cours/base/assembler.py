@@ -449,18 +449,26 @@ def assembler(journal=print) -> dict:
     h = ch.harnais()
     # Analyse (décision 3, 40/40/20) : tirée des sessions de débogage, puis chaque étape équilibrée.
     exemples, non_tirees = ajouter_analyses(exemples, h)
+    # Règle 7.5 : aucun exemple n'est tronqué. Celui qui dépasse la longueur d'entraînement reste dans son étape
+    # (etapes/), signalé ici, mais n'entre pas dans la livraison (boss 023 : le départ cite des matériaux que l'étape
+    # retire, les deux scènes d'effets se réécrivent dans la première partie, 42 722 jetons quelle que soit la découpe).
+    # Les rejeux, eux, prennent toutes les parties : sans la première, la suivante ne mène pas à l'arrivée de l'étape.
+    hors = [e for e in exemples if max(e["jetons"], e.get("opencode", {}).get("jetons", 0)) > LONGUEUR]
+    trop_longs = [f"{e['id']} ({max(e['jetons'], e.get('opencode', {}).get('jetons', 0))} jetons)" for e in hors]
+    exemples = [e for e in exemples if e["id"] not in {x["id"] for x in hors}]
     exemples, ecartes = equilibrer(exemples)
     problemes = controler(exemples)
     problemes += controler_opencode(exemples, h, jetons.tokenizer())
     st = statistiques(exemples)
     st["analyses"] = {"sessions_sans_analyse": non_tirees, "ecartes_a_l_equilibrage": len(ecartes),
                       "ecartes": ecartes}
+    st["trop_longs_hors_livraison"] = trop_longs
     # Les consignes d'édition du format neutre, rejouées à la lettre depuis l'état de départ (règle 5.7)…
-    bilan = rejouer.rejouer_exemples(exemples, creation.etats, profil.enseignables())
+    bilan = rejouer.rejouer_exemples(exemples + hors, creation.etats, profil.enseignables())
     st["consignes_rejouees"] = {k: v for k, v in bilan.items() if k != "details"}
     problemes += bilan["details"]
     # … et les appels edit et write du format d'OpenCode, rejoués comme OpenCode les applique.
-    bilan_oc = rejouer_opencode(exemples, h)
+    bilan_oc = rejouer_opencode(exemples + hors, h)
     st["editions_opencode_rejouees"] = {k: v for k, v in bilan_oc.items() if k != "details"}
     problemes += bilan_oc["details"]
     # L'extrait décalé des shaders : chaque relevé dans une réponse est confronté au nombre de #include.
