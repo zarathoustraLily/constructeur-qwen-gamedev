@@ -38,6 +38,13 @@ extends Resource
 @export var point_pick_px: float = 8.0
 ## Le côté d'une forme de collision neuve (Ctrl+clic), en mètres.
 @export var collision_square_m: float = 2.0
+#@ 15+
+## La vitesse de marche du modèle sur le banc d'essai, en mètres par seconde.
+@export var bench_move_speed_mps: float = 3.0
+## La distance entre la caméra du banc et le modèle, en mètres.
+@export var bench_camera_distance_m: float = 6.0
+## Le côté du sol du banc, en mètres.
+@export var bench_floor_m: float = 20.0
 #@ all
 
 
@@ -63,5 +70,8 @@ func validate() -> Array[String]:
 #@ 10+
 	if point_pick_px <= 0.0 or collision_square_m <= 0.0:
 		errors.append("collisions : rayon de prise et côté positifs requis")
+#@ 15+
+	if bench_move_speed_mps <= 0.0 or bench_camera_distance_m <= 0.0 or bench_floor_m <= 0.0:
+		errors.append("banc d'essai : vitesse, distance et sol positifs requis")
 #@ all
 	return errors

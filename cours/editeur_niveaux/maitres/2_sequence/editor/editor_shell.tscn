@@ -14,8 +14,10 @@
 [gd_scene load_steps=20 format=3]
 ;@ 13
 [gd_scene load_steps=21 format=3]
-;@ 14+
+;@ 14
 [gd_scene load_steps=22 format=3]
+;@ 15+
+[gd_scene load_steps=25 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
@@ -47,6 +49,10 @@
 [ext_resource type="Script" path="res://4_ui/editor/definition_panel.gd" id="20_definitions"]
 ;@ 14+
 [ext_resource type="Script" path="res://4_ui/editor/animation_panel.gd" id="21_animations"]
+;@ 15+
+[ext_resource type="Script" path="res://4_ui/editor/bench_view.gd" id="22_bench"]
+[ext_resource type="Script" path="res://4_ui/editor/bench_input.gd" id="23_bench_input"]
+[ext_resource type="Script" path="res://4_ui/editor/bench_panel.gd" id="24_bench_panel"]
 ;@ all
 
 [node name="EditorShell" type="Control"]
@@ -268,6 +274,33 @@ offset_left = -300.0
 grow_horizontal = 0
 grow_vertical = 2
 script = ExtResource("21_animations")
+;@ 15+
+
+[node name="BenchView" type="SubViewportContainer" parent="Layout/Body"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 270.0
+offset_right = -310.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("22_bench")
+
+[node name="BenchInput" type="Node" parent="Layout/Body"]
+script = ExtResource("23_bench_input")
+
+[node name="BenchPanel" type="VBoxContainer" parent="Layout/Body"]
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("24_bench_panel")
 ;@ all
 
 [node name="Status" type="Label" parent="Layout"]

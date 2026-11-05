@@ -34,6 +34,9 @@ extends Control
 #@ 14+
 ## Le mode « Animations » montre, à droite, les animations des ennemis : pour chaque état, un clip choisi parmi ceux du
 ## modèle, et sa vitesse.
+#@ 15+
+## Le mode « Banc d'essai » remplace la vue de la salle par une petite scène 3D : le modèle d'un ennemi y joue ses clips,
+## marche au clavier ou à la manette, et porte les effets cochés, sans rien changer à la salle.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -56,8 +59,11 @@ const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions"]
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets"]
 #@ 13
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets", &"parametres"]
-#@ 14+
+#@ 14
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets", &"parametres", &"animations"]
+#@ 15+
+const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets", &"parametres", &"animations",
+		&"banc"]
 #@ 10+
 #@ 6+
 
@@ -128,6 +134,10 @@ var _effects: Array[FxDef] = []
 @onready var _definitions: DefinitionPanel = $Layout/Body/DefinitionPanel
 #@ 14+
 @onready var _animations: AnimationPanel = $Layout/Body/AnimationPanel
+#@ 15+
+@onready var _bench: BenchView = $Layout/Body/BenchView
+@onready var _bench_input: BenchInput = $Layout/Body/BenchInput
+@onready var _bench_panel: BenchPanel = $Layout/Body/BenchPanel
 #@ all
 
 
@@ -181,6 +191,12 @@ func _ready() -> void:
 #@ 14+
 	_animations.setup(animations_dir)
 	_animations.animation_saved.connect(func(path: String) -> void: show_status("%s enregistré" % path.get_file()))
+#@ 15+
+	var animation_defs: Array[AnimationDef] = []
+	animation_defs.assign(folder.load_all(animations_dir, AnimationDef))
+	_bench.setup(settings)
+	_bench_input.setup(_bench)
+	_bench_panel.setup(_bench, animation_defs, _effects)
 #@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
@@ -369,6 +385,11 @@ func set_mode(mode: StringName) -> void:
 	_definitions.visible = mode == &"parametres"
 #@ 14+
 	_animations.visible = mode == &"animations"
+#@ 15+
+	_bench.visible = mode == &"banc"
+	_bench_panel.visible = mode == &"banc"
+	_bench_input.active = mode == &"banc"
+	_view.visible = mode != &"banc"
 #@ 10+
 	_mode_picker.select(MODES.find(mode))
 	if mode != &"choses":
@@ -407,5 +428,11 @@ func definition_panel() -> DefinitionPanel:
 ## Le panneau des animations (pour les tests).
 func animation_panel() -> AnimationPanel:
 	return _animations
+#@ 15+
+
+
+## Le banc d'essai (pour les tests).
+func bench() -> BenchView:
+	return _bench
 #@ 10+
 #@ all

@@ -23,4 +23,8 @@ drag_threshold_px = 4.0
 ;@ 10+
 point_pick_px = 8.0
 collision_square_m = 2.0
+;@ 15+
+bench_move_speed_mps = 3.0
+bench_camera_distance_m = 6.0
+bench_floor_m = 20.0
 ;@ all

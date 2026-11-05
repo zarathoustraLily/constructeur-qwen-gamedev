@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -149,4 +149,9 @@ FICHIERS = {
     "5_data/animations/toupie.tres": "14+",
     "7_tests/1_core/data/test_animation_def.gd": "14+",
     "7_tests/4_ui/editor/test_animation_panel.gd": "14+",
+    "1_core/editor/bench_motion.gd": "15+",
+    "4_ui/editor/bench_view.gd": "15+",
+    "4_ui/editor/bench_input.gd": "15+",
+    "4_ui/editor/bench_panel.gd": "15+",
+    "7_tests/4_ui/editor/test_bench.gd": "15+",
 }
