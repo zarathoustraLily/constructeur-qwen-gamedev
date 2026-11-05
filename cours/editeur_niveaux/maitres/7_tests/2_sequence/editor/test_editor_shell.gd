@@ -125,6 +125,16 @@ func test_le_mode_choisit_ce_que_fait_la_souris() -> void:
 	assert_str(String(shell.current_mode())).is_equal("collisions")
 	assert_bool(shell.collision_input().active).is_true()
 	assert_bool(shell.selection().is_empty()).is_true()
+#@ 11+
+
+
+func test_une_rencontre_incomplete_ne_s_enregistre_pas() -> void:
+	var shell: EditorShell = _shell()
+	shell.set_mode(&"apparitions")
+	assert_bool(shell.encounter_panel().visible).is_true()
+	shell.document().set_room_fields({&"encounter_pool": PackedStringArray(["licorne"])})
+	assert_bool(shell.save_room()).is_false()
+	assert_str(shell.status()).is_equal("Enregistrement impossible : rencontre : ennemi inconnu licorne")
 #@ all
 
 

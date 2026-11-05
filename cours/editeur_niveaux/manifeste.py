@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -108,4 +108,18 @@ FICHIERS = {
     "4_ui/editor/collision_input.gd": "10+",
     "7_tests/1_core/editor/test_collision_tools.gd": "10+",
     "7_tests/4_ui/editor/test_collision_input.gd": "10+",
+    "1_core/data/enemy_def.gd": "11+",
+    "1_core/editor/definition_folder.gd": "11+",
+    "4_ui/editor/spawn_input.gd": "11+",
+    "4_ui/editor/spawn_view.gd": "11+",
+    "4_ui/editor/encounter_panel.gd": "11+",
+    "5_data/ennemis/bombe.tres": "11+",
+    "5_data/ennemis/brute.tres": "11+",
+    "5_data/ennemis/cone.tres": "11+",
+    "5_data/ennemis/melee.tres": "11+",
+    "5_data/ennemis/racine.tres": "11+",
+    "5_data/ennemis/tireur.tres": "11+",
+    "5_data/ennemis/toupie.tres": "11+",
+    "7_tests/1_core/data/test_enemy_def.gd": "11+",
+    "7_tests/4_ui/editor/test_spawn_input.gd": "11+",
 }

@@ -6,8 +6,10 @@
 [gd_scene load_steps=8 format=3]
 ;@ 8-9
 [gd_scene load_steps=12 format=3]
-;@ 10+
+;@ 10
 [gd_scene load_steps=14 format=3]
+;@ 11+
+[gd_scene load_steps=17 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
@@ -27,6 +29,10 @@
 ;@ 10+
 [ext_resource type="Script" path="res://4_ui/editor/collision_view.gd" id="12_collision_view"]
 [ext_resource type="Script" path="res://4_ui/editor/collision_input.gd" id="13_collision_input"]
+;@ 11+
+[ext_resource type="Script" path="res://4_ui/editor/spawn_view.gd" id="14_spawn_view"]
+[ext_resource type="Script" path="res://4_ui/editor/spawn_input.gd" id="15_spawn_input"]
+[ext_resource type="Script" path="res://4_ui/editor/encounter_panel.gd" id="16_encounter"]
 ;@ all
 
 [node name="EditorShell" type="Control"]
@@ -169,6 +175,33 @@ script = ExtResource("12_collision_view")
 
 [node name="CollisionInput" type="Node" parent="Layout/Body"]
 script = ExtResource("13_collision_input")
+;@ 11+
+
+[node name="SpawnView" type="Control" parent="Layout/Body"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 270.0
+offset_right = -310.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("14_spawn_view")
+
+[node name="SpawnInput" type="Node" parent="Layout/Body"]
+script = ExtResource("15_spawn_input")
+
+[node name="EncounterPanel" type="VBoxContainer" parent="Layout/Body"]
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("16_encounter")
 ;@ all
 
 [node name="Status" type="Label" parent="Layout"]

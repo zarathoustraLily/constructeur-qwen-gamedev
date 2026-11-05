@@ -21,6 +21,10 @@ extends Control
 #@ 10+
 ## Le mode, en haut, choisit ce que fait la souris : « Choses » (sélection et cadre bleu) ou « Collisions » (les formes
 ## infranchissables, montrées seulement dans ce mode).
+#@ 11+
+## Le mode « Apparitions » montre le départ du héros et les points d'apparition, et, à droite, la rencontre : les
+## ennemis de la salle, choisis parmi les définitions du jeu. Une salle dont la rencontre cite un ennemi inconnu, ou un
+## ennemi sans point d'apparition de son rôle, ne s'enregistre pas.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -35,7 +39,11 @@ const APP_TITLE: String = "Éditeur de niveaux"
 const UNSAVED: String = "Modifications non enregistrées : « Enregistrer » (Ctrl+S) ou « Abandonner les modifications »"
 #@ 10+
 ## Les modes de la souris, dans l'ordre de la liste.
+#@ 10
 const MODES: Array[StringName] = [&"choses", &"collisions"]
+#@ 11+
+const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions"]
+#@ 10+
 #@ 6+
 
 ## La salle ouverte au démarrage.
@@ -47,6 +55,9 @@ const MODES: Array[StringName] = [&"choses", &"collisions"]
 #@ 9+
 ## Le dossier des salles : la liste en haut de la fenêtre, et là où l'on enregistre.
 @export_dir var rooms_dir: String = RoomStore.DEFAULT_ROOT
+#@ 11+
+## Le dossier des définitions d'ennemis du jeu.
+@export_dir var enemies_dir: String = "res://5_data/ennemis"
 #@ 6+
 
 var _store: RoomStore = RoomStore.new()
@@ -57,6 +68,8 @@ var _selection: SelectionModel = SelectionModel.new()
 var _actions: EditorActions = EditorActions.new()
 #@ 9+
 var _current_file: String = ""
+#@ 11+
+var _enemies: Array[EnemyDef] = []
 #@ all
 
 @onready var _status: Label = $Layout/Status
@@ -80,6 +93,10 @@ var _current_file: String = ""
 @onready var _mode_picker: OptionButton = $Layout/TopBar/ModePicker
 @onready var _collision_view: CollisionView = $Layout/Body/CollisionView
 @onready var _collision_input: CollisionInput = $Layout/Body/CollisionInput
+#@ 11+
+@onready var _spawn_view: SpawnView = $Layout/Body/SpawnView
+@onready var _spawn_input: SpawnInput = $Layout/Body/SpawnInput
+@onready var _encounter: EncounterPanel = $Layout/Body/EncounterPanel
 #@ all
 
 
@@ -113,6 +130,14 @@ func _ready() -> void:
 	_collision_input.setup(_view, _document, settings)
 	_collision_view.setup(_document, _transform, _collision_input)
 	_collision_input.refused.connect(show_status)
+#@ 11+
+	var folder: DefinitionFolder = DefinitionFolder.new()
+	_enemies.assign(folder.load_all(enemies_dir, EnemyDef))
+	_spawn_input.setup(_view, _document, settings)
+	_spawn_view.setup(_document, _transform, _spawn_input)
+	_spawn_input.refused.connect(show_status)
+	_encounter.setup(_document, _enemies)
+#@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
 	_mode_picker.item_selected.connect(func(index: int) -> void: set_mode(MODES[index]))
@@ -214,6 +239,9 @@ func save_room() -> bool:
 		show_status(NOTHING_OPEN)
 		return false
 	var errors: Array[String] = catalog.room_errors(room)
+#@ 11+
+	errors.append_array(EnemyDef.pool_errors(room, _enemies))
+#@ 9+
 	if errors.is_empty() and _store.save_room(room, _current_file):
 		_document.mark_saved()
 		show_status("%s enregistré" % room.display_name)
@@ -280,6 +308,12 @@ func set_mode(mode: StringName) -> void:
 	_selection_input.active = mode == &"choses"
 	_collision_input.active = mode == &"collisions"
 	_collision_view.visible = mode == &"collisions"
+#@ 11+
+	_spawn_input.active = mode == &"apparitions"
+	_spawn_view.visible = mode == &"apparitions"
+	_encounter.visible = mode == &"apparitions"
+	_inspector.visible = mode != &"apparitions"
+#@ 10+
 	_mode_picker.select(MODES.find(mode))
 	if mode != &"choses":
 		_selection.clear()
@@ -293,4 +327,11 @@ func current_mode() -> StringName:
 ## La souris des collisions (pour les tests).
 func collision_input() -> CollisionInput:
 	return _collision_input
+#@ 11+
+
+
+## Le panneau de la rencontre (pour les tests).
+func encounter_panel() -> EncounterPanel:
+	return _encounter
+#@ 10+
 #@ all

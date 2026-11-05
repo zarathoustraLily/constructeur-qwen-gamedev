@@ -233,6 +233,12 @@ def salle(ident: str, nom: str, largeur: float, profondeur: float, n_obstacles: 
     apparitions = [(round(alea.uniform(3, largeur - 3), 2), 0, round(alea.uniform(6, profondeur - 3), 2))
                    for _ in range(8)]
     roles = [alea.choice(["melee", "distance", "tous"]) for _ in apparitions]
+    # Chaque ennemi de la rencontre doit avoir un point de son rôle (EnemyDef.pool_errors refuserait la salle) : on le
+    # vérifie à la fabrication plutôt que de compter sur le tirage.
+    accueil = {"melee": ("melee", "tous"), "distance": ("distance", "tous")}
+    role_de = {e[0]: e[2] for e in ENNEMIS}
+    for ennemi in pool:
+        assert any(r in accueil[role_de[ennemi]] for r in roles), f"{ident} : aucun point pour {ennemi}"
     effets = [(alea.choice([f[0] for f in EFFETS]), (round(alea.uniform(2, largeur - 2), 2), 0,
                                                        round(alea.uniform(2, profondeur - 2), 2))) for _ in range(3)]
 
