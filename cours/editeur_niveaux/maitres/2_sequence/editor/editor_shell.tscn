@@ -1,6 +1,16 @@
+;@ 1-5
 [gd_scene load_steps=2 format=3]
+;@ 6+
+[gd_scene load_steps=6 format=3]
+;@ all
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
+;@ 6+
+[ext_resource type="Script" path="res://4_ui/editor/room_view.gd" id="2_view"]
+[ext_resource type="Script" path="res://4_ui/editor/room_view_input.gd" id="3_view_input"]
+[ext_resource type="Resource" path="res://5_data/catalogue/catalogue.tres" id="4_catalog"]
+[ext_resource type="Resource" path="res://5_data/editeur/reglages.tres" id="5_settings"]
+;@ all
 
 [node name="EditorShell" type="Control"]
 layout_mode = 3
@@ -10,6 +20,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_shell")
+;@ 6+
+start_room = "res://5_data/salles/hangar.tres"
+catalog = ExtResource("4_catalog")
+settings = ExtResource("5_settings")
+;@ all
 
 [node name="Layout" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -26,6 +41,21 @@ text = "Éditeur de niveaux"
 [node name="Body" type="Control" parent="Layout"]
 layout_mode = 2
 size_flags_vertical = 3
+;@ 6+
+
+[node name="RoomView" type="Control" parent="Layout/Body"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_view")
+
+[node name="RoomViewInput" type="Node" parent="Layout/Body"]
+script = ExtResource("3_view_input")
+;@ all
 
 [node name="Status" type="Label" parent="Layout"]
 layout_mode = 2

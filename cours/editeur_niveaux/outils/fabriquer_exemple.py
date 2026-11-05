@@ -110,9 +110,11 @@ def dessiner_planche(chemin: Path) -> dict[str, tuple[int, int, int, int]]:
     image = Image.new("RGBA", (COLONNES * CASE, lignes * CASE), (0, 0, 0, 0))
     d = ImageDraw.Draw(image)
     rects: dict[str, tuple[int, int, int, int]] = {}
-    for i, (nom, _cat, _calque, _taille, couleur, forme) in enumerate(ASSETS):
+    for i, (nom, categorie, _calque, _taille, couleur, forme) in enumerate(ASSETS):
         x0, y0 = (i % COLONNES) * CASE, (i // COLONNES) * CASE
-        marge = 8
+        # Une dalle de sol remplit sa case : posée bord à bord, elle se raccorde à la suivante (avec une marge, la vue
+        # montrait un joint vide entre deux dalles). Les autres assets gardent une marge transparente.
+        marge = 0 if categorie == "sol" else 8
         boite = [x0 + marge, y0 + marge, x0 + CASE - marge - 1, y0 + CASE - marge - 1]
         fonce = tuple(max(0, c - 60) for c in couleur) + (255,)
         plein = tuple(couleur) + (255,)

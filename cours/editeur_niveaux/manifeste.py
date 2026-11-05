@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5]
+PRETES = [1, 2, 3, 4, 5, 6]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -84,4 +84,12 @@ FICHIERS = {
     "1_core/editor/editor_actions.gd": "5+",
     "5_data/editeur/reglages.tres": "5+",
     "7_tests/1_core/editor/test_editor_actions.gd": "5+",
+    "1_core/editor/view_transform.gd": "6+",
+    "1_core/editor/draw_order.gd": "6+",
+    "4_ui/editor/room_view.gd": "6+",
+    "4_ui/editor/room_view_input.gd": "6+",
+    "7_tests/1_core/editor/test_view_transform.gd": "6+",
+    "7_tests/1_core/editor/test_draw_order.gd": "6+",
+    "7_tests/4_ui/editor/test_room_view.gd": "6+",
+    "7_tests/4_ui/editor/test_room_view_input.gd": "6+",
 }

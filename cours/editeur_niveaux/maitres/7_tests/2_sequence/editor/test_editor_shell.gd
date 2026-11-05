@@ -1,6 +1,11 @@
 extends GdUnitTestSuite
+#@ 1-5
 ## La coquille de l'éditeur s'ouvre : elle charge, dit qu'aucune salle n'est ouverte, et signale chaque texte qu'elle
 ## écrit dans sa barre d'état.
+#@ 6+
+## La coquille de l'éditeur s'ouvre sur la salle de départ et dit ce qu'elle contient ; une salle introuvable est
+## signalée dans la barre d'état sans rien ouvrir ; chaque texte écrit dans la barre d'état est signalé.
+#@ all
 
 const SHELL: PackedScene = preload("res://2_sequence/editor/editor_shell.tscn")
 
@@ -9,10 +14,26 @@ func _shell() -> EditorShell:
 	var shell: EditorShell = auto_free(SHELL.instantiate())
 	add_child(shell)
 	return shell
+#@ 1-5
 
 
 func test_la_coquille_s_ouvre_sans_salle() -> void:
 	assert_str(_shell().status()).is_equal(EditorShell.NOTHING_OPEN)
+#@ 6+
+
+
+func test_la_coquille_ouvre_la_salle_de_depart() -> void:
+	var shell: EditorShell = _shell()
+	assert_bool(shell.document().is_open()).is_true()
+	assert_str(shell.status()).is_equal("Le hangar : %d choses" % shell.document().ids().size())
+
+
+func test_une_salle_introuvable_est_signalee() -> void:
+	var shell: EditorShell = _shell()
+	assert_bool(shell.open_room("res://5_data/salles/absente.tres")).is_false()
+	assert_str(shell.status()).is_equal("Ouverture impossible : Salle introuvable : res://5_data/salles/absente.tres")
+	assert_bool(shell.document().is_open()).is_true()
+#@ all
 
 
 func test_la_barre_d_etat_signale_son_texte() -> void:
