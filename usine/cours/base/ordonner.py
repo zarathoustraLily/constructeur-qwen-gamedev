@@ -18,6 +18,9 @@ INCLUDE = re.compile(r'^\s*#include\s+"res://([^"]+)"')
 LOCALE = re.compile(r"^\s+(?:const\s+)?(?:float|int|uint|vec2|vec3|vec4|ivec2|ivec3|bool|mat3|mat4)\s+(\w+)\s*[=;]"
                     r"|^\s+(?:var|const)\s+(\w+)|^\s*for\s+(\w+)")
 FONCTION = re.compile(r"^(?:static\s+)?func\s+(\w+)|^(?:float|int|vec2|vec3|vec4|bool|mat3|mat4|void)\s+(\w+)\s*\(")
+# Un chemin de fichier cité par une scène ou une ressource (`path="res://…"`, `preload("res://…")`).
+CITATION = re.compile(r"res://([^\"'\s)\]]+)")
+RESSOURCES = (".tscn", ".tres", ".godot")
 
 
 def locales(lignes: list[str]) -> set[str]:
@@ -338,6 +341,10 @@ def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], ra
     # effets remplacés).
     bases_retirees = {r.rsplit("/", 1)[-1] for r in retires}
     urgentes = {comp_de[m.id] for m in tous if any(b in l for l in m.anciennes for b in bases_retirees)}
+    # De même, le fichier nouveau qu'une scène ou une ressource du départ cite déjà (une ressource donnée, trop grosse
+    # pour être écrite, qui emploie un script de l'étape : boss 018, `combat_sounds.tres` et `sound_cue.gd`).
+    cites_au_depart = {c for rel, t in avant.items() if rel.endswith(RESSOURCES) for c in CITATION.findall(t)}
+    urgentes |= {comp_de[m.id] for m in tous if m.fichier not in avant and m.fichier in cites_au_depart}
     pile = list(urgentes)
     while pile:
         for v in comps[pile.pop()]:

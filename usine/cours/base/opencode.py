@@ -26,6 +26,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path, PureWindowsPath
 
@@ -157,7 +158,11 @@ def retour_shell(sortie: str, code: int) -> str:
     """Le retour de l'outil shell : la sortie telle quelle (son dernier retour à la ligne compris), un retour à la
     ligne, puis le code de sortie ; « (no output) » à la place d'une sortie vide."""
     if len(sortie.encode("utf-8")) > LIMITE_SORTIE:
-        raise FormatInconnu(f"sortie de {len(sortie.encode('utf-8'))} octets : OpenCode n'en rendrait qu'un aperçu")
+        # Le début et la ligne la plus répétée : de quoi trouver la cause sans relancer Godot (boss 019, 2026-11-05 :
+        # 1,2 Mo sur un état final qui en rendait 21 Ko la veille).
+        frequente, fois = (Counter(l for l in sortie.split("\n") if l.strip()).most_common(1) or [("", 0)])[0]
+        raise FormatInconnu(f"sortie de {len(sortie.encode('utf-8'))} octets : OpenCode n'en rendrait qu'un aperçu ; "
+                            f"début {sortie[:400]!r} ; ligne la plus répétée ({fois} fois) : {frequente[:300]!r}")
     corps = sortie if sortie.strip() else SANS_SORTIE
     return corps + "\n" + FIN_SHELL.format(code=code)
 

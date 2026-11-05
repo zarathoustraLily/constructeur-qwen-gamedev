@@ -209,6 +209,19 @@ def test_les_citations_d_un_fichier_retire_passent_en_tete():
     assert ordonner.ordre(tous, affect, avant, composer.ordre_fichier, apres, {"5_data/y.tres"}) == sans
 
 
+def test_le_code_nouveau_cite_par_une_ressource_donnee_passe_en_tete():
+    """boss 018 : `combat_sounds.tres`, donné (trop gros pour être écrit), cite `sound_cue.gd`, nouveau : tant que le
+    script n'est pas écrit, le départ ne s'importe pas."""
+    donnee = '[gd_resource type="Resource" format=3]\n[ext_resource type="Script" path="res://c.gd" id="1"]\n'
+    avant = {"a.gd": "extends Node\n", "sons.tres": donnee}
+    apres = {"a.gd": "extends Node\nvar v: int = 0\n", "sons.tres": donnee, "c.gd": "extends Resource\n"}
+    tous = _morceaux(Morceau("a.gd", 1, 1, 1, 2, [], ["var v: int = 0"]),
+                     Morceau("c.gd", 0, 0, 0, 2, [], ["extends Resource", ""]))
+    assert ordonner.ordre(tous, {0: 1, 1: 2}, avant, composer.ordre_fichier, apres) == [[1], [0]]
+    sans_citation = dict(avant, **{"sons.tres": "[gd_resource format=3]\n"})
+    assert ordonner.ordre(tous, {0: 1, 1: 2}, sans_citation, composer.ordre_fichier, apres) == [[0], [1]]
+
+
 def test_sortie_gardee_remise_au_chemin_de_son_dossier(tmp_path, monkeypatch):
     """Le même état sous un autre nom de dossier (dernière partie p2 ou p3) : la sortie gardée parle du nouveau."""
     monkeypatch.setattr(godot, "_EMPREINTES", {})

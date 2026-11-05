@@ -18,6 +18,8 @@ from usine.cours.base.etat import CODE
 from usine.cours.base.notes import puces
 
 TEST = "7_tests/6_assets/Mesh/Procedural/DECORS/Building/test_{nom}.gd"
+# Un chemin de fichier cité par une scène ou une ressource (`path="res://…"`, `preload("res://…")`).
+CITATION = ordonner.CITATION
 # L'outillage du cours (visite, caméra, bandeau, réglages de la visite) est donné tel qu'à l'étape : il n'est pas
 # enseigné. Les outils communs (maillage, fonctions de shader) sont écrits à Paris, donnés à Tokyo et New York.
 OUTILLAGE = ("0_autoload/", "2_sequence/", "3_entities/", "4_ui/", "1_core/camera/", "1_core/data/", "5_data/visit/")
@@ -69,12 +71,24 @@ def etats(ville: str, n: int) -> tuple[dict[str, str], dict[str, str]]:
     apres = etat.lire(ville, n)
     avant = etat.lire(ville, n - 1, n) if n > 1 else {}
     if actuels().jeu:
+        donnes = []
         for rel in list(set(avant) | set(apres)):
             if rel not in apres:
                 avant.pop(rel, None)
             elif not (rel.endswith(CODE) or (rel.endswith(profil.RESSOURCES)
                                              and profil.raisonnable(avant.get(rel), apres[rel]))):
                 avant[rel] = apres[rel]
+                donnes.append(rel)
+        # Une scène ou une ressource donnée vient avec les ressources nouvelles qu'elle cite, sinon le départ ne
+        # s'importe pas : boss 007, `saloon.tscn` (donné, trop gros pour être écrit) cite 43 matériaux nouveaux du
+        # pack importé (10 290 jetons de Qwen à eux seuls) ; chaque partie avant leur écriture échouait à l'import,
+        # la première dépassait 32 768 jetons. Le code qu'elle cite reste à écrire : `ordonner.ordre` le met en tête.
+        pile = [rel for rel in donnes if rel.endswith(profil.RESSOURCES)]
+        while pile:
+            for cite in CITATION.findall(avant[pile.pop()]):
+                if cite in apres and cite not in avant and cite.endswith(profil.RESSOURCES):
+                    avant[cite] = apres[cite]
+                    pile.append(cite)
         return avant, apres
     figes = OUTILLAGE + (COMMUN if ville != "parisien" else ())
     for rel in list(set(avant) | set(apres)):
