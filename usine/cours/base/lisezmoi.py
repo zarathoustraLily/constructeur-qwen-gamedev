@@ -192,7 +192,7 @@ Tout vient des sessions réelles de laurent avec OpenCode 2.0.6 (session captur�
 | `echantillon.md` | {len(st['echantillon'])} exemples en version lisible, tels que le modèle les voit. |
 | `controles.json` | Les chiffres ci-dessus et la liste des problèmes trouvés par les contrôles ({len(c['problemes'])}). |
 
-**Réglages d'entraînement à reprendre** : `template: qwen3_8` (comme pour t1), `enable_thinking: false` (règle 7.6),
+**Réglages d'entraînement à reprendre** : `template: qwen3_5` (le gabarit de Qwen 3.5 et 3.8 dans LLaMA-Factory 0.9.5 ; `qwen3_8` n'y existe pas), `enable_thinking: false` (règle 7.6),
 `cutoff_len: 32768`, `train_on_prompt: false` (la perte ne porte que sur les réponses), `mask_history: false` (valeur
 par défaut : la perte porte sur chaque réponse, pas seulement la dernière), `packing: false`.
 
@@ -352,7 +352,7 @@ Où Godot les voit : """ + ", ".join(f"{NOMS_VUES[k]} ({nb(v)})" for k, v in se[
 | `echantillon.md` | {len(st['echantillon'])} exemples en version lisible. |
 | `controles.json` | Les chiffres ci-dessus et les problèmes trouvés par les contrôles ({len(c['problemes'])}). |
 
-**Réglages d'entraînement** : ceux de la base des bâtiments (`template: qwen3_8`, `enable_thinking: false`,
+**Réglages d'entraînement** : ceux de la base des bâtiments (`template: qwen3_5`, `enable_thinking: false`,
 `cutoff_len: 32768`, `train_on_prompt: false`, `packing: false`).
 
 ## Contrôles

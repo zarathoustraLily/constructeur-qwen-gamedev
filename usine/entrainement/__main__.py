@@ -3,6 +3,7 @@
     python -m usine.entrainement reglages --etape 1 --jeu <dossier> --nom <nom du jeu> [--sortie <dossier>]
                                           [--reprise <LoRA de l'étape précédente>]
     python -m usine.entrainement lancer --yaml <etape_N.yaml> [--cli <llamafactory-cli.exe>]
+    python -m usine.entrainement etape3 [--sortie <dossier>] [--courtes 5000] [--graine 0] [--pod /workspace]
 """
 
 from __future__ import annotations
@@ -28,7 +29,17 @@ def main(argv: list[str] | None = None) -> int:
     lc = sous.add_parser("lancer", help="lancer LLaMA-Factory ; journal et bilan dans le dossier du LoRA")
     lc.add_argument("--yaml", type=Path, required=True)
     lc.add_argument("--cli", default=None, help="llamafactory-cli (défaut : [entrainement] llamafactory de config.toml)")
+    e3 = sous.add_parser("etape3", help="préparer le dossier de la carte louée (rien n'est lancé)")
+    e3.add_argument("--sortie", type=Path, default=Path("donnees/entrainement/etape_3"))
+    e3.add_argument("--courtes", type=int, default=5000, help="paires courtes tirées dans les deux paliers")
+    e3.add_argument("--graine", type=int, default=0)
+    e3.add_argument("--pod", default="/workspace", help="dossier de travail sur la carte louée")
     args = parseur.parse_args(argv)
+    if args.commande == "etape3":
+        from usine.entrainement import etape3
+        print(json.dumps(etape3.preparer(args.sortie, args.courtes, args.graine, args.pod), ensure_ascii=False,
+                         indent=1))
+        return 0
     if args.commande == "lancer":
         from usine.entrainement import lancer
         bilan = lancer.lancer(args.yaml, args.cli)
