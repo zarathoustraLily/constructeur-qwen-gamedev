@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AnimationDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/animation_def.gd" id="1_anim"]
+[ext_resource type="PackedScene" path="res://6_assets/exemple/modeles/bipede.tscn" id="2_model"]
+
+[resource]
+script = ExtResource("1_anim")
+id = &"racine"
+display_name = "Racine"
+model = ExtResource("2_model")
+clips = Dictionary[StringName, StringName]({
+&"idle": &"repos",
+&"move": &"course",
+&"attack": &"attaque",
+&"hit": &"touche",
+&"death": &"mort",
+&"spawn": &"apparition"
+})
+speeds = Dictionary[StringName, float]({
+&"idle": 1,
+&"move": 1,
+&"attack": 0.7,
+&"hit": 1,
+&"death": 1,
+&"spawn": 1
+})
+blend_s = 0.15

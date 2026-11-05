@@ -31,6 +31,9 @@ extends Control
 #@ 13+
 ## Le mode « Paramètres » montre, à droite, les définitions du jeu (ennemis, effets) et le formulaire de celle qu'on
 ## choisit : on règle le jeu lui-même, et une définition invalide ne s'écrit pas.
+#@ 14+
+## Le mode « Animations » montre, à droite, les animations des ennemis : pour chaque état, un clip choisi parmi ceux du
+## modèle, et sa vitesse.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -51,8 +54,10 @@ const MODES: Array[StringName] = [&"choses", &"collisions"]
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions"]
 #@ 12
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets"]
-#@ 13+
+#@ 13
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets", &"parametres"]
+#@ 14+
+const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets", &"parametres", &"animations"]
 #@ 10+
 #@ 6+
 
@@ -71,6 +76,9 @@ const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"ef
 #@ 12+
 ## Le dossier des définitions d'effets du jeu.
 @export_dir var effects_dir: String = "res://5_data/effets"
+#@ 14+
+## Le dossier des définitions d'animation du jeu.
+@export_dir var animations_dir: String = "res://5_data/animations"
 #@ 6+
 
 var _store: RoomStore = RoomStore.new()
@@ -118,6 +126,8 @@ var _effects: Array[FxDef] = []
 @onready var _effect_panel: EffectPanel = $Layout/Body/EffectPanel
 #@ 13+
 @onready var _definitions: DefinitionPanel = $Layout/Body/DefinitionPanel
+#@ 14+
+@onready var _animations: AnimationPanel = $Layout/Body/AnimationPanel
 #@ all
 
 
@@ -168,6 +178,9 @@ func _ready() -> void:
 #@ 13+
 	_definitions.setup({"Ennemis": enemies_dir, "Effets": effects_dir})
 	_definitions.definition_saved.connect(func(path: String) -> void: show_status("%s enregistré" % path.get_file()))
+#@ 14+
+	_animations.setup(animations_dir)
+	_animations.animation_saved.connect(func(path: String) -> void: show_status("%s enregistré" % path.get_file()))
 #@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
@@ -354,6 +367,8 @@ func set_mode(mode: StringName) -> void:
 	_inspector.visible = mode == &"choses" or mode == &"collisions"
 #@ 13+
 	_definitions.visible = mode == &"parametres"
+#@ 14+
+	_animations.visible = mode == &"animations"
 #@ 10+
 	_mode_picker.select(MODES.find(mode))
 	if mode != &"choses":
@@ -386,5 +401,11 @@ func effect_input() -> EffectInput:
 ## Le panneau des paramètres du jeu (pour les tests).
 func definition_panel() -> DefinitionPanel:
 	return _definitions
+#@ 14+
+
+
+## Le panneau des animations (pour les tests).
+func animation_panel() -> AnimationPanel:
+	return _animations
 #@ 10+
 #@ all

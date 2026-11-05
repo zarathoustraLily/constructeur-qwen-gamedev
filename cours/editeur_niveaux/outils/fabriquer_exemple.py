@@ -179,6 +179,71 @@ def effet_tres(f) -> str:
     return "\n".join(lignes)
 
 
+# --- modèles et animations (étape 14) ---
+
+# Les clips des modèles fictifs : (durée s, en boucle, piste, valeurs aux instants 0, durée/2, durée).
+CLIPS = {
+    "repos": (1.0, True, "Corps:scale", [(1, 1, 1), (1, 1.05, 1), (1, 1, 1)]),
+    "course": (0.5, True, "Corps:rotation", [(0, 0, -0.1), (0, 0, 0.1), (0, 0, -0.1)]),
+    "attaque": (0.6, False, "Corps:position", [(0, 0.8, 0), (0, 0.8, -0.4), (0, 0.8, 0)]),
+    "touche": (0.3, False, "Corps:scale", [(1, 1, 1), (1.2, 0.8, 1.2), (1, 1, 1)]),
+    "mort": (0.8, False, "Corps:rotation", [(0, 0, 0), (1.5708, 0, 0), (1.5708, 0, 0)]),
+    "apparition": (0.5, False, "Corps:scale", [(0.01, 0.01, 0.01), (1.1, 1.1, 1.1), (1, 1, 1)]),
+}
+# Les modèles : (nom du nœud racine, maillage, réglages du maillage).
+MODELES = {
+    "bipede": ("Bipede", "CapsuleMesh", ["radius = 0.35", "height = 1.6"]),
+    "volant": ("Volant", "SphereMesh", ["radius = 0.4", "height = 0.8"]),
+}
+# Les états du jeu et le clip qui les joue, communs à tous les ennemis.
+ETATS = {"idle": "repos", "move": "course", "attack": "attaque", "hit": "touche", "death": "mort",
+         "spawn": "apparition"}
+# Le modèle et la vitesse d'attaque de chaque ennemi.
+ANIMATIONS = {"melee": ("bipede", 1.0), "brute": ("bipede", 0.8), "toupie": ("volant", 1.5),
+              "cone": ("bipede", 1.0), "tireur": ("volant", 1.0), "racine": ("bipede", 0.7),
+              "bombe": ("volant", 1.2)}
+
+
+def modele_tscn(nom: str) -> str:
+    racine, maillage, reglages = MODELES[nom]
+    lignes = ["[gd_scene format=3]", "", f'[sub_resource type="{maillage}" id="{maillage}_corps"]'] + reglages + [""]
+    for clip, (duree, boucle, piste, valeurs) in CLIPS.items():
+        lignes += [f'[sub_resource type="Animation" id="Animation_{clip}"]', f'resource_name = "{clip}"',
+                   f"length = {nombre(duree)}"]
+        if boucle:
+            lignes.append("loop_mode = 1")
+        lignes += ['tracks/0/type = "value"', "tracks/0/imported = false", "tracks/0/enabled = true",
+                   f'tracks/0/path = NodePath("{piste}")', "tracks/0/interp = 1", "tracks/0/loop_wrap = true",
+                   "tracks/0/keys = {",
+                   f'"times": PackedFloat32Array(0, {nombre(duree / 2)}, {nombre(duree)}),',
+                   '"transitions": PackedFloat32Array(1, 1, 1),', '"update": 0,',
+                   '"values": [' + ", ".join(f"Vector3({nombres(v)})" for v in valeurs) + "]", "}", ""]
+    lignes += ['[sub_resource type="AnimationLibrary" id="AnimationLibrary_clips"]', "_data = {"]
+    lignes += [",\n".join(f'&"{clip}": SubResource("Animation_{clip}")' for clip in CLIPS), "}", ""]
+    lignes += [f'[node name="{racine}" type="Node3D"]', "",
+               '[node name="Corps" type="MeshInstance3D" parent="."]',
+               "transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)",
+               f'mesh = SubResource("{maillage}_corps")', "",
+               '[node name="AnimationPlayer" type="AnimationPlayer" parent="."]',
+               'libraries = {', '&"": SubResource("AnimationLibrary_clips")', "}", ""]
+    return "\n".join(lignes)
+
+
+def animation_tres(ident: str, nom: str) -> str:
+    modele, vitesse_attaque = ANIMATIONS[ident]
+    lignes = entete("AnimationDef", [("1_anim", "Script", "res://1_core/data/animation_def.gd"),
+                                     ("2_model", "PackedScene", f"res://6_assets/exemple/modeles/{modele}.tscn")])
+    vitesses = {etat: (vitesse_attaque if etat == "attack" else 1) for etat in ETATS}
+    lignes += ["[resource]", 'script = ExtResource("1_anim")', f'id = &"{ident}"', f"display_name = {chaine(nom)}",
+               'model = ExtResource("2_model")',
+               "clips = Dictionary[StringName, StringName]({\n" + ",\n".join(f'&"{e}": &"{c}"' for e, c in ETATS.items())
+               + "\n})",
+               "speeds = Dictionary[StringName, float]({\n" + ",\n".join(f'&"{e}": {nombre(v)}' for e, v in vitesses.items())
+               + "\n})",
+               "blend_s = 0.15", ""]
+    return "\n".join(lignes)
+
+
 # --- salles ---
 
 def salle(ident: str, nom: str, largeur: float, profondeur: float, n_obstacles: int, n_details: int,
@@ -305,6 +370,10 @@ def main() -> None:
         ecrire(f"5_data/ennemis/{e[0]}.tres", ennemi_tres(e))
     for f in EFFETS:
         ecrire(f"5_data/effets/{f[0]}.tres", effet_tres(f))
+    for nom in MODELES:
+        ecrire(f"6_assets/exemple/modeles/{nom}.tscn", modele_tscn(nom))
+    for e in ENNEMIS:
+        ecrire(f"5_data/animations/{e[0]}.tres", animation_tres(e[0], e[1]))
     print("planche :", a.source / PLANCHE)
 
 

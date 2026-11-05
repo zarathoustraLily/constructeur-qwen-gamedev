@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -136,4 +136,17 @@ FICHIERS = {
     "4_ui/editor/definition_panel.gd": "13+",
     "7_tests/1_core/editor/test_definition_editor.gd": "13+",
     "7_tests/4_ui/editor/test_definition_panel.gd": "13+",
+    "1_core/data/animation_def.gd": "14+",
+    "4_ui/editor/animation_panel.gd": "14+",
+    "6_assets/exemple/modeles/bipede.tscn": "14+",
+    "6_assets/exemple/modeles/volant.tscn": "14+",
+    "5_data/animations/bombe.tres": "14+",
+    "5_data/animations/brute.tres": "14+",
+    "5_data/animations/cone.tres": "14+",
+    "5_data/animations/melee.tres": "14+",
+    "5_data/animations/racine.tres": "14+",
+    "5_data/animations/tireur.tres": "14+",
+    "5_data/animations/toupie.tres": "14+",
+    "7_tests/1_core/data/test_animation_def.gd": "14+",
+    "7_tests/4_ui/editor/test_animation_panel.gd": "14+",
 }
