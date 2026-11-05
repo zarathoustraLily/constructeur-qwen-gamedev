@@ -24,6 +24,15 @@ extends Resource
 @export var max_zoom: float = 4.0
 ## Le facteur d'un cran de molette.
 @export var zoom_step: float = 1.1
+#@ 7+
+## La couleur du cadre de sélection et de ses poignées.
+@export var selection_color: Color = Color(0.2, 0.55, 1.0)
+## Le côté d'une poignée, en pixels.
+@export var handle_size_px: float = 10.0
+## La distance entre le haut du cadre et la poignée de rotation, en pixels.
+@export var rotate_handle_offset_px: float = 28.0
+## Le déplacement de la souris, en pixels, au-delà duquel un clic devient un glisser.
+@export var drag_threshold_px: float = 4.0
 #@ all
 
 
@@ -43,5 +52,8 @@ func validate() -> Array[String]:
 		errors.append("min_zoom, max_zoom : 0 < min_zoom <= max_zoom requis")
 	if zoom_step <= 1.0:
 		errors.append("zoom_step : facteur plus grand que 1 requis")
+#@ 7+
+	if handle_size_px <= 0.0 or rotate_handle_offset_px <= 0.0 or drag_threshold_px < 0.0:
+		errors.append("poignées : tailles positives requises")
 #@ all
 	return errors

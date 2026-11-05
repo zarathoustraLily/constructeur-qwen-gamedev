@@ -1,7 +1,9 @@
 ;@ 1-5
 [gd_scene load_steps=2 format=3]
-;@ 6+
+;@ 6
 [gd_scene load_steps=6 format=3]
+;@ 7+
+[gd_scene load_steps=8 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
@@ -10,6 +12,9 @@
 [ext_resource type="Script" path="res://4_ui/editor/room_view_input.gd" id="3_view_input"]
 [ext_resource type="Resource" path="res://5_data/catalogue/catalogue.tres" id="4_catalog"]
 [ext_resource type="Resource" path="res://5_data/editeur/reglages.tres" id="5_settings"]
+;@ 7+
+[ext_resource type="Script" path="res://4_ui/editor/selection_overlay.gd" id="6_overlay"]
+[ext_resource type="Script" path="res://4_ui/editor/selection_input.gd" id="7_selection_input"]
 ;@ all
 
 [node name="EditorShell" type="Control"]
@@ -45,6 +50,9 @@ size_flags_vertical = 3
 
 [node name="RoomView" type="Control" parent="Layout/Body"]
 clip_contents = true
+;@ 7+
+focus_mode = 2
+;@ 6+
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -55,6 +63,20 @@ script = ExtResource("2_view")
 
 [node name="RoomViewInput" type="Node" parent="Layout/Body"]
 script = ExtResource("3_view_input")
+;@ 7+
+
+[node name="SelectionOverlay" type="Control" parent="Layout/Body"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_overlay")
+
+[node name="SelectionInput" type="Node" parent="Layout/Body"]
+script = ExtResource("7_selection_input")
 ;@ all
 
 [node name="Status" type="Label" parent="Layout"]

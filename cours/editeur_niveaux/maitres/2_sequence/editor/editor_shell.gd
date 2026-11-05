@@ -7,6 +7,9 @@ extends Control
 ## La coquille de l'éditeur de niveaux : la fenêtre, son titre, la vue de dessus et la barre d'état. Au démarrage, elle
 ## ouvre la salle de départ (`start_room`), vérifiée face au catalogue, et la cadre dans la vue ; on la parcourt à la
 ## souris (molette : zoom autour du curseur ; bouton du milieu : déplacer la vue).
+#@ 7+
+## Le bouton gauche sélectionne (clic, Maj+clic, rectangle) et manipule la sélection par son cadre bleu : déplacer,
+## agrandir par les poignées d'angle, tourner par la poignée ronde ; Page haut et Page bas règlent sa profondeur.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -26,12 +29,18 @@ const NOTHING_OPEN: String = "Aucune salle ouverte"
 var _store: RoomStore = RoomStore.new()
 var _document: RoomDocument = RoomDocument.new()
 var _transform: ViewTransform = ViewTransform.new()
+#@ 7+
+var _selection: SelectionModel = SelectionModel.new()
+var _actions: EditorActions = EditorActions.new()
 #@ all
 
 @onready var _status: Label = $Layout/Status
 #@ 6+
 @onready var _view: RoomView = $Layout/Body/RoomView
 @onready var _view_input: RoomViewInput = $Layout/Body/RoomViewInput
+#@ 7+
+@onready var _overlay: SelectionOverlay = $Layout/Body/SelectionOverlay
+@onready var _selection_input: SelectionInput = $Layout/Body/SelectionInput
 #@ all
 
 
@@ -42,6 +51,12 @@ func _ready() -> void:
 	_transform.setup(settings)
 	_view.setup(_document, catalog, _transform)
 	_view_input.setup(_view, _transform, settings)
+#@ 7+
+	_actions.setup(_document, catalog, settings)
+	_selection_input.setup(_view, _document, _selection, _actions, settings)
+	_overlay.setup(_selection_input, settings)
+	_document.changed.connect(_forget_removed)
+#@ 6+
 	_view.resized.connect(frame_room)
 	if start_room.is_empty():
 		show_status(NOTHING_OPEN)
@@ -65,6 +80,13 @@ func status() -> String:
 ## Le document de la salle ouverte.
 func document() -> RoomDocument:
 	return _document
+#@ 7+
+
+
+## La sélection de l'éditeur.
+func selection() -> SelectionModel:
+	return _selection
+#@ 6+
 
 
 ## Ouvre la salle `path` : elle doit être valide, et ne citer que des calques et des assets du catalogue.
@@ -87,4 +109,10 @@ func frame_room() -> void:
 	var room: RoomData = _document.snapshot()
 	if room != null and _view.size.x > 0.0 and _view.size.y > 0.0:
 		_transform.frame(room.size_m, _view.size)
+#@ 7+
+
+
+# Après une suppression ou une annulation, la sélection ne garde que les choses qui existent encore.
+func _forget_removed() -> void:
+	_selection.retain(_document.ids())
 #@ all

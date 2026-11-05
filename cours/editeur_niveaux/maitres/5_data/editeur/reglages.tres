@@ -15,4 +15,9 @@ pixels_per_meter = 32.0
 min_zoom = 0.25
 max_zoom = 4.0
 zoom_step = 1.1
+;@ 7+
+selection_color = Color(0.2, 0.55, 1, 1)
+handle_size_px = 10.0
+rotate_handle_offset_px = 28.0
+drag_threshold_px = 4.0
 ;@ all
