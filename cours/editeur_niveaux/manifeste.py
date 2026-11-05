@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -122,4 +122,14 @@ FICHIERS = {
     "5_data/ennemis/toupie.tres": "11+",
     "7_tests/1_core/data/test_enemy_def.gd": "11+",
     "7_tests/4_ui/editor/test_spawn_input.gd": "11+",
+    "1_core/data/fx_def.gd": "12+",
+    "1_core/editor/effect_preview.gd": "12+",
+    "4_ui/editor/effect_input.gd": "12+",
+    "4_ui/editor/effect_view.gd": "12+",
+    "4_ui/editor/effect_panel.gd": "12+",
+    "5_data/effets/etincelles.tres": "12+",
+    "5_data/effets/fumee.tres": "12+",
+    "5_data/effets/vapeur.tres": "12+",
+    "7_tests/1_core/data/test_fx_def.gd": "12+",
+    "7_tests/4_ui/editor/test_effect_input.gd": "12+",
 }

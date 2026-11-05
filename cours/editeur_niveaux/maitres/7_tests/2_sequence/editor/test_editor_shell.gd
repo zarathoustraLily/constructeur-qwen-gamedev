@@ -135,6 +135,18 @@ func test_une_rencontre_incomplete_ne_s_enregistre_pas() -> void:
 	shell.document().set_room_fields({&"encounter_pool": PackedStringArray(["licorne"])})
 	assert_bool(shell.save_room()).is_false()
 	assert_str(shell.status()).is_equal("Enregistrement impossible : rencontre : ennemi inconnu licorne")
+#@ 12+
+
+
+func test_un_effet_inconnu_ne_s_enregistre_pas() -> void:
+	var shell: EditorShell = _shell()
+	shell.set_mode(&"effets")
+	assert_bool(shell.effect_input().active).is_true()
+	var ids: PackedStringArray = shell.document().room_value(&"effect_ids")
+	ids[0] = "arc_en_ciel"
+	shell.document().set_room_fields({&"effect_ids": ids})
+	assert_bool(shell.save_room()).is_false()
+	assert_str(shell.status()).is_equal("Enregistrement impossible : effet 0 : effet inconnu arc_en_ciel")
 #@ all
 
 

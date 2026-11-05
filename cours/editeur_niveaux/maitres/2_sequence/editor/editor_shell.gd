@@ -25,6 +25,9 @@ extends Control
 ## Le mode « Apparitions » montre le départ du héros et les points d'apparition, et, à droite, la rencontre : les
 ## ennemis de la salle, choisis parmi les définitions du jeu. Une salle dont la rencontre cite un ennemi inconnu, ou un
 ## ennemi sans point d'apparition de son rôle, ne s'enregistre pas.
+#@ 12+
+## Le mode « Effets » montre les effets placés en aperçu animé, et, à droite, la liste des effets du jeu : Ctrl+clic place
+## l'effet choisi. Une salle qui place un effet inconnu ne s'enregistre pas.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -41,8 +44,10 @@ const UNSAVED: String = "Modifications non enregistrées : « Enregistrer » (Ct
 ## Les modes de la souris, dans l'ordre de la liste.
 #@ 10
 const MODES: Array[StringName] = [&"choses", &"collisions"]
-#@ 11+
+#@ 11
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions"]
+#@ 12+
+const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets"]
 #@ 10+
 #@ 6+
 
@@ -58,6 +63,9 @@ const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions"]
 #@ 11+
 ## Le dossier des définitions d'ennemis du jeu.
 @export_dir var enemies_dir: String = "res://5_data/ennemis"
+#@ 12+
+## Le dossier des définitions d'effets du jeu.
+@export_dir var effects_dir: String = "res://5_data/effets"
 #@ 6+
 
 var _store: RoomStore = RoomStore.new()
@@ -70,6 +78,8 @@ var _actions: EditorActions = EditorActions.new()
 var _current_file: String = ""
 #@ 11+
 var _enemies: Array[EnemyDef] = []
+#@ 12+
+var _effects: Array[FxDef] = []
 #@ all
 
 @onready var _status: Label = $Layout/Status
@@ -97,6 +107,10 @@ var _enemies: Array[EnemyDef] = []
 @onready var _spawn_view: SpawnView = $Layout/Body/SpawnView
 @onready var _spawn_input: SpawnInput = $Layout/Body/SpawnInput
 @onready var _encounter: EncounterPanel = $Layout/Body/EncounterPanel
+#@ 12+
+@onready var _effect_view: EffectView = $Layout/Body/EffectView
+@onready var _effect_input: EffectInput = $Layout/Body/EffectInput
+@onready var _effect_panel: EffectPanel = $Layout/Body/EffectPanel
 #@ all
 
 
@@ -137,6 +151,13 @@ func _ready() -> void:
 	_spawn_view.setup(_document, _transform, _spawn_input)
 	_spawn_input.refused.connect(show_status)
 	_encounter.setup(_document, _enemies)
+#@ 12+
+	_effects.assign(folder.load_all(effects_dir, FxDef))
+	_effect_input.setup(_view, _document, settings)
+	_effect_view.setup(_document, _transform, _effect_input, _effects)
+	_effect_input.refused.connect(show_status)
+	_effect_panel.setup(_effects)
+	_effect_panel.effect_chosen.connect(func(effect_id: StringName) -> void: _effect_input.current_fx = effect_id)
 #@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
@@ -241,6 +262,8 @@ func save_room() -> bool:
 	var errors: Array[String] = catalog.room_errors(room)
 #@ 11+
 	errors.append_array(EnemyDef.pool_errors(room, _enemies))
+#@ 12+
+	errors.append_array(FxDef.placement_errors(room, _effects))
 #@ 9+
 	if errors.is_empty() and _store.save_room(room, _current_file):
 		_document.mark_saved()
@@ -312,7 +335,13 @@ func set_mode(mode: StringName) -> void:
 	_spawn_input.active = mode == &"apparitions"
 	_spawn_view.visible = mode == &"apparitions"
 	_encounter.visible = mode == &"apparitions"
+#@ 11
 	_inspector.visible = mode != &"apparitions"
+#@ 12+
+	_effect_input.active = mode == &"effets"
+	_effect_view.visible = mode == &"effets"
+	_effect_panel.visible = mode == &"effets"
+	_inspector.visible = mode == &"choses" or mode == &"collisions"
 #@ 10+
 	_mode_picker.select(MODES.find(mode))
 	if mode != &"choses":
@@ -333,5 +362,11 @@ func collision_input() -> CollisionInput:
 ## Le panneau de la rencontre (pour les tests).
 func encounter_panel() -> EncounterPanel:
 	return _encounter
+#@ 12+
+
+
+## La souris des effets (pour les tests).
+func effect_input() -> EffectInput:
+	return _effect_input
 #@ 10+
 #@ all
