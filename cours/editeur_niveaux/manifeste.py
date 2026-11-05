@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3]
+PRETES = [1, 2, 3, 4]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -74,4 +74,10 @@ FICHIERS = {
     "7_tests/1_core/editor/test_undo_stack.gd": "3+",
     "7_tests/1_core/editor/test_selection_model.gd": "3+",
     "7_tests/1_core/editor/test_room_document.gd": "3+",
+    "1_core/data/asset_def.gd": "4+",
+    "1_core/data/asset_catalog_def.gd": "4+",
+    "1_core/editor/asset_search.gd": "4+",
+    "5_data/catalogue/catalogue.tres": "4+",
+    "7_tests/1_core/data/test_asset_catalog_def.gd": "4+",
+    "7_tests/1_core/editor/test_asset_search.gd": "4+",
 }
