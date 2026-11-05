@@ -45,6 +45,9 @@ extends Resource
 @export var bench_camera_distance_m: float = 6.0
 ## Le côté du sol du banc, en mètres.
 @export var bench_floor_m: float = 20.0
+#@ 16+
+## La taille d'une salle neuve, en mètres.
+@export var new_room_size_m: Vector2 = Vector2(24, 16)
 #@ all
 
 
@@ -73,5 +76,8 @@ func validate() -> Array[String]:
 #@ 15+
 	if bench_move_speed_mps <= 0.0 or bench_camera_distance_m <= 0.0 or bench_floor_m <= 0.0:
 		errors.append("banc d'essai : vitesse, distance et sol positifs requis")
+#@ 16+
+	if new_room_size_m.x <= 0.0 or new_room_size_m.y <= 0.0:
+		errors.append("new_room_size_m : taille positive requise")
 #@ all
 	return errors

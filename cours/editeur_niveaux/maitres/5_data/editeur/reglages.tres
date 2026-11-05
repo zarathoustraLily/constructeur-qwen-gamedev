@@ -27,4 +27,6 @@ collision_square_m = 2.0
 bench_move_speed_mps = 3.0
 bench_camera_distance_m = 6.0
 bench_floor_m = 20.0
+;@ 16+
+new_room_size_m = Vector2(24, 16)
 ;@ all

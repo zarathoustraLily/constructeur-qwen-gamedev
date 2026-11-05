@@ -32,6 +32,9 @@ const DEFAULTS: Dictionary[StringName, Variant] = {
 #@ 10+
 ## Les champs de la salle elle-même (et non de ses choses) que l'éditeur modifie, et leur type.
 const ROOM_FIELDS: Dictionary[StringName, int] = {
+#@ 16+
+	&"display_name": TYPE_STRING,
+#@ 10+
 	&"collisions": TYPE_ARRAY, &"hero_start": TYPE_VECTOR3, &"spawn_positions": TYPE_PACKED_VECTOR3_ARRAY,
 	&"spawn_roles": TYPE_PACKED_STRING_ARRAY, &"encounter_pool": TYPE_PACKED_STRING_ARRAY,
 	&"encounter_depth": TYPE_INT, &"effect_ids": TYPE_PACKED_STRING_ARRAY,

@@ -37,6 +37,9 @@ extends Control
 #@ 15+
 ## Le mode « Banc d'essai » remplace la vue de la salle par une petite scène 3D : le modèle d'un ennemi y joue ses clips,
 ## marche au clavier ou à la manette, et porte les effets cochés, sans rien changer à la salle.
+#@ 16+
+## En haut, « Nouvelle salle » crée une salle d'après le nom tapé : son identifiant, tiré du nom et unique, devient le
+## nom de son fichier et ne change plus. Le champ du nom renomme aussi la salle ouverte : seul son nom affiché change.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -138,6 +141,10 @@ var _effects: Array[FxDef] = []
 @onready var _bench: BenchView = $Layout/Body/BenchView
 @onready var _bench_input: BenchInput = $Layout/Body/BenchInput
 @onready var _bench_panel: BenchPanel = $Layout/Body/BenchPanel
+#@ 16+
+@onready var _room_name: LineEdit = $Layout/TopBar/RoomName
+@onready var _new_room_button: Button = $Layout/TopBar/NewRoomButton
+@onready var _rename_button: Button = $Layout/TopBar/RenameButton
 #@ all
 
 
@@ -197,6 +204,9 @@ func _ready() -> void:
 	_bench.setup(settings)
 	_bench_input.setup(_bench)
 	_bench_panel.setup(_bench, animation_defs, _effects)
+#@ 16+
+	_new_room_button.pressed.connect(func() -> void: create_room(_room_name.text))
+	_rename_button.pressed.connect(func() -> void: rename_room(_room_name.text))
 #@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
@@ -434,5 +444,35 @@ func animation_panel() -> AnimationPanel:
 ## Le banc d'essai (pour les tests).
 func bench() -> BenchView:
 	return _bench
+#@ 16+
+
+
+## Crée une salle d'après `display_name`, l'enregistre sous son identifiant et l'ouvre ; refusé si la salle ouverte a des
+## modifications non enregistrées.
+func create_room(display_name: String) -> bool:
+	if _document.is_dirty():
+		show_status(UNSAVED)
+		return false
+	var existing: PackedStringArray = PackedStringArray()
+	for file: String in room_files():
+		existing.append(file.get_basename())
+	var room_id: StringName = RoomFactory.new().id_from_name(display_name, existing)
+	var label: String = display_name.strip_edges() if not display_name.strip_edges().is_empty() else String(room_id)
+	var room: RoomData = RoomFactory.new_room(room_id, label, settings.new_room_size_m, catalog.layers)
+	if not _store.save_room(room, String(room_id) + ".tres"):
+		show_status("Création impossible : " + "; ".join(_store.errors))
+		return false
+	refresh_rooms()
+	return open_room(_store.path_of(String(room_id) + ".tres"))
+
+
+## Change le nom affiché de la salle ouverte (son identifiant et son fichier ne changent pas) : un pas d'annulation.
+func rename_room(display_name: String) -> bool:
+	if display_name.strip_edges().is_empty():
+		show_status("Renommage impossible : nom vide")
+		return false
+	var done: bool = _document.set_room_fields({&"display_name": display_name.strip_edges()})
+	_update_title()
+	return done
 #@ 10+
 #@ all

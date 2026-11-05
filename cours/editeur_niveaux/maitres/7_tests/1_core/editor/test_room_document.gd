@@ -153,8 +153,13 @@ func test_les_champs_de_la_salle_se_modifient_en_un_pas() -> void:
 
 func test_un_champ_de_salle_inconnu_ou_mal_type_est_refuse() -> void:
 	var document: RoomDocument = _document()
+#@ 10-15
 	assert_bool(document.set_room_fields({&"display_name": "Autre"})).is_false()
 	assert_array(document.errors).is_equal(["display_name : champ de salle inconnu ou non modifiable"])
+#@ 16+
+	assert_bool(document.set_room_fields({&"size_m": Vector2.ONE})).is_false()
+	assert_array(document.errors).is_equal(["size_m : champ de salle inconnu ou non modifiable"])
+#@ 10+
 	assert_bool(document.set_room_fields({&"encounter_depth": "trois"})).is_false()
 	assert_array(document.errors).is_equal(["encounter_depth : int attendu"])
 

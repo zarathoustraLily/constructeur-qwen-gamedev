@@ -156,6 +156,32 @@ func test_le_mode_parametres_montre_les_definitions() -> void:
 	assert_bool(shell.definition_panel().visible).is_true()
 	shell.set_mode(&"choses")
 	assert_bool(shell.definition_panel().visible).is_false()
+#@ 16+
+
+
+func test_une_salle_neuve_se_cree_et_s_ouvre() -> void:
+	var shell: EditorShell = _shell()
+	assert_bool(shell.create_room("Salle des machines")).is_true()
+	assert_bool(FileAccess.file_exists(ROOT.path_join("salle_des_machines.tres"))).is_true()
+	assert_array(Array(shell.room_files())).contains(["salle_des_machines.tres"])
+	assert_str(shell.title()).is_equal("Éditeur de niveaux · Salle des machines")
+
+
+func test_renommer_ne_change_que_le_nom_affiche() -> void:
+	var shell: EditorShell = _shell()
+	assert_bool(shell.rename_room("Le grand hangar")).is_true()
+	assert_str(shell.title()).is_equal("Éditeur de niveaux · Le grand hangar *")
+	assert_bool(shell.save_room()).is_true()
+	var saved: RoomData = RoomStore.new().load_room(ROOT.path_join("hangar.tres"))
+	assert_str(saved.display_name).is_equal("Le grand hangar")
+	assert_str(String(saved.id)).is_equal("hangar")
+
+
+func test_une_salle_modifiee_empeche_d_en_creer_une() -> void:
+	var shell: EditorShell = _shell()
+	shell.document().set_value(shell.document().ids()[0], &"height", 1.0)
+	assert_bool(shell.create_room("Autre")).is_false()
+	assert_str(shell.status()).is_equal(EditorShell.UNSAVED)
 #@ all
 
 

@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -154,4 +154,6 @@ FICHIERS = {
     "4_ui/editor/bench_input.gd": "15+",
     "4_ui/editor/bench_panel.gd": "15+",
     "7_tests/4_ui/editor/test_bench.gd": "15+",
+    "1_core/editor/room_factory.gd": "16+",
+    "7_tests/1_core/editor/test_room_factory.gd": "16+",
 }

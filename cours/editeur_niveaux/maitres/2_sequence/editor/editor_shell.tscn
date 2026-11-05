@@ -98,6 +98,21 @@ layout_mode = 2
 [node name="RoomPicker" type="OptionButton" parent="Layout/TopBar"]
 layout_mode = 2
 
+;@ 16+
+[node name="RoomName" type="LineEdit" parent="Layout/TopBar"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+placeholder_text = "Nom de salle"
+
+[node name="NewRoomButton" type="Button" parent="Layout/TopBar"]
+layout_mode = 2
+text = "Nouvelle salle"
+
+[node name="RenameButton" type="Button" parent="Layout/TopBar"]
+layout_mode = 2
+text = "Renommer"
+
+;@ 9+
 [node name="SaveButton" type="Button" parent="Layout/TopBar"]
 layout_mode = 2
 text = "Enregistrer"
