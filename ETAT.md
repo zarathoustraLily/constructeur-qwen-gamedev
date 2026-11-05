@@ -2385,6 +2385,32 @@ Pièges mesurés, à garder : une texture neuve garde ce que la précédente a l
 
 Assemblage du 2026-11-02 à 09:01 (`python -m usine.paires assembler --palier 1`, puis `--palier 2`, toutes les familles, `voir_fluide` compris) : palier 1, 18 444 paires sur 45 843 lues, 12 569 749 jetons, au plus 1 024, environ 13,1 h sur la 5090 ; palier 2, 11 879 paires, 19 383 666 jetons, au plus 2 048, environ 20,2 h. En jetons de réponse, création / débogage / analyse : 27,7 / 47,5 / 24,8 au palier 1, 36,0 / 42,8 / 21,2 au palier 2, 31,6 / 45,3 / 23,1 ensemble. Le 40/40/20 n'est pas atteint : l'assembleur garde toute la création et tout le débogage (décisions de laurent du 2026-11-01), et il manque environ 1,27 M jetons de création pour égaler le débogage, 1,73 M sujet par sujet, surtout en procédural, gameplay, shaders et 3D. Ce que `bloc` rejette encore, ce sont des lignes qu'aucun test ne juge ; `creation_calcul` ne vaut que pour les `.glsl` des fluides. Combler demande une décision de laurent : de nouveaux tests, un autre juge, ou couper du débogage. Bilan par projet et par catégorie : `SUIVIS_PROGRESSION\bilan_paires_2026-11-02.md` dans le dossier du boss.
 
+### Cours « éditeur de niveaux », étapes 17 et 18 — 2026-11-05 (branche `claude/observation-visuelle`)
+
+Sur la planche peinte à la main par laurent (« tu peux utiliser ça pour l'éditeur de sol » ; fond transparent ; pièces
+de toutes tailles, « ça bouffe de la mémoire »), reçue en webp 2000 × 2000 RGBA et posée en PNG dans le jeu source :
+`PROJET_EDITEUR_NIVEAUX/6_assets/planches_peintes/sol_01.png`, dossier à `.gdignore` (extension du manifeste, 18+).
+
+- Étape 17, pièces peintes en projection : `AssetDef.painted` ; `FlatLayout.ground_from_screen` et `painted_basis` (le
+  sprite reste couché, ses axes suivent l'écran ramené au sol : la caméra le voit tel qu'il est peint ; rotation dans le
+  plan de l'écran) ; emprise et dessin de la carte par une transformation affine (`RoomView._image_to_screen`). Vérifié
+  contre `Camera3D.unproject_position` à 0,5 pixel près. Défaut trouvé par ce test, présent depuis l'étape 6 : l'emprise
+  (cadre bleu, clic) était calculée au sol alors que le sprite est relevé de la hauteur de son calque (0,6 pixel au
+  cadrage des tests pour le calque detail_sol) ; corrigé à partir de l'étape 17.
+- Étape 18, import d'une planche : `SheetImporter` (plages par ligne, union-find à 8 voisins, rognage, rangement par
+  étagères aligné sur les blocs 4 × 4, onze largeurs essayées), `SheetImport` (pages `PortableCompressedTexture2D` en
+  BPTC, écriture atomique, identifiants stables par recouvrement du cadre, refus si une pièce disparue sert dans une
+  salle), bouton « Importer une planche… » et case « Sol verrouillé ». Mesuré sur la planche de laurent, Godot 4.7.2
+  sans fenêtre : 11 pièces, 1 page de 936 × 1140, 1 067 040 octets en BPTC au lieu de 16 000 000 (15,25 → 1,01 Mio),
+  194 ms. Regroupement par distance écarté par défaut (`sheet_merge_gap_px = 0`) : la dalle grise est à deux lignes vides
+  des dalles du haut.
+- Proposé, non décidé : 120 pixels par mètre d'écran pour les planches ; la caméra reste à 30° d'inclinaison et 45° de
+  lacet en attendant les valeurs de la caméra Blender de laurent.
+
+Pièges : sans `keep_compressed_buffer = true`, une `PortableCompressedTexture2D` créée hors de l'éditeur s'enregistre en
+362 octets et se relit en (0, 0) (sonde du 2026-11-05) ; un terminal resté dans le dossier d'une étape bloque sa
+refabrication (`WinError 32`).
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.

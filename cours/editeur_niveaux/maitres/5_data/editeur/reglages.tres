@@ -29,4 +29,13 @@ bench_camera_distance_m = 6.0
 bench_floor_m = 20.0
 ;@ 16+
 new_room_size_m = Vector2(24, 16)
+;@ 18+
+painted_pixels_per_meter = 120.0
+sheet_merge_gap_px = 0
+sheet_min_area_px = 16
+sheet_padding_px = 2
+sheet_page_max_px = 2048
+sheet_vram_compression = true
+sheet_layer = &"sol"
+sheet_category = &"sol"
 ;@ all

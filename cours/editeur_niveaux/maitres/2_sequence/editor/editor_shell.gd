@@ -41,6 +41,10 @@ extends Control
 #@ 16+
 ## En haut, « Nouvelle salle » crée une salle d'après le nom tapé : son identifiant, tiré du nom et unique, devient le
 ## nom de son fichier et ne change plus. Le champ du nom renomme aussi la salle ouverte : seul son nom affiché change.
+#@ 18+
+## « Importer une planche… » prend un PNG peint à la main, à fond transparent : ses pièces, rognées et rangées dans des
+## pages d'atlas compressées, entrent au catalogue (enregistré) et dans la palette, peintes en projection. « Sol
+## verrouillé », décoché, laisse prendre à la souris les choses du sol, pour éditer le sol pièce par pièce.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -91,6 +95,9 @@ const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"ef
 #@ 14+
 ## Le dossier des définitions d'animation du jeu.
 @export_dir var animations_dir: String = "res://5_data/animations"
+#@ 18+
+## Le dossier où l'import des planches peintes écrit leurs pages d'atlas (un sous-dossier par planche).
+@export_dir var painted_dir: String = "res://6_assets/peint"
 #@ 6+
 
 var _store: RoomStore = RoomStore.new()
@@ -106,6 +113,9 @@ var _current_file: String = ""
 var _enemies: Array[EnemyDef] = []
 #@ 12+
 var _effects: Array[FxDef] = []
+#@ 18+
+var _import_dialog: FileDialog = FileDialog.new()
+var _floor_layers: PackedStringArray = PackedStringArray()
 #@ all
 
 @onready var _status: Label = $Layout/Status
@@ -151,6 +161,9 @@ var _effects: Array[FxDef] = []
 @onready var _room_name: LineEdit = $Layout/TopBar/RoomName
 @onready var _new_room_button: Button = $Layout/TopBar/NewRoomButton
 @onready var _rename_button: Button = $Layout/TopBar/RenameButton
+#@ 18+
+@onready var _import_button: Button = $Layout/TopBar/ImportButton
+@onready var _floor_lock: CheckButton = $Layout/TopBar/FloorLock
 #@ all
 
 
@@ -160,6 +173,11 @@ func _ready() -> void:
 #@ 6+
 	_transform.setup(settings, camera_def)
 	_view.set_renderer(Room3DView.new())
+#@ 17+
+	# Les pièces peintes en projection se posent d'après la caméra du jeu, sur la vue rendue comme sur la carte.
+	_view.game_camera = camera_def
+	_map.game_camera = camera_def
+#@ 6+
 	_view.setup(_document, catalog, _transform)
 	_view_input.setup(_view, _transform, settings)
 	_map_transform.setup(settings)
@@ -219,6 +237,17 @@ func _ready() -> void:
 #@ 16+
 	_new_room_button.pressed.connect(func() -> void: create_room(_room_name.text))
 	_rename_button.pressed.connect(func() -> void: rename_room(_room_name.text))
+#@ 18+
+	_import_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_import_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_import_dialog.filters = PackedStringArray(["*.png ; Planches peintes"])
+	_import_dialog.title = "Importer une planche peinte"
+	add_child(_import_dialog)
+	_import_dialog.file_selected.connect(import_sheet)
+	_import_button.pressed.connect(func() -> void: _import_dialog.popup_centered_ratio())
+	_floor_layers = _view.locked_layers.duplicate()
+	_floor_lock.button_pressed = true
+	_floor_lock.toggled.connect(set_floor_locked)
 #@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
@@ -502,5 +531,56 @@ func rename_room(display_name: String) -> bool:
 	var done: bool = _document.set_room_fields({&"display_name": display_name.strip_edges()})
 	_update_title()
 	return done
+#@ 18+
+
+
+## Importe la planche peinte `path` (un PNG à fond transparent) : ses pièces entrent au catalogue, qui s'enregistre, et
+## dans la palette ; la barre d'état dit combien de pièces et de pages, et la mémoire vidéo des pages face à celle de la
+## planche gardée telle quelle. Refusé si une pièce disparue de la planche sert encore dans une salle.
+func import_sheet(path: String) -> bool:
+	var sheet: SheetImport = SheetImport.new()
+	sheet.setup(settings)
+	if not sheet.import_sheet(path, catalog, painted_dir, _used_assets()):
+		show_status("Import impossible : " + "; ".join(sheet.errors))
+		return false
+	var saved: Error = StableSaver.new().save(catalog, catalog.resource_path)
+	if saved != OK:
+		show_status("Catalogue non enregistré : %s" % error_string(saved))
+		return false
+	_palette.refresh()
+	_view.refresh()
+	_map.queue_redraw()
+	show_status("Planche %s : %d pièces ; pages d'atlas : %d ; mémoire vidéo %s au lieu de %s" % [path.get_file(),
+			sheet.pieces.size(), sheet.page_paths.size(), String.humanize_size(sheet.pages_bytes),
+			String.humanize_size(sheet.sheet_bytes)])
+	return true
+
+
+## Verrouille (`locked`) ou libère les calques du sol : libres, leurs choses se prennent à la souris comme les autres.
+func set_floor_locked(locked: bool) -> void:
+	_view.locked_layers = _floor_layers.duplicate() if locked else PackedStringArray()
+	_floor_lock.set_pressed_no_signal(locked)
+
+
+## La fenêtre de choix d'une planche (pour les tests).
+func import_dialog() -> FileDialog:
+	return _import_dialog
+
+
+## La vue rendue (pour les tests).
+func view() -> RenderedView:
+	return _view
+
+
+# Les assets dont se servent les salles du dossier des salles, et la salle ouverte telle qu'elle est en mémoire.
+func _used_assets() -> PackedStringArray:
+	var used: PackedStringArray = PackedStringArray()
+	if _document.is_open():
+		used.append_array(_document.snapshot().thing_assets)
+	for file: String in room_files():
+		var room: RoomData = _store.load_room(_store.path_of(file))
+		if room != null:
+			used.append_array(room.thing_assets)
+	return used
 #@ 10+
 #@ all

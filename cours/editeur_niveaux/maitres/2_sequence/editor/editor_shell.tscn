@@ -96,6 +96,16 @@ text = "Nouvelle salle"
 layout_mode = 2
 text = "Renommer"
 
+;@ 18+
+[node name="ImportButton" type="Button" parent="Layout/TopBar"]
+layout_mode = 2
+text = "Importer une planche…"
+
+[node name="FloorLock" type="CheckButton" parent="Layout/TopBar"]
+layout_mode = 2
+button_pressed = true
+text = "Sol verrouillé"
+
 ;@ 9+
 [node name="SaveButton" type="Button" parent="Layout/TopBar"]
 layout_mode = 2

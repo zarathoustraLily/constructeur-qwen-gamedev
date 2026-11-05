@@ -11,6 +11,9 @@ extends GdUnitTestSuite
 ## Enregistrer écrit la salle et retire l'astérisque du titre ; une salle modifiée ne laisse pas ouvrir une autre salle
 ## sans qu'on abandonne ses modifications ; la liste montre les salles du dossier. La coquille des tests travaille dans
 ## un dossier à elle : les salles du projet ne sont jamais réécrites par un test.
+#@ 18+
+## Une planche peinte importée entre au catalogue, enregistré, et ses pièces se posent ; le sol se déverrouille pour
+## l'éditer pièce par pièce.
 #@ all
 
 const SHELL: PackedScene = preload("res://2_sequence/editor/editor_shell.tscn")
@@ -192,3 +195,44 @@ func test_la_barre_d_etat_signale_son_texte() -> void:
 	shell.show_status("Salle enregistrée")
 	assert_array(seen).is_equal(["Salle enregistrée"])
 	assert_str(shell.status()).is_equal("Salle enregistrée")
+#@ 18+
+
+
+func test_une_planche_importee_entre_au_catalogue_enregistre() -> void:
+	var shell: EditorShell = auto_free(SHELL.instantiate())
+	shell.rooms_dir = ROOT
+	shell.start_room = ROOT.path_join("hangar.tres")
+	shell.painted_dir = ROOT.path_join("peint")
+	# Une copie à part du catalogue, qui s'enregistre dans le dossier d'essai.
+	var catalog: AssetCatalogDef = ResourceLoader.load("res://5_data/catalogue/catalogue.tres", "",
+			ResourceLoader.CACHE_MODE_IGNORE) as AssetCatalogDef
+	catalog.take_over_path(ROOT.path_join("catalogue.tres"))
+	shell.catalog = catalog
+	add_child(shell)
+	assert_bool(shell.import_sheet("res://6_assets/planches_peintes/sol_01.png")).is_true()
+	assert_str(shell.status()).starts_with("Planche sol_01.png : 11 pièces")
+	var saved: AssetCatalogDef = ResourceLoader.load(ROOT.path_join("catalogue.tres"), "",
+			ResourceLoader.CACHE_MODE_IGNORE) as AssetCatalogDef
+	assert_object(saved.find(&"sol_01_11")).is_not_null()
+	assert_int(shell.place_asset(&"sol_01_01")).is_greater(0)
+	_vider_planches(ROOT.path_join("peint"))
+
+
+func test_le_sol_se_deverrouille_pour_l_editer_piece_par_piece() -> void:
+	var shell: EditorShell = _shell()
+	assert_array(Array(shell.view().locked_layers)).is_equal(["sol"])
+	shell.set_floor_locked(false)
+	assert_array(Array(shell.view().locked_layers)).is_empty()
+	shell.set_floor_locked(true)
+	assert_array(Array(shell.view().locked_layers)).is_equal(["sol"])
+
+
+func _vider_planches(folder: String) -> void:
+	if not DirAccess.dir_exists_absolute(folder):
+		return
+	for sub: String in DirAccess.get_directories_at(folder):
+		_vider_planches(folder.path_join(sub))
+	for file: String in DirAccess.get_files_at(folder):
+		DirAccess.remove_absolute(folder.path_join(file))
+	DirAccess.remove_absolute(folder)
+#@ all

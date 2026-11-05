@@ -19,6 +19,19 @@ extends Resource
 @export var default_layer: StringName = &""
 ## Des mots de recherche.
 @export var tags: PackedStringArray = PackedStringArray()
+#@ 17+
+## Vrai pour une pièce peinte en projection : l'image montre déjà le sol tel que le voit la caméra du jeu (une dalle
+## carrée y est un losange). La pièce se pose à plat, déformée pour que la caméra la voie telle qu'elle est peinte ; sa
+## taille (`size_m`) se mesure alors à l'écran, en mètres de la vue au zoom 1, et sa rotation tourne l'image dans le
+## plan de l'écran, comme dans un logiciel de dessin.
+@export var painted: bool = false
+#@ 18+
+## La planche peinte d'où vient l'asset (vide pour un asset fait à la main) : un nouvel import de la même planche le
+## retrouve par là.
+@export var source_sheet: StringName = &""
+## Son cadre dans cette planche, en pixels : une pièce retrouvée au même endroit garde son identifiant.
+@export var source_rect: Rect2i = Rect2i()
+#@ all
 
 
 ## Les erreurs de l'asset, une phrase par erreur ; vide s'il est valide.

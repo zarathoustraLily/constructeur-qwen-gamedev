@@ -48,6 +48,27 @@ extends Resource
 #@ 16+
 ## La taille d'une salle neuve, en mètres.
 @export var new_room_size_m: Vector2 = Vector2(24, 16)
+#@ 18+
+## Le nombre de pixels d'un mètre d'écran, au zoom 1, dans les planches peintes : une seule échelle pour toutes les
+## pièces, qui se marient donc entre elles à la bonne taille (valeur proposée : 1 080 pixels de haut pour les 9 m que
+## montre la caméra, à régler sur la grille de référence de laurent).
+@export var painted_pixels_per_meter: float = 120.0
+## L'écart, en pixels, sous lequel deux pièces d'une planche n'en font qu'une, mesuré entre leurs cadres (0 : seules
+## les pièces qui se touchent).
+@export var sheet_merge_gap_px: int = 0
+## La surface, en pixels, sous laquelle un îlot d'une planche est une poussière, ignorée.
+@export var sheet_min_area_px: int = 16
+## La marge transparente autour de chaque pièce, dans une page d'atlas, en pixels (contre le filtrage qui bave).
+@export var sheet_padding_px: int = 2
+## Le côté le plus grand d'une page d'atlas, en pixels.
+@export var sheet_page_max_px: int = 2048
+## Vrai pour compresser les pages pour la mémoire vidéo (BPTC : un octet par pixel, quatre fois moins qu'en RGBA8) ;
+## faux pour les garder sans perte (quatre octets par pixel).
+@export var sheet_vram_compression: bool = true
+## Le calque où l'éditeur pose une pièce importée.
+@export var sheet_layer: StringName = &"sol"
+## La catégorie d'une pièce importée, qui la range dans la palette.
+@export var sheet_category: StringName = &"sol"
 #@ all
 
 
@@ -79,5 +100,12 @@ func validate() -> Array[String]:
 #@ 16+
 	if new_room_size_m.x <= 0.0 or new_room_size_m.y <= 0.0:
 		errors.append("new_room_size_m : taille positive requise")
+#@ 18+
+	if painted_pixels_per_meter <= 0.0:
+		errors.append("painted_pixels_per_meter : valeur positive requise")
+	if sheet_merge_gap_px < 0 or sheet_min_area_px < 0 or sheet_padding_px < 0:
+		errors.append("planches : écart, surface et marge positifs ou nuls requis")
+	if sheet_page_max_px < SheetImporter.BLOCK_PX:
+		errors.append("sheet_page_max_px : au moins un bloc de compression requis")
 #@ all
 	return errors

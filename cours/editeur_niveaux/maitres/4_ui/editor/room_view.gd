@@ -9,6 +9,9 @@ extends Control
 #@ 7+
 ## Pendant un geste du cadre bleu, la vue montre les choses sélectionnées comme elles seront au relâchement (l'aperçu),
 ## sans toucher au document ; elle sait aussi dire quelle chose est sous la souris.
+#@ 17+
+## Une pièce peinte en projection occupe à l'écran de la caméra du jeu le rectangle de son image : son emprise au sol est
+## ce rectangle ramené au sol (`FlatLayout.ground_from_screen`), un parallélogramme sur la carte.
 #@ all
 
 ## La couleur d'une chose dont l'asset n'a pas d'image (« non récupérée »).
@@ -25,6 +28,9 @@ var outline_m: PackedVector2Array = PackedVector2Array()
 #@ 7+
 ## Les calques qu'un clic ou un rectangle ne sélectionne pas (le sol, par défaut).
 var locked_layers: PackedStringArray = PackedStringArray(["sol"])
+#@ 17+
+## La caméra du jeu, pour l'emprise des pièces peintes en projection (sans elle, elles se posent à plat).
+var game_camera: CameraDef
 #@ all
 var _document: RoomDocument
 var _catalog: AssetCatalogDef
@@ -76,10 +82,25 @@ func corners_of(thing_id: int) -> PackedVector2Array:
 #@ all
 	var extent: Vector2 = size_m * factor
 	var top_left: Vector2 = -anchor * extent
+#@ 17+
+	# L'emprise se pose à la hauteur du sprite, relevé selon son calque et son rang (`FlatLayout.height`) : posée au sol,
+	# elle tombait sous l'image vue par la caméra inclinée (0,6 pixel pour une dalle du calque detail_sol, au cadrage des
+	# tests ; un cran de calque vaut 0,05 m, vu à cos(30°)). Vue de dessus, la hauteur ne change rien.
+	var lifted_y: float = FlatLayout.height(_catalog.layers.find(String(_document.value(thing_id, &"layer"))),
+			int(_document.value(thing_id, &"sort")), place_m.y)
+#@ all
 	var result: PackedVector2Array = PackedVector2Array()
 	for local: Vector2 in [top_left, top_left + Vector2(extent.x, 0), top_left + extent, top_left + Vector2(0, extent.y)]:
+#@ 6-16
 		var flat: Vector2 = Vector2(place_m.x, place_m.z) + local.rotated(deg_to_rad(turn_deg))
+#@ 17+
+		var flat: Vector2 = Vector2(place_m.x, place_m.z) + _ground_offset(asset, local.rotated(deg_to_rad(turn_deg)))
+#@ all
+#@ 6-16
 		result.append(view_transform.world_to_screen(Vector3(flat.x, place_m.y, flat.y)))
+#@ 17+
+		result.append(view_transform.world_to_screen(Vector3(flat.x, lifted_y, flat.y)))
+#@ all
 	return result
 
 
@@ -142,13 +163,21 @@ func _draw() -> void:
 #@ 6
 		var size_px: Vector2 = (Vector2.ONE if asset == null else asset.size_m) \
 				* float(_document.value(thing_id, &"scale")) * view_transform.pixels_per_meter()
-#@ 7+
+#@ 7-16
 		var size_px: Vector2 = (Vector2.ONE if asset == null else asset.size_m) \
 				* float(_shown(thing_id)[&"scale"]) * view_transform.pixels_per_meter()
+#@ 17+
+		var extent_m: Vector2 = (Vector2.ONE if asset == null else asset.size_m) * float(_shown(thing_id)[&"scale"])
 #@ all
 		var anchor: Vector2 = Vector2(0.5, 0.5) if asset == null else asset.anchor
+#@ 6-16
 		draw_set_transform_matrix(_placement(thing_id))
 		var target: Rect2 = Rect2(-anchor * size_px, size_px)
+#@ 17+
+		# L'image se dessine en mètres, depuis son ancre ; la transformation la mène à l'écran, déformée s'il le faut.
+		draw_set_transform_matrix(_image_to_screen(thing_id, asset))
+		var target: Rect2 = Rect2(-anchor * extent_m, extent_m)
+#@ all
 		if asset == null or asset.atlas == null:
 			draw_rect(target, MISSING_COLOR)
 		else:
@@ -162,14 +191,37 @@ func _draw() -> void:
 		draw_polyline(closed, Color.WHITE, OUTLINE_WIDTH)
 
 
+#@ 6-16
 func _placement(thing_id: int) -> Transform2D:
 #@ 6
 	var screen: Vector2 = view_transform.world_to_screen(_document.value(thing_id, &"position"))
 	return Transform2D(deg_to_rad(float(_document.value(thing_id, &"rotation"))), screen)
-#@ 7+
+#@ 7-16
 	var shown: Dictionary[StringName, Variant] = _shown(thing_id)
 	var screen: Vector2 = view_transform.world_to_screen(shown[&"position"])
 	return Transform2D(deg_to_rad(float(shown[&"rotation"])), screen)
+#@ 17+
+# La transformation qui mène l'image de la chose `thing_id` (en mètres, depuis son point d'ancrage ; x vers la droite de
+# l'image, y vers son bas) à l'écran. Elle est affine : trois points projetés la donnent (l'ancre, et un mètre le long
+# de chaque axe de l'image). Elle vaut pour la carte comme pour la vue rendue, à plat comme peint en projection.
+func _image_to_screen(thing_id: int, asset: AssetDef) -> Transform2D:
+	var shown: Dictionary[StringName, Variant] = _shown(thing_id)
+	var anchor_m: Vector3 = shown[&"position"]
+	var turn: float = deg_to_rad(float(shown[&"rotation"]))
+	var origin: Vector2 = view_transform.world_to_screen(anchor_m)
+	var along_x: Vector2 = _ground_offset(asset, Vector2.RIGHT.rotated(turn))
+	var along_y: Vector2 = _ground_offset(asset, Vector2.DOWN.rotated(turn))
+	return Transform2D(view_transform.world_to_screen(anchor_m + Vector3(along_x.x, 0.0, along_x.y)) - origin,
+			view_transform.world_to_screen(anchor_m + Vector3(along_y.x, 0.0, along_y.y)) - origin, origin)
+
+
+# Le déplacement au sol (x, z) d'un point `local` de l'image de `asset` (en mètres, déjà tourné) : le même pour une pièce
+# posée à plat ; ramené de l'écran au sol par la caméra du jeu pour une pièce peinte en projection.
+func _ground_offset(asset: AssetDef, local: Vector2) -> Vector2:
+	if asset != null and asset.painted and game_camera != null:
+		return FlatLayout.ground_from_screen(game_camera, local)
+	return local
+#@ 7+
 
 
 # La position, la rotation et l'échelle à montrer pour `thing_id` : celles du document, ou l'aperçu du geste en cours.

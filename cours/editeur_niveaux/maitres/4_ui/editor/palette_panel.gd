@@ -42,6 +42,14 @@ func filter(query: String) -> void:
 		_list.add_item(String(asset_id), icon)
 
 
+#@ 18+
+## Relit le catalogue (après l'import d'une planche), en gardant la recherche en cours.
+func refresh() -> void:
+	_search.setup(_catalog)
+	filter(_query.text)
+
+
+#@ all
 ## Les assets montrés, dans l'ordre de la liste.
 func shown() -> Array[StringName]:
 	return _shown.duplicate()

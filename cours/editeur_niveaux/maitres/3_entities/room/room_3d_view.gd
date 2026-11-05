@@ -4,6 +4,10 @@ extends RoomRenderer
 ## de son asset dans la planche, à sa couleur, posé par son point d'ancrage. Le jeu et la vue rendue de l'éditeur s'en
 ## servent tous les deux : ce que l'éditeur montre est ce que le jeu affichera. Une chose inactive est cachée en jeu ;
 ## l'éditeur peut la montrer en transparence (`show_inactive`).
+#@ 17+
+## Une pièce peinte en projection se pose par `FlatLayout.painted_basis`, d'après la caméra du jeu (`game_camera`) : la
+## caméra la voit telle qu'elle est peinte.
+#@ all
 
 ## L'opacité d'une chose inactive, quand l'éditeur les montre.
 const INACTIVE_ALPHA: float = 0.35
@@ -38,6 +42,9 @@ func build(room: RoomData, catalog: AssetCatalogDef) -> void:
 		sprite.set_meta(&"layer_index", catalog.layers.find(room.thing_layers[index]))
 		sprite.set_meta(&"sort", room.thing_sort[index])
 		sprite.set_meta(&"ratio", FlatLayout.depth_ratio(asset))
+#@ 17+
+		sprite.set_meta(&"painted", asset.painted)
+#@ all
 		add_child(sprite)
 		_sprites[room.thing_ids[index]] = sprite
 		place(room.thing_ids[index], room.thing_positions[index], room.thing_rotations[index], room.thing_scales[index])
@@ -50,7 +57,15 @@ func place(thing_id: int, position_m: Vector3, rotation_deg: float, scale_factor
 		return
 	var lifted: Vector3 = Vector3(position_m.x, FlatLayout.height(sprite.get_meta(&"layer_index"),
 			sprite.get_meta(&"sort"), position_m.y), position_m.z)
+#@ 6-16
 	sprite.transform = Transform3D(FlatLayout.basis(rotation_deg, scale_factor, sprite.get_meta(&"ratio")), lifted)
+#@ 17+
+	var ratio: float = sprite.get_meta(&"ratio")
+	var laid: Basis = FlatLayout.basis(rotation_deg, scale_factor, ratio)
+	if sprite.get_meta(&"painted") and game_camera != null:
+		laid = FlatLayout.painted_basis(game_camera, rotation_deg, scale_factor, ratio)
+	sprite.transform = Transform3D(laid, lifted)
+#@ all
 
 
 ## Le sprite de la chose `thing_id`, ou null.

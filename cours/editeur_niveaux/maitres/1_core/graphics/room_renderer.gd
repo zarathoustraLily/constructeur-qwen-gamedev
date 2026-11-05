@@ -6,6 +6,11 @@ extends Node3D
 
 ## Vrai pour montrer les choses inactives (en transparence) : l'éditeur ; faux pour les cacher : le jeu.
 var show_inactive: bool = false
+#@ 17+
+## La caméra du jeu, qui dit comment poser les pièces peintes en projection pour qu'elle les voie telles qu'elles sont
+## peintes. Sans elle, elles se posent à plat comme les autres.
+var game_camera: CameraDef
+#@ all
 
 
 ## Construit la salle `room`, d'après le catalogue `catalog`.

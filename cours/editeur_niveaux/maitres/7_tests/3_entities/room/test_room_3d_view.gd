@@ -2,6 +2,9 @@ extends GdUnitTestSuite
 ## La salle en 3D, celle du jeu : un sprite par chose, avec la région de son asset et sa couleur ; chaque sprite à la
 ## position de sa chose, au-dessus du sol selon son calque ; une chose inactive est cachée en jeu, montrée en transparence
 ## par l'éditeur ; reconstruire remplace les sprites.
+#@ 17+
+## Une pièce peinte en projection se pose à plat sans la caméra du jeu, d'après elle quand la salle la connaît.
+#@ all
 
 var _catalog: AssetCatalogDef
 var _room: RoomData
@@ -56,3 +59,25 @@ func test_reconstruire_remplace_les_sprites() -> void:
 	var view: Room3DView = _view(false)
 	view.build(_room, _catalog)
 	assert_int(view.get_child_count()).is_equal(_room.thing_count())
+#@ 17+
+
+
+func test_une_piece_peinte_se_pose_d_apres_la_camera_du_jeu() -> void:
+	var camera: CameraDef = ResourceLoader.load("res://5_data/camera/camera.tres") as CameraDef
+	# Une copie à part du catalogue (celui du cache reste intact), où le premier asset de la salle est peint.
+	var catalog: AssetCatalogDef = ResourceLoader.load("res://5_data/catalogue/catalogue.tres", "",
+			ResourceLoader.CACHE_MODE_IGNORE) as AssetCatalogDef
+	var asset: AssetDef = catalog.find(StringName(_room.thing_assets[0]))
+	asset.painted = true
+	var view: Room3DView = auto_free(Room3DView.new())
+	add_child(view)
+	view.build(_room, catalog)
+	var sprite: Sprite3D = view.sprite_of(_room.thing_ids[0])
+	var flat: Basis = FlatLayout.basis(_room.thing_rotations[0], _room.thing_scales[0], FlatLayout.depth_ratio(asset))
+	assert_bool(sprite.basis.is_equal_approx(flat)).is_true()
+	view.game_camera = camera
+	view.build(_room, catalog)
+	sprite = view.sprite_of(_room.thing_ids[0])
+	var painted: Basis = FlatLayout.painted_basis(camera, _room.thing_rotations[0], _room.thing_scales[0],
+			FlatLayout.depth_ratio(asset))
+	assert_bool(sprite.basis.is_equal_approx(painted)).is_true()

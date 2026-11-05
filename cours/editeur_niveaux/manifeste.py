@@ -7,6 +7,9 @@ Demandes de laurent du 2026-11-05 :
   d'éditer les niveaux, les FX, les animations, les collisions, les spawns, de choisir les ennemis » ;
 - « un carré bleu autour du sprite pour le manipuler comme sur Photoshop, pour le scaler ou le faire tourner ou le
   déplacer, et choisir son niveau de profondeur ».
+- étapes 17 et 18, sur sa planche peinte à la main (« le fond n'est pas blanc il est transparent ») : « tu peux utiliser
+  ça pour l'éditeur de sol » ; « aucune texture n'aura jamais la même taille […] ce sont des éléments différents
+  mariés » ; « ensuite ça perd trop d'espace donc ça bouffe de la mémoire ».
 
 L'éditeur reprend l'architecture de la charte de laurent (`PROJET_ROGUE_LIKE_002/000-charte-de-codage.txt`, §5) et
 vit dans le projet du jeu (§0) : `1_core/editor/`, `2_sequence/editor/`, `4_ui/editor/`. Il lit les classes de
@@ -20,7 +23,7 @@ catalogue, les ennemis et les effets d'exemple sont des maîtres, fabriqués par
 GENRE = "jeu"
 PREFIXE = "editeur"
 SOURCE = "editeur_niveaux"
-DERNIERE = 18
+DERNIERE = 20
 
 ETAPES = [
     {"piste": "Architecture + UI", "titre": "Le socle : nomenclature, réglages stricts, ordre d'exécution, la coquille qui s'ouvre"},
@@ -39,15 +42,20 @@ ETAPES = [
     {"piste": "Graphisme 3D + Architecture", "titre": "Les animations : définitions (état vers clip, vitesses), vérifiées sur le modèle"},
     {"piste": "Graphisme 3D + VFX + Contrôles", "titre": "Le banc d'essai : modèles, clips, transitions et effets en aperçu"},
     {"piste": "Architecture", "titre": "Les salles du projet : liste, nouvelle salle, identifiants stables"},
+    {"piste": "Graphisme 3D + Graphisme 2D", "titre": "Les pièces peintes en projection : posées à plat, vues telles qu'elles sont peintes, tournées dans l'écran"},
+    {"piste": "Graphisme 2D + Gestion de la mémoire", "titre": "Importer une planche peinte : îlots, rognage, pages d'atlas compressées, catalogue"},
     {"piste": "Plugins et leur usage + Architecture", "titre": "Les versions : git local, une version par salle, rien d'automatique"},
     {"piste": "Gameplay + Architecture", "titre": "La salle dans le jeu : une scène de jeu charge la salle éditée, hors de l'export"},
 ]
 
 EXTENSIONS = {
     "addons/gdUnit4": "1+",
+    # La planche peinte à la main par laurent (2000 × 2000, fond transparent), dans un dossier qui porte un `.gdignore` :
+    # Godot ne l'importe pas, l'import des planches la lit comme un fichier.
+    "6_assets/planches_peintes": "18+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -169,4 +177,9 @@ FICHIERS = {
     "7_tests/4_ui/editor/test_bench.gd": "15+",
     "1_core/editor/room_factory.gd": "16+",
     "7_tests/1_core/editor/test_room_factory.gd": "16+",
+    "1_core/editor/sheet_piece.gd": "18+",
+    "1_core/editor/sheet_importer.gd": "18+",
+    "1_core/editor/sheet_import.gd": "18+",
+    "7_tests/1_core/editor/test_sheet_importer.gd": "18+",
+    "7_tests/1_core/editor/test_sheet_import.gd": "18+",
 }

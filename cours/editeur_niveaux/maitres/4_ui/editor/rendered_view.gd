@@ -48,6 +48,9 @@ func setup(document: RoomDocument, catalog: AssetCatalogDef, transform: ViewProj
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child(_viewport)
 	_room3d.show_inactive = true
+#@ 17+
+	_room3d.game_camera = game_camera
+#@ all
 	_viewport.add_child(_room3d)
 	_viewport.add_child(_camera)
 	_viewport.add_child(_grid)
@@ -77,6 +80,14 @@ func viewport() -> SubViewport:
 ## La grille au sol (pour les tests).
 func grid() -> MeshInstance3D:
 	return _grid
+#@ 18+
+
+
+## Reconstruit la salle d'après le catalogue (après l'import d'une planche, qui change ses assets).
+func refresh() -> void:
+	_rebuild()
+	queue_redraw()
+#@ all
 #@ 7+
 
 
