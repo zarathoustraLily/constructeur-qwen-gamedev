@@ -133,8 +133,10 @@ def _tarjan(noeuds: list[int], aretes: dict[int, set[int]]) -> list[list[int]]:
 
 
 def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], rang_fichier,
-          apres: dict[str, str] | None = None) -> list[list[int]]:
-    """Groupes de morceaux (composantes) dans un ordre où chaque déclaration précède ses emplois."""
+          apres: dict[str, str] | None = None, retires: set[str] | frozenset[str] = frozenset()) -> list[list[int]]:
+    """Groupes de morceaux (composantes) dans un ordre où chaque déclaration précède ses emplois. `retires` : les
+    fichiers que l'étape retire, partis avant elle (`creation.etats`) ; les morceaux qui retirent leurs citations
+    passent en tête."""
     deja = {rel: declarations(t.split("\n")) for rel, t in avant.items() if rel.endswith(CODE)}
     nouveaux = {m.id: declarations(m.nouvelles) - deja.get(m.fichier, set()) - IGNORES for m in tous}
     employes = {m.id: emplois(m.nouvelles) for m in tous}
@@ -329,7 +331,22 @@ def ordre(tous: list[Morceau], affect: dict[int, int], avant: dict[str, str], ra
         for b in bs:
             if comp_de[a] != comp_de[b]:
                 entrants[comp_de[a]].add(comp_de[b])
-    cle = {i: (min(affect[v] for v in c), min(rang_fichier(par_id[v].fichier) for v in c), min(par_id[v].n1 for v in c))
+    # Un fichier que l'étape retire n'est plus là au départ de la session, et le projet le cite encore : les morceaux
+    # qui retirent ces citations passent en tête, avec tout ce dont ils dépendent. Sinon chaque partie qui les précède
+    # échoue à l'import, et la première partie, fusionnée jusqu'à eux, dépasse la limite de jetons (boss 007 :
+    # `main.tscn` citait `target_health.tres` jusqu'au 53e groupe sur 76 ; boss 023 et 024 : les matériaux des
+    # effets remplacés).
+    bases_retirees = {r.rsplit("/", 1)[-1] for r in retires}
+    urgentes = {comp_de[m.id] for m in tous if any(b in l for l in m.anciennes for b in bases_retirees)}
+    pile = list(urgentes)
+    while pile:
+        for v in comps[pile.pop()]:
+            for b in dep[v]:
+                if comp_de[b] not in urgentes:
+                    urgentes.add(comp_de[b])
+                    pile.append(comp_de[b])
+    cle = {i: (i not in urgentes, min(affect[v] for v in c), min(rang_fichier(par_id[v].fichier) for v in c),
+               min(par_id[v].n1 for v in c))
            for i, c in enumerate(comps)}
     prets = [(cle[i], i) for i, e in entrants.items() if not e]
     heapq.heapify(prets)

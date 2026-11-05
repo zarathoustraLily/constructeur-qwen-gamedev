@@ -612,7 +612,9 @@ def exemples(ville: str, n: int, journal=print) -> list[dict]:
     tous = rattacher.decouper(etat.morceaux(avant, apres))
     affect = rattacher.rattacher(note, tous, apres)
     textes_points = {p.numero: len(p.texte) for p in note.points}
-    groupes = ordonner.ordre(tous, affect, avant, composer.ordre_fichier, apres)
+    # Les fichiers que l'étape retire : présents à l'étape précédente, absents du départ (`etats`) et de l'arrivée.
+    retires = set(etat.lire(ville, n - 1, n)) - set(avant) - set(apres) if n > 1 else set()
+    groupes = ordonner.ordre(tous, affect, avant, composer.ordre_fichier, apres, retires)
     types = sorties_types(ville, n, apres, tous)
     meilleur: list[dict] = []
     trop_longues: list[tuple[int, list[list[int]]]] = []

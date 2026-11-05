@@ -187,6 +187,28 @@ def test_une_fonction_privee_peut_preceder_son_premier_appel():
             assert groupes == [[1], [0]]      # la déclaration d'abord
 
 
+def test_les_citations_d_un_fichier_retire_passent_en_tete():
+    """boss 007 : `target_health.tres` part avant l'étape (`creation.etats`) et `main.tscn` le cite encore. Le morceau
+    qui retire la citation arrivait au 53e groupe sur 76 : chaque partie avant lui échouait à l'import, et la
+    première, fusionnée jusqu'à lui, dépassait 32 768 jetons. Il passe en tête, avec ce dont il dépend (ici le
+    script nouveau que la scène cite à la place)."""
+    ancienne = '[ext_resource type="Resource" path="res://5_data/x.tres" id="1"]'
+    nouvelle = '[ext_resource type="Script" path="res://c.gd" id="1"]'
+    avant = {"a.gd": "extends Node\n", "b.gd": "extends Node\n", "main.tscn": f"[gd_scene format=3]\n{ancienne}\n"}
+    apres = {"a.gd": "extends Node\nvar v: int = 0\n", "b.gd": "extends Node\nvar w: int = 0\n",
+             "c.gd": "extends Node\n", "main.tscn": f"[gd_scene format=3]\n{nouvelle}\n"}
+    tous = _morceaux(Morceau("a.gd", 1, 1, 1, 2, [], ["var v: int = 0"]),
+                     Morceau("b.gd", 1, 1, 1, 2, [], ["var w: int = 0"]),
+                     Morceau("main.tscn", 1, 2, 1, 2, [ancienne], [nouvelle]),
+                     Morceau("c.gd", 0, 0, 0, 2, [], ["extends Node", ""]))
+    affect = {0: 1, 1: 1, 2: 2, 3: 3}
+    sans = ordonner.ordre(tous, affect, avant, composer.ordre_fichier, apres)
+    avec = ordonner.ordre(tous, affect, avant, composer.ordre_fichier, apres, {"5_data/x.tres"})
+    assert sans == [[0], [1], [3], [2]]         # l'ordre des points : la citation retirée en dernier
+    assert avec == [[3], [2], [0], [1]]         # en tête, après le script dont elle dépend
+    assert ordonner.ordre(tous, affect, avant, composer.ordre_fichier, apres, {"5_data/y.tres"}) == sans
+
+
 def test_sortie_gardee_remise_au_chemin_de_son_dossier(tmp_path, monkeypatch):
     """Le même état sous un autre nom de dossier (dernière partie p2 ou p3) : la sortie gardée parle du nouveau."""
     monkeypatch.setattr(godot, "_EMPREINTES", {})
