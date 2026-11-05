@@ -33,6 +33,11 @@ extends Resource
 @export var rotate_handle_offset_px: float = 28.0
 ## Le déplacement de la souris, en pixels, au-delà duquel un clic devient un glisser.
 @export var drag_threshold_px: float = 4.0
+#@ 10+
+## Le rayon autour d'un sommet ou d'un côté de collision où un clic le prend, en pixels.
+@export var point_pick_px: float = 8.0
+## Le côté d'une forme de collision neuve (Ctrl+clic), en mètres.
+@export var collision_square_m: float = 2.0
 #@ all
 
 
@@ -55,5 +60,8 @@ func validate() -> Array[String]:
 #@ 7+
 	if handle_size_px <= 0.0 or rotate_handle_offset_px <= 0.0 or drag_threshold_px < 0.0:
 		errors.append("poignées : tailles positives requises")
+#@ 10+
+	if point_pick_px <= 0.0 or collision_square_m <= 0.0:
+		errors.append("collisions : rayon de prise et côté positifs requis")
 #@ all
 	return errors

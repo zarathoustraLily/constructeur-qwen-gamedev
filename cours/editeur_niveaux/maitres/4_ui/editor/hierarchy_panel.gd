@@ -2,6 +2,9 @@ class_name HierarchyPanel
 extends Tree
 ## La hiérarchie : les calques de la salle et, sous chacun, ses choses dans l'ordre de dessin. Un clic sur une chose la
 ## sélectionne, même une dalle du sol, que la vue ne laisse pas prendre ; la sélection faite ailleurs se reflète ici.
+## Une modification du document reconstruit l'arbre ; un changement de sélection ne fait que remettre les marques de
+## sélection : reconstruire l'arbre pendant que le `Tree` traite le clic qui a changé la sélection libérerait la ligne
+## sur laquelle il travaille encore.
 
 var _document: RoomDocument
 var _selection: SelectionModel
@@ -19,7 +22,7 @@ func setup(document: RoomDocument, selection: SelectionModel, catalog: AssetCata
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	item_selected.connect(_on_item_selected)
 	_document.changed.connect(refresh)
-	_selection.changed.connect(refresh)
+	_selection.changed.connect(sync_selection)
 	refresh()
 
 
@@ -42,8 +45,17 @@ func refresh() -> void:
 			item.set_text(0, "%s (%d)" % [_document.value(thing_id, &"name"), thing_id])
 			item.set_metadata(0, thing_id)
 			_items[thing_id] = item
-			if _selection.contains(thing_id):
-				item.select(0)
+	_refreshing = false
+	sync_selection()
+
+
+## Remet les marques de sélection d'après la sélection, sans reconstruire l'arbre.
+func sync_selection() -> void:
+	_refreshing = true
+	deselect_all()
+	for thing_id: int in _selection.ids():
+		if _items.has(thing_id):
+			_items[thing_id].select(0)
 	_refreshing = false
 
 

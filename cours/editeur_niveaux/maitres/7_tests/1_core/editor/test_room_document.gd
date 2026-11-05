@@ -140,3 +140,29 @@ func test_les_champs_inconnus_suivent_leur_chose() -> void:
 	assert_str(document.extras(thing_id)).is_empty()
 	document.undo()
 	assert_str(document.extras(thing_id)).is_not_empty()
+#@ 10+
+
+
+func test_les_champs_de_la_salle_se_modifient_en_un_pas() -> void:
+	var document: RoomDocument = _document()
+	assert_bool(document.set_room_fields({&"hero_start": Vector3(4, 0, 5), &"encounter_depth": 2})).is_true()
+	assert_vector(document.room_value(&"hero_start")).is_equal(Vector3(4, 0, 5))
+	assert_bool(document.undo()).is_true()
+	assert_bool(document.can_undo()).is_false()
+
+
+func test_un_champ_de_salle_inconnu_ou_mal_type_est_refuse() -> void:
+	var document: RoomDocument = _document()
+	assert_bool(document.set_room_fields({&"display_name": "Autre"})).is_false()
+	assert_array(document.errors).is_equal(["display_name : champ de salle inconnu ou non modifiable"])
+	assert_bool(document.set_room_fields({&"encounter_depth": "trois"})).is_false()
+	assert_array(document.errors).is_equal(["encounter_depth : int attendu"])
+
+
+func test_une_collision_croisee_est_refusee_par_le_document() -> void:
+	var document: RoomDocument = _document()
+	var polygons: Array = document.room_value(&"collisions")
+	polygons.append(PackedVector2Array([Vector2(0, 0), Vector2(2, 2), Vector2(2, 0), Vector2(0, 2)]))
+	assert_bool(document.set_room_fields({&"collisions": polygons})).is_false()
+	assert_array(document.errors).contains(["collision %d : des côtés se croisent" % (polygons.size() - 1)])
+#@ all

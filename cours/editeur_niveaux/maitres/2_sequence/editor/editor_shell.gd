@@ -18,6 +18,9 @@ extends Control
 ## Une salle s'enregistre seulement si elle est valide et ne cite que des calques et des assets du catalogue ; le titre
 ## porte un astérisque tant qu'elle a des modifications non enregistrées, et l'éditeur refuse alors d'ouvrir une autre
 ## salle sans qu'on ait choisi d'enregistrer ou d'abandonner.
+#@ 10+
+## Le mode, en haut, choisit ce que fait la souris : « Choses » (sélection et cadre bleu) ou « Collisions » (les formes
+## infranchissables, montrées seulement dans ce mode).
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -30,6 +33,9 @@ const NOTHING_OPEN: String = "Aucune salle ouverte"
 const APP_TITLE: String = "Éditeur de niveaux"
 ## Ce que dit la barre d'état quand on veut changer de salle avec des modifications non enregistrées.
 const UNSAVED: String = "Modifications non enregistrées : « Enregistrer » (Ctrl+S) ou « Abandonner les modifications »"
+#@ 10+
+## Les modes de la souris, dans l'ordre de la liste.
+const MODES: Array[StringName] = [&"choses", &"collisions"]
 #@ 6+
 
 ## La salle ouverte au démarrage.
@@ -70,6 +76,10 @@ var _current_file: String = ""
 @onready var _picker: OptionButton = $Layout/TopBar/RoomPicker
 @onready var _save_button: Button = $Layout/TopBar/SaveButton
 @onready var _discard_button: Button = $Layout/TopBar/DiscardButton
+#@ 10+
+@onready var _mode_picker: OptionButton = $Layout/TopBar/ModePicker
+@onready var _collision_view: CollisionView = $Layout/Body/CollisionView
+@onready var _collision_input: CollisionInput = $Layout/Body/CollisionInput
 #@ all
 
 
@@ -99,6 +109,14 @@ func _ready() -> void:
 	_discard_button.pressed.connect(discard_changes)
 	_picker.item_selected.connect(_on_room_picked)
 	refresh_rooms()
+#@ 10+
+	_collision_input.setup(_view, _document, settings)
+	_collision_view.setup(_document, _transform, _collision_input)
+	_collision_input.refused.connect(show_status)
+	for mode: StringName in MODES:
+		_mode_picker.add_item(String(mode).capitalize())
+	_mode_picker.item_selected.connect(func(index: int) -> void: set_mode(MODES[index]))
+	set_mode(MODES.front())
 #@ 6+
 	_view.resized.connect(frame_room)
 	if start_room.is_empty():
@@ -254,4 +272,25 @@ func _select_current() -> void:
 	for index: int in _picker.item_count:
 		if _picker.get_item_text(index) == _current_file:
 			_picker.select(index)
+#@ 10+
+
+
+## Passe la souris dans le mode `mode` (un nom de `MODES`) ; seules les formes du mode « Collisions » s'y montrent.
+func set_mode(mode: StringName) -> void:
+	_selection_input.active = mode == &"choses"
+	_collision_input.active = mode == &"collisions"
+	_collision_view.visible = mode == &"collisions"
+	_mode_picker.select(MODES.find(mode))
+	if mode != &"choses":
+		_selection.clear()
+
+
+## Le mode courant de la souris (pas `mode()` : ce nom masquerait les paramètres `mode`, une erreur ici).
+func current_mode() -> StringName:
+	return MODES[_mode_picker.selected]
+
+
+## La souris des collisions (pour les tests).
+func collision_input() -> CollisionInput:
+	return _collision_input
 #@ all

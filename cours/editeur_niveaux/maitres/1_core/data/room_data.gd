@@ -106,6 +106,10 @@ func validate() -> Array[String]:
 	for index: int in collisions.size():
 		if collisions[index].size() < MIN_POLYGON_POINTS:
 			errors.append("collision %d : au moins %d sommets requis" % [index, MIN_POLYGON_POINTS])
+#@ 10+
+		elif not CollisionTools.is_simple(collisions[index]):
+			errors.append("collision %d : des côtés se croisent" % index)
+#@ all
 	if spawn_roles.size() != spawn_positions.size():
 		errors.append("spawn_roles : %d rôles pour %d points" % [spawn_roles.size(), spawn_positions.size()])
 	for index: int in spawn_roles.size():

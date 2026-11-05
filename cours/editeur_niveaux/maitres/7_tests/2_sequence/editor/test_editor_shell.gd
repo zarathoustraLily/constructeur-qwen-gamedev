@@ -113,6 +113,18 @@ func test_abandonner_rouvre_la_salle_du_disque() -> void:
 
 func test_la_liste_montre_les_salles_du_dossier() -> void:
 	assert_array(Array(_shell().room_files())).is_equal(ROOMS)
+#@ 10+
+
+
+func test_le_mode_choisit_ce_que_fait_la_souris() -> void:
+	var shell: EditorShell = _shell()
+	assert_str(String(shell.current_mode())).is_equal("choses")
+	assert_bool(shell.collision_input().active).is_false()
+	shell.selection().replace([shell.document().ids()[0]])
+	shell.set_mode(&"collisions")
+	assert_str(String(shell.current_mode())).is_equal("collisions")
+	assert_bool(shell.collision_input().active).is_true()
+	assert_bool(shell.selection().is_empty()).is_true()
 #@ all
 
 

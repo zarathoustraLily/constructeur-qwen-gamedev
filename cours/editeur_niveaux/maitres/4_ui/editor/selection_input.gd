@@ -19,6 +19,10 @@ enum Mode { IDLE, PENDING_CLICK, DRAG_GIZMO, BAND }
 var gizmo: TransformGizmo = TransformGizmo.new()
 ## Le rectangle de sélection en cours, à l'écran (vide hors d'un glisser dans le vide).
 var band: Rect2 = Rect2()
+#@ 10+
+## Vrai en mode « Choses » ; sinon, le script laisse passer tous les événements.
+var active: bool = true
+#@ all
 var _view: RoomView
 var _document: RoomDocument
 var _selection: SelectionModel
@@ -55,6 +59,10 @@ func refresh() -> void:
 
 ## Traduit l'événement `event` ; rend true s'il a servi.
 func handle(event: InputEvent) -> bool:
+#@ 10+
+	if not active:
+		return false
+#@ all
 	var button: InputEventMouseButton = event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT:
 		if button.pressed:

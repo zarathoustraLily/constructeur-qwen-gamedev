@@ -29,6 +29,15 @@ const DEFAULTS: Dictionary[StringName, Variant] = {
 	&"name": "", &"position": Vector3.ZERO, &"rotation": 0.0, &"scale": 1.0, &"parallax": 1.0,
 	&"hsv": Vector3.ZERO, &"color": Color.WHITE, &"active": 1, &"height": 0.0, &"parent": 0, &"sort": 0,
 }
+#@ 10+
+## Les champs de la salle elle-même (et non de ses choses) que l'éditeur modifie, et leur type.
+const ROOM_FIELDS: Dictionary[StringName, int] = {
+	&"collisions": TYPE_ARRAY, &"hero_start": TYPE_VECTOR3, &"spawn_positions": TYPE_PACKED_VECTOR3_ARRAY,
+	&"spawn_roles": TYPE_PACKED_STRING_ARRAY, &"encounter_pool": TYPE_PACKED_STRING_ARRAY,
+	&"encounter_depth": TYPE_INT, &"effect_ids": TYPE_PACKED_STRING_ARRAY,
+	&"effect_positions": TYPE_PACKED_VECTOR3_ARRAY,
+}
+#@ all
 
 ## Les erreurs de la dernière opération refusée, une phrase par erreur.
 var errors: Array[String] = []
@@ -207,6 +216,41 @@ func remove_things(thing_ids: Array[int]) -> bool:
 	return _commit(candidate)
 
 
+#@ 10+
+## Une copie du champ `field` de la salle (`ROOM_FIELDS` : collisions, apparitions, rencontre, effets), ou null.
+func room_value(field: StringName) -> Variant:
+	if _room == null or not ROOM_FIELDS.has(field):
+		return null
+	var raw: Variant = _room.get(field)
+	return raw.duplicate() if raw is Array else raw
+
+
+## Change d'un coup les champs de la salle `changes` ({champ: valeur}) : un seul pas d'annulation, ou rien si une valeur
+## est refusée.
+func set_room_fields(changes: Dictionary[StringName, Variant]) -> bool:
+	if _refuse_while_notifying() or not _require_open():
+		return false
+	var candidate: RoomData = _room.duplicate(true) as RoomData
+	for field: StringName in changes:
+		if not ROOM_FIELDS.has(field):
+			errors.assign(["%s : champ de salle inconnu ou non modifiable" % field])
+			return false
+		var new_value: Variant = changes[field]
+		if typeof(new_value) != ROOM_FIELDS[field]:
+			errors.assign(["%s : %s attendu" % [field, type_string(ROOM_FIELDS[field])]])
+			return false
+		if field == &"collisions":
+			# Une propriété typée (Array[PackedVector2Array]) se remplit par assign : un tableau sans type lui serait
+			# refusé.
+			var polygons: Array[PackedVector2Array] = []
+			polygons.assign(new_value)
+			candidate.collisions = polygons
+		else:
+			candidate.set(field, new_value)
+	return _commit(candidate)
+
+
+#@ all
 ## Vrai s'il y a un pas à annuler.
 func can_undo() -> bool:
 	return _history.can_undo()

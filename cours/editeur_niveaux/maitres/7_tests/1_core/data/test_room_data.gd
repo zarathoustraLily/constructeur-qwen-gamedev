@@ -89,3 +89,11 @@ func test_l_indice_d_une_chose_se_retrouve_par_son_identifiant() -> void:
 	var last: int = room.thing_count() - 1
 	assert_int(room.index_of(room.thing_ids[last])).is_equal(last)
 	assert_int(room.index_of(-5)).is_equal(-1)
+#@ 10+
+
+
+func test_une_forme_aux_cotes_croises_est_signalee() -> void:
+	var room: RoomData = _hangar()
+	room.collisions.append(PackedVector2Array([Vector2(0, 0), Vector2(2, 2), Vector2(2, 0), Vector2(0, 2)]))
+	assert_array(room.validate()).contains(["collision %d : des côtés se croisent" % (room.collisions.size() - 1)])
+#@ all

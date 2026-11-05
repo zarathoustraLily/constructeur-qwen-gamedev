@@ -30,8 +30,14 @@ l'asset au centre de la vue, dans son calque par défaut, et le sélectionne.
 
 `4_ui/editor/hierarchy_panel.gd` : un `Tree` où chaque calque porte ses choses, dans l'ordre de dessin, chacune avec son
 nom et son identifiant (gardé en métadonnée de la ligne). Un clic sélectionne la chose, y compris une dalle du sol, que
-la vue ne laisse pas prendre ; la sélection faite dans la vue se reflète ici. Reconstruire l'arbre sélectionne des
-lignes, ce qui émet `item_selected` : sans le garde `_refreshing`, la hiérarchie se renverrait la sélection à elle-même.
+la vue ne laisse pas prendre ; la sélection faite dans la vue se reflète ici. Remettre les marques de sélection
+sélectionne des lignes, ce qui émet `item_selected` : sans le garde `_refreshing`, la hiérarchie se renverrait la
+sélection à elle-même.
+
+Le premier jet reconstruisait tout l'arbre à chaque changement de sélection, y compris quand ce changement venait d'un
+clic dans l'arbre : pendant que le `Tree` traitait le clic, son signal faisait effacer et recréer toutes ses lignes,
+dont celle qu'il venait de sélectionner. Le test passait une fois sur deux. L'arbre ne se reconstruit plus que quand le
+document change ; un changement de sélection ne fait que remettre les marques (`sync_selection`).
 
 ### 3. L'inspecteur
 

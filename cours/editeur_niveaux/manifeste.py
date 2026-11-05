@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -103,4 +103,9 @@ FICHIERS = {
     "4_ui/editor/editor_shortcuts_input.gd": "8+",
     "7_tests/4_ui/editor/test_panels.gd": "8+",
     "7_tests/4_ui/editor/test_editor_shortcuts_input.gd": "8+",
+    "1_core/editor/collision_tools.gd": "10+",
+    "4_ui/editor/collision_view.gd": "10+",
+    "4_ui/editor/collision_input.gd": "10+",
+    "7_tests/1_core/editor/test_collision_tools.gd": "10+",
+    "7_tests/4_ui/editor/test_collision_input.gd": "10+",
 }

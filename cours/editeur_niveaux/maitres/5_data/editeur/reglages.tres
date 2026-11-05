@@ -20,4 +20,7 @@ selection_color = Color(0.2, 0.55, 1, 1)
 handle_size_px = 10.0
 rotate_handle_offset_px = 28.0
 drag_threshold_px = 4.0
+;@ 10+
+point_pick_px = 8.0
+collision_square_m = 2.0
 ;@ all
