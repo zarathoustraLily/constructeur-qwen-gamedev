@@ -28,6 +28,9 @@ extends Control
 #@ 12+
 ## Le mode « Effets » montre les effets placés en aperçu animé, et, à droite, la liste des effets du jeu : Ctrl+clic place
 ## l'effet choisi. Une salle qui place un effet inconnu ne s'enregistre pas.
+#@ 13+
+## Le mode « Paramètres » montre, à droite, les définitions du jeu (ennemis, effets) et le formulaire de celle qu'on
+## choisit : on règle le jeu lui-même, et une définition invalide ne s'écrit pas.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -46,8 +49,10 @@ const UNSAVED: String = "Modifications non enregistrées : « Enregistrer » (Ct
 const MODES: Array[StringName] = [&"choses", &"collisions"]
 #@ 11
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions"]
-#@ 12+
+#@ 12
 const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets"]
+#@ 13+
+const MODES: Array[StringName] = [&"choses", &"collisions", &"apparitions", &"effets", &"parametres"]
 #@ 10+
 #@ 6+
 
@@ -111,6 +116,8 @@ var _effects: Array[FxDef] = []
 @onready var _effect_view: EffectView = $Layout/Body/EffectView
 @onready var _effect_input: EffectInput = $Layout/Body/EffectInput
 @onready var _effect_panel: EffectPanel = $Layout/Body/EffectPanel
+#@ 13+
+@onready var _definitions: DefinitionPanel = $Layout/Body/DefinitionPanel
 #@ all
 
 
@@ -158,6 +165,9 @@ func _ready() -> void:
 	_effect_input.refused.connect(show_status)
 	_effect_panel.setup(_effects)
 	_effect_panel.effect_chosen.connect(func(effect_id: StringName) -> void: _effect_input.current_fx = effect_id)
+#@ 13+
+	_definitions.setup({"Ennemis": enemies_dir, "Effets": effects_dir})
+	_definitions.definition_saved.connect(func(path: String) -> void: show_status("%s enregistré" % path.get_file()))
 #@ 10+
 	for mode: StringName in MODES:
 		_mode_picker.add_item(String(mode).capitalize())
@@ -342,6 +352,8 @@ func set_mode(mode: StringName) -> void:
 	_effect_view.visible = mode == &"effets"
 	_effect_panel.visible = mode == &"effets"
 	_inspector.visible = mode == &"choses" or mode == &"collisions"
+#@ 13+
+	_definitions.visible = mode == &"parametres"
 #@ 10+
 	_mode_picker.select(MODES.find(mode))
 	if mode != &"choses":
@@ -368,5 +380,11 @@ func encounter_panel() -> EncounterPanel:
 ## La souris des effets (pour les tests).
 func effect_input() -> EffectInput:
 	return _effect_input
+#@ 13+
+
+
+## Le panneau des paramètres du jeu (pour les tests).
+func definition_panel() -> DefinitionPanel:
+	return _definitions
 #@ 10+
 #@ all

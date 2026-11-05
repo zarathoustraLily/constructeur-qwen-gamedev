@@ -10,8 +10,10 @@
 [gd_scene load_steps=14 format=3]
 ;@ 11
 [gd_scene load_steps=17 format=3]
-;@ 12+
+;@ 12
 [gd_scene load_steps=20 format=3]
+;@ 13+
+[gd_scene load_steps=21 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
@@ -39,6 +41,8 @@
 [ext_resource type="Script" path="res://4_ui/editor/effect_view.gd" id="17_effect_view"]
 [ext_resource type="Script" path="res://4_ui/editor/effect_input.gd" id="18_effect_input"]
 [ext_resource type="Script" path="res://4_ui/editor/effect_panel.gd" id="19_effect_panel"]
+;@ 13+
+[ext_resource type="Script" path="res://4_ui/editor/definition_panel.gd" id="20_definitions"]
 ;@ all
 
 [node name="EditorShell" type="Control"]
@@ -236,6 +240,18 @@ offset_left = -300.0
 grow_horizontal = 0
 grow_vertical = 2
 script = ExtResource("19_effect_panel")
+;@ 13+
+
+[node name="DefinitionPanel" type="VBoxContainer" parent="Layout/Body"]
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("20_definitions")
 ;@ all
 
 [node name="Status" type="Label" parent="Layout"]

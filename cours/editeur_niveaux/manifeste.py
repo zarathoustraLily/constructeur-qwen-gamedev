@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+PRETES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -132,4 +132,8 @@ FICHIERS = {
     "5_data/effets/vapeur.tres": "12+",
     "7_tests/1_core/data/test_fx_def.gd": "12+",
     "7_tests/4_ui/editor/test_effect_input.gd": "12+",
+    "1_core/editor/definition_editor.gd": "13+",
+    "4_ui/editor/definition_panel.gd": "13+",
+    "7_tests/1_core/editor/test_definition_editor.gd": "13+",
+    "7_tests/4_ui/editor/test_definition_panel.gd": "13+",
 }

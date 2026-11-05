@@ -147,6 +147,15 @@ func test_un_effet_inconnu_ne_s_enregistre_pas() -> void:
 	shell.document().set_room_fields({&"effect_ids": ids})
 	assert_bool(shell.save_room()).is_false()
 	assert_str(shell.status()).is_equal("Enregistrement impossible : effet 0 : effet inconnu arc_en_ciel")
+#@ 13+
+
+
+func test_le_mode_parametres_montre_les_definitions() -> void:
+	var shell: EditorShell = _shell()
+	shell.set_mode(&"parametres")
+	assert_bool(shell.definition_panel().visible).is_true()
+	shell.set_mode(&"choses")
+	assert_bool(shell.definition_panel().visible).is_false()
 #@ all
 
 
