@@ -5,6 +5,8 @@ extends GdUnitTestSuite
 #@ 6+
 ## La coquille de l'éditeur s'ouvre sur la salle de départ et dit ce qu'elle contient ; une salle introuvable est
 ## signalée dans la barre d'état sans rien ouvrir ; chaque texte écrit dans la barre d'état est signalé.
+#@ 8+
+## Un asset choisi dans la palette se pose au centre de la vue et devient la sélection.
 #@ all
 
 const SHELL: PackedScene = preload("res://2_sequence/editor/editor_shell.tscn")
@@ -33,6 +35,17 @@ func test_une_salle_introuvable_est_signalee() -> void:
 	assert_bool(shell.open_room("res://5_data/salles/absente.tres")).is_false()
 	assert_str(shell.status()).is_equal("Ouverture impossible : Salle introuvable : res://5_data/salles/absente.tres")
 	assert_bool(shell.document().is_open()).is_true()
+#@ 8+
+
+
+func test_un_asset_de_la_palette_se_pose_et_se_selectionne() -> void:
+	var shell: EditorShell = _shell()
+	var count: int = shell.document().ids().size()
+	var created: int = shell.place_asset(&"caisse_cargo")
+	assert_int(created).is_greater(0)
+	assert_int(shell.document().ids().size()).is_equal(count + 1)
+	assert_array(shell.selection().ids()).is_equal([created])
+	assert_str(shell.status()).is_equal("caisse_cargo posé")
 #@ all
 
 

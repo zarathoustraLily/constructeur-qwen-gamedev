@@ -2,8 +2,10 @@
 [gd_scene load_steps=2 format=3]
 ;@ 6
 [gd_scene load_steps=6 format=3]
-;@ 7+
+;@ 7
 [gd_scene load_steps=8 format=3]
+;@ 8+
+[gd_scene load_steps=12 format=3]
 ;@ all
 
 [ext_resource type="Script" path="res://2_sequence/editor/editor_shell.gd" id="1_shell"]
@@ -15,6 +17,11 @@
 ;@ 7+
 [ext_resource type="Script" path="res://4_ui/editor/selection_overlay.gd" id="6_overlay"]
 [ext_resource type="Script" path="res://4_ui/editor/selection_input.gd" id="7_selection_input"]
+;@ 8+
+[ext_resource type="Script" path="res://4_ui/editor/hierarchy_panel.gd" id="8_hierarchy"]
+[ext_resource type="Script" path="res://4_ui/editor/palette_panel.gd" id="9_palette"]
+[ext_resource type="Script" path="res://4_ui/editor/inspector_panel.gd" id="10_inspector"]
+[ext_resource type="Script" path="res://4_ui/editor/editor_shortcuts_input.gd" id="11_shortcuts"]
 ;@ all
 
 [node name="EditorShell" type="Control"]
@@ -59,6 +66,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+;@ 8+
+offset_left = 270.0
+offset_right = -310.0
+;@ 6+
 script = ExtResource("2_view")
 
 [node name="RoomViewInput" type="Node" parent="Layout/Body"]
@@ -73,10 +84,44 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+;@ 8+
+offset_left = 270.0
+offset_right = -310.0
+;@ 7+
 script = ExtResource("6_overlay")
 
 [node name="SelectionInput" type="Node" parent="Layout/Body"]
 script = ExtResource("7_selection_input")
+;@ 8+
+
+[node name="Left" type="VBoxContainer" parent="Layout/Body"]
+layout_mode = 1
+anchor_bottom = 1.0
+offset_right = 260.0
+grow_vertical = 2
+
+[node name="HierarchyPanel" type="Tree" parent="Layout/Body/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("8_hierarchy")
+
+[node name="PalettePanel" type="VBoxContainer" parent="Layout/Body/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("9_palette")
+
+[node name="InspectorPanel" type="VBoxContainer" parent="Layout/Body"]
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -300.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("10_inspector")
+
+[node name="EditorShortcutsInput" type="Node" parent="Layout/Body"]
+script = ExtResource("11_shortcuts")
 ;@ all
 
 [node name="Status" type="Label" parent="Layout"]

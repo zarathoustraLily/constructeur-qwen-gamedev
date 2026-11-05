@@ -10,6 +10,9 @@ extends Control
 #@ 7+
 ## Le bouton gauche sélectionne (clic, Maj+clic, rectangle) et manipule la sélection par son cadre bleu : déplacer,
 ## agrandir par les poignées d'angle, tourner par la poignée ronde ; Page haut et Page bas règlent sa profondeur.
+#@ 8+
+## À gauche, la hiérarchie des calques et la palette (un double-clic pose l'asset au centre de la vue) ; à droite,
+## l'inspecteur de la sélection ; au clavier, Ctrl+Z, Ctrl+Y, Suppr, Ctrl+D et les flèches.
 #@ all
 
 ## Le texte de la barre d'état vient de changer.
@@ -41,6 +44,11 @@ var _actions: EditorActions = EditorActions.new()
 #@ 7+
 @onready var _overlay: SelectionOverlay = $Layout/Body/SelectionOverlay
 @onready var _selection_input: SelectionInput = $Layout/Body/SelectionInput
+#@ 8+
+@onready var _hierarchy: HierarchyPanel = $Layout/Body/Left/HierarchyPanel
+@onready var _palette: PalettePanel = $Layout/Body/Left/PalettePanel
+@onready var _inspector: InspectorPanel = $Layout/Body/InspectorPanel
+@onready var _shortcuts: EditorShortcutsInput = $Layout/Body/EditorShortcutsInput
 #@ all
 
 
@@ -56,6 +64,12 @@ func _ready() -> void:
 	_selection_input.setup(_view, _document, _selection, _actions, settings)
 	_overlay.setup(_selection_input, settings)
 	_document.changed.connect(_forget_removed)
+#@ 8+
+	_hierarchy.setup(_document, _selection, catalog)
+	_palette.setup(catalog)
+	_palette.asset_chosen.connect(place_asset)
+	_inspector.setup(_document, _selection, _actions, catalog)
+	_shortcuts.setup(_document, _selection, _actions, settings)
 #@ 6+
 	_view.resized.connect(frame_room)
 	if start_room.is_empty():
@@ -86,6 +100,19 @@ func document() -> RoomDocument:
 ## La sélection de l'éditeur.
 func selection() -> SelectionModel:
 	return _selection
+#@ 8+
+
+
+## Pose l'asset `asset_id` au centre de la vue et le sélectionne ; rend l'identifiant de la nouvelle chose, ou 0.
+func place_asset(asset_id: StringName) -> int:
+	var center: Vector3 = _transform.screen_to_world(Rect2(Vector2.ZERO, _view.size).get_center())
+	var created: int = _actions.add_asset(asset_id, center)
+	if created == 0:
+		show_status("Pose impossible : " + "; ".join(_actions.errors))
+		return created
+	_selection.replace([created])
+	show_status("%s posé" % asset_id)
+	return created
 #@ 6+
 
 
