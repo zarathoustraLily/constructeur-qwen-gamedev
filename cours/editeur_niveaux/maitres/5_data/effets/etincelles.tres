@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FxDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/fx_def.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = &"etincelles"
+display_name = "Étincelles"
+rate = 40
+lifetime_s = 0.6
+size_m = 0.08
+color = Color(1, 0.75, 0.3, 1)
+additive = true

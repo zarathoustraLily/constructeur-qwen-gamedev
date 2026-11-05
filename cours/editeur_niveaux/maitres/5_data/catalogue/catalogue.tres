@@ -1,0 +1,231 @@
+[gd_resource type="Resource" script_class="AssetCatalogDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/asset_catalog_def.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://1_core/data/asset_def.gd" id="2_asset"]
+[ext_resource type="Texture2D" path="res://6_assets/exemple/planche.png" id="3_planche"]
+
+[sub_resource type="Resource" id="Resource_sol_tole"]
+script = ExtResource("2_asset")
+id = &"sol_tole"
+atlas = ExtResource("3_planche")
+region = Rect2i(0, 0, 128, 128)
+size_m = Vector2(4, 4)
+anchor = Vector2(0.5, 0.5)
+category = &"sol"
+default_layer = &"sol"
+tags = PackedStringArray("sol", "tole")
+
+[sub_resource type="Resource" id="Resource_sol_panneaux"]
+script = ExtResource("2_asset")
+id = &"sol_panneaux"
+atlas = ExtResource("3_planche")
+region = Rect2i(128, 0, 128, 128)
+size_m = Vector2(4, 4)
+anchor = Vector2(0.5, 0.5)
+category = &"sol"
+default_layer = &"sol"
+tags = PackedStringArray("sol", "panneaux")
+
+[sub_resource type="Resource" id="Resource_sol_caoutchouc"]
+script = ExtResource("2_asset")
+id = &"sol_caoutchouc"
+atlas = ExtResource("3_planche")
+region = Rect2i(256, 0, 128, 128)
+size_m = Vector2(4, 4)
+anchor = Vector2(0.5, 0.5)
+category = &"sol"
+default_layer = &"sol"
+tags = PackedStringArray("sol", "caoutchouc")
+
+[sub_resource type="Resource" id="Resource_sol_beton"]
+script = ExtResource("2_asset")
+id = &"sol_beton"
+atlas = ExtResource("3_planche")
+region = Rect2i(384, 0, 128, 128)
+size_m = Vector2(4, 4)
+anchor = Vector2(0.5, 0.5)
+category = &"sol"
+default_layer = &"sol"
+tags = PackedStringArray("sol", "beton")
+
+[sub_resource type="Resource" id="Resource_detail_aeration"]
+script = ExtResource("2_asset")
+id = &"detail_aeration"
+atlas = ExtResource("3_planche")
+region = Rect2i(512, 0, 128, 128)
+size_m = Vector2(1.5, 1.5)
+anchor = Vector2(0.5, 0.5)
+category = &"detail"
+default_layer = &"detail_sol"
+tags = PackedStringArray("detail", "aeration")
+
+[sub_resource type="Resource" id="Resource_detail_bandes"]
+script = ExtResource("2_asset")
+id = &"detail_bandes"
+atlas = ExtResource("3_planche")
+region = Rect2i(640, 0, 128, 128)
+size_m = Vector2(2, 0.5)
+anchor = Vector2(0.5, 0.5)
+category = &"detail"
+default_layer = &"detail_sol"
+tags = PackedStringArray("detail", "bandes")
+
+[sub_resource type="Resource" id="Resource_detail_huile"]
+script = ExtResource("2_asset")
+id = &"detail_huile"
+atlas = ExtResource("3_planche")
+region = Rect2i(768, 0, 128, 128)
+size_m = Vector2(1.2, 1)
+anchor = Vector2(0.5, 0.5)
+category = &"detail"
+default_layer = &"detail_sol"
+tags = PackedStringArray("detail", "huile")
+
+[sub_resource type="Resource" id="Resource_detail_trappe"]
+script = ExtResource("2_asset")
+id = &"detail_trappe"
+atlas = ExtResource("3_planche")
+region = Rect2i(896, 0, 128, 128)
+size_m = Vector2(1.5, 1.5)
+anchor = Vector2(0.5, 0.5)
+category = &"detail"
+default_layer = &"detail_sol"
+tags = PackedStringArray("detail", "trappe")
+
+[sub_resource type="Resource" id="Resource_caisse_cargo"]
+script = ExtResource("2_asset")
+id = &"caisse_cargo"
+atlas = ExtResource("3_planche")
+region = Rect2i(0, 128, 128, 128)
+size_m = Vector2(1.2, 1.2)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("caisse", "cargo")
+
+[sub_resource type="Resource" id="Resource_fut_carburant"]
+script = ExtResource("2_asset")
+id = &"fut_carburant"
+atlas = ExtResource("3_planche")
+region = Rect2i(128, 128, 128, 128)
+size_m = Vector2(0.9, 0.9)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("fut", "carburant")
+
+[sub_resource type="Resource" id="Resource_console"]
+script = ExtResource("2_asset")
+id = &"console"
+atlas = ExtResource("3_planche")
+region = Rect2i(256, 128, 128, 128)
+size_m = Vector2(1.4, 0.8)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("console")
+
+[sub_resource type="Resource" id="Resource_casiers"]
+script = ExtResource("2_asset")
+id = &"casiers"
+atlas = ExtResource("3_planche")
+region = Rect2i(384, 128, 128, 128)
+size_m = Vector2(1.6, 0.6)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("casiers")
+
+[sub_resource type="Resource" id="Resource_reacteur"]
+script = ExtResource("2_asset")
+id = &"reacteur"
+atlas = ExtResource("3_planche")
+region = Rect2i(512, 128, 128, 128)
+size_m = Vector2(3, 3)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("reacteur")
+
+[sub_resource type="Resource" id="Resource_conteneur"]
+script = ExtResource("2_asset")
+id = &"conteneur"
+atlas = ExtResource("3_planche")
+region = Rect2i(640, 128, 128, 128)
+size_m = Vector2(4, 2.4)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("conteneur")
+
+[sub_resource type="Resource" id="Resource_mur_droit"]
+script = ExtResource("2_asset")
+id = &"mur_droit"
+atlas = ExtResource("3_planche")
+region = Rect2i(768, 128, 128, 128)
+size_m = Vector2(4, 0.5)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("mur", "droit")
+
+[sub_resource type="Resource" id="Resource_cloison"]
+script = ExtResource("2_asset")
+id = &"cloison"
+atlas = ExtResource("3_planche")
+region = Rect2i(896, 128, 128, 128)
+size_m = Vector2(3, 0.4)
+anchor = Vector2(0.5, 1)
+category = &"obstacle"
+default_layer = &"obstacles"
+tags = PackedStringArray("cloison")
+
+[sub_resource type="Resource" id="Resource_tuyaux_plafond"]
+script = ExtResource("2_asset")
+id = &"tuyaux_plafond"
+atlas = ExtResource("3_planche")
+region = Rect2i(0, 256, 128, 128)
+size_m = Vector2(4, 1)
+anchor = Vector2(0.5, 0.5)
+category = &"avant_plan"
+default_layer = &"avant_plan"
+tags = PackedStringArray("tuyaux", "plafond")
+
+[sub_resource type="Resource" id="Resource_cables_pendants"]
+script = ExtResource("2_asset")
+id = &"cables_pendants"
+atlas = ExtResource("3_planche")
+region = Rect2i(128, 256, 128, 128)
+size_m = Vector2(3, 1)
+anchor = Vector2(0.5, 0.5)
+category = &"avant_plan"
+default_layer = &"avant_plan"
+tags = PackedStringArray("cables", "pendants")
+
+[sub_resource type="Resource" id="Resource_lampe"]
+script = ExtResource("2_asset")
+id = &"lampe"
+atlas = ExtResource("3_planche")
+region = Rect2i(256, 256, 128, 128)
+size_m = Vector2(1, 1)
+anchor = Vector2(0.5, 0.5)
+category = &"avant_plan"
+default_layer = &"avant_plan"
+tags = PackedStringArray("lampe")
+
+[sub_resource type="Resource" id="Resource_porte_sas"]
+script = ExtResource("2_asset")
+id = &"porte_sas"
+atlas = ExtResource("3_planche")
+region = Rect2i(384, 256, 128, 128)
+size_m = Vector2(3, 0.6)
+anchor = Vector2(0.5, 1)
+category = &"porte"
+default_layer = &"obstacles"
+tags = PackedStringArray("porte", "sas")
+
+[resource]
+script = ExtResource("1_catalog")
+id = &"catalogue"
+layers = PackedStringArray("sol", "detail_sol", "obstacles", "avant_plan")
+assets = Array[ExtResource("2_asset")]([SubResource("Resource_sol_tole"), SubResource("Resource_sol_panneaux"), SubResource("Resource_sol_caoutchouc"), SubResource("Resource_sol_beton"), SubResource("Resource_detail_aeration"), SubResource("Resource_detail_bandes"), SubResource("Resource_detail_huile"), SubResource("Resource_detail_trappe"), SubResource("Resource_caisse_cargo"), SubResource("Resource_fut_carburant"), SubResource("Resource_console"), SubResource("Resource_casiers"), SubResource("Resource_reacteur"), SubResource("Resource_conteneur"), SubResource("Resource_mur_droit"), SubResource("Resource_cloison"), SubResource("Resource_tuyaux_plafond"), SubResource("Resource_cables_pendants"), SubResource("Resource_lampe"), SubResource("Resource_porte_sas")])

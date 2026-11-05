@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/enemy_def.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"brute"
+display_name = "Brute"
+role = &"melee"
+max_health = 180
+aggro_m = 7
+speed_mps = 2
+attack_range_m = 2
+windup_s = 0.5
+fire_s = 0.3
+recover_s = 1.8
+weight = 1.5
+damage = 8
+color = Color(0.6, 0.3, 0.2, 1)

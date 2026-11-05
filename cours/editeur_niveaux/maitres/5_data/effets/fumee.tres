@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FxDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/fx_def.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = &"fumee"
+display_name = "Fumée"
+rate = 12
+lifetime_s = 2.5
+size_m = 0.8
+color = Color(0.7, 0.7, 0.72, 0.6)
+additive = false
