@@ -117,6 +117,7 @@ func apply(changes: Dictionary[int, Dictionary]) -> bool:
 	return _commit(candidate)
 
 
+#@ 3-4
 ## Ajoute une chose de champs `fields` (au moins `asset` et `layer`) ; rend son identifiant, ou 0 si elle est refusée.
 func add_thing(fields: Dictionary[StringName, Variant]) -> int:
 	if _refuse_while_notifying() or not _require_open():
@@ -139,6 +140,41 @@ func add_thing(fields: Dictionary[StringName, Variant]) -> int:
 		values.append(converted)
 		candidate.set(COLUMNS[field], values)
 	return new_id if _commit(candidate) else 0
+#@ 5+
+## Ajoute une chose de champs `fields` (au moins `asset` et `layer`) ; rend son identifiant, ou 0 si elle est refusée.
+func add_thing(fields: Dictionary[StringName, Variant]) -> int:
+	var created: Array[int] = add_things([fields])
+	return 0 if created.is_empty() else created[0]
+
+
+## Ajoute d'un coup les choses `list` (chacune un dictionnaire de champs, au moins `asset` et `layer`) : un seul pas
+## d'annulation. Rend leurs identifiants, dans l'ordre, ou une liste vide si l'une d'elles est refusée.
+func add_things(list: Array[Dictionary]) -> Array[int]:
+	var created: Array[int] = []
+	if _refuse_while_notifying() or not _require_open():
+		return created
+	var candidate: RoomData = _room.duplicate(true) as RoomData
+	var next_id: int = 1
+	for thing_id: int in candidate.thing_ids:
+		next_id = maxi(next_id, thing_id + 1)
+	for fields: Dictionary in list:
+		var ids_column: PackedInt32Array = candidate.thing_ids
+		ids_column.append(next_id)
+		candidate.thing_ids = ids_column
+		for field: StringName in COLUMNS:
+			if not fields.has(field) and not DEFAULTS.has(field):
+				errors.assign(["%s : champ requis pour une nouvelle chose" % field])
+				return []
+			var converted: Variant = _converted(field, fields.get(field, DEFAULTS.get(field)))
+			if not errors.is_empty():
+				return []
+			var values: Variant = candidate.get(COLUMNS[field])
+			values.append(converted)
+			candidate.set(COLUMNS[field], values)
+		created.append(next_id)
+		next_id += 1
+	return created if _commit(candidate) else []
+#@ all
 
 
 ## Supprime les choses `thing_ids` : un pas d'annulation. Refusé si une chose qui reste est attachée à l'une d'elles.

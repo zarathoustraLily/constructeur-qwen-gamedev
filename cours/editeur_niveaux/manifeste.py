@@ -47,7 +47,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4]
+PRETES = [1, 2, 3, 4, 5]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -80,4 +80,8 @@ FICHIERS = {
     "5_data/catalogue/catalogue.tres": "4+",
     "7_tests/1_core/data/test_asset_catalog_def.gd": "4+",
     "7_tests/1_core/editor/test_asset_search.gd": "4+",
+    "1_core/data/editor_settings_def.gd": "5+",
+    "1_core/editor/editor_actions.gd": "5+",
+    "5_data/editeur/reglages.tres": "5+",
+    "7_tests/1_core/editor/test_editor_actions.gd": "5+",
 }

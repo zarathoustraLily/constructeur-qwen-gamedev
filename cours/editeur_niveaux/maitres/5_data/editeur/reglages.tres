@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EditorSettingsDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/editor_settings_def.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+id = &"reglages_editeur"
+snap_m = 0.25
+rotation_step_deg = 15.0
+min_scale = 0.1
+max_scale = 10.0
+duplicate_offset_m = Vector3(0.5, 0, 0.5)
