@@ -153,7 +153,12 @@ def assembler(numero: int, graine: int = 1, donnees: Path | None = None,
     rejets["partage 40/40/20"] = len(gardees) - len(equilibrees)
     sortie = racine / "entrainement"
     nom = f"palier_{numero}"
-    fmt.ecrire([fmt.vers_llamafactory(p) for p in equilibrees], sortie / f"{nom}.jsonl")
+    # Les paires à images d'abord : la bibliothèque `datasets` de LLaMA-Factory devine le type de chaque colonne d'après les
+    # premières lignes ; des listes d'images toutes vides lui font prendre « images » pour une colonne vide, et elle
+    # refuse ensuite les chemins (« Couldn't cast array of type string to null », 2026-11-06). L'ordre du fichier ne
+    # change pas l'entraînement : l'entraîneur mélange les paires.
+    ordre = sorted(equilibrees, key=lambda p: 0 if p["images"] else 1)
+    fmt.ecrire([fmt.vers_llamafactory(p) for p in ordre], sortie / f"{nom}.jsonl")
     from usine.entrainement import reglages
     info_chemin = sortie / "dataset_info.json"
     info = json.loads(info_chemin.read_text(encoding="utf-8")) if info_chemin.is_file() else {}

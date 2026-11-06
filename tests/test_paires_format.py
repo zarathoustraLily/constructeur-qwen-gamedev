@@ -22,3 +22,8 @@ def test_les_espaces_de_fin_ne_changent_pas_le_rendu(tmp_path):
     ligne = fmt.vers_llamafactory(p)
     assert opencode.rendre_sharegpt(ligne) == opencode.rendre(p["messages"], [])
     assert ligne["images"] == [str(image)] and ligne["system"] == "# EN PERMANENCE\nle plan."
+
+
+def test_une_paire_de_texte_a_aussi_la_colonne_images():
+    p = fmt.paire("essai", "gameplay", "création", "Écris f.", "f", {})
+    assert fmt.vers_llamafactory(p)["images"] == []

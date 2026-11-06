@@ -92,11 +92,13 @@ def appel(identifiant: str, nom: str, arguments: dict[str, Any]) -> dict[str, An
 
 def vers_llamafactory(p: dict[str, Any]) -> dict[str, Any]:
     """La paire au format sharegpt de LLaMA-Factory, comme les bases des cours (`opencode.vers_sharegpt` : chaque
-    message rogné, rendu identique à celui du gabarit) ; ses images dans la colonne « images »."""
+    message rogné, rendu identique à celui du gabarit) ; ses images dans la colonne « images », présente sur toutes les
+    lignes (vide pour une paire de texte) : la bibliothèque `datasets` de LLaMA-Factory veut les mêmes colonnes partout, et
+    refusait le palier 1 du 2026-11-05 (« All the data files must have the same columns », 1 617 lignes sur 19 553
+    avaient des images, la première à la ligne 8 509)."""
     from usine.cours.base import opencode
     ligne = opencode.vers_sharegpt(p["messages"], [])
-    if p["images"]:
-        ligne["images"] = list(p["images"])
+    ligne["images"] = list(p["images"])
     return ligne
 
 
