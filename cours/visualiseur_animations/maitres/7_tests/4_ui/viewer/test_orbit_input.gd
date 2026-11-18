@@ -7,6 +7,7 @@ func _input_node() -> OrbitInput:
 	var orbit: OrbitInput = auto_free(OrbitInput.new())
 	orbit.set_process(false)
 	add_child(orbit)
+	orbit.rig.game_view = false
 	orbit.rig.distance = 4.0
 	return orbit
 

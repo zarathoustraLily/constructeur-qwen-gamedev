@@ -2,9 +2,12 @@ class_name OrbitRig extends RefCounted
 ## La caméra qui tourne autour du sujet : un angle autour de la verticale (lacet), une hauteur (tangage), une distance
 ## et le point visé. Le sujet regarde +Z : au lacet 0, la caméra est devant lui ; à 90, de son côté gauche (+X).
 ## Deux vues :
-## - la vue libre, en perspective, qu'on tourne et qu'on rapproche ;
-## - la vue du jeu, orthographique, à l'inclinaison et à la rotation des réglages, à la taille du jeu : l'asset s'y
-##   voit comme en partie. Tourner la caméra la quitte (elle repasse en vue libre) ; la vue du jeu ne bouge jamais.
+## - la vue du jeu, celle du roguelike, où la caméra ne bouge jamais : orthographique, à l'inclinaison, à la rotation et
+##   à la taille des réglages. Tourner y fait pivoter le sujet sur lui-même, comme le héros qui change de direction en
+##   partie ; c'est la vue d'ouverture ;
+## - la vue libre, en perspective, qu'on tourne et qu'on rapproche pour inspecter un modèle (dessous, dos, détails).
+## L'angle qui choisit un clip fait pour un angle (AngleClips) est celui de la caméra vue depuis le sujet
+## (relative_angle) : tourner le sujet devant la caméra fixe revient au même que tourner la caméra autour de lui.
 
 ## Le tangage le plus bas : un peu sous l'horizon, pour voir sous un ennemi volant.
 const MIN_PITCH_DEG: float = -10.0
@@ -28,7 +31,9 @@ var distance: float = 5.0
 ## Le point visé.
 var target: Vector3 = Vector3.ZERO
 ## Vrai en vue du jeu.
-var game_view: bool = false
+var game_view: bool = true
+## L'orientation du sujet autour de la verticale, en degrés, entre 0 et 360 (0 : il regarde +Z).
+var subject_yaw_deg: float = 0.0
 ## L'inclinaison de la vue du jeu (ViewerConfig.game_pitch_deg).
 var game_pitch_deg: float = 30.0
 ## La rotation de la vue du jeu (ViewerConfig.game_yaw_deg).
@@ -44,12 +49,12 @@ func use_config(config: ViewerConfig) -> void:
 	game_ortho_size = config.game_ortho_size
 
 
-## Tourne de `d_yaw` degrés autour de la verticale et de `d_pitch` en hauteur ; quitte la vue du jeu.
+## Tourne de `d_yaw` degrés autour de la verticale et de `d_pitch` en hauteur. En vue du jeu, la caméra reste et le
+## sujet pivote d'autant dans l'autre sens (on le voit tourner comme si la caméra tournait) ; le tangage ne sert pas.
 func orbit(d_yaw: float, d_pitch: float) -> void:
 	if game_view:
-		yaw_deg = game_yaw_deg
-		pitch_deg = game_pitch_deg
-		game_view = false
+		subject_yaw_deg = fposmod(subject_yaw_deg - d_yaw, 360.0)
+		return
 	yaw_deg = fposmod(yaw_deg + d_yaw, 360.0)
 	pitch_deg = clampf(pitch_deg + d_pitch, MIN_PITCH_DEG, MAX_PITCH_DEG)
 
@@ -70,6 +75,11 @@ func frame(box: AABB) -> void:
 ## Le lacet de la vue en cours.
 func view_yaw() -> float:
 	return fposmod(game_yaw_deg, 360.0) if game_view else yaw_deg
+
+
+## L'angle de la caméra vu depuis le sujet, entre 0 et 360 : 0 le voit de face, 90 de son côté gauche.
+func relative_angle() -> float:
+	return fposmod(view_yaw() - subject_yaw_deg, 360.0)
 
 
 ## Le tangage de la vue en cours.

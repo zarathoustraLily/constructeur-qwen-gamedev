@@ -1,8 +1,9 @@
 class_name OrbitInput extends Node
 ## Les commandes de la caméra (OrbitRig) :
-## - à la souris, sur la vue : glisser (bouton gauche ou droit) tourne autour du sujet, la molette rapproche ;
+## - à la souris, sur la vue : glisser (bouton gauche ou droit) tourne, la molette rapproche ;
 ## - à la manette : le stick droit tourne, les gâchettes hautes rapprochent (RB) et éloignent (LB) ;
-## - Y à la manette, G au clavier (action toggle_game_view) : bascule entre la vue libre et la vue du jeu.
+## - Y à la manette, G au clavier (action toggle_game_view) : bascule entre la vue du jeu et la vue libre.
+## Tourner en vue du jeu fait pivoter le sujet, la caméra restant fixe (OrbitRig.orbit) ; rapprocher n'y fait rien.
 ## Au clavier, J L I K tournent et E Q rapprochent, comme le stick et les gâchettes (actions de project.godot).
 
 ## La caméra a bougé, ou changé de vue.

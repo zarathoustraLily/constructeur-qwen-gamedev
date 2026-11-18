@@ -5,8 +5,9 @@ extends GdUnitTestSuite
 ## Choisir un asset le montre et liste ses animations ; sa première est « pause » ; choisir une animation la joue ; un
 ## fichier absent est dit dans la barre d'état, sans rien montrer.
 #@ 3+
-## La caméra cadre l'asset choisi ; la vue du jeu se prend et se quitte ; un clip fait pour plusieurs angles tient une
-## seule ligne, et passe à la variante de l'angle de la caméra quand on tourne.
+## On s'ouvre en vue du jeu, caméra fixe, l'asset cadré ; y tourner fait pivoter l'asset, et un clip fait pour un angle
+## passe à la variante sous laquelle la caméra le voit ; la vue libre tourne la caméra ; un clip fait pour plusieurs
+## angles tient une seule ligne.
 #@ all
 
 const SHELL: PackedScene = preload("res://2_sequence/viewer/viewer_shell.tscn")
@@ -91,14 +92,17 @@ func test_un_fichier_absent_est_dit_sans_rien_montrer() -> void:
 #@ 3+
 
 
-func test_la_camera_cadre_l_asset_et_la_vue_libre_est_dite() -> void:
+func test_on_s_ouvre_en_vue_du_jeu_et_la_camera_cadre_l_asset() -> void:
 	var shell: ViewerShell = _shell()
 	shell.choose_asset("heros/heros")
-	assert_str(shell.status()).is_equal("heros/heros · 11 animations · pause · angle 0° · vue libre")
+	assert_str(shell.status()).is_equal("heros/heros · 11 animations · pause · angle 45° · vue du jeu")
+	assert_int(shell.stage().camera().projection).is_equal(Camera3D.PROJECTION_ORTHOGONAL)
+	assert_float(shell.orbit().rig.target.y).is_equal_approx(0.96, 0.01)
+	shell.orbit().toggle_game_view()
 	var camera: Camera3D = shell.stage().camera()
+	assert_int(camera.projection).is_equal(Camera3D.PROJECTION_PERSPECTIVE)
 	assert_float(camera.transform.origin.distance_to(shell.orbit().rig.target)).is_equal_approx(
 			shell.orbit().rig.distance, 0.001)
-	assert_float(shell.orbit().rig.target.y).is_equal_approx(0.96, 0.01)
 
 
 func test_un_clip_a_plusieurs_angles_tient_une_seule_ligne() -> void:
@@ -108,19 +112,33 @@ func test_un_clip_a_plusieurs_angles_tient_une_seule_ligne() -> void:
 			"fin_course", "pause", "salut · 4 angles"])
 
 
-func test_la_vue_du_jeu_se_prend_et_se_quitte_en_tournant() -> void:
+func test_en_vue_du_jeu_tourner_fait_pivoter_l_asset_et_change_de_variante() -> void:
 	var shell: ViewerShell = _shell()
 	shell.choose_asset("heros/heros")
-	shell.orbit().toggle_game_view()
-	assert_int(shell.stage().camera().projection).is_equal(Camera3D.PROJECTION_ORTHOGONAL)
-	assert_str(shell.status()).ends_with("angle 45° · vue du jeu")
 	assert_bool(shell.play_clip("salut")).is_true()
 	assert_str(shell.stage().subject().current_clip()).is_equal("salut_angle_0")
+	var camera_before: Transform3D = shell.stage().camera().transform
 	var drag: InputEventMouseMotion = InputEventMouseMotion.new()
 	drag.button_mask = MOUSE_BUTTON_MASK_LEFT
 	drag.relative = Vector2(-150, 0)
 	assert_bool(shell.orbit().handle(drag)).is_true()
-	assert_int(shell.stage().camera().projection).is_equal(Camera3D.PROJECTION_PERSPECTIVE)
+	assert_bool(shell.stage().camera().transform.is_equal_approx(camera_before)).is_true()
+	# Glisser de 150 pixels vers la gauche tourne de 60° : le héros pivote à 300°, la caméra (45°) le voit sous 105°.
+	assert_float(rad_to_deg(shell.stage().subject().rotation.y)).is_equal_approx(300.0, 0.001)
 	assert_str(shell.stage().subject().current_clip()).is_equal("salut_angle_90")
-	assert_str(shell.status()).ends_with("salut_angle_90 · angle 105° · vue libre")
+	assert_str(shell.status()).ends_with("salut_angle_90 · angle 105° · vue du jeu")
+
+
+func test_la_vue_libre_tourne_la_camera_autour_de_l_asset() -> void:
+	var shell: ViewerShell = _shell()
+	shell.choose_asset("heros/heros")
+	shell.orbit().toggle_game_view()
+	var camera_before: Transform3D = shell.stage().camera().transform
+	var drag: InputEventMouseMotion = InputEventMouseMotion.new()
+	drag.button_mask = MOUSE_BUTTON_MASK_LEFT
+	drag.relative = Vector2(-225, 0)
+	shell.orbit().handle(drag)
+	assert_bool(shell.stage().camera().transform.is_equal_approx(camera_before)).is_false()
+	assert_float(shell.stage().subject().rotation.y).is_equal(0.0)
+	assert_str(shell.status()).ends_with("angle 90° · vue libre")
 #@ all

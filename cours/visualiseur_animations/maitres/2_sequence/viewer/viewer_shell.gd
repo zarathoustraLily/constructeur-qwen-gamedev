@@ -4,8 +4,10 @@ class_name ViewerShell extends Control
 #@ 2+
 ## Choisir un asset le montre dans la scène et liste ses animations ; choisir une animation la joue.
 #@ 3+
-## La caméra tourne autour de l'asset (souris, stick droit) ou prend la vue du jeu (bouton, Y, G) ; un clip fait pour
-## un angle passe à la variante de l'angle de la caméra. La barre d'état dit l'angle et la vue.
+## Elle s'ouvre en vue du jeu, caméra fixe comme dans le roguelike : la souris ou le stick droit y font pivoter
+## l'asset. Le bouton, Y ou G passent en vue libre, où la caméra tourne autour de l'asset pour l'inspecter. Un clip
+## fait pour un angle passe à la variante de l'angle sous lequel la caméra voit l'asset. La barre d'état dit cet angle
+## et la vue.
 #@ all
 ## Les réglages : `5_data/visualiseur/config.json` dans le projet ; un visualiseur exporté lit le `config.json` posé à
 ## côté de son exécutable, s'il y en a un.
@@ -62,6 +64,7 @@ func _ready() -> void:
 	_problems.append_array(scanner.errors)
 #@ 3+
 	_orbit.rig.use_config(_config)
+	_on_rig_changed()
 #@ all
 	_list.show_entries(_entries)
 	_update_status()
@@ -89,6 +92,7 @@ func show_asset(entry: AssetEntry) -> void:
 	_error = _stage.show_entry(entry, _config)
 #@ 3+
 	if _error.is_empty():
+		_orbit.rig.subject_yaw_deg = 0.0
 		_orbit.rig.frame(_stage.subject_bounds())
 		_on_rig_changed()
 #@ 2+
@@ -179,7 +183,7 @@ func _update_status() -> void:
 			var count: int = subject.clips().size()
 			text = "%s · %d animation%s · %s" % [_shown.id, count, "s" if count > 1 else "", subject.current_clip()]
 #@ 3+
-			text += " · angle %d° · %s" % [roundi(_orbit.rig.view_yaw()), "vue du jeu" if _orbit.rig.game_view
+			text += " · angle %d° · %s" % [roundi(_orbit.rig.relative_angle()), "vue du jeu" if _orbit.rig.game_view
 					else "vue libre"]
 #@ all
 	if not _problems.is_empty():
@@ -192,10 +196,11 @@ func _update_status() -> void:
 func _on_rig_changed() -> void:
 	_orbit.rig.apply(_stage.camera())
 	_game_view_button.set_pressed_no_signal(_orbit.rig.game_view)
+	_stage.set_subject_yaw(_orbit.rig.subject_yaw_deg)
 	var subject: Subject = _stage.subject()
 	if subject != null:
 		var before: String = subject.current_clip()
-		subject.set_view_angle(_orbit.rig.view_yaw())
+		subject.set_view_angle(_orbit.rig.relative_angle())
 		if subject.current_clip() != before:
 			_clips.mark(subject.current_base())
 	_update_status()

@@ -1,12 +1,14 @@
 extends GdUnitTestSuite
-## La caméra tourne autour du point visé : au lacet 0 elle est devant le sujet (+Z), à 90 de son côté gauche (+X), et
-## regarde toujours le point visé. Le tangage et la distance ont leurs bornes. La vue du jeu prend l'inclinaison et la
-## rotation des réglages, en orthographique, et ne se rapproche pas ; tourner la quitte en partant de son angle.
-## Cadrer un pavé recule assez pour le voir en entier.
+## On s'ouvre en vue du jeu. En vue libre, la caméra tourne autour du point visé : au lacet 0 elle est devant le sujet
+## (+Z), à 90 de son côté gauche (+X), et regarde toujours le point visé ; le tangage et la distance ont leurs bornes.
+## La vue du jeu prend l'inclinaison et la rotation des réglages, en orthographique, et ne se rapproche pas ; y tourner
+## fait pivoter le sujet sans bouger la caméra, et l'angle vu depuis le sujet suit. Cadrer un pavé recule assez pour le
+## voir en entier.
 
 
 func _rig() -> OrbitRig:
 	var rig: OrbitRig = OrbitRig.new()
+	rig.game_view = false
 	rig.pitch_deg = 0.0
 	rig.distance = 4.0
 	return rig
@@ -48,13 +50,20 @@ func test_la_vue_du_jeu_prend_les_reglages_et_ne_se_rapproche_pas() -> void:
 	assert_float(up).is_equal_approx(30.0, 0.0001)
 
 
-func test_tourner_quitte_la_vue_du_jeu_en_partant_de_son_angle() -> void:
+func test_on_s_ouvre_en_vue_du_jeu() -> void:
+	assert_bool(OrbitRig.new().game_view).is_true()
+
+
+func test_en_vue_du_jeu_tourner_fait_pivoter_le_sujet_et_la_camera_reste() -> void:
 	var rig: OrbitRig = _rig()
 	rig.game_view = true
-	rig.orbit(10.0, 0.0)
-	assert_bool(rig.game_view).is_false()
-	assert_float(rig.yaw_deg).is_equal_approx(55.0, 0.0001)
-	assert_float(rig.pitch_deg).is_equal_approx(30.0, 0.0001)
+	var camera_before: Transform3D = rig.camera_transform()
+	rig.orbit(10.0, 5.0)
+	assert_bool(rig.game_view).is_true()
+	assert_float(rig.subject_yaw_deg).is_equal_approx(350.0, 0.0001)
+	assert_bool(rig.camera_transform().is_equal_approx(camera_before)).is_true()
+	# La caméra est à 45° ; le sujet a tourné de -10° : elle le voit sous 55°.
+	assert_float(rig.relative_angle()).is_equal_approx(55.0, 0.0001)
 
 
 func test_cadrer_recule_assez_pour_voir_le_pave_en_entier() -> void:

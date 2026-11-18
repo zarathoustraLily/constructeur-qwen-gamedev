@@ -1,18 +1,21 @@
 # Visualiseur d'animations · étape {STEP} · {TITLE}
 
-**Piste : {TRACK}.** Voir un asset sous tous les angles, puis tel qu'il sera en partie. Et puisque les animations
-seront refaites pour chaque angle de caméra, le visualiseur choisit lui-même la bonne.
+**Piste : {TRACK}.** Voir un asset tel qu'il sera en partie, puis sous tous les angles. Dans le roguelike, la caméra
+ne bouge jamais : c'est le héros qui tourne devant elle. Et puisque les animations seront refaites pour chaque angle
+sous lequel la caméra voit le personnage, le visualiseur choisit lui-même la bonne.
 
 Ce qu'on obtient :
 
-- glisser sur la vue (ou le stick droit) tourne autour de l'asset, la molette (ou les gâchettes hautes) rapproche ;
-- « Vue du jeu » (Y, ou G au clavier) prend la caméra du jeu, à 30° et 45° ;
-- « salut » tient une seule ligne, « salut · 4 angles », et change de variante quand on tourne autour du héros.
+- le visualiseur s'ouvre en vue du jeu, caméra fixe à 30° et 45° ; glisser sur la vue (ou le stick droit) fait pivoter
+  l'asset sur lui-même, comme le héros qui change de direction ;
+- « Vue du jeu » (Y, ou G au clavier) passe en vue libre, où la caméra tourne autour de l'asset et se rapproche (molette,
+  gâchettes hautes) pour l'inspecter ;
+- « salut » tient une seule ligne, « salut · 4 angles », et change de variante quand le héros tourne.
 
 ## Ouvrir le projet
 
 1. Dans Godot 4.7.2, importer ce dossier (le fichier `project.godot`).
-2. F5, choisir « heros », glisser sur la vue.
+2. F5, choisir « heros », glisser sur la vue : il pivote.
 3. Les tests : `7_tests/lancer_tests.bat`.
 
 ## Les fichiers du projet
@@ -48,9 +51,15 @@ Cadrer un asset vise le milieu de son pavé et recule jusqu'à voir la sphère q
 
 ### 2. La vue du jeu
 
-La vue du jeu est orthographique, à l'inclinaison, à la rotation et à la taille de `config.json` (`vue_jeu`) : l'asset
-s'y voit à l'échelle du jeu. Elle ne se rapproche pas, sinon elle ne serait plus la vue du jeu. Tourner la quitte en
-partant de son angle : la caméra ne saute pas.
+La vue du jeu est la vue d'ouverture. Elle est orthographique, à l'inclinaison, à la rotation et à la taille de
+`config.json` (`vue_jeu`) : l'asset s'y voit à l'échelle du jeu. La caméra n'y bouge jamais, comme dans le roguelike :
+elle ne se rapproche pas, et tourner y fait pivoter l'asset (`subject_yaw_deg`), d'autant que la caméra aurait tourné
+dans l'autre sens.
+
+L'angle qui choisit une animation est celui de la caméra vu depuis l'asset (`relative_angle`) : le lacet de la caméra
+moins l'orientation de l'asset. Le héros tourné de 300° devant la caméra du jeu (45°) est vu sous 105°, de son côté
+gauche. Tourner l'asset devant la caméra fixe ou tourner la caméra autour de lui donne le même angle : le jeu fera ce
+calcul avec l'orientation du héros.
 
 Les valeurs 30° et 45° attendent celles de la caméra du jeu.
 
@@ -87,5 +96,7 @@ variante au même instant de l'animation : un salut commencé de face continue d
 ## Vérifier
 
 - `7_tests/lancer_tests.bat` : tous les tests passent ;
-- F5, « heros », « salut » : de face, il lève le bras droit ; on tourne d'un quart de tour, il lève le gauche ;
-- « Vue du jeu » : le héros, petit, vu de haut et de trois quarts, comme en partie ; glisser repasse en vue libre.
+- F5, « heros » : le héros, petit, vu de haut et de trois quarts, comme en partie ; glisser le fait pivoter, la
+  caméra reste ;
+- « salut » : vu de face, il lève le bras droit ; tourné d'un quart de tour, il lève le gauche ;
+- « Vue du jeu » relâché : la caméra tourne autour du héros, qui ne bouge plus.

@@ -69,6 +69,12 @@ func camera() -> Camera3D:
 #@ 3+
 
 
+## Tourne les sujets de `deg` degrés autour de la verticale (le sujet qui pivote en vue du jeu).
+func set_subject_yaw(deg: float) -> void:
+	_model.rotation.y = deg_to_rad(deg)
+	_sprite.rotation.y = deg_to_rad(deg)
+
+
 ## Le pavé de l'asset montré, en mètres (vide sans asset).
 func subject_bounds() -> AABB:
 	if _active == _model:
