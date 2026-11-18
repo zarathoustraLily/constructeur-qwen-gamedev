@@ -2426,8 +2426,11 @@ ennemi ou un prop. Réponses : premier ennemi en « 3D Blender (.glb) » ; appli
   numérotés), liste par catégorie. Étape 2 : chargement à l'exécution par `GLTFDocument` et lecture octet par octet des
   PNG ; fichier d'accompagnement `<nom>.visu.json` (boucles, cadence) ; sujets 3D et 2D. Étape 3 : caméra en orbite, vue
   du jeu orthographique (30°, 45°, 8 m : valeurs proposées), commandes souris, clavier et manette, clips par angle.
+  Correction de laurent le même jour (« dans le rogue like la caméra ne bouge pas ») : ouverture en vue du jeu, caméra
+  fixe ; tourner y fait pivoter l'asset, et l'angle qui choisit un clip est celui de la caméra vu depuis l'asset ; la
+  vue libre ne sert qu'à inspecter.
 - Vérifié (Godot 4.7.2 sans fenêtre, `python -m usine.cours verifier visualiseur_animations --sans-rendu`) : 3/3
-  projets, 0 écart au juge, 18, 48 et 71 tests verts. Pas encore d'image rendue : aucun shader avant l'étape 4.
+  projets, 0 écart au juge, 18, 48 et 73 tests verts. Pas encore d'image rendue : aucun shader avant l'étape 4.
 - Application installée : `PROJET_ROGUE_LIKE_002\VISUALISEUR_ANIMATIONS` (copie de l'étape 3, avec `LISEZMOI.md`).
 - Proposé, non décidé : le nom des clips par angle, `<base>_angle_<degrés>`.
 
