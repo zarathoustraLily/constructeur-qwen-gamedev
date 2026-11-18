@@ -1,0 +1,13 @@
+{
+//@ 3+
+	"vue_jeu": {"inclinaison": 30, "rotation": 45, "taille": 8},
+//@ 2+
+	"pixels_par_metre": 100,
+//@ all
+	"sources": [
+		{"dossier": "res://6_assets/exemple/heros", "categorie": "heros"},
+		{"dossier": "res://6_assets/exemple/ennemis", "categorie": "ennemi"},
+		{"dossier": "res://6_assets/exemple/props", "categorie": "prop"},
+		{"dossier": "res://6_assets/exemple/effets", "categorie": "effet"}
+	]
+}

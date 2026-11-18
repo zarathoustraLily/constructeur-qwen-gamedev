@@ -2411,6 +2411,38 @@ Pièges : sans `keep_compressed_buffer = true`, une `PortableCompressedTexture2D
 362 octets et se relit en (0, 0) (sonde du 2026-11-05) ; un terminal resté dans le dossier d'une étape bloque sa
 refabrication (`WinError 32`).
 
+### Cours « visualiseur d'animations », étapes 1 à 3 — 2026-11-19 (branche `claude/observation-visuelle`)
+
+Demande de laurent du 2026-11-18 : un visualiseur des assets du jeu (héros, ennemis, boss, props) sous tous les angles,
+en 3D ou en 2D, avec contour noir et ombre, animations enchaînées à la manette, et un interrupteur pour piloter un
+ennemi ou un prop. Réponses : premier ennemi en « 3D Blender (.glb) » ; application « à côté de l'éditeur » ; plan en
+12 étapes : « Oui, lance ».
+
+- Cours `cours/visualiseur_animations/` (genre « jeu », 12 étapes prévues, 3 prêtes). Jeu source :
+  `D:\GODOT\PROJETS_DEMOS\PROJET_VISUALISEUR_ANIMATIONS` (clé `visualiseur_animations` de [sources]) : GdUnit4 et les
+  assets d'exemple de `outils/fabriquer_exemple.py` (glTF binaire écrit en Python : héros et golem à 12 os, coffre sans
+  os ; flamme en atlas `atlas_animation` ; étincelle en images).
+- Étape 1 : réglages JSON (dossiers et catégories), recherche des assets (.glb/.gltf, .atlas.json, dossiers de PNG
+  numérotés), liste par catégorie. Étape 2 : chargement à l'exécution par `GLTFDocument` et lecture octet par octet des
+  PNG ; fichier d'accompagnement `<nom>.visu.json` (boucles, cadence) ; sujets 3D et 2D. Étape 3 : caméra en orbite, vue
+  du jeu orthographique (30°, 45°, 8 m : valeurs proposées), commandes souris, clavier et manette, clips par angle.
+- Vérifié (Godot 4.7.2 sans fenêtre, `python -m usine.cours verifier visualiseur_animations --sans-rendu`) : 3/3
+  projets, 0 écart au juge, 18, 48 et 71 tests verts. Pas encore d'image rendue : aucun shader avant l'étape 4.
+- Application installée : `PROJET_ROGUE_LIKE_002\VISUALISEUR_ANIMATIONS` (copie de l'étape 3, avec `LISEZMOI.md`).
+- Proposé, non décidé : le nom des clips par angle, `<base>_angle_<degrés>`.
+
+Ce que les tests ont trouvé :
+- `generate_scene` retire par défaut les pistes constantes (`remove_immutable_tracks`) : « ferme » n'aurait plus de piste
+  et ne refermerait pas le coffre ; on passe `false` ;
+- l'import glTF de Godot 4.7.2 remplace « @ » par « _ » dans les noms d'animations (`salut@90` → `salut_90`) : d'où
+  `_angle_` ;
+- `JSON.get_error_line` compte à partir de 0 (sonde : erreur en 3ᵉ ligne → 2).
+
+Pièges : `Image.load_from_file` sur un chemin `res://` avertit (export) : lire par `FileAccess` puis
+`load_png_from_buffer` ; un paramètre nommé comme une méthode de la classe (`labels`) est refusé
+(`shadowed_variable`) ; la règle COD-02 refuse `Dictionary` nu : les valeurs JSON passent par `JsonValues`
+(`Dictionary[String, Variant]`, `Array[Variant]`).
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.

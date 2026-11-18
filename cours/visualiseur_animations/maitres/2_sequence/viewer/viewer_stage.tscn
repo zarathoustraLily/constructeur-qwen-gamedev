@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/viewer/viewer_stage.gd" id="1_stage"]
+[ext_resource type="Script" path="res://3_entities/subject/model_view.gd" id="2_model"]
+[ext_resource type="Script" path="res://3_entities/subject/sprite_view.gd" id="3_sprite"]
+
+[sub_resource type="Environment" id="Environment_scene"]
+background_mode = 1
+background_color = Color(0.13, 0.14, 0.16, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.64, 0.7, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(12, 12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.32, 0.33, 0.36, 1)
+roughness = 0.9
+
+[node name="ViewerStage" type="Node3D"]
+script = ExtResource("1_stage")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_scene")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660254, -0.38302222, 0.32139382, 0, 0.64278764, 0.76604444, -0.5, -0.66341394, 0.5566704, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+
+[node name="Camera" type="Camera3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 0.96782255, 0.25163388, 0, -0.25163388, 0.96782255, 0, 2.2, 5)
+fov = 40.0
+current = true
+
+[node name="ModelView" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_model")
+
+[node name="SpriteView" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_sprite")
