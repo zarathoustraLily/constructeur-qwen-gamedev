@@ -43,18 +43,84 @@ SHADER = re.compile(r"^\s*shader_type\b|^\s*(?:instance\s+|global\s+)?uniform\b|
                     re.M)
 DECLARE = re.compile(r"\b(?:func|var|const|signal|class_name|class|enum)\s+([A-Za-z_]\w*)")
 # Membres que toute classe a sans qu'ils soient listés comme tels dans l'API.
-TOUJOURS = {"new"}
+# Membres que toute classe a sans que l'API les liste : `new`, et `free` (Object.free, traité à part par le moteur).
+TOUJOURS = {"new", "free"}
+# Types de GDScript que l'API ne liste pas comme classes.
+TYPES_LANGAGE = {"Variant"}
 LANGAGES_SHADER = {"gdshader", "glsl", "gdshaderinc", "shader"}
 LANGAGES_GDSCRIPT = {"gdscript", "gd", ""}
 SORTIE = re.compile(r"SCRIPT ERROR|^ERROR:|^WARNING:|^\s+at: |Godot Engine v|code de sortie", re.M)
 
 
+TYPE_ECRIT = re.compile(r"(?:\b(?:extends|as|is)\s+|(?<![\w.]):\s*|->\s*|\[\s*|,\s*(?=[A-Z]\w*\s*\]))"
+                        r"([A-Z][A-Za-z0-9_]*)\b(?!\s*[:(.])|\b([A-Z][A-Za-z0-9_]*)(?=\.new\()")
+RECEVEUR_APPEL = re.compile(r"(?<![\w.$%&^])([A-Za-z_]\w*)\.([A-Za-z_]\w*)\b(\(?)")
+
+
+def _nombre_arguments(code: str, ouvrante: int) -> int | None:
+    """Le nombre d'arguments de l'appel dont la parenthèse ouvrante est à `ouvrante` (virgules de premier niveau),
+    ou None si l'appel ne se referme pas dans le code."""
+    profondeur, n, vide = 0, 0, True
+    for k in range(ouvrante, len(code)):
+        c = code[k]
+        if c in "([{":
+            profondeur += 1
+            if profondeur > 1:
+                vide = False
+        elif c in ")]}":
+            profondeur -= 1
+            if profondeur == 0:
+                return 0 if vide else n + 1
+        elif c == "," and profondeur == 1:
+            n += 1
+        elif not c.isspace() and profondeur >= 1:
+            vide = False
+    return None
+
+
+@lru_cache(maxsize=1)
+def classes_projets() -> frozenset[str]:
+    """Les `class_name` de nos projets : maîtres des cours, projets du dépôt (godot/), extension GdUnit4, et les
+    classes des petits projets de la plomberie."""
+    racines = [cfg.RACINE / "cours", cfg.RACINE / "godot", cfg.chemin_gdunit4()]
+    noms: set[str] = set()
+    for racine in racines:
+        if racine.is_dir():
+            for f in racine.rglob("*.gd"):
+                try:
+                    texte = f.read_text(encoding="utf-8", errors="replace")
+                except OSError:
+                    continue
+                # `class_name`, classes internes, énumérations, et constantes de préchargement (`const Building =
+                # preload(…)`), qui servent toutes de types.
+                noms.update(re.findall(r"^class_name\s+(\w+)", texte, re.M))
+                noms.update(re.findall(r"^\s*class\s+(\w+)", texte, re.M))
+                noms.update(re.findall(r"^\s*enum\s+(\w+)", texte, re.M))
+                noms.update(re.findall(r"^\s*const\s+([A-Z]\w*)\s*(?::\s*\w+\s*)?:?=\s*preload\(", texte, re.M))
+    from usine.paires import plomberie_projet as pp
+    noms.update(e for e, _ in pp.ENNEMIS)
+    noms.update(c for c, _ in pp.COMPOSANTS + pp.REGLAGES)
+    noms.update(n.capitalize() + "Level" for n in pp.NIVEAUX)
+    return frozenset(noms)
+
+
 @dataclass
 class Api:
-    """Les noms de l'API 4.7.2, par classe (parents compris) et à plat."""
+    """Les noms de l'API 4.7.2, par classe (parents compris) et à plat ; les arités des méthodes."""
     parents: dict[str, str | None] = field(default_factory=dict)
     membres: dict[str, set[str]] = field(default_factory=dict)
     tous: set[str] = field(default_factory=set)
+    arites: dict[tuple[str, str], tuple[int, int | None]] = field(default_factory=dict)
+
+    def arite(self, classe: str, methode: str) -> tuple[int, int | None] | None:
+        vue: set[str] = set()
+        nom: str | None = classe
+        while nom and nom not in vue:
+            vue.add(nom)
+            if (nom, methode) in self.arites:
+                return self.arites[(nom, methode)]
+            nom = self.parents.get(nom)
+        return None
 
     def a_membre(self, classe: str, membre: str) -> bool:
         vue: set[str] = set()
@@ -81,6 +147,11 @@ def _noms_enums(enums: list[dict[str, Any]] | None) -> set[str]:
 def lire_api(chemin: Path) -> Api:
     donnees = json.loads(chemin.read_text(encoding="utf-8"))
     api = Api()
+    for c in donnees["classes"] + donnees["builtin_classes"]:
+        for m in c.get("methods") or []:
+            arguments = m.get("arguments") or []
+            obligatoires = sum(1 for a in arguments if "default_value" not in a)
+            api.arites[(c["name"], m["name"])] = (obligatoires, None if m.get("is_vararg") else len(arguments))
     for c in donnees["classes"]:
         noms = {m["name"] for m in c.get("methods") or []} | {p["name"] for p in c.get("properties") or []}
         noms |= {s["name"] for s in c.get("signals") or []} | {k["name"] for k in c.get("constants") or []}
@@ -162,7 +233,37 @@ class Filtre:
                     continue
                 if not self.api.a_membre(classe, membre):
                     fautes.append(f"absent de l'API 4.7.2 : {classe}.{membre}")
+            fautes += self._etendu(propre, _texte_paire(paire), declares)
         return sorted(set(fautes))
+
+    def _etendu(self, propre: str, texte_paire: str, declares: set[str]) -> list[str]:
+        """Plan « qualité maximale », point C : une classe que ni l'API ni nos projets ne déclarent (`ConeMesh`), un
+        membre absent sur une variable dont le type est connu (`mesh.orientation` avec `mesh: CapsuleMesh`), un
+        appel avec un nombre d'arguments que la signature n'admet pas (`image.set_pixel(x, y, z, c)`)."""
+        fautes: list[str] = []
+        connues = self.api.membres.keys() | classes_projets() | declares | TYPES_LANGAGE
+        for nom in {x.group(1) or x.group(2) for x in TYPE_ECRIT.finditer(propre)}:
+            if nom not in connues and not nom.isupper() and nom not in self.godot3:
+                fautes.append(f"classe inconnue de l'API 4.7.2 et des projets : {nom}")
+        from usine.paires.verification import _types
+        types = _types(texte_paire)
+        for x in RECEVEUR_APPEL.finditer(propre):
+            recepteur, membre = x.group(1), x.group(2)
+            classe = recepteur if self.api.connait(recepteur) and recepteur not in declares else types.get(recepteur)
+            if not classe or not self.api.connait(classe):
+                continue
+            if not self.api.a_membre(classe, membre):
+                # Un accès statique (`Input.x`) est déjà jugé plus haut ; ici, les variables typées.
+                if classe != recepteur:
+                    fautes.append(f"absent de l'API 4.7.2 : {classe}.{membre} (sur `{recepteur}`)")
+                continue
+            if x.group(3) == "(":
+                arite = self.api.arite(classe, membre)
+                n = _nombre_arguments(propre, x.end(3) - 1)
+                if arite and n is not None and (n < arite[0] or (arite[1] is not None and n > arite[1])):
+                    fautes.append(f"{classe}.{membre} attend {arite[0]}"
+                                  + (f" à {arite[1]}" if arite[1] != arite[0] else "") + f" arguments, {n} donnés")
+        return fautes
 
 
 @lru_cache(maxsize=4)

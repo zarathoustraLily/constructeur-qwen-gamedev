@@ -15,7 +15,8 @@ API = {
     "builtin_classes": [{"name": "Vector3", "methods": [{"name": "length"}], "members": [{"name": "y"}],
                          "constants": [{"name": "UP"}], "enums": []}],
     "classes": [
-        {"name": "Object", "inherits": None, "methods": [{"name": "connect"}]},
+        {"name": "Object", "inherits": None, "methods": [{"name": "connect", "arguments": [
+            {"name": "signal"}, {"name": "callable"}, {"name": "flags", "default_value": "0"}]}]},
         {"name": "Node", "inherits": "Object", "methods": [{"name": "add_child"}]},
         {"name": "Node3D", "inherits": "Node", "properties": [{"name": "position"}]},
         {"name": "CharacterBody3D", "inherits": "Node3D", "methods": [{"name": "move_and_slide"}]},
@@ -113,3 +114,27 @@ def test_les_vraies_tables_de_la_machine() -> None:
     assert "instantiate" not in vrai.godot3
     assert vrai.verifier(_paire("```gdscript\nvar s: Node = scene.instance()\nvar r: float = stepify(x, 0.5)\n```")) \
         == ["nom de Godot 3 : stepify → snapped"]
+
+
+def test_les_hallucinations_relevees_par_laurent_sont_refusees() -> None:
+    """Le 2026-11-18 : `ConeMesh`, `CapsuleMesh.orientation`, `put_pixel` à 4 arguments (ici `set_pixel`),
+    `FORMAT_LDRIF` ; le code juste passe."""
+    try:
+        from usine.cours.base import chemins
+        chemins.configurer(cours="kart")
+        symboles._charger.cache_clear()
+        vrai = Filtre.charger()
+    except (RuntimeError, FileNotFoundError, OSError):
+        pytest.skip("extension_api 4.7.2 ou source de Godot 4.7.2 absents")
+    fautes = {
+        "var m: ConeMesh = ConeMesh.new()": "classe inconnue",
+        "var mesh: CapsuleMesh = CapsuleMesh.new()\nmesh.orientation = 1": "CapsuleMesh.orientation",
+        "var img: Image = Image.create(4, 4, false, Image.FORMAT_RGBA8)\nimg.set_pixel(1, 2, 3, Color.RED)":
+            "attend 3 arguments, 4 donnés",
+        "var img: Image = Image.create(4, 4, false, Image.FORMAT_LDRIF)": "FORMAT_LDRIF",
+    }
+    for code, attendu in fautes.items():
+        assert any(attendu in f for f in vrai.verifier(_paire(f"```gdscript\n{code}\n```"))), code
+    juste = ("var b: CylinderMesh = CylinderMesh.new()\nb.top_radius = 0.0\nb.free()\nvar v: Variant = null\n"
+             "var img: Image = Image.create(4, 4, false, Image.FORMAT_RGBA8)\nimg.set_pixel(1, 2, Color.RED)")
+    assert vrai.verifier(_paire(f"```gdscript\n{juste}\n```")) == []

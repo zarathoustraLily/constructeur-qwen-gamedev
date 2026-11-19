@@ -68,16 +68,22 @@ def _types(texte: str) -> dict[str, str]:
     """Le type de chaque nom du texte qui en a un connu de l'API : déclaré (`x: T`), construit (`T(…)`, `T.new()`),
     converti (`… as T`), ou rendu par une fonction du projet déclarée `-> T`."""
     from usine.cours.base import api
-    types: dict[str, str] = {}
+    vus: dict[str, set[str]] = {}
+    declares: set[str] = set()
     retours = dict(RETOUR.findall(texte))
     for motif in (TYPE_DECL, CONSTRUIT, COMME):
         for nom, t in motif.findall(texte):
+            declares.add(nom)
             if api.classe_existe(t):
-                types.setdefault(nom, t)
+                vus.setdefault(nom, set()).add(t)
     for nom, f in APPEL_PROJET.findall(texte):
+        declares.add(nom)
         if api.classe_existe(retours.get(f, "")):
-            types.setdefault(nom, retours[f])
-    return types
+            vus.setdefault(nom, set()).add(retours[f])
+    # Un nom qui reçoit plusieurs types (deux fonctions, deux variables homonymes) ou aussi un type du projet n'a pas
+    # de type sûr : on ne lui en prête aucun (un `aim: Vector2` ici, `aim := Vector3(…)` là).
+    autres = {nom for nom, t in TYPE_DECL.findall(texte) if not api.classe_existe(t)}
+    return {nom: next(iter(t)) for nom, t in vus.items() if len(t) == 1 and nom not in autres}
 
 
 def membres_ecrits(code: str, contexte: str) -> list[tuple[str, str]]:
