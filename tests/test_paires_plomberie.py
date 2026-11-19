@@ -39,3 +39,33 @@ def test_l_arbre_et_le_projet_montre_sans_son_bloc_debug():
     assert all(rel in arbre for rel in f)
     montre = pp.sans_debug(f["project.godot"])
     assert "[autoload]" in montre and "untyped_declaration" not in montre
+
+
+def test_les_autres_petits_projets_ont_des_fautes_uniques_et_reversibles():
+    from usine.paires import plomberie_kits as k
+    for nom, (theme, fichiers, fautes) in {"decor": (k.theme_decor, k.fichiers_decor, k.fautes_decor),
+                                           "joueur": (k.theme_joueur, k.fichiers_joueur, k.fautes_joueur),
+                                           "reglages": (k.theme_reglages, k.fichiers_reglages, k.fautes_reglages)}.items():
+        for graine in range(1, 30):
+            th = theme(graine)
+            sain = fichiers(th)
+            assert "gdscript/warnings/untyped_declaration=2" in sain["project.godot"], nom
+            for x in fautes(th):
+                faux = x.poser(sain)
+                assert faux[x.fichier].replace(x.faux, x.juste, 1) == sain[x.fichier], (nom, x.genre)
+
+
+def test_aucun_nom_tire_ne_masque_une_classe_de_godot():
+    import json
+    from usine import config as cfg
+    from usine.paires import plomberie_kits as k
+    chemin = cfg.dossier_donnees() / "vocab" / "extension_api_4.7.2.json"
+    if not chemin.is_file():
+        import pytest
+        pytest.skip("extension_api 4.7.2 absent")
+    api = json.loads(chemin.read_text(encoding="utf-8"))
+    noms = ({c["name"] for c in api["classes"] + api["builtin_classes"]} | {e["name"] for e in api["global_enums"]}
+            | {s["name"] for s in api["singletons"]})
+    tires = [x for x, _ in k.OBJETS + k.COUREURS + k.OBJETS_RAMASSES + pp.ENNEMIS + pp.COMPOSANTS + pp.REGLAGES]
+    tires += [l.capitalize() + "Level" for l in k.LIEUX + pp.NIVEAUX] + [s for s, _ in k.SERVICES]
+    assert not set(tires) & noms

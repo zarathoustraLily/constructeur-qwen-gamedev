@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+from dataclasses import dataclass
 from pathlib import Path, PureWindowsPath
 from typing import Any, Callable
 
@@ -44,22 +45,50 @@ def _slug(texte: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", sans.lower()).strip("_")
 
 
+@dataclass
+class Kit:
+    """Une sorte de petit projet : son thème tiré d'une graine, ses fichiers, ses fautes, ses suites de tests, et la
+    suite qui juge chaque faute."""
+    nom: str
+    theme: Callable[[int], Any]
+    fichiers: Callable[[Any], dict[str, str]]
+    fautes: Callable[[Any], list[Any]]
+    suites: Callable[[Any], list[str]]
+    suite_de: Callable[[Any, Any], str]
+
+
+def _kit_base() -> Kit:
+    from usine.paires import plomberie_fautes as pf, plomberie_projet as pp
+
+    def suite_de(th: Any, x: Any) -> str:
+        c = pp.chemins(th)
+        return c["test_composant"] if x.fichier == c["composant"] and x.silencieuse else c["test_niveau"]
+    return Kit("base", pp.theme, pp.fichiers, pf.fautes,
+               lambda th: [pp.chemins(th)["test_composant"], pp.chemins(th)["test_niveau"]], suite_de)
+
+
+def kits() -> dict[str, Kit]:
+    from usine.paires import plomberie_kits
+    tous = {"base": _kit_base()}
+    tous.update(plomberie_kits.kits())
+    return tous
+
+
 class Atelier:
     """Le projet d'un thème, matérialisé une fois ; chaque faute y est posée puis retirée."""
 
-    def __init__(self, graine: int, racine: Path):
+    def __init__(self, graine: int, racine: Path, kit: Kit | None = None):
         from usine.cours.base import godot
-        from usine.paires import plomberie_projet as pp
-        self.th = pp.theme(graine)
-        self.sain = pp.fichiers(self.th)
-        self.c = pp.chemins(self.th)
-        self.chemin = racine / f"plomberie_{graine:04d}"
+        self.kit = kit or _kit_base()
+        self.th = self.kit.theme(graine)
+        self.sain = self.kit.fichiers(self.th)
+        self.chemin = racine / f"plomberie_{self.kit.nom}_{graine:04d}"
         shutil.rmtree(self.chemin, ignore_errors=True)
         self.ecrire(self.sain)
         shutil.copytree(cfg.chemin_gdunit4(), self.chemin / "addons" / "gdUnit4")
         self.godot = godot
         godot.importer(str(self.chemin))
-        self.suites = ["res://" + self.c["test_composant"], "res://" + self.c["test_niveau"]]
+        self.suites = ["res://" + s for s in self.kit.suites(self.th)]
         self.dossier = DOSSIER_WINDOWS / _slug(self.th.projet)
 
     def ecrire(self, f: dict[str, str]) -> None:
@@ -78,9 +107,8 @@ class Atelier:
         return self.godot.tester_gdunit(str(self.chemin), suites or self.suites, delai=120)
 
     def suite_de(self, x: Any) -> list[str]:
-        """La suite qui juge la faute : celle du composant quand la faute y est, celle du niveau sinon."""
-        return ["res://" + (self.c["test_composant"] if x.fichier == self.c["composant"] and x.silencieuse
-                            else self.c["test_niveau"])]
+        """La suite qui juge la faute."""
+        return ["res://" + self.kit.suite_de(self.th, x)]
 
     def importer(self) -> Any:
         return self.godot.importer(str(self.chemin))
@@ -123,12 +151,15 @@ def _montrer(rel: str, texte: str) -> str:
 
 
 def _fichiers_montres(at: Atelier, x: Any, etat: dict[str, str], sortie: str) -> list[str]:
-    """Le fichier de la faute, et ceux que la sortie désigne (au plus deux de plus), sans les tests."""
+    """Le fichier de la faute, et le premier fichier du jeu que la sortie désigne s'il est autre (là où l'erreur se
+    montre : le niveau pour un autoload absent), sans les tests ; un seul fichier quand l'erreur est dans celui de la
+    faute (chaque fichier montré coûte des jetons que la paire de 2 048 n'a pas)."""
     rels = [x.fichier]
-    for rel in re.findall(r"res://([\w/]+\.(?:gd|tscn))", sortie):
-        if rel in etat and rel not in rels and not rel.startswith(("7_tests/", "addons/")):
-            rels.append(rel)
-    return [_montrer(r, etat[r]) for r in rels[:2]]
+    designes = [r for r in re.findall(r"res://([\w/]+\.(?:gd|tscn))", sortie)
+                if r in etat and not r.startswith(("7_tests/", "addons/"))]
+    if designes and designes[0] != x.fichier:
+        rels.append(designes[0])
+    return [_montrer(r, etat[r]) for r in rels]
 
 
 def _lire_sortie(s: Any, tests: bool) -> str:
@@ -209,7 +240,7 @@ def paires_faute(at: Atelier, x: Any, rouge: tuple[Any, Any | None], vert: list[
                 + (" ; le nom de classe change, je referai le cache des classes par un import avant de relancer."
                    if x.reimport else "."))
     tester = "**Tester.** Je relance le projet sans fenêtre, puis ses tests."
-    preuve = {"theme": at.th.graine, "faute": x.genre, "fichier": x.fichier,
+    preuve = {"kit": at.kit.nom, "theme": at.th.graine, "faute": x.genre, "fichier": x.fichier,
               "rouge": {"commande": montree.commande, "sortie": montree.texte},
               "vert": [{"commande": s.commande, "sortie": s.texte, "code": s.code} for s, _ in vert]}
     lu = _lire_sortie(montree, preuve_tests)
@@ -278,22 +309,23 @@ def paires_faute(at: Atelier, x: Any, rouge: tuple[Any, Any | None], vert: list[
 
 
 def generer(themes: int = 40, graine: int = 1, donnees: Path | None = None,
-            journal: Callable[[str], None] = print) -> dict[str, Any]:
-    from usine.paires import plomberie_fautes as pf
+            journal: Callable[[str], None] = print, kit: str = "base") -> dict[str, Any]:
+    k = kits()[kit]
     sortie = fmt.dossier(FAMILLE, donnees)
     racine = sortie / "travail"
     paires: list[dict[str, Any]] = []
     rejets: list[str] = []
     for g in range(graine, graine + themes):
-        at = Atelier(g, racine)
+        at = Atelier(g, racine, k)
         vert_sain = at.lancer(), at.tester()
-        nb = len(re.findall(r"^func test_", at.sain[at.c["test_composant"]] + at.sain[at.c["test_niveau"]], re.M))
+        nb = sum(len(re.findall(r"^func test_", at.sain[s], re.M)) for s in k.suites(at.th))
         if not _propre(*vert_sain, nb):
-            rejets.append(f"thème {g} : l'état sain ne passe pas")
+            rejets.append(f"{k.nom} {g} : l'état sain ne passe pas")
+            journal(f"{k.nom} {g} : état sain refusé\n{vert_sain[0].texte[:800]}\n{vert_sain[1].texte[-1500:]}")
             continue
         gardees = 0
-        for x in pf.fautes(at.th):
-            ident = f"plomberie_{g:04d}_{x.genre}"
+        for x in k.fautes(at.th):
+            ident = f"plomberie_{k.nom}_{g:04d}_{x.genre}"
             at.ecrire(x.poser(at.sain))
             if x.reimport:
                 at.importer()
@@ -318,9 +350,9 @@ def generer(themes: int = 40, graine: int = 1, donnees: Path | None = None,
             nouvelles = paires_faute(at, x, (lancement, tests), vert, appels, ident)
             paires += nouvelles
             gardees += len(nouvelles)
-        journal(f"thème {g} ({at.th.projet}, {at.th.ennemi}) : {gardees} paires")
+        journal(f"{k.nom} {g} ({at.th.projet}) : {gardees} paires")
         shutil.rmtree(at.chemin, ignore_errors=True)
-    fmt.ecrire(paires, sortie / "paires_plomberie.jsonl")
+    fmt.ecrire(paires, sortie / ("paires_plomberie.jsonl" if kit == "base" else f"paires_plomberie_{kit}.jsonl"))
     bilan: dict[str, Any] = {"famille": FAMILLE, "paires": len(paires), "rejets": rejets, "par_type": {},
                              "par_faute": {}, "par_approche": {},
                              "jetons_max": max((p["jetons"] for p in paires), default=0),
@@ -329,5 +361,5 @@ def generer(themes: int = 40, graine: int = 1, donnees: Path | None = None,
         for cle, val in (("par_type", p["type"]), ("par_faute", p["preuve"]["faute"]),
                          ("par_approche", p["preuve"]["approche"])):
             bilan[cle][val] = bilan[cle].get(val, 0) + 1
-    (sortie / "bilan_plomberie.json").write_text(json.dumps(bilan, indent=1, ensure_ascii=False), encoding="utf-8")
+    (sortie / ("bilan_plomberie.json" if kit == "base" else f"bilan_plomberie_{kit}.json")).write_text(json.dumps(bilan, indent=1, ensure_ascii=False), encoding="utf-8")
     return bilan

@@ -82,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     pl = sous.add_parser("plomberie", help="plomberie de projet : petit projet complet, faute de plomberie, vrai lancement et tests")
     pl.add_argument("--themes", type=int, default=40)
     pl.add_argument("--graine", type=int, default=1)
+    pl.add_argument("--kit", default="base", help="base, decor, joueur, reglages")
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
@@ -187,7 +188,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if bilan["paires"] else 1
     if args.famille == "plomberie":
         from usine.paires.plomberie import generer as generer_plomberie
-        bilan = generer_plomberie(args.themes, args.graine)
+        bilan = generer_plomberie(args.themes, args.graine, kit=args.kit)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)

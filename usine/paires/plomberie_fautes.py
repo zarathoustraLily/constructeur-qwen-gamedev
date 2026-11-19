@@ -26,17 +26,20 @@ class Faute:
     symptome: str
     intention: str | None = None
     reimport: bool = False
+    # Les fautes des autres petits projets (plomberie_kits) le disent elles-mêmes.
+    silence: bool = False
+    ferme: bool = False
 
     @property
     def projet_ferme(self) -> bool:
         """Godot n'ouvre pas le projet : les tests n'y tournent pas (GdUnit4 attend alors jusqu'au délai, mesuré le
         2026-11-19 : 300 s avec `config_version=6`)."""
-        return self.genre in ("autoload_guillemets", "config_version")
+        return self.ferme or self.genre in ("autoload_guillemets", "config_version")
 
     @property
     def silencieuse(self) -> bool:
         """Aucune erreur au lancement : seuls les tests de comportement la voient."""
-        return self.genre in ("signal_non_branche", "corps_mort", "setup_oublie")
+        return self.silence or self.genre in ("signal_non_branche", "corps_mort", "setup_oublie")
 
     def poser(self, f: dict[str, str]) -> dict[str, str]:
         texte = f[self.fichier]
