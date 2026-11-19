@@ -48,6 +48,9 @@ def test_godot_une_paire_de_compilation_verifiee(tmp_path):
              if x.genre == "godot3_annotation")
     p, raison = compilation.paire(sessions.Projet("kart", 3, apres), m, "gameplay")
     assert p is not None, raison
-    reponse = p["messages"][1]["content"]
-    assert f"ligne {m.ligne}" in reponse and m.avant in reponse and p["jetons"] <= compilation.PLAFOND
+    from usine.paires.assembler import palier
+    reponse = p["messages"][-1]["content"]
+    # Palier 1, ou palier 2 avec le plan quand les commandes de test (décision 4) la font dépasser 1 024 jetons.
+    assert f"ligne {m.ligne}" in reponse and m.avant in reponse and palier(p)[0] in (1, 2)
+    assert "--quit-after" in reponse and "GdUnitCmdTool" in reponse
     assert reponse.index(m.apres) > reponse.index("je remplace")  # règle 7.3
