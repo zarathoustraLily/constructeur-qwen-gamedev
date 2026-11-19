@@ -102,10 +102,14 @@ def explication(m: mutations.Mutation) -> list[str]:
         table = preuves.renommage_de(d["ancien"])
         if m.genre == "godot3_nom" and d.get("sorte") == "méthode":
             absent = all(api.membre(c, d["ancien"]) is None for c in CLASSES_METHODES + ("Object",))
-            sig = next((api.membre(c, d["neuf"])[0] for c in CLASSES_METHODES
-                        if api.membre(c, d["neuf"])), None) or api.utilitaire(d["neuf"])
+            # La classe d'origine de chaque signature : `is_empty` existe dans String, Array, Dictionary… ; n'en
+            # citer qu'une (la première de la liste) donnait `Array.is_empty()` pour une String (relevé le 2026-11-19).
+            origines = sorted({api.membre(c, d["neuf"])[1] for c in CLASSES_METHODES if api.membre(c, d["neuf"])})
+            sig = api.membre(origines[0], d["neuf"])[0] if len(origines) == 1 else (
+                None if origines else api.utilitaire(d["neuf"]))
+            ou = (f" (le même nom existe dans {', '.join(f'`{c}`' for c in origines)})" if len(origines) > 1 else "")
             lignes.append(f"`{d['ancien']}` n'existe pas dans l'API de Godot 4.7.2" + (" (aucune classe ne l'a)" if absent else "")
-                          + f" ; le nom actuel est `{d['neuf']}`" + (f" : `{sig}`." if sig else "."))
+                          + f" ; le nom actuel est `{d['neuf']}`" + (f" : `{sig}`." if sig else f"{ou}."))
         elif m.genre == "godot3_nom":
             existe = api.classe_existe(d["ancien"])
             lignes.append(f"`{d['ancien']}` " + ("existe encore, mais n'est pas la classe voulue" if existe else

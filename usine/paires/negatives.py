@@ -327,7 +327,8 @@ def generer(cours: str = "kart", par_etape: int = 8, graine: int = 1, etapes: li
                 vues.add((fmt.commun(x.avant), x.detail["faux"]))
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{len(choisies)} paires")
-    retenues = [p for p in paires if p["jetons"] <= PLAFOND]
+    from usine.paires.assembler import palier
+    retenues = [p for p in paires if palier(p)[0] is not None]
     fmt.ecrire(retenues, sortie / f"paires_{cours}.jsonl")
     bilan: dict[str, Any] = {"famille": FAMILLE, "cours": cours, "paires": len(retenues),
                              "trop_longues": len(paires) - len(retenues), "rejets": rejets, "par_sorte": {},

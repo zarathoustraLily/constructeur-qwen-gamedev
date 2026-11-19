@@ -95,19 +95,84 @@ def paire(projet: Any, m: Any, sujet: str, famille: str = "compilation") -> tupl
         else:
             quoi = f"L'analyse de `res://{m.fichier}` (avertissements traités en erreurs, typage compris) donne :"
         demande = f"Projet Godot 4.7.2. {quoi}\n{sessions.tour_sortie(projet, phase, s, [m])}\n\nCorrige l'erreur."
-        reponse = "\n".join(lire + [""] + chercher + [""] + corriger
-                            + ["", "**Tester.** Je relance la même commande :", f"```\n$ {s.commande}\n```"])
         projet.poser(m, False)
         apres = projet.lancer(phase, cible)
         if not sessions.propre(phase, apres):
             return None, ("le rendu" if shader else "l'analyse") + " ne passe pas une fois la ligne corrigée"
+        # Décision 4 de laurent : tester après chaque modification, l'analyse puis le lancement et les tests. La ligne
+        # corrigée redonne l'état vérifié de l'étape ; son lancement et ses tests tournent une fois par étape.
+        execution = execution_etape(projet, m.fichier)
+        if isinstance(execution, str):
+            return None, execution
+        lancement, tests, miroir = execution
+        commandes = [s.commande] + [x.commande for x in (lancement, tests) if x is not None]
+        tester = ("**Tester.** Je relance " + ("le rendu" if shader else "l'analyse")
+                  + (", puis le projet sans fenêtre" if lancement is not None else "")
+                  + ((" et les tests de ce fichier" if miroir else " et les tests de l'étape") if tests is not None else "")
+                  + " ; je lirai chaque ligne, le code de sortie ne suffit pas :")
+        reponse = "\n".join(lire + [""] + chercher + [""] + corriger
+                            + ["", tester, "```\n" + "\n".join(f"$ {c}" for c in commandes) + "\n```"])
     finally:
         projet.remettre()
-    return fmt.paire(famille, sujet, "débogage", demande, reponse,
-                     {"outil": "rendu" if shader else "--check-only", "commande": s.commande, "sortie": s.texte,
-                      "code": s.code, "sortie_apres": apres.texte, "code_apres": apres.code,
-                      "etape": f"{projet.ville}-{projet.n:03d}", "fichier": m.fichier,
-                      "ligne": m.ligne, "genre": m.genre}), ""
+    preuve = {"outil": "rendu" if shader else "--check-only", "commande": s.commande, "sortie": s.texte,
+              "code": s.code, "sortie_apres": apres.texte, "code_apres": apres.code,
+              "etape": f"{projet.ville}-{projet.n:03d}", "fichier": m.fichier, "ligne": m.ligne, "genre": m.genre}
+    for nom, x in (("lancement", lancement), ("tests", tests)):
+        if x is not None:
+            preuve[nom] = {"commande": x.commande, "sortie": x.texte, "code": x.code}
+    p = fmt.paire(famille, sujet, "débogage", demande, reponse, preuve)
+    if p["jetons"] > PLAFOND:
+        # Trop longue pour le palier 1 avec ses commandes de test : au palier 2, avec le plan (section 3).
+        p = fmt.paire(famille, sujet, "débogage", demande, reponse, preuve, systeme=fmt.plan())
+    return p, ""
+
+
+LANCEMENT = ["--headless", "--path", ".", "--quit-after", "60"]
+ERREUR_LANCEMENT = __import__("re").compile(r"^(SCRIPT ERROR|ERROR|USER ERROR): ", __import__("re").M)
+
+
+def suite_miroir(projet: Any, fichier: str) -> str | None:
+    """La suite GdUnit4 en miroir du fichier (`7_tests/<chemin>/test_<nom>.gd`), si l'étape en a une."""
+    import posixpath
+    dossier, nom = posixpath.split(fichier)
+    rel = posixpath.join("7_tests", dossier, "test_" + nom.rsplit(".", 1)[0] + ".gd")
+    return rel if rel in projet.apres else None
+
+
+def execution_etape(projet: Any, fichier: str) -> tuple[Any, Any, bool] | str:
+    """(lancement, tests, miroir) de l'état vérifié de l'étape : le lancement une fois par projet, les tests de la
+    suite en miroir du fichier (ou, sans elle, ceux de l'étape) une fois par suite ; ou la raison du refus quand l'état
+    vérifié lui-même ne passe pas (aucune paire ne l'affirmerait alors)."""
+    from usine.cours.base import godot, profil
+    cache = projet.__dict__.setdefault("_execution", {})
+    projet.remettre()
+    if "lancement" not in cache:
+        cache["lancement"] = None
+        if profil.MAIN.search(projet.apres.get("project.godot", "")):
+            texte, code, brut = godot._lancer(LANCEMENT, projet.chemin, 120)
+            s = godot.Sortie(godot.commande(LANCEMENT), texte, code, brut)
+            erreur = ERREUR_LANCEMENT.search(texte)
+            cache["lancement"] = ("le lancement de l'étape montre une erreur : " + erreur.group(0)) if erreur else s
+    if isinstance(cache["lancement"], str):
+        return cache["lancement"]
+    miroir = suite_miroir(projet, fichier) if projet.jeu else None
+    cle = miroir or "étape"
+    if cle not in cache:
+        cache[cle] = None
+        if miroir:
+            cache[cle] = godot.tester_gdunit(projet.chemin, ["res://" + miroir])
+        elif not projet.jeu or projet.suites:
+            cache[cle] = projet.lancer("test")
+        if cache[cle] is not None and not sessions_propre_test(cache[cle]):
+            cache[cle] = f"les tests ({cle}) ne passent pas (code {cache[cle].code})"
+    if isinstance(cache[cle], str):
+        return cache[cle]
+    return cache["lancement"], cache[cle], miroir is not None
+
+
+def sessions_propre_test(s: Any) -> bool:
+    from usine.cours.base import sessions
+    return sessions.propre("test", s)
 
 
 def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: list[int] | None = None,
@@ -155,8 +220,9 @@ def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: li
                 vues.add(tuple(fmt.commun(x) for x in (m.fichier, m.avant, m.apres)))
                 gardees += 1
             journal(f"{ville}-{n:03d} : {gardees}/{len(choisies)} paires")
-    trop_longues = [p for p in paires if p["jetons"] > PLAFOND]
-    retenues = [p for p in paires if p["jetons"] <= PLAFOND]
+    from usine.paires.assembler import palier
+    trop_longues = [p for p in paires if palier(p)[0] is None]
+    retenues = [p for p in paires if palier(p)[0] is not None]
     fmt.ecrire(retenues, sortie / f"paires_{cours}.jsonl")
     bilan: dict[str, Any] = {"famille": famille, "cours": cours, "paires": len(retenues),
                              "trop_longues": len(trop_longues), "rejets": rejets, "par_genre": {}, "par_sujet": {},

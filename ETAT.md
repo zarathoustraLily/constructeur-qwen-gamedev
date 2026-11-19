@@ -2498,6 +2498,25 @@ paires pour ça » ; feu vert : « voila j'ia lance tu commence la formation des
   assemblage (24 785 paires, nouvelles familles et filtre compris) est gardé à part : `palier_1_2026-11-19.jsonl` et
   `controles_palier_1_2026-11-19.json` ; le `controles_palier_1.json` du 2026-11-06 est perdu.
 
+**Plan « qualité maximale »** (feu vert de laurent du 2026-11-19 : « je veux la qualite maximale je m'en fous si ca
+demande des heures de goto je veux l'assurance que le resultat sera le meilleur possible et que qwne ne fera plus
+n'iorte quoi avec tout ce que le rapport a pointé » ; la règle 5 s'applique : on corrige les générateurs et on
+refabrique, aucune sortie n'est retouchée) :
+- [ ] A. Vérifier avant d'écrire : chaque paire qui écrit un membre de Godot l'a vérifié d'abord par `vocab_lookup` ou
+  `search_docs` (appel `execute` du Code Mode, vraie sortie de l'outil), dans toutes les familles qui écrivent du
+  GDScript. Mesuré : 15 % des paires du palier 1 et 23 % du palier 2 vérifiaient l'API.
+- [ ] B. Tester comme le dit la décision 4 : après `--check-only`, le lancement et les tests de l'étape (commandes en
+  fin de réponse au palier 1, vraies sorties au palier 2).
+- [ ] C. Filtre : classes inconnues (ni API, ni `class_name` de nos projets), membres sur une variable typée, nombre
+  d'arguments.
+- [ ] D. Plomberie, fautes de plus : classe inexistante (`ConeMesh`), membre absent à l'exécution, nombre
+  d'arguments, action d'InputMap absente, variable écrasée chaque image, `look_at` sur sa propre position, sauvegarde.
+- [ ] E. Compter les paires par zone de Godot et combler les trous.
+- [ ] F. Version 4.7.2 marquée sur chaque paire.
+- [ ] G. Refabriquer famille par famille (jamais `volume`), assembler sous de nouveaux noms (les paliers du
+  2026-11-06 restent), nouveau LoRA depuis Qwen de base (proposé).
+- [ ] H. Le projet cassé aux ~25 échecs comme test de non-régression (chemin à demander à laurent).
+
 Pièges : `volume` réassemble les paliers à la fin (ne pas le lancer sans vouloir réécrire les jeux d'entraînement) ;
 un heredoc bash change `\n` en vrai saut de ligne dans le Python qu'il écrit (passer par Edit) ; le verrou
 de `garde_carte` sérialise les lancements de Godot de deux fabrications parallèles, mais deux fabrications sur le

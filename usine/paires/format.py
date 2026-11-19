@@ -131,7 +131,11 @@ def dossier(famille: str, donnees: Path | None = None) -> Path:
 
 
 def ecrire(paires: list[dict[str, Any]], chemin: Path) -> None:
+    """Écrit les paires d'une famille, chacune passée par la vérification de l'API (`verification.ajouter` : une
+    paire qui écrit un membre de Godot qu'elle n'a pas sous les yeux le vérifie d'abord ; plan « qualité maximale »,
+    point A). Les lignes déjà au format de LLaMA-Factory (assemblage des paliers) passent telles quelles."""
+    from usine.paires import verification
     chemin.parent.mkdir(parents=True, exist_ok=True)
     with chemin.open("w", encoding="utf-8", newline="\n") as f:
         for p in paires:
-            f.write(json.dumps(p, ensure_ascii=False) + "\n")
+            f.write(json.dumps(verification.ajouter(p), ensure_ascii=False) + "\n")
