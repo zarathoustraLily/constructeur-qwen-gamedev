@@ -2465,8 +2465,8 @@ paires pour ça » ; feu vert : « voila j'ia lance tu commence la formation des
   `empty` aux types intégrés), membre d'une classe voisine (même sorte, même préfixe, un nom contient l'autre :
   `linear_velocity` sur un CharacterBody3D), nom d'un autre moteur (`is_action_held`, `push`, `magnitude`). Gardée si
   Godot 4.7.2 signale exactement cette ligne et que la ligne juste repasse. Réponse : la ligne lue, ce que dit l'API
-  4.7.2 (et où le nom existe ailleurs), le membre juste avec sa signature et sa référence. 508 paires sur six cours
-  (kart 99, roguelike 27, atelier 73, boss 144, fluides 30, bâtiments 135), 32 rejets.
+  4.7.2 (et où le nom existe ailleurs), le membre juste avec sa signature et sa référence. **752 paires** sur huit
+  cours (kart 99, roguelike 27, atelier 73, boss 144, fluides 30, bâtiments 135, éditeur 207, visualiseur 37), 32 rejets.
 - **Mesuré** : `--check-only` ne signale pas un membre absent sur une variable typée d'une classe d'objet
   (`_visual: Node3D` puis `_visual.location`) ; seuls l'accès statique, les types intégrés et les membres hérités
   sans receveur sont refusés à l'analyse.
@@ -2486,7 +2486,20 @@ paires pour ça » ; feu vert : « voila j'ia lance tu commence la formation des
 - Paires des cours récents (familles existantes, `volume --cours visualiseur_animations,editeur_niveaux`) : création
   du visualiseur 79 paires en 5,1 min ; la suite tournait à l'écriture de ces lignes.
 
-Pièges : un heredoc bash change `\n` en vrai saut de ligne dans le Python qu'il écrit (passer par Edit) ; le verrou
+- **Plomberie, fabrication** : 110 projets, **3 172 paires** en 1 h 46, 0 rejet (débogage 972, création 660, analyse
+  1 540 ; par approche : sortie 642, symptôme 330, intention 660, analyse 1 540), au plus 2 048 jetons, 1 667 en
+  moyenne. Cours récents : éditeur de niveaux (bloc 674, exécution 11, compilation 1 670…), visualiseur
+  (création 79, compilation 386…).
+- **Incident** : `python -m usine.paires volume` refait à la fin les lectures, le RAG, la démarche et **réassemble les
+  deux paliers**. Il a réécrit `donnees/entrainement/palier_1.jsonl` à 05:34 ; arrêté avant `palier_2` (intact, version
+  du 2026-11-06). L'ancien palier 1 est reconstruit à partir de `palier_1_avant_colonne_images.jsonl` par la
+  transformation du 2026-11-06 (colonne images partout, paires à images en tête), vérifiée sur le palier 2 : elle le
+  redonne identique, caractère pour caractère. Palier 1 rétabli : 19 553 paires, dont 1 617 à images. Le nouvel
+  assemblage (24 785 paires, nouvelles familles et filtre compris) est gardé à part : `palier_1_2026-11-19.jsonl` et
+  `controles_palier_1_2026-11-19.json` ; le `controles_palier_1.json` du 2026-11-06 est perdu.
+
+Pièges : `volume` réassemble les paliers à la fin (ne pas le lancer sans vouloir réécrire les jeux d'entraînement) ;
+un heredoc bash change `\n` en vrai saut de ligne dans le Python qu'il écrit (passer par Edit) ; le verrou
 de `garde_carte` sérialise les lancements de Godot de deux fabrications parallèles, mais deux fabrications sur le
 même cours se marchent dessus (`sess_<cours>_<n>`).
 
