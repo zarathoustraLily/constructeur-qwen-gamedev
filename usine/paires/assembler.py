@@ -109,7 +109,9 @@ def parts(paires: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
 
 
 def assembler(numero: int, graine: int = 1, donnees: Path | None = None,
-              journal: Callable[[str], None] = print) -> dict[str, Any]:
+              journal: Callable[[str], None] = print, suffixe: str = "") -> dict[str, Any]:
+    """`suffixe` : écrire `palier_<N>_<suffixe>.jsonl` (et son entrée de `dataset_info.json`) sans toucher aux paliers
+    déjà entraînés (piège du 2026-11-19 : `volume` avait réécrit `palier_1.jsonl`)."""
     from usine.portillon.exclusion import Exclusion
     racine = Path(donnees or cfg.dossier_donnees())
     exclusion = Exclusion.charger(racine)
@@ -158,7 +160,7 @@ def assembler(numero: int, graine: int = 1, donnees: Path | None = None,
     equilibrees, trous = equilibrer(gardees, random.Random(graine))
     rejets["partage 40/40/20"] = len(gardees) - len(equilibrees)
     sortie = racine / "entrainement"
-    nom = f"palier_{numero}"
+    nom = f"palier_{numero}" + (f"_{suffixe}" if suffixe else "")
     # Les paires à images d'abord : la bibliothèque `datasets` de LLaMA-Factory devine le type de chaque colonne d'après les
     # premières lignes ; des listes d'images toutes vides lui font prendre « images » pour une colonne vide, et elle
     # refuse ensuite les chemins (« Couldn't cast array of type string to null », 2026-11-06). L'ordre du fichier ne

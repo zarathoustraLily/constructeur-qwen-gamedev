@@ -2509,11 +2509,16 @@ refabrique, aucune sortie n'est retouchée) :
   fin de réponse au palier 1, vraies sorties au palier 2).
 - [x] C. Filtre (`symboles.Filtre._etendu` ; refuse `ConeMesh`, `CapsuleMesh.orientation`, `set_pixel` à 4, `FORMAT_LDRIF` ; 0 refus à tort sur 60 083 paires après avoir appris `free`, `Variant`, les classes internes, énumérations et préchargements de nos projets, et les noms aux types multiples) : classes inconnues (ni API, ni `class_name` de nos projets), membres sur une variable typée, nombre
   d'arguments.
-- [ ] D. Plomberie, fautes de plus : classe inexistante (`ConeMesh`), membre absent à l'exécution, nombre
+- [x] D. Trois autres petits projets (`usine/paires/plomberie_kits.py`, `--kit decor|joueur|reglages`) : décor 7
+  fautes, joueur 6, réglages 6 ; essais sur 2 ou 3 thèmes, 0 rejet ; tiennent sous 2 048 jetons : décor 41 paires
+  sur 3 thèmes, joueur 36, réglages 36 sur 42. Mesuré : une `ImageTexture` sans fenêtre ne rend pas son image (rendu
+  factice : le générateur rend l'`Image`) ; une image RGBA8 arrondit 0,3 à 0,298 (`FORMAT_RGBAF`) ; une classe `Key`
+  masque l'énumération globale (aucun nom tiré ne recouvre plus l'API, test). Fautes de départ :
+- [ ] D (suite, d'origine). Plomberie, fautes de plus : classe inexistante (`ConeMesh`), membre absent à l'exécution, nombre
   d'arguments, action d'InputMap absente, variable écrasée chaque image, `look_at` sur sa propre position, sauvegarde.
 - [~] E. Compter les paires par zone de Godot (`usine/paires/zones.py`, fait) et combler les trous. Mesuré le 2026-11-19 sur les paires disponibles (palier 1 : 42 723 ; palier 2 : 17 360) : audio 0,5 / 0,9 %, sauvegarde 0,6 / 0,8 %, animation 0,7 / 1,3 %, InputMap 0,7 / 1,7 %, particules 0,7 / 1,9 %, caméra 1,2 / 1,9 %, physique 1,1 / 3,9 % ; autoload 0 % au palier 1 (7,5 % au palier 2, la plomberie), `project.godot` 0,1 / 18,5 %.
 - [x] F. Version 4.7.2 marquée sur chaque paire (`format.VERSION`).
-- [ ] G. Refabriquer famille par famille (jamais `volume`), assembler sous de nouveaux noms (les paliers du
+- [~] G. Refabriquer famille par famille (lancé le 2026-11-19 : `donnees/paires` mis de côté dans `donnees/paires_avant_refabrication_2026-11-19`, gardées telles quelles les familles à rendu ou à carte : situer_camera, lire_editeur, timing, creation_shader, voir_fluide, shader, creation_calcul, compilation_calcul ; suivi dans `donnees/refabrication_2026-11-19/suivi.log` ; assembler ensuite avec `--suffixe`) (jamais `volume`), assembler sous de nouveaux noms (les paliers du
   2026-11-06 restent), nouveau LoRA depuis Qwen de base (proposé).
 - [ ] H. Le projet cassé aux ~25 échecs comme test de non-régression (chemin à demander à laurent).
 

@@ -128,6 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     asm = sous.add_parser("assembler", help="jeu d'un palier : contrôles, 40/40/20 par sujet, format de LLaMA-Factory")
     asm.add_argument("--palier", type=int, required=True, choices=[1, 2])
     asm.add_argument("--graine", type=int, default=1)
+    asm.add_argument("--suffixe", default="", help="écrire palier_<N>_<suffixe>.jsonl, sans toucher aux paliers existants")
     args = parseur.parse_args(argv)
     if args.famille == "camera":
         from usine.paires.camera import generer
@@ -261,7 +262,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.famille == "assembler":
         from usine.paires.assembler import assembler
-        controles = assembler(args.palier, args.graine)
+        controles = assembler(args.palier, args.graine, suffixe=args.suffixe)
         print(json.dumps(controles, ensure_ascii=False, indent=1))
         return 0 if controles["paires"] and not controles["problemes"] else 1
     if args.famille == "lecture":
