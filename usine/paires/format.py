@@ -58,6 +58,11 @@ def jetons_reponse(messages: list[dict[str, str]]) -> int:
     return sum(len(_TOKENIZER.encoder(reponse_rendue(m))) for m in messages if m["role"] == "assistant")
 
 
+# La version de Godot de chaque paire (critique du 2026-11-18, point 4 : « Tag chaque paire avec 4.7 ») ; un projet
+# 4.8 (décision 19.7) portera la sienne.
+VERSION = "4.7.2"
+
+
 def paire(famille: str, sujet: str, type_: str, demande: str, reponse: str, preuve: dict[str, Any],
           systeme: str | None = None, images: list[str] | None = None) -> dict[str, Any]:
     if type_ not in TYPES:
@@ -65,8 +70,9 @@ def paire(famille: str, sujet: str, type_: str, demande: str, reponse: str, preu
     # Chaque message rogné : le gabarit de Qwen 3.8 le fait (|trim), LLaMA-Factory (qwen3_5) non (étape A4).
     messages = ([{"role": "system", "content": systeme.strip()}] if systeme else []) + [
         {"role": "user", "content": demande.strip()}, {"role": "assistant", "content": reponse.strip()}]
-    return {"famille": famille, "sujet": sujet, "type": type_, "messages": messages, "images": images or [],
-            "preuve": preuve, "jetons": jetons(messages, images), "jetons_reponse": jetons_reponse(messages)}
+    return {"famille": famille, "sujet": sujet, "type": type_, "version": VERSION, "messages": messages,
+            "images": images or [], "preuve": preuve, "jetons": jetons(messages, images),
+            "jetons_reponse": jetons_reponse(messages)}
 
 
 def paire_tours(famille: str, sujet: str, type_: str, tours: list[dict[str, Any]], preuve: dict[str, Any],
@@ -82,8 +88,9 @@ def paire_tours(famille: str, sujet: str, type_: str, tours: list[dict[str, Any]
         messages.append(m)
     if messages[-1]["role"] != "assistant" or messages[-1].get("tool_calls"):
         raise ValueError("une paire finit par une réponse sans appel d'outil")
-    return {"famille": famille, "sujet": sujet, "type": type_, "messages": messages, "images": images or [],
-            "preuve": preuve, "jetons": jetons(messages, images), "jetons_reponse": jetons_reponse(messages)}
+    return {"famille": famille, "sujet": sujet, "type": type_, "version": VERSION, "messages": messages,
+            "images": images or [], "preuve": preuve, "jetons": jetons(messages, images),
+            "jetons_reponse": jetons_reponse(messages)}
 
 
 def appel(identifiant: str, nom: str, arguments: dict[str, Any]) -> dict[str, Any]:

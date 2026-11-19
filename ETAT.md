@@ -2502,17 +2502,17 @@ paires pour ça » ; feu vert : « voila j'ia lance tu commence la formation des
 demande des heures de goto je veux l'assurance que le resultat sera le meilleur possible et que qwne ne fera plus
 n'iorte quoi avec tout ce que le rapport a pointé » ; la règle 5 s'applique : on corrige les générateurs et on
 refabrique, aucune sortie n'est retouchée) :
-- [ ] A. Vérifier avant d'écrire : chaque paire qui écrit un membre de Godot l'a vérifié d'abord par `vocab_lookup` ou
+- [x] A. Vérifier avant d'écrire (`usine/paires/verification.py`, dans `format.ecrire` ; mesuré à blanc : 2 585 paires reçoivent une vérification réelle, 511 la refuseraient faute de place, les autres n'emploient aucun membre de Godot qu'elles n'ont déjà sous les yeux) : chaque paire qui écrit un membre de Godot l'a vérifié d'abord par `vocab_lookup` ou
   `search_docs` (appel `execute` du Code Mode, vraie sortie de l'outil), dans toutes les familles qui écrivent du
   GDScript. Mesuré : 15 % des paires du palier 1 et 23 % du palier 2 vérifiaient l'API.
-- [ ] B. Tester comme le dit la décision 4 : après `--check-only`, le lancement et les tests de l'étape (commandes en
+- [x] B. Tester comme le dit la décision 4 (`compilation.execution_etape` : lancement une fois par étape, suite en miroir du fichier une fois par suite ; une paire trop longue passe au palier 2 avec le plan ; essai kart 6 et visualiseur 3 : 16/16, 15 au palier 1) : après `--check-only`, le lancement et les tests de l'étape (commandes en
   fin de réponse au palier 1, vraies sorties au palier 2).
-- [ ] C. Filtre : classes inconnues (ni API, ni `class_name` de nos projets), membres sur une variable typée, nombre
+- [x] C. Filtre (`symboles.Filtre._etendu` ; refuse `ConeMesh`, `CapsuleMesh.orientation`, `set_pixel` à 4, `FORMAT_LDRIF` ; 0 refus à tort sur 60 083 paires après avoir appris `free`, `Variant`, les classes internes, énumérations et préchargements de nos projets, et les noms aux types multiples) : classes inconnues (ni API, ni `class_name` de nos projets), membres sur une variable typée, nombre
   d'arguments.
 - [ ] D. Plomberie, fautes de plus : classe inexistante (`ConeMesh`), membre absent à l'exécution, nombre
   d'arguments, action d'InputMap absente, variable écrasée chaque image, `look_at` sur sa propre position, sauvegarde.
-- [ ] E. Compter les paires par zone de Godot et combler les trous.
-- [ ] F. Version 4.7.2 marquée sur chaque paire.
+- [~] E. Compter les paires par zone de Godot (`usine/paires/zones.py`, fait) et combler les trous. Mesuré le 2026-11-19 sur les paires disponibles (palier 1 : 42 723 ; palier 2 : 17 360) : audio 0,5 / 0,9 %, sauvegarde 0,6 / 0,8 %, animation 0,7 / 1,3 %, InputMap 0,7 / 1,7 %, particules 0,7 / 1,9 %, caméra 1,2 / 1,9 %, physique 1,1 / 3,9 % ; autoload 0 % au palier 1 (7,5 % au palier 2, la plomberie), `project.godot` 0,1 / 18,5 %.
+- [x] F. Version 4.7.2 marquée sur chaque paire (`format.VERSION`).
 - [ ] G. Refabriquer famille par famille (jamais `volume`), assembler sous de nouveaux noms (les paliers du
   2026-11-06 restent), nouveau LoRA depuis Qwen de base (proposé).
 - [ ] H. Le projet cassé aux ~25 échecs comme test de non-régression (chemin à demander à laurent).
