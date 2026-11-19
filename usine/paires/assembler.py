@@ -7,7 +7,8 @@ Réunit les paires de toutes les familles (`donnees/paires/<famille>/paires*.jso
 
 Contrôles, dans l'ordre : le palier (une paire de plus de 1 024 jetons sans le plan, ou dont le message système n'est
 pas le plan, est refusée) ; les jetons recomptés avec le tokenizer de Qwen 3.8 (règle 5.8), aucune troncature ; les
-jeux gelés et Starfox (`Exclusion.texte_exclu`, règle 4 ; le mot « starfox ») ; les doublons, durées de GdUnit4 mises à part ; au plus
+jeux gelés et Starfox (`Exclusion.texte_exclu`, règle 4 ; le mot « starfox ») ; le code écrit par la réponse, sans nom
+de Godot 3 ni symbole absent de l'API 4.7.2 (`symboles.Filtre`, décision 24) ; les doublons, durées de GdUnit4 mises à part ; au plus
 `MEMES_REPONSES` paires par réponse identique (règle 7.7 : une case n'écrase pas les autres) ; puis le partage de la
 décision 3 dans chaque sujet, en jetons de réponse (40/40/20), réglé sur le plus grand de la création et du débogage :
 ni l'une ni l'autre n'est coupée, et ce qui manque se comble en générant (décisions de laurent du 2026-11-01). Un sujet
@@ -112,6 +113,8 @@ def assembler(numero: int, graine: int = 1, donnees: Path | None = None,
     from usine.portillon.exclusion import Exclusion
     racine = Path(donnees or cfg.dossier_donnees())
     exclusion = Exclusion.charger(racine)
+    from usine.paires.symboles import Filtre
+    filtre = Filtre.charger(racine / "vocab" / "extension_api_4.7.2.json")
     rejets: dict[str, int] = {}
     gardees: list[dict[str, Any]] = []
     vues: set[str] = set()
@@ -137,6 +140,9 @@ def assembler(numero: int, graine: int = 1, donnees: Path | None = None,
             continue
         if exclusion and exclusion.texte_exclu(texte):
             rejeter("jeu gelé")
+            continue
+        if filtre.verifier(p):
+            rejeter("nom de Godot 3 ou symbole absent de l'API 4.7.2 (décision 24)")
             continue
         cle = _cle(p)
         if cle in vues:

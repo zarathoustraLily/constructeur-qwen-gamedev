@@ -2446,6 +2446,50 @@ Pièges : `Image.load_from_file` sur un chemin `res://` avertit (export) : lire 
 (`shadowed_variable`) ; la règle COD-02 refuse `Dictionary` nu : les valeurs JSON passent par `JsonValues`
 (`Dictionary[String, Variant]`, `Array[Variant]`).
 
+### Paires de la décision 24 — 2026-11-19 (branche `claude/observation-visuelle`, machine de laurent, sans fenêtre)
+
+Demande de laurent du 2026-11-19 : « ce soir tu écris toutes les paires qu'on a déjà avec la perspective
+d'amélioration de la compréhension de qwen et de la réparation des erreurs qu'il commet […] tu ajoutes les nouvelles
+paires pour ça » ; feu vert : « voila j'ia lance tu commence la formation des paires ».
+
+- **Filtre des symboles** (`usine/paires/symboles.py`, branché sur l'assembleur) : refuse une paire dont le code écrit
+  par la réponse (blocs de code hors texte à remplacer, `newString` d'un `edit`, `content` d'un `write`) contient un
+  nom de Godot 3 (classe, ou fonction appelée sans receveur ; table `renames_map_3_to_4.cpp` de la 4.7.2, moins les
+  noms encore présents dans l'API ou `@GDScript`) ou un membre absent d'une classe, d'un type intégré, d'un singleton
+  ou d'une énumération globale (`Classe.membre`). Mesuré sur les 48 399 paires existantes : **0 refusée** (les
+  premiers faux positifs, noms de nœuds `$Arm/Camera` et fonctions du projet, sont écartés). Les fautes de Qwen ne
+  viennent donc pas de symboles faux dans les paires.
+- **Paires négatives** (`usine/paires/negatives.py`, famille `symbole_absent`, palier 1) : une ligne vérifiée d'un
+  cours reçoit un membre absent de la classe, de trois sortes : nom de Godot 3 de ce membre (même sorte de membre ;
+  renommages ambigus limités à leur classe : `translation` à Node3D, `rect_*` à Control, `extents` aux formes,
+  `empty` aux types intégrés), membre d'une classe voisine (même sorte, même préfixe, un nom contient l'autre :
+  `linear_velocity` sur un CharacterBody3D), nom d'un autre moteur (`is_action_held`, `push`, `magnitude`). Gardée si
+  Godot 4.7.2 signale exactement cette ligne et que la ligne juste repasse. Réponse : la ligne lue, ce que dit l'API
+  4.7.2 (et où le nom existe ailleurs), le membre juste avec sa signature et sa référence. 508 paires sur six cours
+  (kart 99, roguelike 27, atelier 73, boss 144, fluides 30, bâtiments 135), 32 rejets.
+- **Mesuré** : `--check-only` ne signale pas un membre absent sur une variable typée d'une classe d'objet
+  (`_visual: Node3D` puis `_visual.location`) ; seuls l'accès statique, les types intégrés et les membres hérités
+  sans receveur sont refusés à l'analyse.
+- **Plomberie de projet** (`usine/paires/plomberie*.py`, palier 2, le plan en système) : un petit projet complet qui
+  suit le plan (autoload de score, composant de vie à `class_name`, réglages en `.tres`, ennemi et niveau `.tscn`,
+  deux suites GdUnit4, avertissements en erreurs), noms et chiffres tirés d'une graine ; 14 fautes tirées des échecs
+  relevés par laurent le 2026-11-18 (autoload sans guillemets ou non enregistré, `class_name` retiré, nœud absent,
+  nom unique retiré, scène ou ressource introuvable, signal non branché, garde inversée, `config_version`, scène
+  principale, réglages non assignés, signal inconnu, `setup` oublié), chacune sous quatre approches (sortie donnée,
+  symptôme seul, intention de création pour les oublis, analyse sans modifier). Preuve : lancement sans fenêtre de
+  la scène principale (`--quit-after 60`) et suite qui juge la faute, rouges puis verts, sorties réelles.
+- **Mesuré sur la plomberie** : le code de sortie vaut 0 même quand le projet ne s'ouvre pas ; GdUnit4 attend 300 s
+  sur un projet que Godot refuse d'ouvrir (`config_version=6`) : pas de tests sur ces fautes ; une caméra seule est
+  courante d'elle-même (la faute « caméra non courante » ne se voit pas : retirée) ; une erreur d'exécution se
+  répète par ennemi (1 ou 2 ennemis par projet). 60 paires sur 96 tiennent sous 2 048 jetons (toutes les analyses et
+  intentions, une partie des corrections) ; environ 85 s par projet.
+- Paires des cours récents (familles existantes, `volume --cours visualiseur_animations,editeur_niveaux`) : création
+  du visualiseur 79 paires en 5,1 min ; la suite tournait à l'écriture de ces lignes.
+
+Pièges : un heredoc bash change `\n` en vrai saut de ligne dans le Python qu'il écrit (passer par Edit) ; le verrou
+de `garde_carte` sérialise les lancements de Godot de deux fabrications parallèles, mais deux fabrications sur le
+même cours se marchent dessus (`sess_<cours>_<n>`).
+
 ## Vérifications locales en attente
 
 - [x] Session 1 — `VERIFIER_EN_LOCAL.md` : vocabulaire, juge sur `godot\reference`, 10 tâches, pytest, avec le Godot Windows de `config.toml`.

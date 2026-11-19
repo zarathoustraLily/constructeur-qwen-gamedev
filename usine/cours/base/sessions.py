@@ -22,7 +22,8 @@ CAUSES = {"godot3_annotation": "syntaxe de Godot 3", "godot3_nom": "nom de Godot
           "godot3_shader": "nom de Godot 3 dans un shader", "non_type": "déclaration sans type",
           "type": "type entier pour une valeur décimale", "appel": "appel à une fonction qui n’existe pas",
           "shader_litteral": "entier là où le shader attend un float", "parametre": "paramètre sans type",
-          "retour": "fonction sans type de retour", "shader_type": "int là où le shader calcule un float"}
+          "retour": "fonction sans type de retour", "shader_type": "int là où le shader calcule un float",
+          "symbole_absent": "membre absent de la classe dans l’API de Godot 4.7.2"}
 AT = re.compile(r"^\s*at: .*\(res://([^():]+):(\d+)\)\s*$")
 MESSAGE = re.compile(r"^(SCRIPT ERROR|SHADER ERROR|ERROR|USER ERROR|SCRIPT WARNING|WARNING): ")
 NOMS_PHASE = {"analyse": "analyse du script", "rendu": "rendu en Compatibilité", "test": "test de l'étape",

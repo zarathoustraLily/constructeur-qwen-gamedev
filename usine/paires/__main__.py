@@ -10,6 +10,8 @@
     python -m usine.paires faute_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires creation_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
     python -m usine.paires compilation_calcul [--cours fluides] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires negatives [--cours kart] [--par-etape N] [--graine G] [--etapes 1,2]
+    python -m usine.paires plomberie [--themes N] [--graine G]
     python -m usine.paires lecture
     python -m usine.paires rag
     python -m usine.paires demarche
@@ -32,7 +34,7 @@ import argparse
 import json
 import sys
 
-COURS = ["kart", "roguelike", "atelier", "boss_action_rpg", "fluides"]
+COURS = ["kart", "roguelike", "atelier", "boss_action_rpg", "fluides", "editeur_niveaux", "visualiseur_animations"]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -72,6 +74,14 @@ def main(argv: list[str] | None = None) -> int:
         ex.add_argument("--depuis", type=int, default=None, help="seulement les fichiers changés depuis cette étape")
         if nom == "faute_calcul":
             ex.add_argument("--avec-plan", action="store_true", help="toujours au palier 2, avec le plan")
+    ng = sous.add_parser("negatives", help="symbole absent de la classe (Godot 3, classe voisine, nom inventé) → le bon membre")
+    ng.add_argument("--cours", default="kart", choices=COURS + ["batiments_proceduraux"])
+    ng.add_argument("--par-etape", type=int, default=8)
+    ng.add_argument("--graine", type=int, default=1)
+    ng.add_argument("--etapes", default=None, help="numéros séparés par des virgules (défaut : toutes)")
+    pl = sous.add_parser("plomberie", help="plomberie de projet : petit projet complet, faute de plomberie, vrai lancement et tests")
+    pl.add_argument("--themes", type=int, default=40)
+    pl.add_argument("--graine", type=int, default=1)
     sous.add_parser("lecture", help="lire une sortie de Godot : verdict, erreur à traiter d'abord (tirée de B1, B2, B3)")
     sous.add_parser("rag", help="chercher dans le RAG par le Code Mode, puis employer ce qu'il rend (tirée des créations)")
     sous.add_parser("demarche", help="la démarche de création d'un niveau, pas à pas (journal demarche.json des cours)")
@@ -163,6 +173,21 @@ def main(argv: list[str] | None = None) -> int:
         if args.famille == "faute_calcul":
             options["avec_plan"] = args.avec_plan
         bilan = generer_famille(args.cours, args.par_etape, args.graine, etapes, **options)
+        print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
+        for r in bilan["rejets"]:
+            print("rejet :", r)
+        return 0 if bilan["paires"] else 1
+    if args.famille == "negatives":
+        from usine.paires.negatives import generer as generer_negatives
+        etapes = [int(x) for x in args.etapes.split(",")] if args.etapes else None
+        bilan = generer_negatives(args.cours, args.par_etape, args.graine, etapes)
+        print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
+        for r in bilan["rejets"]:
+            print("rejet :", r)
+        return 0 if bilan["paires"] else 1
+    if args.famille == "plomberie":
+        from usine.paires.plomberie import generer as generer_plomberie
+        bilan = generer_plomberie(args.themes, args.graine)
         print(json.dumps({k: v for k, v in bilan.items() if k != "rejets"}, ensure_ascii=False, indent=1))
         for r in bilan["rejets"]:
             print("rejet :", r)

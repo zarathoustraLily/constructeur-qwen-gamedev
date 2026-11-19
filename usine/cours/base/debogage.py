@@ -89,6 +89,9 @@ def lecture_extrait_shader(texte: str, res: str, ligne: int, faute: str, fichier
 
 def explication(m: mutations.Mutation) -> list[str]:
     d = m.detail
+    if m.genre == "symbole_absent":
+        from usine.paires import negatives
+        return negatives.explication(m)
     if m.genre == "godot3_annotation":
         doc = preuves.DOC_EXPORT if d["mot"] == "export" else preuves.DOC_ONREADY
         return [f"En Godot 4, `{d['mot']}` est une annotation : elle s'écrit `@{d['mot']}`. La forme sans `@` est celle de "
@@ -146,6 +149,8 @@ def explication(m: mutations.Mutation) -> list[str]:
 
 def motif_faute(m: mutations.Mutation) -> str | None:
     d = m.detail
+    if m.genre == "symbole_absent":
+        return rf"{re.escape(d['faux'])}"
     if m.genre == "godot3_annotation":
         return r"^\s*(export|onready)\s+var\b"
     if m.genre == "godot3_nom":
