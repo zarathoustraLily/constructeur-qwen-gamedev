@@ -206,16 +206,30 @@ def _retours(appels: list[dict[str, Any]], sorties: list[tuple[Any, bool]]) -> l
     return [{"role": "tool", "tool_call_id": a["id"], "content": _retour(s, t)} for a, (s, t) in zip(appels, sorties)]
 
 
-def _lecture_finale(sorties: list[tuple[Any, bool]], x: Any) -> str:
+def _lecture_finale(sorties: list[tuple[Any, bool]], x: Any, rouge: Any, rouge_tests: bool, projet: str) -> str:
+    """Ce que la vérification a montré, pour cette faute : le fichier corrigé, le symptôme de départ qui a disparu, les
+    suites et les cas qui passent (une lecture générique serait la même sur des milliers de paires, règle 7.7)."""
     from usine.cours.base import profil
-    lancement = next(s for s, t in sorties if not t and "--quit-after" in s.commande)
     tests = next(s for s, t in sorties if t)
     cas, err, ech = profil.resume_gdunit(tests.texte)
-    morceaux = []
+    passes = profil.cas_passes(tests.texte)
+    suites = sorted({c.split(" > ")[0] for c in passes})
+    noms = [c.split(" > ")[1] for c in passes]
+    if rouge_tests and _echecs(rouge.texte):
+        echecs = _echecs(rouge.texte)
+        disparu = ", ".join(f"`{c}`" for c in echecs) + (" passent" if len(echecs) > 1 else " passe") + " maintenant"
+    elif _erreurs(rouge.texte):
+        disparu = f"« {_erreurs(rouge.texte)[0]} » a disparu"
+    else:
+        disparu = "le symptôme de départ a disparu"
+    morceaux = [f"dans « {projet} », `res://{x.fichier}` corrigé : {disparu}"]
     if x.reimport:
         morceaux.append("l'import a refait le cache des classes")
     morceaux.append("le lancement ne montre plus aucune erreur (sortie vide ; le code 0 seul ne prouverait rien)")
-    morceaux.append(f"les tests passent : {cas} cas, {err} erreur, {ech} échec, aucune « SCRIPT ERROR »")
+    montres = ", ".join(f"`{n}`" for n in noms[:3]) + (", …" if len(noms) > 3 else "")
+    ou = ", ".join(f"`res://{s}`" for s in suites)
+    morceaux.append(f"les tests de {ou} passent : {cas} cas ({montres}), {err} erreur, {ech} échec, "
+                    "aucune « SCRIPT ERROR »")
     texte = " ; ".join(morceaux)
     return "**Lire.** " + texte[0].upper() + texte[1:] + ". Vérifié : on n'y retouche plus."
 
@@ -252,7 +266,7 @@ def paires_faute(at: Atelier, x: Any, rouge: tuple[Any, Any | None], vert: list[
     def finir(debut: list[dict[str, Any]], type_: str, approche: str) -> None:
         tours = debut + [
             {"role": "assistant", "content": tester, "tool_calls": appels_vert}, *_retours(appels_vert, vert),
-            {"role": "assistant", "content": _lecture_finale(vert, x)}]
+            {"role": "assistant", "content": _lecture_finale(vert, x, montree, preuve_tests, at.th.projet)}]
         p = fmt.paire_tours(FAMILLE, SUJET, type_, tours, dict(preuve, approche=approche), systeme=fmt.plan())
         if p["jetons"] <= PLAFOND:
             sorties.append(p)
