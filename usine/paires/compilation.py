@@ -163,16 +163,19 @@ def execution_etape(projet: Any, fichier: str) -> tuple[Any, Any, bool] | str:
             cache[cle] = godot.tester_gdunit(projet.chemin, ["res://" + miroir])
         elif not projet.jeu or projet.suites:
             cache[cle] = projet.lancer("test")
-        if cache[cle] is not None and not sessions_propre_test(cache[cle]):
+        if cache[cle] is not None and not sessions_propre_test(cache[cle], projet):
             cache[cle] = f"les tests ({cle}) ne passent pas (code {cache[cle].code})"
     if isinstance(cache[cle], str):
         return cache[cle]
     return cache["lancement"], cache[cle], miroir is not None
 
 
-def sessions_propre_test(s: Any) -> bool:
-    from usine.cours.base import sessions
-    return sessions.propre("test", s)
+def sessions_propre_test(s: Any, projet: Any) -> bool:
+    """Les tests passent proprement ; les messages qu'une suite attend elle-même (`is_push_warning`,
+    `is_push_error`) ne sont pas des fautes du jeu (comme dans les autres familles)."""
+    from usine.cours.base import profil, sessions
+    attendus = profil.messages_attendus(projet.apres) if projet.jeu else frozenset()
+    return sessions.propre("test", s, attendus)
 
 
 def generer(cours: str = "kart", par_etape: int = 6, graine: int = 1, etapes: list[int] | None = None,
