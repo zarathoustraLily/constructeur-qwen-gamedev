@@ -171,6 +171,33 @@ def _palier(p: dict[str, Any]) -> int | None:
     return 2 if p["jetons"] <= (PLAFOND_IMAGES if p["images"] else PLAFONDS[2]) else None
 
 
+VERIFIER = "**Vérifier l'API.**"
+LU = "**Lu.** "
+
+
+def retirer(p: dict[str, Any]) -> dict[str, Any]:
+    """La paire sans l'étape ajoutée par `ajouter` (les messages d'avant, sans le plan qu'elle aurait fait ajouter) :
+    pour les familles qui la reprennent avec un autre outil (la famille RAG cherche dans la documentation)."""
+    msgs = p.get("messages") or []
+    i = next((k for k, m in enumerate(msgs) if m["role"] == "assistant" and VERIFIER in (m.get("content") or "")),
+             None)
+    if i is None:
+        return p
+    ids = {tc["id"] for tc in msgs[i].get("tool_calls") or []}
+    j = i + 1
+    while j < len(msgs) and msgs[j]["role"] == "tool" and msgs[j].get("tool_call_id") in ids:
+        j += 1
+    if j >= len(msgs) or msgs[j]["role"] != "assistant" or not (msgs[j].get("content") or "").startswith(LU):
+        return p
+    avant = msgs[i]["content"][:msgs[i]["content"].index(VERIFIER)].rstrip()
+    reste = msgs[j]["content"].split("\n\n", 1)
+    apres = reste[1] if len(reste) > 1 else ""
+    suite = dict(msgs[j], content=(avant + "\n\n" if avant else "") + apres)
+    messages = msgs[:i] + [suite] + msgs[j + 1:]
+    preuve = {k: v for k, v in (p.get("preuve") or {}).items() if k != "verification_api"}
+    return dict(p, messages=messages, preuve=preuve)
+
+
 def ajouter(p: dict[str, Any]) -> dict[str, Any]:
     """La paire avec sa vérification de l'API, ou la paire telle quelle (déjà vérifiée, rien à vérifier, trop
     longue)."""

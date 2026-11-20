@@ -58,3 +58,16 @@ def test_une_paire_qui_verifie_deja_n_est_pas_touchee():
     p = _paire("x", "**Écrire.**\n```gdscript\nvar n: float = Vector3.UP.length()\n```")
     p["messages"][1]["tool_calls"] = [fmt.appel("a", "execute", {"code": 'tools["usine-godot"].search_docs({})'})]
     assert v.ajouter(p) is p
+
+
+def test_retirer_rend_la_paire_d_avant_la_verification():
+    demande = "Corrige :\n```gdscript\nextends Node3D\nvar items: Array = []\n\tif items.empty():\n```"
+    reponse = ("**Lire.** …\n\n**Corriger.** je remplace :\n```gdscript\n\tif items.empty():\n```\npar :\n"
+               "```gdscript\n\tif items.is_empty():\n```")
+    p = _paire(demande, reponse)
+    q = v.ajouter(p)
+    assert q is not p
+    r = v.retirer(q)
+    assert r["messages"] == p["messages"]
+    assert "verification_api" not in r["preuve"]
+    assert v.retirer(p) is p

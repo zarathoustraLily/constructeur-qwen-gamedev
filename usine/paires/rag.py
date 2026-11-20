@@ -88,6 +88,10 @@ def ce_que_dit(b: str) -> tuple[str, str]:
 
 def depuis_creation(p: dict[str, Any]) -> tuple[dict[str, Any] | None, str]:
     """La paire RAG tirée d'une paire de création, ou (None, raison)."""
+    # La paire de création porte déjà sa vérification par l'API (verification.py) : la variante RAG la remplace
+    # par une recherche dans la documentation, au lieu de chercher le code dans le message de vérification.
+    from usine.paires import verification
+    p = verification.retirer(p)
     demande = next(m["content"] for m in p["messages"] if m["role"] == "user")
     # La première réponse écrit le code ; dans une paire avec sa boucle de vérification (boucle.py), suivent les
     # retours de l'outil shell et la lecture, repris tels quels.
