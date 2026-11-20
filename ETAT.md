@@ -2522,7 +2522,9 @@ refabrique, aucune sortie n'est retouchée) :
   2026-11-06 restent), nouveau LoRA depuis Qwen de base (proposé).
 - [ ] H. Le projet cassé aux ~25 échecs comme test de non-régression (chemin à demander à laurent).
 
-Pièges : `volume` réassemble les paliers à la fin (ne pas le lancer sans vouloir réécrire les jeux d'entraînement) ;
+Refabrication, nuit du 2026-11-19 au 20 : files parallèles quand laurent a libéré la machine (10 familles, 87 % du processeur) ; arrêtée à 04:34 par la mise à jour automatique de l'application Claude (journal système : paquet Claude 6.28899 installé, service désactivé puis réinstallé ; dès 04:23 Godot ne démarrait plus, sorties vides). Abîmées et refaites le 2026-11-20 au matin : compilation du visualiseur (350 analyses muettes sous la charge de Basalt, 5 Go de mémoire libre) et du kart (tests d'étape refusés sous la même charge, propres en isolé), plomberie de base (31 thèmes aux sorties vides), faute_calcul de l'atelier, maillages des bâtiments, créations des fluides ; interrompues : boss, éditeur, fluides (fin des familles) ; ajoutées : faute_calcul du kart et du roguelike.
+
+Pièges : une fabrication sous forte charge (un autre modèle sur le processeur) rejette des paires par des analyses muettes ou des tests incomplets : refaire la famille machine libre ; `volume` réassemble les paliers à la fin (ne pas le lancer sans vouloir réécrire les jeux d'entraînement) ;
 un heredoc bash change `\n` en vrai saut de ligne dans le Python qu'il écrit (passer par Edit) ; le verrou
 de `garde_carte` sérialise les lancements de Godot de deux fabrications parallèles, mais deux fabrications sur le
 même cours se marchent dessus (`sess_<cours>_<n>`).
