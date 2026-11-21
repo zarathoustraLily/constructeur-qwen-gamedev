@@ -35,3 +35,13 @@ func test_une_ressource_introuvable_est_refusee() -> void:
 	var studio := _juste()
 	studio.preload_paths = ["res://nulle_part.png"]
 	assert_array(studio.validate()).contains(["studio : ressource à charger introuvable (res://nulle_part.png)"])
+#@ 3+
+
+
+func test_l_ecran_du_studio_mene_a_l_avertissement() -> void:
+	var studio: StudioDef = load("res://5_data/jeu/studio.tres")
+	var sequence: SequenceDef = load("res://5_data/jeu/sequence.tres")
+	assert_str(studio.next_screen).is_equal("avertissement")
+	assert_bool(sequence.screens.has(studio.next_screen)).is_true()
+	assert_array(studio.preload_paths).contains([sequence.screens[studio.next_screen]])
+#@ all

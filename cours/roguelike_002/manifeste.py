@@ -30,7 +30,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2]
+PRETES = [1, 2, 3]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -59,4 +59,13 @@ FICHIERS = {
     "7_tests/1_core/jeu/test_background_loader.gd": "2+",
     "7_tests/1_core/data/test_studio_def.gd": "2+",
     "7_tests/2_sequence/jeu/test_studio_screen.gd": "2+",
+    "1_core/data/disclaimer_def.gd": "3+",
+    "5_data/jeu/avertissement.tres": "3+",
+    "2_sequence/jeu/disclaimer_screen.gd": "3+",
+    "2_sequence/jeu/disclaimer_screen.tscn": "3+",
+    "4_ui/jeu/disclaimer_view.gd": "3+",
+    "4_ui/jeu/disclaimer_input.gd": "3+",
+    "7_tests/1_core/data/test_disclaimer_def.gd": "3+",
+    "7_tests/4_ui/jeu/test_disclaimer_input.gd": "3+",
+    "7_tests/2_sequence/jeu/test_disclaimer_screen.gd": "3+",
 }

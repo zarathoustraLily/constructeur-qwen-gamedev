@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="DisclaimerDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/disclaimer_def.gd" id="1_disclaimer"]
+
+[resource]
+script = ExtResource("1_disclaimer")
+id = &"avertissement"
+title = "AVERTISSEMENT"
+body = "Ce jeu est une œuvre de fiction. Les personnages, les lieux et les événements sont imaginaires.
+
+Avertissement sur l'épilepsie : certaines personnes peuvent faire une crise en voyant des lumières clignotantes ou des motifs rapides. Si vous ou un proche avez des antécédents, demandez l'avis d'un médecin avant de jouer. Arrêtez de jouer immédiatement en cas de vertige, de trouble de la vue ou de mouvement involontaire."
+hint = "Appuyez sur A ou Entrée pour continuer"
+hint_pulse_s = 0.9
+hint_low_alpha = 0.35
+fade_s = 0.5
+skip_after_s = 1.5
+auto_next_s = 12.0

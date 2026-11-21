@@ -11,5 +11,10 @@ first_screen = &"studio"
 screens = Dictionary[StringName, String]({
 &"studio": "res://2_sequence/jeu/studio_screen.tscn"
 })
+;@ 3-3
+screens = Dictionary[StringName, String]({
+&"avertissement": "res://2_sequence/jeu/disclaimer_screen.tscn",
+&"studio": "res://2_sequence/jeu/studio_screen.tscn"
+})
 ;@ all
 rng_seed = 2002
