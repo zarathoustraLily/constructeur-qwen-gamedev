@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="MenuDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/menu_def.gd" id="1_menu"]
+
+[resource]
+script = ExtResource("1_menu")
+id = &"menu"
+game_title = "ROGUELIKE 002"
+items = Array[StringName]([&"jouer", &"options", &"quitter"])
+labels = Dictionary[StringName, String]({
+&"jouer": "Jouer",
+&"options": "Options",
+&"quitter": "Quitter"
+})
+;@ 5-5
+targets = Dictionary[StringName, StringName]({
+&"options": &"options"
+})
+;@ 6+
+targets = Dictionary[StringName, StringName]({
+&"jouer": &"sauvegardes",
+&"options": &"options"
+})
+;@ all
+quit_item = &"quitter"
+title_font_size = 120
+title_y_px = 170.0
+item_size_px = Vector2(520, 84)
+item_font_size = 40
+items_origin_px = Vector2(700, 560)
+item_spacing_px = 108.0
+planet_rect_px = Rect2(1430, 330, 420, 420)
+title_delay_s = 0.2
+title_in_s = 0.9
+title_drop_px = 220.0
+items_delay_s = 0.8
+item_in_s = 0.5
+item_stagger_s = 0.12
+item_slide_px = 480.0
+background_speed_px_s = 14.0
+background_travel_px = 640.0
+planet_bob_px = 18.0
+planet_period_s = 6.0
+focus_scale = 1.08
+focus_s = 0.18
+focus_pivot = Vector2(0.5, 0.5)
+focus_shift_px = 24.0
+refuse_s = 0.35
+refuse_px = 12.0
+refuse_shakes = 3
+leave_s = 0.5

@@ -12,7 +12,9 @@ func _juste() -> StudioDef:
 func test_la_donnee_du_jeu_est_juste() -> void:
 	var studio: StudioDef = load("res://5_data/jeu/studio.tres")
 	assert_array(studio.validate()).is_empty()
+#@ 2-3
 	assert_array(studio.preload_paths).contains(["res://6_assets/jeu/menu/fond.png"])
+#@ all
 
 
 func test_une_donnee_juste_passe() -> void:

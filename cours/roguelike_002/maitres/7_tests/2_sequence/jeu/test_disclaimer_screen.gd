@@ -71,13 +71,41 @@ func test_sans_rien_faire_l_ecran_passe_seul() -> void:
 
 
 func test_dans_le_jeu_le_bouton_a_fait_partir_l_ecran() -> void:
+#@ 3-3
 	var ecran := _ecran(null)
+#@ 4+
+	var ecran: DisclaimerScreen = auto_free(load(SCENE).instantiate())
+	var chargement := BackgroundLoader.new()
+	ecran.setup(chargement)
+	add_child(ecran)
+	ecran.set_process(false)
+#@ all
 	var disclaimer: DisclaimerDef = load("res://5_data/jeu/avertissement.tres")
 	var vue: DisclaimerView = ecran.get_node("View")
 	assert_str(vue.shown_body()).is_equal(disclaimer.body)
 	_avancer(ecran, disclaimer.skip_after_s + PAS)
+#@ 4+
+	chargement.release()
+#@ all
 	var event := InputEventJoypadButton.new()
 	event.button_index = JOY_BUTTON_A
 	event.pressed = true
 	get_viewport().push_input(event)
 	assert_int(ecran.phase).is_equal(DisclaimerScreen.Phase.FADE_OUT)
+#@ 4+
+
+
+func test_on_ne_passe_pas_avant_que_le_suivant_soit_charge() -> void:
+	var disclaimer := _donnee()
+	disclaimer.preload_paths = ["res://2_sequence/jeu/menu_screen.tscn"]
+	var ecran: DisclaimerScreen = auto_free(load(SCENE).instantiate())
+	ecran.disclaimer = disclaimer
+	var chargement := BackgroundLoader.new()
+	ecran.setup(chargement)
+	add_child(ecran)
+	ecran.set_process(false)
+	_avancer(ecran, disclaimer.skip_after_s + PAS)
+	assert_bool(ecran.can_skip()).is_equal(chargement.is_done())
+	chargement.release()
+	assert_bool(ecran.can_skip()).is_true()
+#@ all

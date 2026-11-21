@@ -24,6 +24,10 @@ extends Resource
 @export var auto_next_s: float = 0.0
 ## L'écran qui suit (vide : l'enchaînement s'arrête là).
 @export var next_screen: StringName = &""
+#@ 4+
+## Les ressources à charger en fond pendant l'écran (l'écran suivant) : on ne peut le passer qu'une fois chargées.
+@export var preload_paths: Array[String] = []
+#@ all
 
 
 ## Les erreurs de la donnée, une par faute ; vide quand elle est juste.
@@ -39,4 +43,9 @@ func validate() -> Array[String]:
 		errors.append("avertissement : durée négative")
 	if auto_next_s > 0.0 and auto_next_s < skip_after_s:
 		errors.append("avertissement : il passerait seul avant qu'on puisse le passer")
+#@ 4+
+	for path: String in preload_paths:
+		if not ResourceLoader.exists(path):
+			errors.append("avertissement : ressource à charger introuvable (%s)" % path)
+#@ all
 	return errors

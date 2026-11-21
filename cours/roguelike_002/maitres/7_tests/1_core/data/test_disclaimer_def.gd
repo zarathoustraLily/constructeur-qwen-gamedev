@@ -42,3 +42,12 @@ func test_passer_seul_avant_de_pouvoir_passer_est_refuse() -> void:
 	disclaimer.skip_after_s = 3.0
 	disclaimer.auto_next_s = 2.0
 	assert_array(disclaimer.validate()).contains(["avertissement : il passerait seul avant qu'on puisse le passer"])
+#@ 4+
+
+
+func test_l_avertissement_charge_le_menu_et_y_mene() -> void:
+	var disclaimer: DisclaimerDef = load("res://5_data/jeu/avertissement.tres")
+	var sequence: SequenceDef = load("res://5_data/jeu/sequence.tres")
+	assert_str(disclaimer.next_screen).is_equal("menu")
+	assert_array(disclaimer.preload_paths).contains([sequence.screens[disclaimer.next_screen]])
+#@ all

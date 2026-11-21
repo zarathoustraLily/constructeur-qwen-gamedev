@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/jeu/menu_screen.gd" id="1_screen"]
+[ext_resource type="Resource" path="res://5_data/jeu/menu.tres" id="2_menu"]
+[ext_resource type="Script" path="res://4_ui/jeu/menu_view.gd" id="3_view"]
+[ext_resource type="Texture2D" path="res://6_assets/jeu/menu/fond.png" id="4_fond"]
+[ext_resource type="Texture2D" path="res://6_assets/jeu/menu/planete.png" id="5_planete"]
+
+[node name="MenuScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_screen")
+menu = ExtResource("2_menu")
+
+[node name="Noir" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="View" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_view")
+
+[node name="Fond" type="TextureRect" parent="View"]
+layout_mode = 0
+offset_top = -180.0
+offset_right = 2560.0
+offset_bottom = 1260.0
+texture = ExtResource("4_fond")
+expand_mode = 1
+
+[node name="Planete" type="TextureRect" parent="View"]
+layout_mode = 0
+offset_right = 560.0
+offset_bottom = 560.0
+texture = ExtResource("5_planete")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Titre" type="Label" parent="View"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 160.0
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.15, 1)
+theme_override_constants/outline_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Choix" type="Control" parent="View"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
