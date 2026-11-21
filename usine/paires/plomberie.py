@@ -206,9 +206,11 @@ def _retours(appels: list[dict[str, Any]], sorties: list[tuple[Any, bool]]) -> l
     return [{"role": "tool", "tool_call_id": a["id"], "content": _retour(s, t)} for a, (s, t) in zip(appels, sorties)]
 
 
-def _lecture_finale(sorties: list[tuple[Any, bool]], x: Any, rouge: Any, rouge_tests: bool, projet: str) -> str:
+def _lecture_finale(sorties: list[tuple[Any, bool]], x: Any, rouge: Any, rouge_tests: bool, projet: str,
+                    courte: bool = False) -> str:
     """Ce que la vérification a montré, pour cette faute : le fichier corrigé, le symptôme de départ qui a disparu, les
-    suites et les cas qui passent (une lecture générique serait la même sur des milliers de paires, règle 7.7)."""
+    suites et les cas qui passent (une lecture générique serait la même sur des milliers de paires, règle 7.7).
+    `courte` : sans les suites ni les noms des cas, pour une paire qui dépasse le plafond."""
     from usine.cours.base import profil
     tests = next(s for s, t in sorties if t)
     cas, err, ech = profil.resume_gdunit(tests.texte)
@@ -228,15 +230,21 @@ def _lecture_finale(sorties: list[tuple[Any, bool]], x: Any, rouge: Any, rouge_t
     morceaux.append("le lancement ne montre plus aucune erreur (sortie vide ; le code 0 seul ne prouverait rien)")
     montres = ", ".join(f"`{n}`" for n in noms[:3]) + (", …" if len(noms) > 3 else "")
     ou = ", ".join(f"`res://{s}`" for s in suites)
-    morceaux.append(f"les tests de {ou} passent : {cas} cas ({montres}), {err} erreur, {ech} échec, "
-                    "aucune « SCRIPT ERROR »")
+    if courte:
+        morceaux.append(f"les tests passent : {cas} cas, {err} erreur, {ech} échec, aucune « SCRIPT ERROR »")
+    else:
+        morceaux.append(f"les tests de {ou} passent : {cas} cas ({montres}), {err} erreur, {ech} échec, "
+                        "aucune « SCRIPT ERROR »")
     texte = " ; ".join(morceaux)
     return "**Lire.** " + texte[0].upper() + texte[1:] + ". Vérifié : on n'y retouche plus."
 
 
 def paires_faute(at: Atelier, x: Any, rouge: tuple[Any, Any | None], vert: list[tuple[Any, bool]],
-                 appels_vert: list[dict[str, Any]], ident: str) -> list[dict[str, Any]]:
-    """Les paires d'une faute, une par approche, sur les mêmes sorties réelles."""
+                 appels_vert: list[dict[str, Any]], ident: str,
+                 au_dela: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Les paires d'une faute, une par approche, sur les mêmes sorties réelles. Une paire qui dépasse le plafond n'est
+    pas jetée : elle va dans `au_dela`, entière et avec sa lecture finale courte (demande de laurent du 2026-11-21 :
+    les garder si elles dépassent un peu et que la carte les tient, les modifier sinon)."""
     from usine.cours.base import opencode
     from usine.paires import plomberie_projet as pp
     lancement, tests = rouge
@@ -264,12 +272,16 @@ def paires_faute(at: Atelier, x: Any, rouge: tuple[Any, Any | None], vert: list[
     quoi = "Les tests" if preuve_tests else "Le lancement sans fenêtre"
 
     def finir(debut: list[dict[str, Any]], type_: str, approche: str) -> None:
-        tours = debut + [
-            {"role": "assistant", "content": tester, "tool_calls": appels_vert}, *_retours(appels_vert, vert),
-            {"role": "assistant", "content": _lecture_finale(vert, x, montree, preuve_tests, at.th.projet)}]
-        p = fmt.paire_tours(FAMILLE, SUJET, type_, tours, dict(preuve, approche=approche), systeme=fmt.plan())
+        def faire(courte: bool) -> dict[str, Any]:
+            tours = debut + [
+                {"role": "assistant", "content": tester, "tool_calls": appels_vert}, *_retours(appels_vert, vert),
+                {"role": "assistant", "content": _lecture_finale(vert, x, montree, preuve_tests, at.th.projet, courte)}]
+            return fmt.paire_tours(FAMILLE, SUJET, type_, tours, dict(preuve, approche=approche), systeme=fmt.plan())
+        p = faire(False)
         if p["jetons"] <= PLAFOND:
             sorties.append(p)
+        elif au_dela is not None:
+            au_dela.append({"entiere": p, "courte": faire(True)})
 
     # 1. La sortie donnée.
     donne = "donnent" if preuve_tests else "donne"
@@ -319,7 +331,22 @@ def paires_faute(at: Atelier, x: Any, rouge: tuple[Any, Any | None], vert: list[
                         dict(preuve, approche="analyse"), systeme=fmt.plan())
     if p["jetons"] <= PLAFOND:
         sorties.append(p)
+    elif au_dela is not None:
+        au_dela.append({"entiere": p, "courte": None})
     return sorties
+
+
+def _bilan_au_dela(au_dela: list[dict[str, Any]]) -> dict[str, Any]:
+    """Combien de paires dépassent le plafond, de combien entières, et combien la lecture courte ramène dessous."""
+    entieres = [a["entiere"]["jetons"] for a in au_dela]
+    courtes = [a["courte"]["jetons"] for a in au_dela if a["courte"]]
+    paliers = (2176, 2304, 2560, 3072)
+    return {"paires": len(au_dela),
+            "par_type": {t: sum(a["entiere"]["type"] == t for a in au_dela) for t in ("création", "débogage", "analyse")},
+            "entieres_au_plus": {str(n): sum(j <= n for j in entieres) for n in paliers},
+            "entieres_max": max(entieres, default=0),
+            "courtes_sous_plafond": sum(j <= PLAFOND for j in courtes),
+            "courtes_au_plus": {str(n): sum(j <= n for j in courtes) for n in paliers}}
 
 
 def generer(themes: int = 40, graine: int = 1, donnees: Path | None = None,
@@ -329,6 +356,7 @@ def generer(themes: int = 40, graine: int = 1, donnees: Path | None = None,
     racine = sortie / "travail"
     paires: list[dict[str, Any]] = []
     rejets: list[str] = []
+    au_dela: list[dict[str, Any]] = []
     for g in range(graine, graine + themes):
         at = Atelier(g, racine, k)
         vert_sain = at.lancer(), at.tester()
@@ -361,14 +389,19 @@ def generer(themes: int = 40, graine: int = 1, donnees: Path | None = None,
                 if x.reimport:
                     at.importer()
                 continue
-            nouvelles = paires_faute(at, x, (lancement, tests), vert, appels, ident)
+            nouvelles = paires_faute(at, x, (lancement, tests), vert, appels, ident, au_dela)
             paires += nouvelles
             gardees += len(nouvelles)
         journal(f"{k.nom} {g} ({at.th.projet}) : {gardees} paires")
         shutil.rmtree(at.chemin, ignore_errors=True)
     fmt.ecrire(paires, sortie / ("paires_plomberie.jsonl" if kit == "base" else f"paires_plomberie_{kit}.jsonl"))
+    # Au-delà du plafond : à part, sous un nom que l'assembleur ne lit pas (`*/paires*.jsonl`), en attendant de savoir
+    # si la 5090 tient un `cutoff_len` un peu plus haut.
+    from usine.paires import verification
+    fmt.ecrire([dict(a["entiere"], courte=verification.ajouter(a["courte"]) if a["courte"] else None) for a in au_dela],
+               sortie / ("au_dela_plomberie.jsonl" if kit == "base" else f"au_dela_plomberie_{kit}.jsonl"))
     bilan: dict[str, Any] = {"famille": FAMILLE, "paires": len(paires), "rejets": rejets, "par_type": {},
-                             "par_faute": {}, "par_approche": {},
+                             "par_faute": {}, "par_approche": {}, "au_dela": _bilan_au_dela(au_dela),
                              "jetons_max": max((p["jetons"] for p in paires), default=0),
                              "jetons_moyens": round(sum(p["jetons"] for p in paires) / max(len(paires), 1))}
     for p in paires:
