@@ -82,3 +82,17 @@ func test_les_reglages_enregistres_s_appliquent_a_l_ouverture() -> void:
 	auto_free(main)
 	assert_float(AudioServer.get_bus_volume_linear(AudioServer.get_bus_index(&"Musique"))).is_equal_approx(0.4, 0.001)
 #@ all
+#@ 6+
+
+
+func test_la_coquille_donne_son_hasard_aux_ecrans_qui_en_ont_besoin() -> void:
+	var sequence := SequenceDef.new()
+	sequence.first_screen = &"sauvegardes"
+	sequence.screens = {&"sauvegardes": "res://2_sequence/jeu/saves_screen.tscn"}
+	var main := Main.new()
+	main.sequence = sequence
+	add_child(main)
+	auto_free(main)
+	var ecran: SavesScreen = main.current_screen()
+	assert_object(ecran.rng()).is_same(main.rng())
+#@ all

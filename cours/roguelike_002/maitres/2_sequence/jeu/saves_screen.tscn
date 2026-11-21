@@ -1,0 +1,90 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://2_sequence/jeu/saves_screen.gd" id="1_screen"]
+[ext_resource type="Resource" path="res://5_data/jeu/sauvegardes.tres" id="2_saves"]
+[ext_resource type="Script" path="res://4_ui/jeu/saves_view.gd" id="3_view"]
+[ext_resource type="Script" path="res://4_ui/jeu/saves_input.gd" id="4_input"]
+[ext_resource type="Theme" path="res://6_assets/jeu/ui/theme_options.tres" id="5_theme"]
+
+[node name="SavesScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_screen")
+saves = ExtResource("2_saves")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("4_input")
+
+[node name="Fond" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.03, 0.08, 1)
+
+[node name="View" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("5_theme")
+script = ExtResource("3_view")
+
+[node name="Titre" type="Label" parent="View"]
+layout_mode = 0
+offset_top = 110.0
+offset_right = 1920.0
+offset_bottom = 230.0
+theme_override_font_sizes/font_size = 84
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Emplacements" type="VBoxContainer" parent="View"]
+layout_mode = 0
+offset_left = 460.0
+offset_top = 320.0
+offset_right = 1460.0
+offset_bottom = 900.0
+theme_override_constants/separation = 24
+
+[node name="Actions" type="VBoxContainer" parent="View"]
+visible = false
+layout_mode = 0
+offset_left = 760.0
+offset_top = 420.0
+offset_right = 1160.0
+offset_bottom = 800.0
+theme_override_constants/separation = 24
+
+[node name="Confirmation" type="VBoxContainer" parent="View"]
+visible = false
+layout_mode = 0
+offset_left = 460.0
+offset_top = 420.0
+offset_right = 1460.0
+offset_bottom = 700.0
+theme_override_constants/separation = 40
+
+[node name="Question" type="Label" parent="View/Confirmation"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Choix" type="HBoxContainer" parent="View/Confirmation"]
+layout_mode = 2
+theme_override_constants/separation = 60
+alignment = 1
+
+[node name="Oui" type="Button" parent="View/Confirmation/Choix"]
+layout_mode = 2
+
+[node name="Non" type="Button" parent="View/Confirmation/Choix"]
+layout_mode = 2

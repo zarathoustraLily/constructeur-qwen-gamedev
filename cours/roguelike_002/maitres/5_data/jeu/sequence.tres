@@ -29,5 +29,13 @@ screens = Dictionary[StringName, String]({
 &"options": "res://2_sequence/jeu/options_screen.tscn",
 &"studio": "res://2_sequence/jeu/studio_screen.tscn"
 })
+;@ 6+
+screens = Dictionary[StringName, String]({
+&"avertissement": "res://2_sequence/jeu/disclaimer_screen.tscn",
+&"menu": "res://2_sequence/jeu/menu_screen.tscn",
+&"options": "res://2_sequence/jeu/options_screen.tscn",
+&"sauvegardes": "res://2_sequence/jeu/saves_screen.tscn",
+&"studio": "res://2_sequence/jeu/studio_screen.tscn"
+})
 ;@ all
 rng_seed = 2002

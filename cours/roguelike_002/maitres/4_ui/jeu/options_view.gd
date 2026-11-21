@@ -27,7 +27,14 @@ func setup(title: String, rows: Array[StringName], labels: Dictionary[StringName
 		_rows_box.add_child(button)
 		_buttons[row] = button
 		show_value(row, "")
+#@ 5-5
 	_link_rows(rows)
+#@ 6+
+	var column: Array[Control] = []
+	for row: StringName in rows:
+		column.append(_buttons[row])
+	FocusChain.link_column(column)
+#@ all
 
 
 ## Montre la valeur de la ligne `row` (une ligne sans valeur ne montre que son libellé).
@@ -44,6 +51,7 @@ func focus_row(row: StringName) -> void:
 func row_text(row: StringName) -> String:
 	return _buttons[row].text
 
+#@ 5-5
 
 ## Chaque ligne nomme sa voisine du dessous et du dessus (la dernière mène à la première) : Godot n'a pas à les
 ## chercher d'après leur place à l'écran, que le conteneur ne calcule qu'à l'image suivante.
@@ -56,3 +64,4 @@ func _link_rows(rows: Array[StringName]) -> void:
 		button.focus_neighbor_top = button.get_path_to(above)
 		button.focus_next = button.focus_neighbor_bottom
 		button.focus_previous = button.focus_neighbor_top
+#@ all

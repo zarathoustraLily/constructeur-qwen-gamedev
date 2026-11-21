@@ -63,6 +63,10 @@ func show_screen(screen: StringName) -> void:
 	_current = node
 	current_name = screen
 	node.connect(&"finished", _on_screen_finished)
+#@ 6+
+	if node.has_method(&"use_rng"):
+		node.call(&"use_rng", rng())
+#@ all
 	add_child(node)
 	screen_changed.emit(screen)
 

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SavesDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/saves_def.gd" id="1_saves"]
+
+[resource]
+script = ExtResource("1_saves")
+id = &"sauvegardes"
+title = "SAUVEGARDES"
+slot_count = 4
+directory = "user://sauvegardes"
+file_pattern = "emplacement_%d.json"
+version = 1
+start_room = "camp"
+back_screen = &"menu"
+start_screen = &"menu"
+slot_label = "Emplacement %d"
+empty_label = "libre : nouvelle partie"
+unreadable_label = "illisible"
+other_version_label = "d'une autre version du jeu"
+summary_format = "%s · %s"
+action_labels = Dictionary[StringName, String]({
+&"continuer": "Continuer",
+&"effacer": "Effacer",
+&"retour": "Retour"
+})
+confirm_text = "Effacer cette sauvegarde ? Elle ne pourra pas être récupérée."
+yes_label = "Oui, effacer"
+no_label = "Non"

@@ -30,7 +30,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4, 5]
+PRETES = [1, 2, 3, 4, 5, 6]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -89,4 +89,15 @@ FICHIERS = {
     "7_tests/1_core/jeu/test_game_settings.gd": "5+",
     "7_tests/1_core/jeu/test_settings_applier.gd": "5+",
     "7_tests/2_sequence/jeu/test_options_screen.gd": "5+",
+    "1_core/ui/focus_chain.gd": "6+",
+    "1_core/data/saves_def.gd": "6+",
+    "1_core/jeu/save_system.gd": "6+",
+    "5_data/jeu/sauvegardes.tres": "6+",
+    "2_sequence/jeu/saves_screen.gd": "6+",
+    "2_sequence/jeu/saves_screen.tscn": "6+",
+    "4_ui/jeu/saves_view.gd": "6+",
+    "4_ui/jeu/saves_input.gd": "6+",
+    "7_tests/1_core/data/test_saves_def.gd": "6+",
+    "7_tests/1_core/jeu/test_save_system.gd": "6+",
+    "7_tests/2_sequence/jeu/test_saves_screen.gd": "6+",
 }
