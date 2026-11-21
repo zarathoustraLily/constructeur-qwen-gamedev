@@ -3,6 +3,15 @@ extends GdUnitTestSuite
 ## quitte pas l'écran ouvert quand on lui en demande un qui n'existe pas. La scène du jeu s'ouvre sans erreur.
 
 const TEMOIN: String = "res://7_tests/2_sequence/jeu/ecran_temoin.tscn"
+#@ 5+
+const FICHIER: String = "user://test_main_options.cfg"
+
+
+func after_test() -> void:
+	if FileAccess.file_exists(FICHIER):
+		DirAccess.remove_absolute(FICHIER)
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index(&"Musique"), 1.0)
+#@ all
 
 
 func _coquille() -> Main:
@@ -55,4 +64,21 @@ func test_un_ecran_qui_ne_nomme_rien_arrete_l_enchainement() -> void:
 	var premier: Node = main.current_screen()
 	main.current_screen().call(&"finish", &"")
 	assert_object(main.current_screen()).is_same(premier)
+#@ all
+#@ 5+
+
+
+func test_les_reglages_enregistres_s_appliquent_a_l_ouverture() -> void:
+	var options: OptionsDef = load("res://5_data/jeu/options.tres").duplicate()
+	options.file_path = FICHIER
+	var reglages := GameSettings.defaults(options)
+	reglages.volumes[&"Musique"] = 0.4
+	reglages.save_to(options)
+	var sequence := SequenceDef.new()
+	var main := Main.new()
+	main.sequence = sequence
+	main.options = options
+	add_child(main)
+	auto_free(main)
+	assert_float(AudioServer.get_bus_volume_linear(AudioServer.get_bus_index(&"Musique"))).is_equal_approx(0.4, 0.001)
 #@ all

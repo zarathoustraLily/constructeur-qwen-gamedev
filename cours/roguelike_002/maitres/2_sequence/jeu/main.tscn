@@ -2,7 +2,13 @@
 
 [ext_resource type="Script" path="res://2_sequence/jeu/main.gd" id="1_main"]
 [ext_resource type="Resource" path="res://5_data/jeu/sequence.tres" id="2_sequence"]
+;@ 5+
+[ext_resource type="Resource" path="res://5_data/jeu/options.tres" id="3_options"]
+;@ all
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
 sequence = ExtResource("2_sequence")
+;@ 5+
+options = ExtResource("3_options")
+;@ all

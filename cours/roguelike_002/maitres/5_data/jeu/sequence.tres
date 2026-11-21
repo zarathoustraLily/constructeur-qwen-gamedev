@@ -22,5 +22,12 @@ screens = Dictionary[StringName, String]({
 &"menu": "res://2_sequence/jeu/menu_screen.tscn",
 &"studio": "res://2_sequence/jeu/studio_screen.tscn"
 })
+;@ 5-5
+screens = Dictionary[StringName, String]({
+&"avertissement": "res://2_sequence/jeu/disclaimer_screen.tscn",
+&"menu": "res://2_sequence/jeu/menu_screen.tscn",
+&"options": "res://2_sequence/jeu/options_screen.tscn",
+&"studio": "res://2_sequence/jeu/studio_screen.tscn"
+})
 ;@ all
 rng_seed = 2002

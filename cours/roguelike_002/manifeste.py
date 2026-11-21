@@ -30,7 +30,7 @@ EXTENSIONS = {
     "addons/gdUnit4": "1+",
 }
 
-PRETES = [1, 2, 3, 4]
+PRETES = [1, 2, 3, 4, 5]
 
 FICHIERS = {
     "project.godot": "1+",
@@ -75,4 +75,18 @@ FICHIERS = {
     "4_ui/jeu/menu_view.gd": "4+",
     "7_tests/1_core/data/test_menu_def.gd": "4+",
     "7_tests/2_sequence/jeu/test_menu_screen.gd": "4+",
+    "1_core/data/options_def.gd": "5+",
+    "1_core/jeu/game_settings.gd": "5+",
+    "1_core/jeu/settings_applier.gd": "5+",
+    "5_data/jeu/options.tres": "5+",
+    "6_assets/jeu/audio/bus_layout.tres": "5+",
+    "6_assets/jeu/ui/theme_options.tres": "5+",
+    "2_sequence/jeu/options_screen.gd": "5+",
+    "2_sequence/jeu/options_screen.tscn": "5+",
+    "4_ui/jeu/options_view.gd": "5+",
+    "4_ui/jeu/options_input.gd": "5+",
+    "7_tests/1_core/data/test_options_def.gd": "5+",
+    "7_tests/1_core/jeu/test_game_settings.gd": "5+",
+    "7_tests/1_core/jeu/test_settings_applier.gd": "5+",
+    "7_tests/2_sequence/jeu/test_options_screen.gd": "5+",
 }

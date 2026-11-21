@@ -10,6 +10,10 @@ signal screen_missing(screen: StringName)
 
 ## L'enchaînement des écrans.
 @export var sequence: SequenceDef = null
+#@ 5+
+## Les options du jeu : leurs réglages enregistrés s'appliquent dès l'ouverture.
+@export var options: OptionsDef = null
+#@ all
 
 ## Le nom de l'écran ouvert (vide : aucun).
 var current_name: StringName = &""
@@ -28,6 +32,10 @@ func _ready() -> void:
 	if not errors.is_empty():
 		return
 	_rng_source = RngSource.new(sequence.rng_seed)
+#@ 5+
+	if options != null:
+		SettingsApplier.apply(GameSettings.load_from(options))
+#@ all
 	if sequence.first_screen != &"":
 		show_screen(sequence.first_screen)
 

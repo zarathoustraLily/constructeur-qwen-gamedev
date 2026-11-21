@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="OptionsDef" format=3]
+
+[ext_resource type="Script" path="res://1_core/data/options_def.gd" id="1_options"]
+
+[resource]
+script = ExtResource("1_options")
+id = &"options"
+title = "OPTIONS"
+file_path = "user://options.cfg"
+back_screen = &"menu"
+difficulties = Array[StringName]([&"facile", &"normal", &"difficile"])
+difficulty_labels = Dictionary[StringName, String]({
+&"difficile": "Difficile",
+&"facile": "Facile",
+&"normal": "Normal"
+})
+default_difficulty = &"normal"
+resolutions = Array[Vector2i]([Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)])
+default_resolution = Vector2i(1920, 1080)
+volume_buses = Array[StringName]([&"Master", &"Musique", &"Effets"])
+default_volume = 0.8
+volume_step = 0.1
+row_labels = Dictionary[StringName, String]({
+&"Effets": "Volume des effets",
+&"Master": "Volume général",
+&"Musique": "Volume de la musique",
+&"definition": "Définition",
+&"difficulte": "Difficulté",
+&"plein_ecran": "Plein écran",
+&"retour": "Retour"
+})
+on_label = "Oui"
+off_label = "Non"
+volume_full_mark = "■"
+volume_empty_mark = "□"

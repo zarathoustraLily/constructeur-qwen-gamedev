@@ -56,3 +56,12 @@ func test_un_choix_qui_rapetisse_est_refuse() -> void:
 	var menu := _juste()
 	menu.focus_scale = 0.9
 	assert_array(menu.validate()).contains(["menu : un choix mis en avant ne rapetisse pas"])
+#@ 5+
+
+
+func test_options_mene_a_l_ecran_des_options() -> void:
+	var menu: MenuDef = load("res://5_data/jeu/menu.tres")
+	var sequence: SequenceDef = load("res://5_data/jeu/sequence.tres")
+	assert_str(menu.targets[&"options"]).is_equal("options")
+	assert_bool(sequence.screens.has(&"options")).is_true()
+#@ all
